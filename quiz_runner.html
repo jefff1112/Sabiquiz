@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SabiQuiz - Quiz</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap">
+</head>
+<body>
+    <div class="container quiz-container">
+        <a href="#" id="backBtn" class="back-btn">← Volver a los niveles</a>
+        <h3 id="subjectTitle"></h3>
+        <div id="quiz-game">
+            <div class="quiz-status">
+                Pregunta <span id="questionCounter"></span> | Puntos: <span id="scoreDisplay">0</span> | Tiempo: <span id="timerDisplay"></span>
+            </div>
+            <div id="currentQuestionCard" class="question-card">
+                <p id="questionText"></p>
+                <div id="optionsContainer" class="options-grid">
+                </div>
+            </div>
+            <div class="quiz-footer">
+                <img id="quizMascot" src="img/confundido_perro_4.png" alt="Mascota del Quiz">
+                <div id="feedback" class="feedback-message"></div>
+            </div>
+            <button id="nextQuestionBtn" class="next-btn" style="display:none;">Siguiente Pregunta</button>
+        </div>
+    </div>
+    
+    <audio id="correctSound" src="img/correct.mp3"></audio>
+    <audio id="incorrectSound" src="img/incorrect.mp3"></audio>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const subjectId = urlParams.get('subject');
+            const levelId = parseInt(urlParams.get('level'), 10);
+
+            const backBtn = document.getElementById('backBtn');
+            const subjectTitle = document.getElementById('subjectTitle');
+            const questionCounter = document.getElementById('questionCounter');
+            const scoreDisplay = document.getElementById('scoreDisplay');
+            const timerDisplay = document.getElementById('timerDisplay');
+            const questionText = document.getElementById('questionText');
+            const optionsContainer = document.getElementById('optionsContainer');
+            const feedbackDiv = document.getElementById('feedback');
+            const quizMascotElement = document.getElementById('quizMascot');
+            const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+            const currentQuestionCard = document.getElementById('currentQuestionCard');
+            
+            const correctSound = new Audio('img/correct.mp3');
+            const incorrectSound = new Audio('img/incorrect.mp3');
+
+            const mascotImages = {
+                thinking: 'img/confundido_perro_4.png',
+                correct: 'img/celebrando_perro_2.png',
+                incorrect: 'img/triste_perro_3.png',
+                medal: 'img/medella_perro_5.png'
+            };
+
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let timer;
+            let level;
+            
+            if (subjectId && levelId) {
+                fetch(`materias/${subjectId}.html`)
+                    .then(response => response.text())
+                    .then(html => {
+                        const tempDiv = document.createElement('div');
+                        tempDiv.innerHTML = html;
+                        const script = tempDiv.querySelector('script');
+                        if (script) {
+                            eval(script.textContent);
+                            const subjectLevels = window.levels;
+                            level = subjectLevels.find(l => l.id === levelId);
+
+                            if (level) {
+                                subjectTitle.textContent = `${subjectId.charAt(0).toUpperCase() + subjectId.slice(1)} - Nivel ${level.id}`;
+                                backBtn.href = `materias/${subjectId}.html`;
+                                showQuestion();
+                            } else {
+                                subjectTitle.textContent = 'Nivel no encontrado.';
+                                quizGame.innerHTML = '';
+                            }
+                        } else {
+                            subjectTitle.textContent = 'No se encontraron datos de quiz para esta materia.';
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error loading subject data:', error);
+                        subjectTitle.textContent = 'Error al cargar los datos del quiz.';
+                    });
+            } else {
+                subjectTitle.textContent = 'Materia o nivel no especificado.';
+                quizGame.innerHTML = '';
+            }
+
+            function showQuestion() {
+                if (currentQuestionIndex < level.questions.length) {
+                    const questionData = level.questions[currentQuestionIndex];
+                    questionText.textContent = questionData.question;
+                    optionsContainer.innerHTML = '';
+                    feedbackDiv.innerHTML = '';
+                    currentQuestionCard.classList.remove('correct-card', 'incorrect-card');
+                    nextQuestionBtn.style.display = 'none';
+                    quizMascotElement.src = mascotImages.thinking;
+
+                    questionData.options.forEach(option => {
+                        const button = document.createElement('button');
+                        button.classList.add('option-btn');
+                        button.textContent = option;
+                        button.addEventListener('click', () => checkAnswer(button));
+                        optionsContainer.appendChild(button);
+                    });
+                    
+                    questionCounter.textContent = `${currentQuestionIndex + 1}/${level.questions.length}`;
+                    scoreDisplay.textContent = score;
+                    startTimer(questionData.timeLimit || 20);
+                } else {
+                    showResult();
+                }
+            }
+
+            function checkAnswer(button) {
+                optionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+                clearInterval(timer);
+                
+                const questionData = level.questions[currentQuestionIndex];
+                const correctAnswer = questionData.correctAnswer;
+                
+                // Si no hay botón, el tiempo se agotó
+                if (!button) {
+                    currentQuestionCard.classList.add('incorrect-card');
+                    feedbackDiv.innerHTML = `Incorrecto. ¡Se acabó el tiempo! La respuesta correcta era: ${correctAnswer} ❌`;
+                    new Audio('img/incorrect.mp3').play();
+                    quizMascotElement.src = mascotImages.incorrect;
+                } else if (button.textContent === correctAnswer) {
+                    score++;
+                    button.classList.add('correct');
+                    currentQuestionCard.classList.add('correct-card');
+                    feedbackDiv.innerHTML = "¡Correcto! 🎉";
+                    new Audio('img/correct.mp3').play();
+                    quizMascotElement.src = mascotImages.correct;
+                } else {
+                    button.classList.add('incorrect');
+                    currentQuestionCard.classList.add('incorrect-card');
+                    feedbackDiv.innerHTML = `Incorrecto. La respuesta correcta era: ${correctAnswer} ❌`;
+                    new Audio('img/incorrect.mp3').play();
+                    quizMascotElement.src = mascotImages.incorrect;
+                }
+                
+                // Mostrar la respuesta correcta en todos los casos de error
+                if (button === null || button.textContent !== correctAnswer) {
+                    optionsContainer.querySelectorAll('.option-btn').forEach(btn => {
+                        if (btn.textContent === correctAnswer) {
+                            btn.classList.add('correct');
+                        }
+                    });
+                }
+
+                nextQuestionBtn.style.display = 'block';
+                scoreDisplay.textContent = score;
+            }
+
+            function showResult() {
+                const finalScore = score / level.questions.length;
+                const stars = calculateStars(finalScore, level.passingScore);
+                
+                const levelsCompleted = JSON.parse(localStorage.getItem('levelsCompleted')) || {};
+                if (!levelsCompleted[subjectId]) {
+                    levelsCompleted[subjectId] = {};
+                }
+                levelsCompleted[subjectId][levelId] = { score: finalScore, stars: stars };
+                localStorage.setItem('levelsCompleted', JSON.stringify(levelsCompleted));
+
+                const resultText = finalScore >= level.passingScore ? '¡Nivel Completado!' : '¡Nivel Fallido!';
+                const resultClass = finalScore >= level.passingScore ? 'passed' : 'failed';
+                const mascotImage = finalScore >= level.passingScore ? mascotImages.medal : mascotImages.incorrect;
+
+                optionsContainer.innerHTML = `
+                    <div class="results-container ${resultClass}">
+                        <h4>${resultText}</h4>
+                        <p>Preguntas respondidas: ${level.questions.length}/${level.questions.length}</p>
+                        <p>Tu puntaje final: ${score}</p>
+                        <div class="result-stars">
+                            ${Array(3).fill('<img src="img/star_empty.png" alt="estrella vacía" class="star-icon">').map((star, index) =>
+                                index < stars ? '<img src="img/star_filled.png" alt="estrella llena" class="star-icon">' : star
+                            ).join('')}
+                        </div>
+                        <button onclick="window.location.href='materias/${subjectId}.html'" class="main-menu-btn">Volver a los niveles</button>
+                    </div>
+                `;
+                questionText.textContent = '';
+                nextQuestionBtn.style.display = 'none';
+                backBtn.style.display = 'none';
+                feedbackDiv.innerHTML = '';
+                quizMascotElement.src = mascotImage;
+            }
+
+            function calculateStars(score, passingScore) {
+                if (score >= 1) return 3;
+                if (score >= passingScore + 0.2) return 2;
+                if (score >= passingScore) return 1;
+                return 0;
+            }
+
+            function startTimer(duration) {
+                let timeLeft = duration;
+                timerDisplay.textContent = timeLeft;
+                timer = setInterval(() => {
+                    timeLeft--;
+                    timerDisplay.textContent = timeLeft;
+                    if (timeLeft <= 0) {
+                        clearInterval(timer);
+                        checkAnswer(null);
+                    }
+                }, 1000);
+            }
+            
+            nextQuestionBtn.addEventListener('click', () => {
+                currentQuestionIndex++;
+                showQuestion();
+            });
+        });
+    </script>
+</body>
+</html>

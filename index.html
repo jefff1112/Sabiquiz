@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SabiQuiz - Elige tu materia</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="mainMenu" class="container main-menu-container">
+        <h1>¡Bienvenido a SabiQuiz!</h1>
+        <div class="sabiquiz-logo">
+            <img src="img/celebrando_perro_2.png" alt="SabiQuiz Dog Logo">
+        </div>
+        <h2>Elige tu materia para comenzar</h2>
+        <div class="subject-grid">
+            <a href="materias/lenguaje.html" class="subject-card language">
+                <img src="img/lenguaje.png" alt="Lenguaje">
+                <h3>Lenguaje</h3>
+            </a>
+            <a href="materias/matematicas.html" class="subject-card maths">
+                <img src="img/mat.png" alt="Matemáticas">
+                <h3>Matemáticas</h3>
+            </a>
+            <a href="materias/ciencias.html" class="subject-card science">
+                <img src="img/ciencia.png" alt="Ciencias">
+                <h3>Ciencias</h3>
+            </a>
+            <a href="materias/sociales.html" class="subject-card social">
+                <img src="img/sociales.png" alt="Sociales">
+                <h3>Sociales</h3>
+            </a>
+            <a href="materias/ingles.html" class="subject-card english">
+                <img src="img/ingles.png" alt="Inglés">
+                <h3>Inglés</h3>
+            </a>
+            <a href="materias/programacion.html" class="subject-card programming">
+                <img src="img/programacion.png" alt="Programación">
+                <h3>Programación</h3>
+            </a>
+            <a href="materias/salud.html" class="subject-card health">
+                <img src="img/salud.png" alt="Salud">
+                <h3>Salud</h3>
+            </a>
+        </div>
+    </div>
+
+    <div id="multiplayerMenu" class="multiplayer-menu">
+        <h2>Modo 1 vs 1 (Beta)</h2>
+        <div class="input-group">
+            <input type="text" id="roomCodeInput" placeholder="Ingresa el código de la sala">
+            <button id="createRoomBtn">Crear Sala</button>
+            <button id="joinRoomBtn">Unirse a Sala</button>
+        </div>
+        <div id="statusMessage"></div>
+    </div>
+
+    <div id="gameContainer" class="quiz-container" style="display: none;">
+        <div class="score-display">
+            <div id="player1Score">Jugador 1: 0</div>
+            <div id="player2Score">Jugador 2: 0</div>
+        </div>
+        <div class="question-container">
+            <h2 id="questionText"></h2>
+            <div id="optionsContainer" class="options-container"></div>
+        </div>
+        <div id="feedbackMessage"></div>
+    </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        // Elementos del DOM
+        const mainMenu = document.getElementById('mainMenu');
+        const multiplayerMenu = document.getElementById('multiplayerMenu');
+        const gameContainer = document.getElementById('gameContainer');
+        const roomCodeInput = document.getElementById('roomCodeInput');
+        const createRoomBtn = document.getElementById('createRoomBtn');
+        const joinRoomBtn = document.getElementById('joinRoomBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const feedbackMessage = document.getElementById('feedbackMessage');
+        const player1Score = document.getElementById('player1Score');
+        const player2Score = document.getElementById('player2Score');
+
+        // Variables del juego
+        let currentRoomCode = '';
+        let localPlayerId = '';
+
+        // Función para mostrar mensajes de estado
+        function setStatus(message) {
+            statusMessage.textContent = message;
+        }
+
+        // Lógica para crear una sala
+        createRoomBtn.addEventListener('click', () => {
+            const roomCode = roomCodeInput.value.trim();
+            if (roomCode) {
+                currentRoomCode = roomCode; // Guarda el código de la sala
+                socket.emit('createRoom', roomCode);
+            } else {
+                setStatus('Por favor, ingresa un código para la sala.');
+            }
+        });
+
+        // Lógica para unirse a una sala
+        joinRoomBtn.addEventListener('click', () => {
+            const roomCode = roomCodeInput.value.trim();
+            if (roomCode) {
+                currentRoomCode = roomCode; // Guarda el código de la sala
+                socket.emit('createRoom', roomCode);
+            } else {
+                setStatus('Por favor, ingresa el código de la sala a la que te quieres unir.');
+            }
+        });
+
+        // --- MANEJO DE EVENTOS DEL SERVIDOR ---
+
+        // Cuando el cliente se conecta exitosamente al servidor
+        socket.on('connect', () => {
+            localPlayerId = socket.id;
+            console.log('Conectado al servidor! Tu ID de socket es:', localPlayerId);
+        });
+
+        socket.on('roomCreated', (roomCode) => {
+            setStatus(`Sala "${roomCode}" creada. Esperando a otro jugador...`);
+        });
+
+        socket.on('playerJoined', (playerCount) => {
+            if (playerCount === 2) {
+                setStatus('¡El segundo jugador se unió! La partida va a comenzar...');
+            }
+        });
+
+        socket.on('roomFull', () => {
+            setStatus('La sala está llena. Por favor, intenta con otro código.');
+        });
+        
+        // Cuando el servidor envía la primera pregunta
+        socket.on('startGame', (data) => {
+            // Oculta los menús y muestra la pantalla de juego
+            mainMenu.style.display = 'none';
+            multiplayerMenu.style.display = 'none';
+            gameContainer.style.display = 'block';
+
+            updateQuestion(data);
+        });
+
+        // Cuando el servidor envía la siguiente pregunta
+        socket.on('nextQuestion', (data) => {
+            updateQuestion(data);
+        });
+
+        // Función para actualizar la pregunta y las opciones
+        function updateQuestion(data) {
+            questionText.textContent = data.question;
+            optionsContainer.innerHTML = ''; // Limpia las opciones anteriores
+            feedbackMessage.textContent = ''; // Limpia el feedback
+
+            data.options.forEach(option => {
+                const button = document.createElement('button');
+                button.textContent = option;
+                button.classList.add('option-button');
+                button.addEventListener('click', () => handleAnswer(option));
+                optionsContainer.appendChild(button);
+            });
+        }
+        
+        // Función para manejar la respuesta del jugador
+        function handleAnswer(answer) {
+            // Envía la respuesta al servidor
+            socket.emit('playerAnswer', { roomCode: currentRoomCode, answer: answer });
+
+            // Deshabilita los botones de opciones para evitar múltiples respuestas
+            document.querySelectorAll('.option-button').forEach(button => {
+                button.disabled = true;
+            });
+
+            feedbackMessage.textContent = "Respuesta enviada. Esperando a la siguiente pregunta...";
+        }
+
+        // Cuando el servidor envía una puntuación actualizada
+        socket.on('updateScore', (scores) => {
+            // Actualiza las puntuaciones en la interfaz
+            const playerIds = Object.keys(scores);
+            const player1 = playerIds[0];
+            const player2 = playerIds[1];
+            
+            player1Score.textContent = `Jugador 1: ${scores[player1]}`;
+            player2Score.textContent = `Jugador 2: ${scores[player2]}`;
+        });
+
+        // Cuando el juego termina
+        socket.on('endGame', (scores) => {
+            const winner = scores[localPlayerId] > scores[Object.keys(scores).find(id => id !== localPlayerId)] ? '¡Tú ganaste!' : 'El otro jugador ganó.';
+            feedbackMessage.textContent = `¡Juego terminado! Puntuación final: ${scores[localPlayerId]} a ${scores[Object.keys(scores).find(id => id !== localPlayerId)]}. ${winner}`;
+            
+            // Muestra un mensaje final y podrías añadir un botón para volver al menú
+        });
+    </script>
+</body>
+</html>
