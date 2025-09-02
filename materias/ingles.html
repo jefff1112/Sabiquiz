@@ -3,386 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SabiQuiz - Inglés</title>
+    <title>SabiQuiz - ingles</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body data-subject-id="ingles">
     <div class="container level-selection-container">
-        <a href="../index.html" class="back-btn">← Volver a materias</a>
-        <h3>Inglés</h3>
+        <a href="../main_menu.html" class="back-btn">← Volver a materias</a>
+        <h3>Lenguaje</h3>
         <div id="level-grid" class="level-grid">
+            <p>Cargando niveles...</p>
         </div>
     </div>
 
-    <script>
-        // Datos del quiz para Inglés
-        window.levels = [
-            // Dificultad Baja (Niveles 1-5)
-            {
-                id: 1,
-                title: "Nivel 1",
-                passingScore: 0.6,
-                questions: [
-                    { "question": "¿Cómo se dice 'hola' en inglés?", "options": ["Bye", "Hello", "Thanks"], "correctAnswer": "Hello" },
-                    { "question": "¿Qué significa 'dog'?", "options": ["Gato", "Perro", "Pájaro"], "correctAnswer": "Perro" },
-                    { "question": "La palabra 'apple' significa...", "options": ["manzana", "banana", "naranja"], "correctAnswer": "manzana" },
-                    { "question": "El número 'two' es el...", "options": ["uno", "dos", "tres"], "correctAnswer": "dos" },
-                    { "question": "El color 'red' es el...", "options": ["azul", "rojo", "verde"], "correctAnswer": "rojo" }
-                ]
-            },
-            {
-                id: 2,
-                title: "Nivel 2",
-                passingScore: 0.65,
-                questions: [
-                    { "question": "¿Qué significa 'good morning'?", "options": ["Buenas noches", "Buenas tardes", "Buenos días"], "correctAnswer": "Buenos días" },
-                    { "question": "El verbo 'to be' significa...", "options": ["correr", "ser o estar", "saltar"], "correctAnswer": "ser o estar" },
-                    { "question": "La palabra 'house' significa...", "options": ["coche", "casa", "árbol"], "correctAnswer": "casa" },
-                    { "question": "El número 'five' es el...", "options": ["cuatro", "cinco", "seis"], "correctAnswer": "cinco" },
-                    { "question": "El color 'yellow' es el...", "options": ["amarillo", "blanco", "negro"], "correctAnswer": "amarillo" }
-                ]
-            },
-            {
-                id: 3,
-                title: "Nivel 3",
-                passingScore: 0.7,
-                questions: [
-                    { "question": "¿Cómo se dice 'gracias' en inglés?", "options": ["Please", "Sorry", "Thank you"], "correctAnswer": "Thank you" },
-                    { "question": "La frase 'I am happy' significa...", "options": ["Yo estoy triste", "Yo estoy feliz", "Yo estoy cansado"], "correctAnswer": "Yo estoy feliz" },
-                    { "question": "La palabra 'book' significa...", "options": ["libro", "lápiz", "mesa"], "correctAnswer": "libro" },
-                    { "question": "El número 'ten' es el...", "options": ["ocho", "nueve", "diez"], "correctAnswer": "diez" },
-                    { "question": "El color 'blue' es el...", "options": ["azul", "rojo", "verde"], "correctAnswer": "azul" }
-                ]
-            },
-            {
-                id: 4,
-                title: "Nivel 4",
-                passingScore: 0.7,
-                questions: [
-                    { "question": "¿Qué significa 'water'?", "options": ["fuego", "aire", "agua"], "correctAnswer": "agua" },
-                    { "question": "La palabra 'car' significa...", "options": ["bicicleta", "coche", "camión"], "correctAnswer": "coche" },
-                    { "question": "El verbo 'to eat' significa...", "options": ["dormir", "comer", "beber"], "correctAnswer": "comer" },
-                    { "question": "El número 'twenty' es el...", "options": ["quince", "veinte", "veinticinco"], "correctAnswer": "veinte" },
-                    { "question": "La frase 'It is hot' significa...", "options": ["Hace frío", "Hace calor", "Está lloviendo"], "correctAnswer": "Hace calor" }
-                ]
-            },
-            {
-                id: 5,
-                title: "Nivel 5",
-                passingScore: 0.75,
-                questions: [
-                    { "question": "¿Qué significa 'family'?", "options": ["amigos", "trabajo", "familia"], "correctAnswer": "familia" },
-                    { "question": "La palabra 'table' significa...", "options": ["silla", "mesa", "cama"], "correctAnswer": "mesa" },
-                    { "question": "El verbo 'to run' significa...", "options": ["correr", "nadar", "saltar"], "correctAnswer": "correr" },
-                    { "question": "La frase 'I like cats' significa...", "options": ["Me gustan los perros", "No me gustan los gatos", "Me gustan los gatos"], "correctAnswer": "Me gustan los gatos" },
-                    { "question": "El color 'black' es el...", "options": ["blanco", "negro", "marrón"], "correctAnswer": "negro" }
-                ]
-            },
-            // Dificultad Media (Niveles 6-12)
-            {
-                id: 6,
-                title: "Nivel 6",
-                passingScore: 0.75,
-                questions: [
-                    { "question": "El pasado del verbo 'to go' (ir) es...", "options": ["goed", "went", "gone"], "correctAnswer": "went" },
-                    { "question": "El pronombre 'she' se usa para...", "options": ["él", "ella", "ello"], "correctAnswer": "ella" },
-                    { "question": "La frase 'They are students' significa...", "options": ["Ellos son profesores", "Ellos son estudiantes", "Ellos están estudiando"], "correctAnswer": "Ellos son estudiantes" },
-                    { "question": "El plural de 'child' (niño) es...", "options": ["childs", "children", "childen"], "correctAnswer": "children" },
-                    { "question": "La preposición 'in' significa...", "options": ["sobre", "debajo", "en"], "correctAnswer": "en" }
-                ]
-            },
-            {
-                id: 7,
-                title: "Nivel 7",
-                passingScore: 0.8,
-                questions: [
-                    { "question": "La pregunta 'What is your name?' significa...", "options": ["¿Cómo estás?", "¿Cuántos años tienes?", "¿Cuál es tu nombre?"], "correctAnswer": "¿Cuál es tu nombre?" },
-                    { "question": "El futuro simple se forma con 'will' o...", "options": ["did", "was", "going to"], "correctAnswer": "going to" },
-                    { "question": "El adjetivo 'big' es el opuesto de...", "options": ["small", "tall", "fast"], "correctAnswer": "small" },
-                    { "question": "La frase 'He doesn't like pizza' significa...", "options": ["A él le gusta la pizza", "A él no le gusta la pizza", "Él está comiendo pizza"], "correctAnswer": "A él no le gusta la pizza" },
-                    { "question": "El plural de 'foot' (pie) es...", "options": ["foots", "feet", "feets"], "correctAnswer": "feet" }
-                ]
-            },
-            {
-                id: 8,
-                title: "Nivel 8",
-                passingScore: 0.8,
-                questions: [
-                    { "question": "El presente perfecto se forma con 'have' o 'has' y el...", "options": ["infinitivo", "pasado simple", "participio pasado"], "correctAnswer": "participio pasado" },
-                    { "question": "La palabra 'yesterday' significa...", "options": ["mañana", "hoy", "ayer"], "correctAnswer": "ayer" },
-                    { "question": "La frase 'I have a car' significa...", "options": ["Yo soy un coche", "Yo tengo un coche", "Yo quiero un coche"], "correctAnswer": "Yo tengo un coche" },
-                    { "question": "El adverbio 'quickly' significa...", "options": ["rápido", "despacio", "fácilmente"], "correctAnswer": "rápido" },
-                    { "question": "La pregunta 'Are you a doctor?' significa...", "options": ["¿Eres un doctor?", "¿Dónde está el doctor?", "¿Quieres un doctor?"], "correctAnswer": "¿Eres un doctor?" }
-                ]
-            },
-            {
-                id: 9,
-                title: "Nivel 9",
-                passingScore: 0.8,
-                questions: [
-                    { "question": "El condicional simple se forma con 'would' y el...", "options": ["infinitivo", "pasado simple", "participio pasado"], "correctAnswer": "infinitivo" },
-                    { "question": "La frase 'She can swim' significa...", "options": ["Ella no puede nadar", "Ella debe nadar", "Ella puede nadar"], "correctAnswer": "Ella puede nadar" },
-                    { "question": "El verbo 'to study' significa...", "options": ["jugar", "trabajar", "estudiar"], "correctAnswer": "estudiar" },
-                    { "question": "La preposición 'under' significa...", "options": ["sobre", "dentro de", "debajo de"], "correctAnswer": "debajo de" },
-                    { "question": "El opuesto de 'cold' (frío) es...", "options": ["hot", "warm", "cool"], "correctAnswer": "hot" }
-                ]
-            },
-            {
-                id: 10,
-                title: "Nivel 10",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "El presente continuo se forma con el verbo 'to be' y el verbo principal con la terminación...", "options": ["-ed", "-ing", "-s"], "correctAnswer": "-ing" },
-                    { "question": "La frase 'I went to the cinema' significa...", "options": ["Voy al cine", "Fui al cine", "Iré al cine"], "correctAnswer": "Fui al cine" },
-                    { "question": "El adjetivo 'beautiful' significa...", "options": ["feo", "bonito", "viejo"], "correctAnswer": "bonito" },
-                    { "question": "El verbo 'to live' significa...", "options": ["morir", "vivir", "dormir"], "correctAnswer": "vivir" },
-                    { "question": "El plural de 'man' (hombre) es...", "options": ["mans", "men", "mens"], "correctAnswer": "men" }
-                ]
-            },
-            // Dificultad Avanzada (Niveles 11-20)
-            {
-                id: 11,
-                title: "Nivel 11",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "El pasado perfecto se forma con 'had' y el...", "options": ["infinitivo", "pasado simple", "participio pasado"], "correctAnswer": "participio pasado" },
-                    { "question": "La palabra 'unfortunately' significa...", "options": ["afortunadamente", "desafortunadamente", "posiblemente"], "correctAnswer": "desafortunadamente" },
-                    { "question": "El 'present perfect continuous' se forma con 'have/has been' y el verbo principal con la terminación...", "options": ["-ed", "-ing", "-s"], "correctAnswer": "-ing" },
-                    { "question": "El verbo 'to write' (escribir) en pasado simple es...", "options": ["wrote", "writed", "written"], "correctAnswer": "wrote" },
-                    { "question": "El 'conditional perfect' se forma con 'would have' y el...", "options": ["infinitivo", "pasado simple", "participio pasado"], "correctAnswer": "participio pasado" }
-                ]
-            },
-            {
-                id: 12,
-                title: "Nivel 12",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "La frase 'I have been studying for hours' significa...", "options": ["Estudié por horas", "He estado estudiando por horas", "Estudiaré por horas"], "correctAnswer": "He estado estudiando por horas" },
-                    { "question": "El 'modal verb' 'should' se usa para expresar...", "options": ["una obligación", "una posibilidad", "un consejo"], "correctAnswer": "un consejo" },
-                    { "question": "La palabra 'knowledge' significa...", "options": ["conocimiento", "inteligencia", "habilidad"], "correctAnswer": "conocimiento" },
-                    { "question": "El 'reported speech' se usa para...", "options": ["preguntar", "reportar lo que alguien dijo", "describir acciones"], "correctAnswer": "reportar lo que alguien dijo" },
-                    { "question": "La preposición 'across' significa...", "options": ["a través de", "cerca de", "detrás de"], "correctAnswer": "a través de" }
-                ]
-            },
-            {
-                id: 13,
-                title: "Nivel 13",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "El 'passive voice' se forma con el verbo 'to be' y el...", "options": ["infinitivo", "pasado simple", "participio pasado"], "correctAnswer": "participio pasado" },
-                    { "question": "La palabra 'although' significa...", "options": ["porque", "aunque", "mientras"], "correctAnswer": "aunque" },
-                    { "question": "El 'third conditional' se usa para hablar de...", "options": ["situaciones reales en el presente", "situaciones irreales en el pasado", "situaciones futuras"], "correctAnswer": "situaciones irreales en el pasado" },
-                    { "question": "El 'phrasal verb' 'look up' significa...", "options": ["buscar en un diccionario", "mirar hacia arriba", "cuidar de"], "correctAnswer": "buscar en un diccionario" },
-                    { "question": "La frase 'If I had studied, I would have passed the exam' significa...", "options": ["Si estudio, aprobaré", "Si hubiera estudiado, habría aprobado el examen", "Si estudiara, aprobaría"], "correctAnswer": "Si hubiera estudiado, habría aprobado el examen" }
-                ]
-            },
-            {
-                id: 14,
-                title: "Nivel 14",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "El 'gerundio' es la forma del verbo que termina en...", "options": ["-ed", "-ing", "-s"], "correctAnswer": "-ing" },
-                    { "question": "La palabra 'therefore' significa...", "options": ["sin embargo", "por lo tanto", "en consecuencia"], "correctAnswer": "por lo tanto" },
-                    { "question": "El 'relative pronoun' 'which' se usa para...", "options": ["personas", "lugares", "cosas o animales"], "correctAnswer": "cosas o animales" },
-                    { "question": "La frase 'The book was written by a famous author' es un ejemplo de...", "options": ["voz activa", "voz pasiva", "reported speech"], "correctAnswer": "voz pasiva" },
-                    { "question": "El 'modal verb' 'must' se usa para expresar...", "options": ["una posibilidad", "una obligación o deducción lógica", "un consejo"], "correctAnswer": "una obligación o deducción lógica" }
-                ]
-            },
-            {
-                id: 15,
-                title: "Nivel 15",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "La frase 'The girl who is wearing a red dress is my sister' usa 'who' para referirse a...", "options": ["la cosa", "el lugar", "la persona"], "correctAnswer": "la persona" },
-                    { "question": "El 'phrasal verb' 'put off' significa...", "options": ["posponer", "quitarse la ropa", "poner algo en su lugar"], "correctAnswer": "posponer" },
-                    { "question": "La palabra 'nevertheless' significa...", "options": ["por lo tanto", "sin embargo", "así que"], "correctAnswer": "sin embargo" },
-                    { "question": "La pregunta 'Could you help me?' usa el modal 'could' para...", "options": ["pedir un favor de forma formal", "expresar una habilidad", "indicar una posibilidad"], "correctAnswer": "pedir un favor de forma formal" },
-                    { "question": "La frase 'He is running' está en tiempo...", "options": ["pasado simple", "presente continuo", "futuro simple"], "correctAnswer": "presente continuo" }
-                ]
-            },
-            {
-                id: 16,
-                title: "Nivel 16",
-                passingScore: 0.9,
-                questions: [
-                    { "question": "El 'past continuous' se forma con 'was/were' y el verbo principal con la terminación...", "options": ["-ed", "-ing", "-s"], "correctAnswer": "-ing" },
-                    { "question": "La frase 'They have not finished yet' usa 'yet' para indicar que la acción...", "options": ["terminó", "no ha terminado", "terminará pronto"], "correctAnswer": "no ha terminado" },
-                    { "question": "El 'adjetivo' 'fast' es irregular en su forma comparativa, que es...", "options": ["faster", "fastier", "more fast"], "correctAnswer": "faster" },
-                    { "question": "El 'superlativo' de 'good' es...", "options": ["goodest", "better", "best"], "correctAnswer": "best" },
-                    { "question": "El 'zero conditional' se usa para hablar de...", "options": ["situaciones futuras", "situaciones reales o verdades generales", "situaciones pasadas"], "correctAnswer": "situaciones reales o verdades generales" }
-                ]
-            },
-            {
-                id: 17,
-                title: "Nivel 17",
-                passingScore: 0.9,
-                questions: [
-                    { "question": "El verbo 'to see' (ver) en pasado simple es...", "options": ["seeed", "saw", "seen"], "correctAnswer": "saw" },
-                    { "question": "La frase 'He said that he was tired' es un ejemplo de...", "options": ["voz activa", "reported speech", "preguntas indirectas"], "correctAnswer": "reported speech" },
-                    { "question": "El 'relative pronoun' 'whose' se usa para indicar...", "options": ["propiedad", "lugar", "tiempo"], "correctAnswer": "propiedad" },
-                    { "question": "El 'phrasal verb' 'take off' significa...", "options": ["despegar o quitarse ropa", "ponerse ropa", "subir"], "correctAnswer": "despegar o quitarse ropa" },
-                    { "question": "El adverbio 'carefully' significa...", "options": ["rápidamente", "cuidadosamente", "lentamente"], "correctAnswer": "cuidadosamente" }
-                ]
-            },
-            {
-                id: 18,
-                title: "Nivel 18",
-                passingScore: 0.9,
-                questions: [
-                    { "question": "El 'future perfect' se forma con 'will have' y el...", "options": ["infinitivo", "pasado simple", "participio pasado"], "correctAnswer": "participio pasado" },
-                    { "question": "La palabra 'unfortunately' es un adverbio que modifica a...", "options": ["un sustantivo", "un verbo, un adjetivo o a otro adverbio", "un pronombre"], "correctAnswer": "un verbo, un adjetivo o a otro adverbio" },
-                    { "question": "El 'first conditional' se usa para hablar de...", "options": ["situaciones futuras probables", "situaciones irreales en el presente", "situaciones pasadas"], "correctAnswer": "situaciones futuras probables" },
-                    { "question": "La frase 'If it rains, I will stay at home' es un ejemplo de...", "options": ["zero conditional", "first conditional", "second conditional"], "correctAnswer": "first conditional" },
-                    { "question": "La preposición 'among' significa...", "options": ["entre dos cosas", "entre más de dos cosas", "al lado de"], "correctAnswer": "entre más de dos cosas" }
-                ]
-            },
-            {
-                id: 19,
-                title: "Nivel 19",
-                passingScore: 0.95,
-                questions: [
-                    { "question": "La frase 'I have been to Paris' usa el presente perfecto para hablar de...", "options": ["una acción que ocurrió en un momento específico", "una experiencia sin especificar cuándo", "una acción que continúa en el presente"], "correctAnswer": "una experiencia sin especificar cuándo" },
-                    { "question": "El 'second conditional' se usa para hablar de...", "options": ["situaciones futuras probables", "situaciones irreales en el presente o futuro", "situaciones pasadas"], "correctAnswer": "situaciones irreales en el presente o futuro" },
-                    { "question": "El 'modal verb' 'might' se usa para expresar...", "options": ["una alta probabilidad", "una baja probabilidad", "una obligación"], "correctAnswer": "una baja probabilidad" },
-                    { "question": "La frase 'He asked me where I lived' es un ejemplo de...", "options": ["reported speech", "pregunta directa", "pasado perfecto"], "correctAnswer": "reported speech" },
-                    { "question": "El 'quantifier' 'few' se usa con sustantivos...", "options": ["incontables", "contables en plural", "contables en singular"], "correctAnswer": "contables en plural" }
-                ]
-            },
-            {
-                id: 20,
-                title: "Nivel 20",
-                passingScore: 0.95,
-                questions: [
-                    { "question": "El 'gerundio' puede funcionar como...", "options": ["sustantivo", "adjetivo", "adverbio"], "correctAnswer": "sustantivo" },
-                    { "question": "La frase 'I am used to living in a big city' significa...", "options": ["Solía vivir en una gran ciudad", "Estoy acostumbrado a vivir en una gran ciudad", "Vivo en una gran ciudad"], "correctAnswer": "Estoy acostumbrado a vivir en una gran ciudad" },
-                    { "question": "El verbo 'to get' puede formar muchos 'phrasal verbs' y uno de ellos, 'get up', significa...", "options": ["levantarse", "entender", "llegar"], "correctAnswer": "levantarse" },
-                    { "question": "La palabra 'however' se usa como un conector para expresar...", "options": ["causa", "contraste", "resultado"], "correctAnswer": "contraste" },
-                    { "question": "El 'futuro continuo' se forma con 'will be' y el verbo principal con la terminación...", "options": ["-ed", "-ing", "-s"], "correctAnswer": "-ing" }
-                ]
-            },
-            // Dificultad Experta (Niveles 21-30)
-            {
-                id: 21,
-                title: "Nivel 21",
-                passingScore: 0.95,
-                questions: [
-                    { "question": "El 'adverbio de frecuencia' 'seldom' significa...", "options": ["a menudo", "nunca", "rara vez"], "correctAnswer": "rara vez" },
-                    { "question": "El 'third conditional' se utiliza para expresar arrepentimiento o...", "options": ["una predicción", "una situación imaginaria en el pasado", "un hábito"], "correctAnswer": "una situación imaginaria en el pasado" },
-                    { "question": "El 'verbo modal' 'used to' se usa para hablar de...", "options": ["hábitos en el presente", "hábitos en el pasado", "obligaciones"], "correctAnswer": "hábitos en el pasado" },
-                    { "question": "La palabra 'unless' significa lo mismo que...", "options": ["si", "a menos que", "debido a que"], "correctAnswer": "a menos que" },
-                    { "question": "El 'phrasal verb' 'give up' significa...", "options": ["dar algo", "rendirse o dejar un hábito", "entregarse"], "correctAnswer": "rendirse o dejar un hábito" }
-                ]
-            },
-            {
-                id: 22,
-                title: "Nivel 22",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "El 'past perfect continuous' se forma con 'had been' y el verbo principal con la terminación...", "options": ["-ed", "-ing", "-s"], "correctAnswer": "-ing" },
-                    { "question": "La palabra 'consequently' significa...", "options": ["por el contrario", "en consecuencia", "además"], "correctAnswer": "en consecuencia" },
-                    { "question": "El 'relative pronoun' 'whom' se usa como objeto para referirse a...", "options": ["personas", "lugares", "cosas"], "correctAnswer": "personas" },
-                    { "question": "La frase 'The woman with whom I spoke...' significa...", "options": ["La mujer de la que hablé...", "La mujer con la que hablé...", "La mujer que habló..."], "correctAnswer": "La mujer con la que hablé..." },
-                    { "question": "El 'conditional perfect' se usa para hablar de una acción que...", "options": ["ocurrió en el pasado", "ocurrirá en el futuro", "habría ocurrido si una condición en el pasado se hubiera cumplido"], "correctAnswer": "habría ocurrido si una condición en el pasado se hubiera cumplido" }
-                ]
-            },
-            {
-                id: 23,
-                title: "Nivel 23",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "El 'verbo modal' 'ought to' se usa para expresar...", "options": ["una obligación fuerte", "una recomendación o deber moral", "una posibilidad"], "correctAnswer": "una recomendación o deber moral" },
-                    { "question": "La palabra 'hence' significa...", "options": ["desde", "por lo tanto", "sin embargo"], "correctAnswer": "por lo tanto" },
-                    { "question": "El 'phrasal verb' 'break down' significa...", "options": ["romperse o averiarse", "terminar una relación", "descomponerse"], "correctAnswer": "romperse o averiarse" },
-                    { "question": "La frase 'It's high time you studied' significa...", "options": ["Es hora de que estudies", "Es tarde para que estudies", "Estudiar es bueno"], "correctAnswer": "Es hora de que estudies" },
-                    { "question": "El 'subjunctive mood' se usa para expresar...", "options": ["hechos", "deseos, sugerencias o dudas", "obligaciones"], "correctAnswer": "deseos, sugerencias o dudas" }
-                ]
-            },
-            {
-                id: 24,
-                title: "Nivel 24",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "El 'verbo modal' 'may' se usa para expresar...", "options": ["habilidad", "permiso o posibilidad", "una obligación"], "correctAnswer": "permiso o posibilidad" },
-                    { "question": "La palabra 'subsequently' significa...", "options": ["anteriormente", "posteriormente", "constantemente"], "correctAnswer": "posteriormente" },
-                    { "question": "El 'phrasal verb' 'turn down' significa...", "options": ["encender", "rechazar o bajar el volumen", "subir el volumen"], "correctAnswer": "rechazar o bajar el volumen" },
-                    { "question": "El 'reported speech' de 'I am going to the store' es...", "options": ["He said he went to the store", "He said he was going to the store", "He said I was going to the store"], "correctAnswer": "He said he was going to the store" },
-                    { "question": "El 'third conditional' se forma con el 'past perfect' en la cláusula 'if' y el 'conditional perfect' en la cláusula principal, ¿esto es cierto o falso?", "options": ["Verdadero", "Falso"], "correctAnswer": "Verdadero" }
-                ]
-            },
-            {
-                id: 25,
-                title: "Nivel 25",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "El 'infinitivo' puede usarse con 'to' o sin 'to'. La forma sin 'to' se llama 'bare infinitive' y se usa después de los 'modal verbs' y el verbo...", "options": ["go", "make", "want"], "correctAnswer": "make" },
-                    { "question": "La palabra 'whereby' significa...", "options": ["por el cual", "siempre y cuando", "sin importar"], "correctAnswer": "por el cual" },
-                    { "question": "El 'infinitive of purpose' se usa para expresar...", "options": ["una razón o propósito", "una obligación", "una posibilidad"], "correctAnswer": "una razón o propósito" },
-                    { "question": "El 'phrasal verb' 'look into' significa...", "options": ["cuidar de", "investigar", "admirar"], "correctAnswer": "investigar" },
-                    { "question": "El 'zero conditional' usa el 'present simple' en ambas cláusulas, ¿esto es cierto o falso?", "options": ["Verdadero", "Falso"], "correctAnswer": "Verdadero" }
-                ]
-            },
-            {
-                id: 26,
-                title: "Nivel 26",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "La frase 'He denied having stolen the money' es un ejemplo de...", "options": ["infinitivo con to", "gerundio", "pasiva"], "correctAnswer": "gerundio" },
-                    { "question": "El 'verbo modal' 'shall' se usa para ofrecer, sugerir o preguntar sobre...", "options": ["el pasado", "el futuro", "el presente"], "correctAnswer": "el futuro" },
-                    { "question": "La palabra 'nonetheless' significa lo mismo que...", "options": ["por lo tanto", "sin embargo", "en consecuencia"], "correctAnswer": "sin embargo" },
-                    { "question": "El 'third conditional' es un tipo de 'conditional clause' que se utiliza para hablar de...", "options": ["situaciones reales en el presente", "situaciones hipotéticas en el pasado", "situaciones probables en el futuro"], "correctAnswer": "situaciones hipotéticas en el pasado" },
-                    { "question": "El 'phrasal verb' 'call off' significa...", "options": ["llamar a alguien", "cancelar", "gritar"], "correctAnswer": "cancelar" }
-                ]
-            },
-            {
-                id: 27,
-                title: "Nivel 27",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "El 'present perfect' se usa con 'since' para indicar el punto de partida de una acción que...", "options": ["terminó en el pasado", "continúa en el presente", "pasará en el futuro"], "correctAnswer": "continúa en el presente" },
-                    { "question": "La frase 'It's no use crying over spilled milk' significa que...", "options": ["hay que llorar por la leche derramada", "no sirve de nada lamentarse por lo que ya pasó", "la leche se derramó"], "correctAnswer": "no sirve de nada lamentarse por lo que ya pasó" },
-                    { "question": "El 'verbo modal' 'will' se usa para expresar una decisión tomada en el momento de...", "options": ["hablar", "escribir", "pensar"], "correctAnswer": "hablar" },
-                    { "question": "La frase 'They said the flight was delayed' es un ejemplo de 'reported speech' en el que el verbo 'to be' en presente fue cambiado a...", "options": ["futuro", "pasado", "participio"], "correctAnswer": "pasado" },
-                    { "question": "El 'phrasal verb' 'do away with' significa...", "options": ["hacer algo", "deshacerse de algo", "hacer algo mal"], "correctAnswer": "deshacerse de algo" }
-                ]
-            },
-            {
-                id: 28,
-                title: "Nivel 28",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "El 'mixed conditional' combina cláusulas de diferentes tipos de condicionales. El 'mixed conditional' se usa para hablar de una condición en el pasado que tiene una consecuencia en el...", "options": ["futuro", "presente", "pasado"], "correctAnswer": "presente" },
-                    { "question": "La frase 'If I had won the lottery, I would be rich now' es un ejemplo de 'mixed conditional'. ¿Esto es cierto o falso?", "options": ["Verdadero", "Falso"], "correctAnswer": "Verdadero" },
-                    { "question": "El 'verbo modal' 'may as well' se usa para expresar que...", "options": ["algo es una buena idea", "no hay una mejor opción", "algo es una mala idea"], "correctAnswer": "no hay una mejor opción" },
-                    { "question": "La palabra 'wherever' significa...", "options": ["donde", "dondequiera que", "aquí"], "correctAnswer": "dondequiera que" },
-                    { "question": "El 'phrasal verb' 'come across' significa...", "options": ["encontrar o toparse con algo", "atravesar", "conseguir"], "correctAnswer": "encontrar o toparse con algo" }
-                ]
-            },
-            {
-                id: 29,
-                title: "Nivel 29",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "La frase 'She insisted on me paying for dinner' es un ejemplo de la forma en la que el 'gerundio' puede ir precedido por un...", "options": ["sustantivo", "verbo", "pronombre posesivo"], "correctAnswer": "pronombre posesivo" },
-                    { "question": "El 'reported speech' de 'Will you go?' es...", "options": ["He asked if I will go", "He asked if I would go", "He asked if I went"], "correctAnswer": "He asked if I would go" },
-                    { "question": "La palabra 'for' se usa con el 'present perfect' para indicar...", "options": ["el punto de partida", "la duración de una acción", "el resultado de una acción"], "correctAnswer": "la duración de una acción" },
-                    { "question": "El 'verbo modal' 'could' puede usarse para expresar 'past ability' o...", "options": ["futuro", "pasado", "sugerencias o peticiones amables"], "correctAnswer": "sugerencias o peticiones amables" },
-                    { "question": "El 'phrasal verb' 'keep up with' significa...", "options": ["seguir el ritmo de alguien", "mantener algo en alto", "dejar de hacer algo"], "correctAnswer": "seguir el ritmo de alguien" }
-                ]
-            },
-            {
-                id: 30,
-                title: "Nivel 30",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "El 'verbo modal' 'used to' se utiliza para hablar de hábitos o estados en el pasado que...", "options": ["todavía continúan", "ya no continúan", "ocurrirán en el futuro"], "correctAnswer": "ya no continúan" },
-                    { "question": "La frase 'The cake was eaten by the dog' es un ejemplo de 'passive voice' donde el agente ('the dog') se introduce con la preposición...", "options": ["with", "for", "by"], "correctAnswer": "by" },
-                    { "question": "El 'reported speech' de 'I like coffee' es...", "options": ["He said he liked coffee", "He said he likes coffee", "He said he would like coffee"], "correctAnswer": "He said he liked coffee" },
-                    { "question": "La frase 'There's a lot of work to do' significa...", "options": ["No hay mucho trabajo que hacer", "Hay mucho trabajo que hacer", "El trabajo es mucho"], "correctAnswer": "Hay mucho trabajo que hacer" },
-                    { "question": "El 'phrasal verb' 'look forward to' se usa para expresar...", "options": ["miedo", "alegría o anticipación", "tristeza"], "correctAnswer": "alegría o anticipación" }
-                ]
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { levels } from './ingles-data.js';
+
+        const firebaseConfig = {
+  apiKey: "AIzaSyDx_2b2rhaoRh7WawE9b-QVlVNj5PfycVA",
+  authDomain: "sabiquiz-8f915.firebaseapp.com",
+  projectId: "sabiquiz-8f915",
+  storageBucket: "sabiquiz-8f915.firebasestorage.app",
+  messagingSenderId: "1007656278742",
+  appId: "1:1007656278742:web:a17a204b430d2638e74777",
+  measurementId: "G-FB8HC6HV73"
+};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- FUNCIÓN PARA DIBUJAR LOS BOTONES DE NIVEL ---
+        function drawLevelButtons(profileProgress = {}) {
+            const subjectId = document.body.dataset.subjectId;
+            const levelGrid = document.getElementById('level-grid');
+            levelGrid.innerHTML = '';
+
+            const subjectProgress = profileProgress[subjectId] || {};
+
+            levels.forEach(level => {
+                const levelButton = document.createElement('a');
+                levelButton.classList.add('level-btn');
+
+                let isLocked = level.id > 1;
+                const prevLevelStars = subjectProgress[level.id - 1]; // Progreso del nivel anterior
+                if (level.id === 1 || (prevLevelStars && prevLevelStars > 0)) {
+                    isLocked = false;
+                }
+
+                if (isLocked) {
+                    levelButton.classList.add('locked');
+                    levelButton.innerHTML = `<span>${level.title}</span> <img src="../img/lock.png" alt="Bloqueado" class="lock-icon">`;
+                } else {
+                    levelButton.href = `../quiz_runner.html?subject=${subjectId}&level=${level.id}`;
+                    const starsWon = subjectProgress[level.id] || 0; // Estrellas de este nivel
+                    let starsHTML = '<div class="stars-container">';
+                    for (let i = 0; i < 3; i++) {
+                        starsHTML += `<img src="../img/${i < starsWon ? 'star_filled.png' : 'star_empty.png'}" class="star-icon">`;
+                    }
+                    starsHTML += '</div>';
+                    levelButton.innerHTML = `<span>${level.title}</span> ${starsHTML}`;
+                }
+                levelGrid.appendChild(levelButton);
+            });
+        }
+
+        // --- VERIFICAMOS LA SESIÓN DEL USUARIO PARA OBTENER SU PROGRESO PERSONAL ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDocRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(userDocRef);
+                if (docSnap.exists() && docSnap.data().quizProgress) {
+                    // Si el usuario tiene progreso guardado, lo usamos para dibujar
+                    drawLevelButtons(docSnap.data().quizProgress);
+                } else {
+                    // Si no tiene progreso, dibujamos el estado inicial (todo bloqueado)
+                    drawLevelButtons();
+                }
+            } else {
+                // Si no hay usuario, dibujamos el estado inicial
+                drawLevelButtons();
             }
-        ];
-</script>
-    <script src="../js/app.js"></script>
+        });
+    </script>
 </body>
 </html>

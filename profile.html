@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SabiQuiz - Mi Perfil</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="profile-container">
+        <div class="profile-card">
+            <div class="profile-header">
+                <label for="avatarUpload" class="avatar-label">
+                    <img src="img/default-avatar.png" alt="Avatar del jugador" id="profile-avatar" class="avatar">
+                    <span class="edit-avatar-icon">✏️</span>
+                </label>
+                <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                
+                <div class="player-info">
+                    <div class="display-name-container">
+                        <h2 id="profile-name">Cargando...</h2>
+                        <input type="text" id="edit-name-input" class="edit-name-input" style="display: none;">
+                        <button id="edit-name-btn" class="btn-edit-name">✏️</button>
+                    </div>
+                    <div class="level-box">
+                        <span>NIVEL</span>
+                        <span id="profile-level">1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="xp-bar">
+                <div id="xp-bar-fill" class="xp-bar-fill"></div>
+                <span id="xp-text" class="xp-text">0 / 100 XP</span>
+            </div>
+
+            <div class="profile-stats-grid">
+                <div class="stat-item">
+                    <h3>Partidas Jugadas</h3>
+                    <p id="stats-played">0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>Partidas Ganadas</h3>
+                    <p id="stats-won">0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>XP de Quizzes</h3>
+                    <p id="stats-quiz-xp">0</p>
+                </div>
+                <div class="stat-item">
+                    <h3>XP de 1vs1</h3>
+                    <p id="stats-pvp-xp">0</p>
+                </div>
+            </div>
+            
+            <button id="backToMenuBtn" class="button">← Volver al Menú</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+  apiKey: "AIzaSyDx_2b2rhaoRh7WawE9b-QVlVNj5PfycVA",
+  authDomain: "sabiquiz-8f915.firebaseapp.com",
+  projectId: "sabiquiz-8f915",
+  storageBucket: "sabiquiz-8f915.firebasestorage.app",
+  messagingSenderId: "1007656278742",
+  appId: "1:1007656278742:web:a17a204b430d2638e74777",
+  measurementId: "G-FB8HC6HV73"
+            // Pega aquí tu configuración completa de Firebase
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        let currentUser = null;
+
+        // --- ELEMENTOS DEL DOM ---
+        const profileNameEl = document.getElementById('profile-name');
+        const profileLevelEl = document.getElementById('profile-level');
+        const xpBarFillEl = document.getElementById('xp-bar-fill');
+        const xpTextEl = document.getElementById('xp-text');
+        const statsPlayedEl = document.getElementById('stats-played');
+        const statsWonEl = document.getElementById('stats-won');
+        const statsQuizXpEl = document.getElementById('stats-quiz-xp');
+        const statsPvpXpEl = document.getElementById('stats-pvp-xp');
+        const profileAvatarEl = document.getElementById('profile-avatar');
+        const avatarUploadInput = document.getElementById('avatarUpload');
+        const editNameBtn = document.getElementById('edit-name-btn');
+        const editNameInput = document.getElementById('edit-name-input');
+        const backBtn = document.getElementById('backToMenuBtn');
+        
+        let isEditingName = false;
+
+        // --- FUNCIÓN PARA ACTUALIZAR LA INTERFAZ ---
+        function updateProfileUI(profileData) {
+            const quizXp = profileData.quizXp || 0;
+            const pvpXp = profileData.pvpXp || 0;
+            const totalXp = quizXp + pvpXp;
+            const currentLevel = profileData.level || 1;
+            const xpForLastLevel = (currentLevel - 1) * 100;
+            const xpInCurrentLevel = totalXp - xpForLastLevel;
+            const xpNeededForNextLevel = 100;
+            
+            profileNameEl.textContent = profileData.displayName || 'Jugador';
+            profileLevelEl.textContent = currentLevel;
+            statsPlayedEl.textContent = profileData.matchesPlayed || 0;
+            statsWonEl.textContent = profileData.matchesWon || 0;
+            statsQuizXpEl.textContent = quizXp;
+            statsPvpXpEl.textContent = pvpXp;
+            
+            const xpPercentage = Math.min((xpInCurrentLevel / xpNeededForNextLevel) * 100, 100);
+            xpBarFillEl.style.width = `${xpPercentage}%`;
+            xpTextEl.textContent = `${xpInCurrentLevel} / ${xpNeededForNextLevel} XP`;
+            profileAvatarEl.src = profileData.photoURL || 'img/default-avatar.png';
+        }
+
+        // --- LÓGICA DE AUTENTICACIÓN Y LECTURA ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                const userDocRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(userDocRef);
+
+                if (docSnap.exists()) {
+                    updateProfileUI(docSnap.data());
+                } else {
+                    const defaultProfileData = {
+                        email: user.email,
+                        displayName: user.email.split('@')[0],
+                        level: 1, quizXp: 0, pvpXp: 0,
+                        matchesPlayed: 0, matchesWon: 0,
+                        photoURL: null
+                    };
+                    await setDoc(userDocRef, defaultProfileData);
+                    updateProfileUI(defaultProfileData);
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
+        });
+        
+        // --- LÓGICA PARA SUBIR IMAGEN ---
+        avatarUploadInput.addEventListener('change', (event) => {
+            if (!currentUser) return;
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = async () => {
+                const base64String = reader.result;
+                if (base64String.length > 1000000) {
+                    alert("La imagen es demasiado grande. Por favor, elige una más pequeña.");
+                    return;
+                }
+                try {
+                    const userDocRef = doc(db, "users", currentUser.uid);
+                    await updateDoc(userDocRef, { photoURL: base64String });
+                    profileAvatarEl.src = base64String;
+                    alert("¡Tu foto de perfil ha sido actualizada!");
+                } catch (error) {
+                    console.error("Error al guardar la imagen en Firestore:", error);
+                    alert("Hubo un error al guardar tu imagen.");
+                }
+            };
+        });
+
+        // --- LÓGICA PARA EDITAR NOMBRE ---
+        editNameBtn.addEventListener('click', async () => {
+            if (!currentUser) return;
+            if (isEditingName) {
+                const newName = editNameInput.value.trim();
+                if (newName.length >= 3 && newName.length <= 15) {
+                    try {
+                        const userDocRef = doc(db, "users", currentUser.uid);
+                        await updateDoc(userDocRef, { displayName: newName });
+                        profileNameEl.textContent = newName;
+                        profileNameEl.style.display = 'block';
+                        editNameInput.style.display = 'none';
+                        editNameBtn.textContent = '✏️';
+                        isEditingName = false;
+                    } catch (error) {
+                        alert("Hubo un error al guardar tu nombre.");
+                    }
+                } else {
+                    alert("El nombre debe tener entre 3 y 15 caracteres.");
+                }
+            } else {
+                profileNameEl.style.display = 'none';
+                editNameInput.style.display = 'block';
+                editNameInput.value = profileNameEl.textContent;
+                editNameInput.focus();
+                editNameBtn.textContent = '✔️';
+                isEditingName = true;
+            }
+        });
+        
+        // --- LÓGICA DEL BOTÓN DE VOLVER ---
+        backBtn.addEventListener('click', () => {
+            window.location.href = 'main_menu.html';
+        });
+    </script>
+</body>
+</html>

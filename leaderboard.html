@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SabiQuiz - Ranking</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div class="leaderboard-container">
+        <h1>🏆 Tabla de Clasificación 🏆</h1>
+        
+        <div id="leaderboard-top3" class="podium-container">
+            </div>
+        
+        <h2 class="others-title">Ranking General (4 - 10)</h2>
+        <div id="leaderboard-others" class="others-container">
+            </div>
+        
+        <button id="backToMenuBtn" class="button">← Volver al Menú</button>
+    </div>
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+    import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+    const firebaseConfig = {
+  apiKey: "AIzaSyDx_2b2rhaoRh7WawE9b-QVlVNj5PfycVA",
+  authDomain: "sabiquiz-8f915.firebaseapp.com",
+  projectId: "sabiquiz-8f915",
+  storageBucket: "sabiquiz-8f915.firebasestorage.app",
+  messagingSenderId: "1007656278742",
+  appId: "1:1007656278742:web:a17a204b430d2638e74777",
+  measurementId: "G-FB8HC6HV73"
+};
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const backBtn = document.getElementById('backToMenuBtn');
+
+    const top3Container = document.getElementById('leaderboard-top3');
+    const othersContainer = document.getElementById('leaderboard-others');
+
+    async function fetchLeaderboard() {
+        try {
+            const usersRef = collection(db, "users");
+            const q = query(usersRef, orderBy("level", "desc"), orderBy("pvpXp", "desc"), limit(10));
+            const querySnapshot = await getDocs(q);
+            
+            top3Container.innerHTML = '';
+            othersContainer.innerHTML = '';
+
+            if (querySnapshot.empty) {
+                top3Container.innerHTML = '<p>¡Aún no hay jugadores en el ranking!</p>';
+                return;
+            }
+
+            const players = querySnapshot.docs;
+
+            // --- Lógica para el TOP 3 (Podio) ---
+            players.slice(0, 3).forEach((doc, index) => {
+                const user = doc.data();
+                const totalXp = (user.quizXp || 0) + (user.pvpXp || 0);
+                const rank = index + 1;
+
+                const card = document.createElement('div');
+                card.classList.add('card', `rank-${rank}`); // Añadimos clase especial para el rango
+
+                card.innerHTML = `
+                    <div class="card-rank">#${rank}</div>
+                    <img src="${user.photoURL || 'img/default-avatar.png'}" class="card-avatar">
+                    <p class="heading card-player-name">${user.displayName}</p>
+                    <p>Nivel: ${user.level}</p>
+                    <p>Total XP: ${totalXp}</p>
+                `;
+                top3Container.appendChild(card);
+            });
+
+            // --- Lógica para los demás jugadores (4 en adelante) ---
+            if (players.length > 3) {
+                players.slice(3).forEach((doc, index) => {
+                    const user = doc.data();
+                    const totalXp = (user.quizXp || 0) + (user.pvpXp || 0);
+                    const rank = index + 4; // Empezamos a contar desde el #4
+
+                    const row = document.createElement('div');
+                    row.classList.add('leaderboard-row'); // Usamos un estilo de fila más simple
+
+                    row.innerHTML = `
+                        <div class="row-rank">#${rank}</div>
+                        <div class="row-player-info">
+                            <img src="${user.photoURL || 'img/default-avatar.png'}" class="avatar-small">
+                            <span>${user.displayName}</span>
+                        </div>
+                        <div class="row-stat"><strong>${user.level}</strong> Nivel</div>
+                        <div class="row-stat"><strong>${totalXp}</strong> XP</div>
+                    `;
+                    othersContainer.appendChild(row);
+                });
+            } else {
+                 document.querySelector('.others-title').style.display = 'none';
+            }
+
+        } catch (error) {
+            console.error("Error al cargar la tabla de clasificación:", error);
+        }
+    }
+
+    fetchLeaderboard();
+backBtn.addEventListener('click', () => {
+    window.location.href = 'main_menu.html';
+});
+</script>
+</body>
+</html>

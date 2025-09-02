@@ -1,129 +1,261 @@
-// Importa las bibliotecas necesarias
 const express = require('express');
 const http = require('http');
 const socketIO = require('socket.io');
 const path = require('path');
-
-// Importa el archivo de preguntas que acabas de crear
+const admin = require('firebase-admin');
+const serviceAccount = require('./serviceAccountKey.json');
 const questions = require('./questions');
 
-// Configura Express y el servidor HTTP
+// --- 1. CONFIGURACIÓN ---
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+const db = admin.firestore();
 const app = express();
 const server = http.createServer(app);
 const io = socketIO(server);
-
-// Define la ruta a tu carpeta principal 'SABIQUIZ'
 const publicPath = path.join(__dirname, '..');
-
-// Sirve todos los archivos de la carpeta 'SABIQUIZ'
 app.use(express.static(publicPath));
+app.get('/', (req, res) => res.sendFile(path.join(publicPath, 'index.html')));
 
-// Garantiza que se sirva el index.html cuando se accede a la raíz
-app.get('/', (req, res) => {
-    res.sendFile(path.join(publicPath, 'index.html'));
-});
+let rooms = {};
+let matchmakingPool = [];
 
-// Lógica para manejar las partidas y salas
-let rooms = {}; // Objeto para guardar todas las salas de juego activas
+// --- 2. FUNCIONES DE LÓGICA DE JUEGO ---
 
-// Lógica de Socket.IO para manejar conexiones
+function startGame(roomCode) {
+    const room = rooms[roomCode];
+    if (!room || room.players.length !== 2) return;
+    room.gameMode = getRandomGameMode();
+    room.rematchVoters.clear();
+    console.log(`--- INICIANDO PARTIDA --- Sala: ${roomCode}, Modo: ${room.gameMode}`);
+    room.gameData = {
+        questions: [...questions].sort(() => 0.5 - Math.random()).slice(0, 5),
+        currentQuestionIndex: 0,
+        scores: { [room.players[0]]: 0, [room.players[1]]: 0 },
+        playerAnswers: {}
+    };
+    io.to(roomCode).emit('startCountdown', { gameMode: room.gameMode, roomCode: roomCode });
+    setTimeout(() => {
+        const firstQuestion = room.gameData.questions[0];
+        io.to(roomCode).emit('nextQuestion', { question: firstQuestion.question, options: firstQuestion.options });
+        startQuestionTimer(roomCode);
+    }, 4000);
+}
+
+function startQuestionTimer(roomCode) {
+    const room = rooms[roomCode];
+    if (!room || !room.gameData) return;
+    if (room.timerInterval) clearInterval(room.timerInterval);
+    let timeLeft = 10;
+    room.timerInterval = setInterval(() => {
+        io.to(roomCode).emit('timerUpdate', timeLeft);
+        timeLeft--;
+        if (timeLeft < 0) {
+            clearInterval(room.timerInterval);
+            const currentQuestion = room.gameData.questions[room.gameData.currentQuestionIndex];
+            io.to(roomCode).emit('roundResult', {
+                playerAnswers: {},
+                correctAnswer: currentQuestion.correctAnswer,
+                scores: room.gameData.scores,
+                playerData: room.playerData
+            });
+            setTimeout(() => proceedToNextQuestion(roomCode), 2000);
+        }
+    }, 1000);
+}
+
+function proceedToNextQuestion(roomCode) {
+    const room = rooms[roomCode];
+    if (!room || !room.gameData) return;
+    if (room.timerInterval) clearInterval(room.timerInterval);
+    room.gameData.currentQuestionIndex++;
+    room.gameData.playerAnswers = {};
+    if (room.gameData.currentQuestionIndex >= room.gameData.questions.length) {
+        handleEndGame(roomCode);
+    } else {
+        const nextQuestion = room.gameData.questions[room.gameData.currentQuestionIndex];
+        io.to(roomCode).emit('nextQuestion', { question: nextQuestion.question, options: nextQuestion.options });
+        startQuestionTimer(roomCode);
+    }
+}
+
+async function handleEndGame(roomCode) {
+    const room = rooms[roomCode];
+    if (!room || !room.gameData) return;
+    io.to(roomCode).emit('endGame', { scores: room.gameData.scores, playerData: room.playerData });
+    const scores = room.gameData.scores;
+    const playerSocketIds = Object.keys(scores);
+    if (playerSocketIds.length < 2) return;
+    const [p1_socketId, p2_socketId] = playerSocketIds;
+    const p1_uid = room.playerData[p1_socketId].uid;
+    const p2_uid = room.playerData[p2_socketId].uid;
+    const p1_docRef = db.collection('users').doc(p1_uid);
+    const p2_docRef = db.collection('users').doc(p2_uid);
+    try {
+        await p1_docRef.update({ matchesPlayed: admin.firestore.FieldValue.increment(1) });
+        await p2_docRef.update({ matchesPlayed: admin.firestore.FieldValue.increment(1) });
+        if (scores[p1_socketId] > scores[p2_socketId]) {
+            await p1_docRef.update({ matchesWon: admin.firestore.FieldValue.increment(1), pvpXp: admin.firestore.FieldValue.increment(50) });
+            await p2_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(10) });
+        } else if (scores[p2_socketId] > scores[p1_socketId]) {
+            await p2_docRef.update({ matchesWon: admin.firestore.FieldValue.increment(1), pvpXp: admin.firestore.FieldValue.increment(50) });
+            await p1_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(10) });
+        } else {
+            await p1_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(15) });
+            await p2_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(15) });
+        }
+    } catch (error) { console.error("Error al guardar datos de 1vs1 en Firestore:", error); }
+}
+
+function getRandomGameMode() {
+    return Math.random() < 0.5 ? 'normal' : 'revancha';
+}
+
+// --- 3. "ÁRBITRO" DE MATCHMAKING ---
+setInterval(() => {
+    if (matchmakingPool.length >= 2) {
+        const player1 = matchmakingPool.shift();
+        const player2 = matchmakingPool.shift();
+        const socket1 = io.sockets.sockets.get(player1.socketId);
+        const socket2 = io.sockets.sockets.get(player2.socketId);
+        if (!socket1 || !socket2) {
+            if (player1 && socket1) matchmakingPool.unshift(player1);
+            if (player2 && socket2) matchmakingPool.unshift(player2);
+            return;
+        }
+        const tempRoomId = `vote_${Date.now()}`;
+        rooms[tempRoomId] = {
+            players: [player1.socketId, player2.socketId],
+            playerData: { [player1.socketId]: player1.data, [player2.socketId]: player2.data },
+            votes: new Set()
+        };
+        socket1.join(tempRoomId);
+        socket2.join(tempRoomId);
+        socket1.emit('matchFound', { roomId: tempRoomId, opponent: player2.data });
+        socket2.emit('matchFound', { roomId: tempRoomId, opponent: player1.data });
+    }
+}, 3000);
+
+// --- 4. MANEJO DE CONEXIONES DE SOCKET.IO ---
 io.on('connection', (socket) => {
-    console.log('¡Un usuario se ha conectado! ID del socket:', socket.id);
-
-    // --- NUEVA LÓGICA DE SALAS ---
-    // Escucha el evento 'createRoom' del cliente
-    socket.on('createRoom', (roomCode) => {
-        // Verifica si la sala ya existe y si tiene menos de 2 jugadores
+    console.log(`Usuario conectado: ${socket.id}`);
+    socket.on('findMatch', (playerData) => {
+        if (matchmakingPool.some(p => p.socketId === socket.id)) return;
+        matchmakingPool.push({ socketId: socket.id, data: playerData });
+    });
+    socket.on('cancelFindMatch', () => {
+        matchmakingPool = matchmakingPool.filter(p => p.socketId !== socket.id);
+    });
+    socket.on('createRoom', (data) => {
+        const { roomCode, player } = data;
         if (rooms[roomCode] && rooms[roomCode].players.length < 2) {
-            socket.join(roomCode); // Une al jugador a la sala
+            socket.join(roomCode);
             rooms[roomCode].players.push(socket.id);
-            console.log(`Jugador unido a la sala: ${roomCode}`);
-            // Emite un mensaje a todos en la sala de que un jugador se unió
+            rooms[roomCode].playerData[socket.id] = player;
             io.to(roomCode).emit('playerJoined', rooms[roomCode].players.length);
-
-            // Si hay 2 jugadores, ¡es hora de empezar el juego!
             if (rooms[roomCode].players.length === 2) {
-                console.log(`Sala ${roomCode} lista. ¡Iniciando juego!`);
-                // Selecciona preguntas para la partida
-                rooms[roomCode].gameData = {
-                    questions: questions.sort(() => 0.5 - Math.random()).slice(0, 5), // Selecciona 5 preguntas al azar
-                    currentQuestionIndex: 0,
-                    scores: {
-                        [rooms[roomCode].players[0]]: 0,
-                        [rooms[roomCode].players[1]]: 0
-                    }
-                };
-                
-                // Envía la primera pregunta a ambos jugadores
-                const firstQuestion = rooms[roomCode].gameData.questions[0];
-                io.to(roomCode).emit('startGame', {
-                    question: firstQuestion.question,
-                    options: firstQuestion.options,
-                });
+                rooms[roomCode].rematchVoters = new Set();
+                startGame(roomCode);
             }
-
         } else if (!rooms[roomCode]) {
-            // Si la sala no existe, la crea
             socket.join(roomCode);
             rooms[roomCode] = {
                 players: [socket.id],
-                gameData: null // Aquí se guardarán los datos del juego
+                playerData: { [socket.id]: player },
+                gameData: null, gameMode: null, rematchVoters: new Set(), timerInterval: null
             };
-            console.log(`Sala creada: ${roomCode}`);
-            socket.emit('roomCreated', roomCode); // Envía un mensaje al creador de la sala
+            socket.emit('roomCreated', roomCode);
         } else {
-            // Si la sala está llena, notifica al cliente
             socket.emit('roomFull');
         }
     });
 
-    // --- NUEVA LÓGICA DE JUEGO ---
-    // Escucha cuando un jugador responde
-    socket.on('playerAnswer', ({ roomCode, answer }) => {
-        const room = rooms[roomCode];
-        if (!room || !room.gameData) return; // Si la sala no existe o no hay juego, no hagas nada
-        
-        const gameData = room.gameData;
-        const currentQuestion = gameData.questions[gameData.currentQuestionIndex];
-        
-        // Verifica si la respuesta es correcta
-        if (answer === currentQuestion.answer) {
-            gameData.scores[socket.id] += 1; // Suma un punto al jugador
-            console.log(`Respuesta correcta de ${socket.id} en sala ${roomCode}. Puntuación: ${gameData.scores[socket.id]}`);
+    socket.on('acceptMatch', ({ roomId }) => {
+        const room = rooms[roomId];
+        if (!room || room.votes.has(socket.id)) return;
+        room.votes.add(socket.id);
+        if (room.votes.size === 2) {
+            // --- ¡LA CORRECCIÓN CLAVE! ---
+            // Preparamos la sala para el juego añadiendo la propiedad que faltaba.
+            room.rematchVoters = new Set();
+            delete room.votes;
             
-            // Envía la puntuación actualizada a ambos jugadores
-            io.to(roomCode).emit('updateScore', gameData.scores);
-        }
-
-        // Avanza a la siguiente pregunta después de un tiempo o si ambos jugadores respondieron
-        // Por ahora, solo avanzaremos a la siguiente pregunta.
-        gameData.currentQuestionIndex++;
-        
-        if (gameData.currentQuestionIndex < gameData.questions.length) {
-            const nextQuestion = gameData.questions[gameData.currentQuestionIndex];
-            io.to(roomCode).emit('nextQuestion', {
-                question: nextQuestion.question,
-                options: nextQuestion.options,
-            });
-        } else {
-            // El juego ha terminado
-            io.to(roomCode).emit('endGame', gameData.scores);
-            delete rooms[roomCode]; // Elimina la sala
+            startGame(roomId);
         }
     });
 
-    // Maneja la desconexión de un usuario
+    socket.on('rejectMatch', ({ roomId }) => {
+        const room = rooms[roomId];
+        if (!room) return;
+        io.to(roomId).emit('matchRejected');
+        room.players.forEach(playerId => {
+            const playerProfile = room.playerData[playerId];
+            if (playerProfile) {
+                matchmakingPool.unshift({ socketId: playerId, data: playerProfile });
+            }
+        });
+        delete rooms[roomId];
+    });
+
+    socket.on('playerAnswer', ({ roomCode, answer }) => {
+        const room = rooms[roomCode];
+        if (!room || !room.gameData || room.gameData.playerAnswers[socket.id]) return;
+        if (room.timerInterval) clearInterval(room.timerInterval);
+        const gameData = room.gameData;
+        const currentQuestion = gameData.questions[gameData.currentQuestionIndex];
+        const correctAnswer = currentQuestion?.correctAnswer;
+        const isCorrect = correctAnswer ? (answer.toLowerCase() === correctAnswer.toLowerCase()) : false;
+        gameData.playerAnswers[socket.id] = { answer, isCorrect };
+        const answersCount = Object.keys(gameData.playerAnswers).length;
+        const aPlayerWasCorrect = Object.values(gameData.playerAnswers).some(p => p.isCorrect);
+        let roundOver = false;
+        if (room.gameMode === 'revancha') {
+            if (aPlayerWasCorrect || answersCount === 2) roundOver = true;
+        } else {
+            if (answersCount === 2) roundOver = true;
+        }
+        if (roundOver) {
+            for (const playerId in gameData.playerAnswers) {
+                if (gameData.playerAnswers[playerId].isCorrect) {
+                    gameData.scores[playerId]++;
+                }
+            }
+            io.to(roomCode).emit('roundResult', {
+                playerAnswers: gameData.playerAnswers, correctAnswer: correctAnswer || 'Error',
+                scores: gameData.scores, playerData: room.playerData
+            });
+            setTimeout(() => proceedToNextQuestion(roomCode), 2500);
+        } else {
+            socket.emit('answerReceived');
+        }
+    });
+
+    socket.on('requestRematch', (data) => {
+        const room = rooms[data.roomCode];
+        if (!room || room.rematchVoters.has(socket.id)) return;
+        room.rematchVoters.add(socket.id);
+        if (room.rematchVoters.size === 2) {
+            startGame(data.roomCode);
+        }
+    });
+    
     socket.on('disconnect', () => {
-        console.log('Un usuario se ha desconectado. ID del socket:', socket.id);
-        // Lógica para limpiar las salas si un jugador se va
+        console.log(`Usuario desconectado: ${socket.id}`);
+        matchmakingPool = matchmakingPool.filter(p => p.socketId !== socket.id);
         for (const roomCode in rooms) {
-            const index = rooms[roomCode].players.indexOf(socket.id);
-            if (index > -1) {
-                rooms[roomCode].players.splice(index, 1);
-                console.log(`Jugador ${socket.id} ha abandonado la sala ${roomCode}`);
-                if (rooms[roomCode].players.length === 0) {
+            const room = rooms[roomCode];
+            const playerIndex = room.players.indexOf(socket.id);
+            if (playerIndex > -1) {
+                const disconnectedPlayerName = room.playerData[socket.id]?.name || 'Un jugador';
+                room.players.splice(playerIndex, 1);
+                delete room.playerData[socket.id];
+                if (room.players.length < 2) {
+                    if (room.players.length === 1) {
+                        const remainingPlayerSocketId = room.players[0];
+                        io.to(remainingPlayerSocketId).emit('opponentLeft', `${disconnectedPlayerName} ha abandonado la partida.`);
+                    }
                     delete rooms[roomCode];
-                    console.log(`Sala ${roomCode} eliminada.`);
                 }
                 break;
             }
@@ -131,10 +263,8 @@ io.on('connection', (socket) => {
     });
 });
 
-// Elige un puerto para que tu servidor escuche
+// --- 5. INICIO DEL SERVIDOR ---
 const PORT = process.env.PORT || 3000;
-
-// Inicia el servidor
 server.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);
 });

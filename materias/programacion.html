@@ -3,387 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SabiQuiz - Programación</title>
+    <title>SabiQuiz - programacion</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body data-subject-id="programacion">
     <div class="container level-selection-container">
-        <a href="../index.html" class="back-btn">← Volver a materias</a>
-        <h3>Programación</h3>
+        <a href="../main_menu.html" class="back-btn">← Volver a materias</a>
+        <h3>Lenguaje</h3>
         <div id="level-grid" class="level-grid">
+            <p>Cargando niveles...</p>
         </div>
     </div>
 
-    <script>
-        // Datos del quiz para Programación
-        window.levels = [
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { levels } from './programacion-data.js';
 
-            // Dificultad Baja (Niveles 1-5)
-            {
-                id: 1,
-                title: "Nivel 1",
-                passingScore: 0.6,
-                questions: [
-                    { "question": "¿Qué es un 'algoritmo'?", "options": ["Una receta de cocina", "Un conjunto de instrucciones para resolver un problema", "Un lenguaje de programación"], "correctAnswer": "Un conjunto de instrucciones para resolver un problema" },
-                    { "question": "¿Qué es una 'variable'?", "options": ["Un dato que no cambia", "Un espacio de memoria para guardar datos", "Un tipo de función"], "correctAnswer": "Un espacio de memoria para guardar datos" },
-                    { "question": "¿Qué hace un 'ciclo for'?", "options": ["Repite una acción un número específico de veces", "Repite una acción hasta que una condición sea falsa", "Ejecuta una acción una sola vez"], "correctAnswer": "Repite una acción un número específico de veces" },
-                    { "question": "¿Qué significa 'HTML'?", "options": ["Hyper Text Markup Language", "High-level Text Machine Language", "Home Tool Markup Language"], "correctAnswer": "Hyper Text Markup Language" },
-                    { "question": "¿Qué es un 'bug'?", "options": ["Un animal pequeño", "Un error en el código", "Un tipo de dato"], "correctAnswer": "Un error en el código" }
-                ]
-            },
-            {
-                id: 2,
-                title: "Nivel 2",
-                passingScore: 0.65,
-                questions: [
-                    { "question": "¿Qué es un 'operador de comparación'?", "options": ["Un símbolo para sumar o restar", "Un símbolo para comparar dos valores", "Un símbolo para asignar un valor"], "correctAnswer": "Un símbolo para comparar dos valores" },
-                    { "question": "¿Qué es una 'función'?", "options": ["Un tipo de variable", "Un bloque de código que realiza una tarea específica", "Una condición lógica"], "correctAnswer": "Un bloque de código que realiza una tarea específica" },
-                    { "question": "¿Cuál es la sintaxis de un 'comentario' en muchos lenguajes?", "options": ["// o /* */", "--", "¡¡"], "correctAnswer": "// o /* */" },
-                    { "question": "¿Qué es un 'string'?", "options": ["Un número entero", "Una secuencia de caracteres", "Un valor booleano"], "correctAnswer": "Una secuencia de caracteres" },
-                    { "question": "¿Qué hace la instrucción 'print()' o 'console.log()'?", "options": ["Guarda un archivo", "Muestra un mensaje en la pantalla", "Borra el código"], "correctAnswer": "Muestra un mensaje en la pantalla" }
-                ]
-            },
-            {
-                id: 3,
-                title: "Nivel 3",
-                passingScore: 0.7,
-                questions: [
-                    { "question": "¿Qué es una 'sentencia condicional'?", "options": ["Una instrucción que siempre se ejecuta", "Una instrucción que se ejecuta si una condición es verdadera", "Una instrucción que repite un código"], "correctAnswer": "Una instrucción que se ejecuta si una condición es verdadera" },
-                    { "question": "¿Qué es un 'array'?", "options": ["Un tipo de variable que solo guarda un número", "Una colección de datos del mismo tipo", "Un tipo de función"], "correctAnswer": "Una colección de datos del mismo tipo" },
-                    { "question": "¿Qué es un 'booleano'?", "options": ["Un tipo de dato que puede ser 'verdadero' o 'falso'", "Un número", "Una letra"], "correctAnswer": "Un tipo de dato que puede ser 'verdadero' o 'falso'" },
-                    { "question": "¿Cuál es el 'operador de asignación' en la mayoría de los lenguajes?", "options": ["==", "=", "=>"], "correctAnswer": "=" },
-                    { "question": "La 'indentación' en Python es importante porque...", "options": ["ayuda a la legibilidad del código", "no tiene ninguna función", "define los bloques de código"], "correctAnswer": "define los bloques de código" }
-                ]
-            },
-            {
-                id: 4,
-                title: "Nivel 4",
-                passingScore: 0.7,
-                questions: [
-                    { "question": "¿Qué es una 'clase' en Programación Orientada a Objetos?", "options": ["Un tipo de dato primitivo", "Una plantilla para crear objetos", "Una función con un solo argumento"], "correctAnswer": "Una plantilla para crear objetos" },
-                    { "question": "¿Qué es 'pseudocódigo'?", "options": ["Un lenguaje de programación real", "Una forma de describir un algoritmo de manera informal", "Un tipo de error de sintaxis"], "correctAnswer": "Una forma de describir un algoritmo de manera informal" },
-                    { "question": "¿Qué hace un 'ciclo while'?", "options": ["Repite un código un número fijo de veces", "Repite un código mientras una condición sea verdadera", "Ejecuta un código una vez"], "correctAnswer": "Repite un código mientras una condición sea verdadera" },
-                    { "question": "¿Qué es la 'sintaxis'?", "options": ["El significado del código", "Las reglas gramaticales de un lenguaje de programación", "La velocidad de ejecución del código"], "correctAnswer": "Las reglas gramaticales de un lenguaje de programación" },
-                    { "question": "¿Qué es 'CSS'?", "options": ["Un lenguaje de programación", "Un lenguaje de estilos para páginas web", "Un tipo de base de datos"], "correctAnswer": "Un lenguaje de estilos para páginas web" }
-                ]
-            },
-            {
-                id: 5,
-                title: "Nivel 5",
-                passingScore: 0.75,
-                questions: [
-                    { "question": "¿Qué es un 'objeto'?", "options": ["Una instancia de una clase", "Un tipo de dato", "Una función matemática"], "correctAnswer": "Una instancia de una clase" },
-                    { "question": "¿Qué hace el operador '++' en C++ o Java?", "options": ["Resta uno a una variable", "Suma uno a una variable", "Multiplica por dos una variable"], "correctAnswer": "Suma uno a una variable" },
-                    { "question": "¿Qué significa 'IDE'?", "options": ["Integrated Development Environment", "Internet Data Explorer", "Integrated Design Engine"], "correctAnswer": "Integrated Development Environment" },
-                    { "question": "¿Qué es un 'bucle infinito'?", "options": ["Un bucle que nunca termina", "Un bucle que se ejecuta una sola vez", "Un bucle que no tiene errores"], "correctAnswer": "Un bucle que nunca termina" },
-                    { "question": "Un 'parámetro' es una variable que...", "options": ["se declara dentro de una función", "se le pasa a una función cuando se llama", "se declara globalmente"], "correctAnswer": "se le pasa a una función cuando se llama" }
-                ]
-            },
-            // Dificultad Media (Niveles 6-12)
-            {
-                id: 6,
-                title: "Nivel 6",
-                passingScore: 0.75,
-                questions: [
-                    { "question": "¿Qué es la 'herencia' en POO?", "options": ["Una relación donde una clase hereda propiedades de otra", "Un tipo de error", "Un tipo de variable"], "correctAnswer": "Una relación donde una clase hereda propiedades de otra" },
-                    { "question": "¿Qué es un 'compilador'?", "options": ["Un programa que traduce el código a lenguaje máquina", "Un programa que ejecuta el código línea por línea", "Un programa para depurar código"], "correctAnswer": "Un programa que traduce el código a lenguaje máquina" },
-                    { "question": "¿Qué es un 'método' en POO?", "options": ["Una propiedad de un objeto", "Una función que pertenece a una clase", "Una clase que no tiene objetos"], "correctAnswer": "Una función que pertenece a una clase" },
-                    { "question": "¿Qué hace el 'operador '!=' en muchos lenguajes?", "options": ["Igualdad", "Desigualdad", "Asignación"], "correctAnswer": "Desigualdad" },
-                    { "question": "¿Qué es un 'prototipo' en JavaScript?", "options": ["Una variable global", "Un objeto a partir del cual se crean otros objetos", "Una función que se ejecuta una vez"], "correctAnswer": "Un objeto a partir del cual se crean otros objetos" }
-                ]
-            },
-            {
-                id: 7,
-                title: "Nivel 7",
-                passingScore: 0.8,
-                questions: [
-                    { "question": "¿Qué es 'encapsulamiento'?", "options": ["Ocultar los detalles de implementación de una clase", "Hacer que todas las variables sean públicas", "Usar solo variables globales"], "correctAnswer": "Ocultar los detalles de implementación de una clase" },
-                    { "question": "La 'cláusula 'else' en una sentencia 'if' se ejecuta cuando...", "options": ["la condición 'if' es verdadera", "la condición 'if' es falsa", "siempre"], "correctAnswer": "la condición 'if' es falsa" },
-                    { "question": "¿Qué es un 'framework'?", "options": ["Un lenguaje de programación", "Una estructura de software para desarrollar aplicaciones", "Una base de datos"], "correctAnswer": "Una estructura de software para desarrollar aplicaciones" },
-                    { "question": "¿Qué es un 'IDE'?", "options": ["Un programa para escribir texto", "Un entorno que facilita la codificación y la depuración", "Un tipo de virus informático"], "correctAnswer": "Un entorno que facilita la codificación y la depuración" },
-                    { "question": "El 'polimorfismo' permite que un objeto de una clase se comporte como...", "options": ["un objeto de otra clase", "un objeto de su propia clase", "un objeto de la clase padre"], "correctAnswer": "un objeto de la clase padre" }
-                ]
-            },
-            {
-                id: 8,
-                title: "Nivel 8",
-                passingScore: 0.8,
-                questions: [
-                    { "question": "Un 'intérprete' es un programa que...", "options": ["traduce el código a lenguaje máquina de una sola vez", "ejecuta el código línea por línea", "optimiza el código"], "correctAnswer": "ejecuta el código línea por línea" },
-                    { "question": "¿Qué es una 'base de datos'?", "options": ["Un conjunto de archivos", "Una colección de datos organizados", "Un lenguaje de programación"], "correctAnswer": "Una colección de datos organizados" },
-                    { "question": "¿Qué es 'SQL'?", "options": ["Un lenguaje de programación web", "Un lenguaje para gestionar bases de datos relacionales", "Un sistema operativo"], "correctAnswer": "Un lenguaje para gestionar bases de datos relacionales" },
-                    { "question": "El 'constructor' es un método que se llama automáticamente al...", "options": ["destruir un objeto", "crear un objeto", "llamar un método"], "correctAnswer": "crear un objeto" },
-                    { "question": "La 'sobrecarga de métodos' es cuando dos métodos tienen el mismo nombre pero diferentes...", "options": ["tipos de retorno", "parámetros", "visibilidad"], "correctAnswer": "parámetros" }
-                ]
-            },
-            {
-                id: 9,
-                title: "Nivel 9",
-                passingScore: 0.8,
-                questions: [
-                    { "question": "El 'DOM' (Document Object Model) es una interfaz de programación para...", "options": ["bases de datos", "documentos HTML, XML o SVG", "hojas de cálculo"], "correctAnswer": "documentos HTML, XML o SVG" },
-                    { "question": "¿Qué es una 'API'?", "options": ["Una aplicación de mensajería", "Una interfaz para interactuar con un software", "Un tipo de servidor web"], "correctAnswer": "Una interfaz para interactuar con un software" },
-                    { "question": "¿Qué es un 'evento' en programación web?", "options": ["Un error en el código", "Una acción del usuario (clic, movimiento del ratón)", "Una función del servidor"], "correctAnswer": "Una acción del usuario (clic, movimiento del ratón)" },
-                    { "question": "Un 'puntero' es una variable que almacena la dirección de...", "options": ["otro puntero", "una función", "memoria de otra variable"], "correctAnswer": "memoria de otra variable" },
-                    { "question": "La 'cláusula 'switch' en una sentencia condicional se utiliza para...", "options": ["seleccionar uno de muchos bloques de código a ejecutar", "comparar dos valores", "repetir un código"], "correctAnswer": "seleccionar uno de muchos bloques de código a ejecutar" }
-                ]
-            },
-            {
-                id: 10,
-                title: "Nivel 10",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "¿Qué es una 'librería'?", "options": ["Un programa completo", "Una colección de funciones y código reutilizable", "Una clase que no tiene métodos"], "correctAnswer": "Una colección de funciones y código reutilizable" },
-                    { "question": "El 'frontend' se refiere a la parte de una aplicación que...", "options": ["interactúa con el usuario", "maneja la base de datos", "procesa la lógica de negocio"], "correctAnswer": "interactúa con el usuario" },
-                    { "question": "El 'backend' se refiere a la parte de una aplicación que...", "options": ["se ejecuta en el navegador", "maneja la lógica del servidor y la base de datos", "es la interfaz gráfica"], "correctAnswer": "maneja la lógica del servidor y la base de datos" },
-                    { "question": "¿Qué es una 'variable global'?", "options": ["Una variable declarada dentro de una función", "Una variable que solo puede ser accedida desde una clase", "Una variable que puede ser accedida desde cualquier parte del código"], "correctAnswer": "Una variable que puede ser accedida desde cualquier parte del código" },
-                    { "question": "La 'recursividad' es una técnica donde una función se llama a sí misma...", "options": ["infinitas veces", "una sola vez", "para resolver un problema"], "correctAnswer": "para resolver un problema" }
-                ]
-            },
-            // Dificultad Avanzada (Niveles 11-20)
-            {
-                id: 11,
-                title: "Nivel 11",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "¿Qué es 'MVC'?", "options": ["Un patrón de diseño de software", "Un tipo de base de datos", "Un lenguaje de programación"], "correctAnswer": "Un patrón de diseño de software" },
-                    { "question": "La 'polimorfismo' se refiere a la capacidad de un método para...", "options": ["ser llamado con diferentes parámetros", "adoptar diferentes formas", "ser sobrecargado"], "correctAnswer": "adoptar diferentes formas" },
-                    { "question": "Un 'ORM' (Object-Relational Mapping) permite a los programadores interactuar con una base de datos usando...", "options": ["SQL puro", "objetos del lenguaje de programación", "lenguaje máquina"], "correctAnswer": "objetos del lenguaje de programación" },
-                    { "question": "¿Qué es la 'herencia múltiple'?", "options": ["Cuando una clase hereda de más de una clase padre", "Cuando una clase tiene más de un método", "Cuando una clase no tiene hijos"], "correctAnswer": "Cuando una clase hereda de más de una clase padre" },
-                    { "question": "El 'paradigma' de programación funcional se centra en el uso de...", "options": ["objetos", "variables mutables", "funciones puras"], "correctAnswer": "funciones puras" }
-                ]
-            },
-            {
-                id: 12,
-                title: "Nivel 12",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "Un 'singleton' es un patrón de diseño que asegura que una clase solo tenga una...", "options": ["instancia", "función", "variable"], "correctAnswer": "instancia" },
-                    { "question": "¿Qué es un 'callback'?", "options": ["Una función que se pasa como argumento a otra función", "Una función que se llama automáticamente", "Una función que no devuelve nada"], "correctAnswer": "Una función que se pasa como argumento a otra función" },
-                    { "question": "Un 'algoritmo de búsqueda binaria' funciona en una lista...", "options": ["desordenada", "ordenada", "vacía"], "correctAnswer": "ordenada" },
-                    { "question": "Un 'punto de ruptura' o 'breakpoint' se usa en la depuración para...", "options": ["detener la ejecución del código en un punto específico", "terminar el programa", "saltar una línea de código"], "correctAnswer": "detener la ejecución del código en un punto específico" },
-                    { "question": "La 'inyección de dependencias' es un patrón de diseño que ayuda a...", "options": ["manejar los errores", "reducir el acoplamiento entre clases", "hacer que el código sea más lento"], "correctAnswer": "reducir el acoplamiento entre clases" }
-                ]
-            },
-            {
-                id: 13,
-                title: "Nivel 13",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "¿Qué es la 'compilación cruzada'?", "options": ["Compilar un código para una plataforma diferente a la que se está usando", "Compilar el código en diferentes lenguajes", "Compilar el código en una sola línea"], "correctAnswer": "Compilar un código para una plataforma diferente a la que se está usando" },
-                    { "question": "Un 'hash map' o 'diccionario' es una estructura de datos que asocia...", "options": ["un valor con otro valor", "una clave con un valor", "un índice con un valor"], "correctAnswer": "una clave con un valor" },
-                    { "question": "La 'programación asíncrona' permite que un programa ejecute tareas que...", "options": ["se bloquean", "se completan inmediatamente", "no bloquean el flujo de ejecución"], "correctAnswer": "no bloquean el flujo de ejecución" },
-                    { "question": "El 'garbage collector' es un componente que se encarga de...", "options": ["gestionar la memoria de forma manual", "liberar memoria que ya no se usa", "asignar memoria a las variables"], "correctAnswer": "liberar memoria que ya no se usa" },
-                    { "question": "¿Qué es un 'decorador' en Python?", "options": ["Una forma de decorar un código", "Una función que modifica el comportamiento de otra función", "Un tipo de variable"], "correctAnswer": "Una función que modifica el comportamiento de otra función" }
-                ]
-            },
-            {
-                id: 14,
-                title: "Nivel 14",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "El 'testing unitario' se enfoca en probar...", "options": ["la aplicación completa", "módulos individuales de código", "la interfaz de usuario"], "correctAnswer": "módulos individuales de código" },
-                    { "question": "El 'refactoring' es el proceso de reestructurar el código sin...", "options": ["cambiar su comportamiento externo", "cambiar su lógica interna", "cambiar su sintaxis"], "correctAnswer": "cambiar su comportamiento externo" },
-                    { "question": "¿Qué es un 'repositorio' en Git?", "options": ["Una carpeta local para guardar archivos", "Una base de datos de cambios de código", "Un servidor para subir el código"], "correctAnswer": "Una base de datos de cambios de código" },
-                    { "question": "¿Qué es 'AJAX'?", "options": ["Un lenguaje de programación", "Una tecnología para crear páginas web dinámicas", "Un tipo de servidor"], "correctAnswer": "Una tecnología para crear páginas web dinámicas" },
-                    { "question": "La 'cláusula 'finally' en un bloque 'try-catch' se ejecuta...", "options": ["siempre", "si ocurre un error", "si no ocurre un error"], "correctAnswer": "siempre" }
-                ]
-            },
-            {
-                id: 15,
-                title: "Nivel 15",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "¿Qué es una 'expresión regular'?", "options": ["Un tipo de variable", "Una secuencia de caracteres que forma un patrón de búsqueda", "Una función matemática"], "correctAnswer": "Una secuencia de caracteres que forma un patrón de búsqueda" },
-                    { "question": "¿Qué es el 'Big O'?", "options": ["Una forma de medir la eficiencia de un algoritmo", "Un tipo de error", "Una variable global"], "correctAnswer": "Una forma de medir la eficiencia de un algoritmo" },
-                    { "question": "La 'inmutabilidad' es una propiedad de un objeto que...", "options": ["puede ser modificado", "no puede ser modificado una vez creado", "se puede borrar"], "correctAnswer": "no puede ser modificado una vez creado" },
-                    { "question": "El 'algoritmo de ordenación por burbuja' se basa en...", "options": ["comparar y intercambiar elementos adyacentes", "dividir la lista en partes", "insertar elementos en su posición correcta"], "correctAnswer": "comparar y intercambiar elementos adyacentes" },
-                    { "question": "El 'SOLID' es un acrónimo de cinco principios de diseño de objetos, que incluye 'Single Responsibility Principle' y...", "options": ["Open/Closed Principle", "Single Class Principle", "Secure Code Principle"], "correctAnswer": "Open/Closed Principle" }
-                ]
-            },
-            {
-                id: 16,
-                title: "Nivel 16",
-                passingScore: 0.9,
-                questions: [
-                    { "question": "¿Qué es 'REST'?", "options": ["Un tipo de base de datos", "Un estilo de arquitectura de software para servicios web", "Un lenguaje de programación"], "correctAnswer": "Un estilo de arquitectura de software para servicios web" },
-                    { "question": "¿Qué es un 'token' en ciberseguridad?", "options": ["Una variable", "Un archivo", "Un identificador único que representa un usuario o sesión"], "correctAnswer": "Un identificador único que representa un usuario o sesión" },
-                    { "question": "¿Qué hace un 'linter'?", "options": ["Ejecuta el código", "Analiza el código en busca de errores de estilo y sintaxis", "Compila el código"], "correctAnswer": "Analiza el código en busca de errores de estilo y sintaxis" },
-                    { "question": "La 'inversión de control' es un patrón de diseño en el que la responsabilidad del flujo de ejecución se...", "options": ["transfiere a un objeto o framework", "queda en el código del programador", "elimina"], "correctAnswer": "transfiere a un objeto o framework" },
-                    { "question": "El 'testing de integración' se enfoca en probar la interacción entre...", "options": ["módulos individuales", "diferentes partes o componentes del sistema", "la interfaz de usuario"], "correctAnswer": "diferentes partes o componentes del sistema" }
-                ]
-            },
-            {
-                id: 17,
-                title: "Nivel 17",
-                passingScore: 0.9,
-                questions: [
-                    { "question": "Un 'contenedor' como Docker es una unidad de software que empaqueta una aplicación y sus dependencias en un...", "options": ["lenguaje de programación", "entorno virtual aislado", "servidor"], "correctAnswer": "entorno virtual aislado" },
-                    { "question": "¿Qué es 'YAML'?", "options": ["Un lenguaje de programación", "Un lenguaje de marcado de datos", "Un tipo de base de datos"], "correctAnswer": "Un lenguaje de marcado de datos" },
-                    { "question": "¿Qué es un 'middleware'?", "options": ["Un tipo de error", "Software que conecta componentes de un sistema", "Un tipo de servidor"], "correctAnswer": "Software que conecta componentes de un sistema" },
-                    { "question": "La 'normalización' de una base de datos es un proceso para...", "options": ["eliminar la redundancia y mejorar la integridad de los datos", "hacer la base de datos más lenta", "añadir datos duplicados"], "correctAnswer": "eliminar la redundancia y mejorar la integridad de los datos" },
-                    { "question": "El 'paradigma' de programación orientada a eventos se basa en la idea de que la ejecución del programa se determina por...", "options": ["el orden de las instrucciones", "los objetos", "los eventos que ocurren"], "correctAnswer": "los eventos que ocurren" }
-                ]
-            },
-            {
-                id: 18,
-                title: "Nivel 18",
-                passingScore: 0.9,
-                questions: [
-                    { "question": "¿Qué es 'agile'?", "options": ["Un tipo de error", "Una metodología de desarrollo de software", "Un lenguaje de programación"], "correctAnswer": "Una metodología de desarrollo de software" },
-                    { "question": "Un 'cache' es una zona de almacenamiento de alta velocidad que guarda datos para que las futuras solicitudes sean...", "options": ["más lentas", "más rápidas", "más difíciles de encontrar"], "correctAnswer": "más rápidas" },
-                    { "question": "¿Qué es 'CI/CD'?", "options": ["Un tipo de base de datos", "Un conjunto de prácticas para automatizar la integración y el despliegue del software", "Un lenguaje de programación"], "correctAnswer": "Un conjunto de prácticas para automatizar la integración y el despliegue del software" },
-                    { "question": "La 'serialización' es el proceso de convertir un objeto en un...", "options": ["lenguaje de programación", "formato de datos que se puede almacenar o transmitir", "tipo de archivo"], "correctAnswer": "formato de datos que se puede almacenar o transmitir" },
-                    { "question": "¿Qué es un 'token JWT'?", "options": ["Un tipo de variable", "Un token de acceso JSON para la autenticación", "Un lenguaje de marcado"], "correctAnswer": "Un token de acceso JSON para la autenticación" }
-                ]
-            },
-            {
-                id: 19,
-                title: "Nivel 19",
-                passingScore: 0.95,
-                questions: [
-                    { "question": "¿Qué es 'TDD'?", "options": ["Un tipo de base de datos", "Una metodología de desarrollo que se basa en escribir pruebas antes del código", "Un lenguaje de programación"], "correctAnswer": "Una metodología de desarrollo que se basa en escribir pruebas antes del código" },
-                    { "question": "¿Qué es un 'callback hell'?", "options": ["Una función que nunca termina", "Una estructura de código anidada que dificulta la lectura", "Un tipo de error"], "correctAnswer": "Una estructura de código anidada que dificulta la lectura" },
-                    { "question": "La 'programación reactiva' se basa en la idea de que los datos fluyen a través de...", "options": ["eventos", "streams o flujos de datos", "funciones"], "correctAnswer": "streams o flujos de datos" },
-                    { "question": "Un 'proxy' es un servidor que actúa como intermediario para...", "options": ["ocultar la IP del cliente", "hacer la conexión más rápida", "enviar virus"], "correctAnswer": "ocultar la IP del cliente" },
-                    { "question": "El 'principio de sustitución de Liskov' (L de SOLID) establece que los objetos de una clase base deben poder ser reemplazados por...", "options": ["objetos de sus clases derivadas", "objetos de la misma clase", "cualquier objeto"], "correctAnswer": "objetos de sus clases derivadas" }
-                ]
-            },
-            {
-                id: 20,
-                title: "Nivel 20",
-                passingScore: 0.95,
-                questions: [
-                    { "question": "Un 'load balancer' o 'balanceador de carga' distribuye las solicitudes de red entre varios...", "options": ["servidores", "clientes", "bases de datos"], "correctAnswer": "servidores" },
-                    { "question": "La 'arquitectura de microservicios' es un estilo que estructura una aplicación como una colección de servicios...", "options": ["monolíticos", "independientes y autónomos", "centralizados"], "correctAnswer": "independientes y autónomos" },
-                    { "question": "¿Qué es 'Docker'?", "options": ["Un lenguaje de programación", "Una plataforma para crear y gestionar contenedores", "Un tipo de base de datos"], "correctAnswer": "Una plataforma para crear y gestionar contenedores" },
-                    { "question": "La 'inversión de dependencias' (D de SOLID) establece que los módulos de alto nivel no deben depender de...", "options": ["módulos de bajo nivel", "otros módulos", "variables globales"], "correctAnswer": "módulos de bajo nivel" },
-                    { "question": "¿Qué es 'OAuth'?", "options": ["Un lenguaje de programación", "Un protocolo de autorización para delegar acceso a recursos", "Un tipo de base de datos"], "correctAnswer": "Un protocolo de autorización para delegar acceso a recursos" }
-                ]
-            },
-            // Dificultad Experta (Niveles 21-30)
-            {
-                id: 21,
-                title: "Nivel 21",
-                passingScore: 0.95,
-                questions: [
-                    { "question": "La 'programación funcional' se basa en el concepto de funciones puras, que no tienen...", "options": ["variables", "efectos secundarios", "parámetros"], "correctAnswer": "efectos secundarios" },
-                    { "question": "¿Qué es un 'coroutine'?", "options": ["Una función que no devuelve nada", "Una función que puede pausarse y reanudarse", "Un tipo de ciclo"], "correctAnswer": "Una función que puede pausarse y reanudarse" },
-                    { "question": "El 'patrón de diseño 'Observer'' define una dependencia de uno a muchos entre objetos, de forma que cuando un objeto cambia de estado, todos sus dependientes son...", "options": ["notificados y actualizados automáticamente", "eliminados", "ignorados"], "correctAnswer": "notificados y actualizados automáticamente" },
-                    { "question": "¿Qué es un 'deadlock'?", "options": ["Un tipo de error de sintaxis", "Un error de lógica", "Una situación en la que dos o más procesos se bloquean mutuamente"], "correctAnswer": "Una situación en la que dos o más procesos se bloquean mutuamente" },
-                    { "question": "El 'algoritmo de Dijkstra' se usa para encontrar...", "options": ["el camino más corto entre nodos en un grafo", "el camino más largo en un grafo", "el número de nodos en un grafo"], "correctAnswer": "el camino más corto entre nodos en un grafo" }
-                ]
-            },
-            {
-                id: 22,
-                title: "Nivel 22",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "Un 'grafo' es una estructura de datos compuesta por...", "options": ["nodos y bordes", "filas y columnas", "pares clave-valor"], "correctAnswer": "nodos y bordes" },
-                    { "question": "La 'computación cuántica' se basa en el uso de 'qubits' que pueden representar '0' y '1'...", "options": ["al mismo tiempo", "separadamente", "nunca"], "correctAnswer": "al mismo tiempo" },
-                    { "question": "¿Qué es 'SAML'?", "options": ["Un lenguaje de programación", "Un protocolo de autorización", "Un estándar para el intercambio de datos de autenticación"], "correctAnswer": "Un estándar para el intercambio de datos de autenticación" },
-                    { "question": "El 'patrón de diseño 'Factory'' se utiliza para crear objetos sin...", "options": ["especificar la clase exacta del objeto a crear", "usar un constructor", "usar un método"], "correctAnswer": "especificar la clase exacta del objeto a crear" },
-                    { "question": "El 'párking lot' es un tipo de... en la programación web.", "options": ["variable", "ataque de denegación de servicio", "técnica de caché"], "correctAnswer": "ataque de denegación de servicio" }
-                ]
-            },
-            {
-                id: 23,
-                title: "Nivel 23",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "¿Qué es un 'blockchain'?", "options": ["Una cadena de bloques de datos inmutable y distribuida", "Un tipo de base de datos centralizada", "Una tecnología de encriptación"], "correctAnswer": "Una cadena de bloques de datos inmutable y distribuida" },
-                    { "question": "El 'patrón de diseño 'Mediator'' promueve un bajo acoplamiento entre objetos al hacer que se comuniquen a través de...", "options": ["un objeto mediador", "una clase padre", "una variable global"], "correctAnswer": "un objeto mediador" },
-                    { "question": "El 'protocolo MQTT' es un protocolo de mensajería ligero para el...", "options": ["Internet de las Cosas (IoT)", "correo electrónico", "navegación web"], "correctAnswer": "Internet de las Cosas (IoT)" },
-                    { "question": "Un 'container orchestration' es la automatización de la implementación, escalado y gestión de...", "options": ["máquinas virtuales", "contenedores", "servidores"], "correctAnswer": "contenedores" },
-                    { "question": "¿Qué es 'Kanban'?", "options": ["Un lenguaje de programación", "Un tipo de base de datos", "Una metodología de gestión de proyectos 'agile'"], "correctAnswer": "Una metodología de gestión de proyectos 'agile'" }
-                ]
-            },
-            {
-                id: 24,
-                title: "Nivel 24",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "El 'método de ordenación 'Quick Sort'' se basa en la estrategia de 'divide y vencerás', y su peor caso de complejidad temporal es...", "options": ["O(n)", "O(n²)", "O(n log n)"], "correctAnswer": "O(n²)" },
-                    { "question": "Un 'autenticador de dos factores' (2FA) es una capa extra de seguridad que requiere una segunda forma de...", "options": ["verificación de identidad", "acceso a la web", "pago"], "correctAnswer": "verificación de identidad" },
-                    { "question": "La 'inyección de código' es un tipo de ataque de seguridad en el que el atacante inserta código malicioso en...", "options": ["la base de datos", "el navegador", "una página web"], "correctAnswer": "la base de datos" },
-                    { "question": "El 'Principio de Segregación de Interfaces' (I de SOLID) establece que un cliente no debe ser forzado a depender de métodos que...", "options": ["no usa", "usa", "son públicos"], "correctAnswer": "no usa" },
-                    { "question": "Un 'proxy inverso' es un servidor que se sitúa entre los clientes y los servidores, y se usa para...", "options": ["seguridad, balanceo de carga y caché", "esconder la IP del cliente", "hacer la conexión más lenta"], "correctAnswer": "seguridad, balanceo de carga y caché" }
-                ]
-            },
-            {
-                id: 25,
-                title: "Nivel 25",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "Un 'árbol binario' es una estructura de datos donde cada nodo tiene, como máximo,...", "options": ["un hijo", "dos hijos", "tres hijos"], "correctAnswer": "dos hijos" },
-                    { "question": "El 'patrón de diseño 'Adapter'' permite que interfaces incompatibles trabajen juntas al crear un objeto que...", "options": ["traduce llamadas entre interfaces", "conecta las interfaces", "elimina las interfaces"], "correctAnswer": "traduce llamadas entre interfaces" },
-                    { "question": "La 'programación orientada a aspectos' se centra en modularizar los 'cross-cutting concerns' como el...", "options": ["acceso a la base de datos", "logueo y la seguridad", "diseño de la interfaz"], "correctAnswer": "logueo y la seguridad" },
-                    { "question": "¿Qué es 'RESTful'?", "options": ["Un tipo de base de datos", "Una forma de implementar la arquitectura REST", "Un lenguaje de programación"], "correctAnswer": "Una forma de implementar la arquitectura REST" },
-                    { "question": "El 'algoritmo de ordenación por fusión' (Merge Sort) tiene una complejidad de tiempo de...", "options": ["O(n²)", "O(log n)", "O(n log n)"], "correctAnswer": "O(n log n)" }
-                ]
-            },
-            {
-                id: 26,
-                title: "Nivel 26",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "Un 'grafo dirigido acíclico' (DAG) es un grafo sin...", "options": ["nodos", "ciclos", "aristas"], "correctAnswer": "ciclos" },
-                    { "question": "La 'consistencia' en bases de datos (parte del acrónimo ACID) se refiere a que una transacción debe dejar la base de datos en un estado...", "options": ["inconsistente", "consistente", "aleatorio"], "correctAnswer": "consistente" },
-                    { "question": "¿Qué es un 'webhook'?", "options": ["Un tipo de virus", "Una forma de que una aplicación reciba notificaciones en tiempo real", "Un tipo de error"], "correctAnswer": "Una forma de que una aplicación reciba notificaciones en tiempo real" },
-                    { "question": "El 'Patrón de Diseño 'Builder'' se usa para construir objetos complejos paso a paso, lo que permite crear...", "options": ["objetos con diferentes configuraciones", "solo un tipo de objeto", "objetos simples"], "correctAnswer": "objetos con diferentes configuraciones" },
-                    { "question": "El 'paradigma' de programación declarativa se centra en describir 'qué' se quiere lograr, en lugar de 'cómo' hacerlo, y un ejemplo es...", "options": ["el lenguaje C", "el lenguaje SQL", "el lenguaje Java"], "correctAnswer": "el lenguaje SQL" }
-                ]
-            },
-            {
-                id: 27,
-                title: "Nivel 27",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "El 'Principio de Inversión de Dependencias' (D de SOLID) establece que la abstracción no debe depender de los detalles, sino que los detalles deben depender de las...", "options": ["variables", "funciones", "abstracciones"], "correctAnswer": "abstracciones" },
-                    { "question": "La 'clase abstracta' es una clase que no puede ser...", "options": ["heredada", "instanciada", "modificada"], "correctAnswer": "instanciada" },
-                    { "question": "¿Qué es la 'programación orientada a objetos (OOP)'?", "options": ["Un estilo de programación basado en objetos y clases", "Un lenguaje de programación", "Un tipo de base de datos"], "correctAnswer": "Un estilo de programación basado en objetos y clases" },
-                    { "question": "El 'patrón de diseño 'Command'' encapsula una solicitud como un objeto, lo que permite...", "options": ["deshacer y rehacer operaciones", "ejecutar operaciones", "evitar operaciones"], "correctAnswer": "deshacer y rehacer operaciones" },
-                    { "question": "¿Qué es 'GraphQL'?", "options": ["Un lenguaje de programación", "Un lenguaje de consulta de datos para APIs", "Una base de datos"], "correctAnswer": "Un lenguaje de consulta de datos para APIs" }
-                ]
-            },
-            {
-                id: 28,
-                title: "Nivel 28",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "La 'técnica de 'Memoization'' es una técnica de optimización que almacena los resultados de llamadas a funciones costosas y los devuelve cuando se invoca la misma función con...", "options": ["argumentos diferentes", "los mismos argumentos", "sin argumentos"], "correctAnswer": "los mismos argumentos" },
-                    { "question": "Un 'mutex' (mutual exclusion) es un objeto que permite que un solo hilo acceda a un recurso compartido a la vez, para evitar...", "options": ["errores de sintaxis", "condiciones de carrera", "bucle infinito"], "correctAnswer": "condiciones de carrera" },
-                    { "question": "¿Qué es 'SaaS'?", "options": ["Software as a Service", "System as a Service", "Server as a Service"], "correctAnswer": "Software as a Service" },
-                    { "question": "El 'patrón de diseño 'Facade'' proporciona una interfaz unificada y simplificada a un conjunto de...", "options": ["funciones", "interfaces", "métodos"], "correctAnswer": "funciones" },
-                    { "question": "El 'protocolo RPC' (Remote Procedure Call) permite a un programa ejecutar una función o procedimiento en un...", "options": ["servidor local", "servidor remoto", "cliente"], "correctAnswer": "servidor remoto" }
-                ]
-            },
-            {
-                id: 29,
-                title: "Nivel 29",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "El 'principio de no repetición' (DRY) es un principio de desarrollo que busca evitar la duplicación de...", "options": ["datos", "lógica de código", "archivos"], "correctAnswer": "lógica de código" },
-                    { "question": "La 'cohesión' es la medida de la fortaleza de la relación entre los elementos de un...", "options": ["módulo", "código", "clase"], "correctAnswer": "módulo" },
-                    { "question": "El 'acoplamiento' es la medida de la interdependencia entre los...", "options": ["módulos de software", "elementos de un módulo", "tipos de datos"], "correctAnswer": "módulos de software" },
-                    { "question": "Un 'microkernel' es un tipo de arquitectura de sistema operativo en el que el núcleo solo proporciona los servicios mínimos necesarios, como...", "options": ["la gestión de archivos", "la gestión de la memoria y el scheduling de procesos", "la interfaz gráfica"], "correctAnswer": "la gestión de la memoria y el scheduling de procesos" },
-                    { "question": "¿Qué es un 'proxy inverso'?", "options": ["Un servidor que se sitúa entre el cliente y el servidor web", "Un tipo de base de datos", "Un lenguaje de programación"], "correctAnswer": "Un servidor que se sitúa entre el cliente y el servidor web" }
-                ]
-            },
-            {
-                id: 30,
-                title: "Nivel 30",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "El 'algoritmo de 'A*' (A-Star)' es un algoritmo de búsqueda que se utiliza en la inteligencia artificial para encontrar el camino más corto entre dos...", "options": ["nodos en un grafo", "bases de datos", "servidores"], "correctAnswer": "nodos en un grafo" },
-                    { "question": "La 'polimorfismo por sobrecarga' es cuando varias funciones tienen el mismo nombre pero diferentes...", "options": ["parámetros", "tipos de retorno", "cuerpos"], "correctAnswer": "parámetros" },
-                    { "question": "¿Qué es la 'arquitectura hexagonal' o 'ports and adapters'?", "options": ["Un patrón de diseño de software para aislar la lógica de negocio", "Un tipo de base de datos", "Un lenguaje de programación"], "correctAnswer": "Un patrón de diseño de software para aislar la lógica de negocio" },
-                    { "question": "La 'programación por contratos' (DbC) es un enfoque para diseñar software en el que las funciones tienen 'precondiciones', 'postcondiciones' y '...", "options": ["invariantes", "variables", "errores"], "correctAnswer": "invariantes" },
-                    { "question": "El 'principio de Demeter' (Law of Demeter) establece que un objeto solo debe comunicarse con sus...", "options": ["clases padre", "amigos cercanos", "clases hijas"], "correctAnswer": "amigos cercanos" }
-                ]
+        const firebaseConfig = {
+  apiKey: "AIzaSyDx_2b2rhaoRh7WawE9b-QVlVNj5PfycVA",
+  authDomain: "sabiquiz-8f915.firebaseapp.com",
+  projectId: "sabiquiz-8f915",
+  storageBucket: "sabiquiz-8f915.firebasestorage.app",
+  messagingSenderId: "1007656278742",
+  appId: "1:1007656278742:web:a17a204b430d2638e74777",
+  measurementId: "G-FB8HC6HV73"
+};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // --- FUNCIÓN PARA DIBUJAR LOS BOTONES DE NIVEL ---
+        function drawLevelButtons(profileProgress = {}) {
+            const subjectId = document.body.dataset.subjectId;
+            const levelGrid = document.getElementById('level-grid');
+            levelGrid.innerHTML = '';
+
+            const subjectProgress = profileProgress[subjectId] || {};
+
+            levels.forEach(level => {
+                const levelButton = document.createElement('a');
+                levelButton.classList.add('level-btn');
+
+                let isLocked = level.id > 1;
+                const prevLevelStars = subjectProgress[level.id - 1]; // Progreso del nivel anterior
+                if (level.id === 1 || (prevLevelStars && prevLevelStars > 0)) {
+                    isLocked = false;
+                }
+
+                if (isLocked) {
+                    levelButton.classList.add('locked');
+                    levelButton.innerHTML = `<span>${level.title}</span> <img src="../img/lock.png" alt="Bloqueado" class="lock-icon">`;
+                } else {
+                    levelButton.href = `../quiz_runner.html?subject=${subjectId}&level=${level.id}`;
+                    const starsWon = subjectProgress[level.id] || 0; // Estrellas de este nivel
+                    let starsHTML = '<div class="stars-container">';
+                    for (let i = 0; i < 3; i++) {
+                        starsHTML += `<img src="../img/${i < starsWon ? 'star_filled.png' : 'star_empty.png'}" class="star-icon">`;
+                    }
+                    starsHTML += '</div>';
+                    levelButton.innerHTML = `<span>${level.title}</span> ${starsHTML}`;
+                }
+                levelGrid.appendChild(levelButton);
+            });
+        }
+
+        // --- VERIFICAMOS LA SESIÓN DEL USUARIO PARA OBTENER SU PROGRESO PERSONAL ---
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                const userDocRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(userDocRef);
+                if (docSnap.exists() && docSnap.data().quizProgress) {
+                    // Si el usuario tiene progreso guardado, lo usamos para dibujar
+                    drawLevelButtons(docSnap.data().quizProgress);
+                } else {
+                    // Si no tiene progreso, dibujamos el estado inicial (todo bloqueado)
+                    drawLevelButtons();
+                }
+            } else {
+                // Si no hay usuario, dibujamos el estado inicial
+                drawLevelButtons();
             }
-        ];
-</script>
-    <script src="../js/app.js"></script>
+        });
+    </script>
 </body>
 </html>

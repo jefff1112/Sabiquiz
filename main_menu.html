@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SabiQuiz - Menú Principal</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+</head>
+<body>
+    <div id="appContainer" style="display: none;">
+        <div id="mainMenu" class="container main-menu-container">
+            <div class="main-menu-header">
+                <h1 id="welcomeMessage">¡Bienvenido a SabiQuiz!</h1>
+                <div class="header-buttons">
+                    <a href="leaderboard.html" class="btn btn-leaderboard">Ranking</a>
+                    <a href="profile.html" id="profileBtn" class="btn btn-profile">Mi Perfil</a>
+                    <button id="logoutBtn" class="btn btn-logout">Cerrar Sesión</button>
+                </div>
+            </div>
+            <div class="sabiquiz-logo"><img src="img/celebrando_perro_2.png" alt="SabiQuiz Dog Logo"></div>
+            <h2>Elige tu materia para comenzar</h2>
+            <div class="subject-grid">
+                <a href="materias/lenguaje.html" class="subject-card language"><img src="img/lenguaje.png" alt="Lenguaje"><h3>Lenguaje</h3></a>
+                <a href="materias/matematicas.html" class="subject-card maths"><img src="img/mat.png" alt="Matemáticas"><h3>Matemáticas</h3></a>
+                <a href="materias/ciencias.html" class="subject-card science"><img src="img/ciencia.png" alt="Ciencias"><h3>Ciencias</h3></a>
+                <a href="materias/sociales.html" class="subject-card social"><img src="img/sociales.png" alt="Sociales"><h3>Sociales</h3></a>
+                <a href="materias/ingles.html" class="subject-card english"><img src="img/ingles.png" alt="Inglés"><h3>Inglés</h3></a>
+                <a href="materias/programacion.html" class="subject-card programming"><img src="img/programacion.png" alt="Programación"><h3>Programación</h3></a>
+                <a href="materias/salud.html" class="subject-card health"><img src="img/salud.png" alt="Salud"><h3>Salud</h3></a>
+            </div>
+        </div>
+        <div id="multiplayerMenu" class="multiplayer-menu">
+            <h2>Modo Duelo 1vs1</h2>
+            <button id="findMatchBtn" class="btn btn-find-match">🚀 Buscar Partida Rápida</button>
+            <div id="matchmakingStatus" class="matchmaking-status" style="display: none;">
+                <p>Buscando oponente...</p>
+                <div class="spinner"></div>
+                <button id="cancelMatchBtn" class="btn btn-cancel">Cancelar</button>
+            </div>
+            <hr class="separator">
+            <p class="sub-heading">O juega con un amigo usando un código:</p>
+            <div id="codeRoomContainer" class="input-group">
+                <input type="text" id="roomCodeInput" placeholder="Ingresa el código de la sala">
+                <button id="createRoomBtn">Crear Sala</button>
+                <button id="joinRoomBtn">Unirse a Sala</button>
+            </div>
+            <div id="statusMessage"></div>
+        </div>
+        <div id="gameContainer" class="quiz-container" style="display: none;">
+            <div class="game-info-bar">
+                <div id="gameModeDisplay" class="game-mode-display">Modo: <span>---</span></div>
+                <div id="timerDisplay" class="timer-display">Tiempo: 10</div>
+            </div>
+            <div class="score-display">
+                <div id="player1Score">Jugador 1: 0</div>
+                <div id="player2Score">Jugador 2: 0</div>
+            </div>
+            <div class="question-container">
+                <h2 id="questionText"></h2>
+                <div id="optionsContainer" class="options-container"></div>
+            </div>
+        </div>
+        <div id="countdownContainer" style="display: none;"><h1 id="countdownText"></h1></div>
+        <div id="endGameContainer" class="end-game-container" style="display: none;">
+             <h2 class="results-title">Resultados</h2>
+            <div class="players-container">
+                <div class="player-result"><img src="img/default-avatar.png" alt="Jugador 1" class="player-avatar" id="endAvatar1"><p id="endPlayer1Name" class="player-name"></p><p id="endPlayer1Score" class="player-score"></p></div>
+                <div class="vs-container"><img src="img/vs.png" alt="VS" class="vs-icon"></div>
+                <div class="player-result"><img src="img/default-avatar.png" alt="Jugador 2" class="player-avatar" id="endAvatar2"><p id="endPlayer2Name" class="player-name"></p><p id="endPlayer2Score" class="player-score"></p></div>
+            </div>
+            <h3 id="endGameMessage" class="end-game-message"></h3>
+            <button id="rematchBtn" class="btn btn-rematch">Revancha</button>
+        </div>
+
+        <div id="matchFoundContainer" class="popup-overlay" style="display: none;">
+            <div class="popup-card animate__animated animate__zoomIn">
+                <h2>¡Oponente Encontrado!</h2>
+                <div class="opponent-info">
+                    <img src="img/default-avatar.png" id="opponentAvatar" alt="Avatar del Oponente" class="player-avatar">
+                    <h3 id="opponentName">---</h3>
+                    <div class="opponent-stats">
+                        <span>Nivel: <strong id="opponentLevel">--</strong></span>
+                        <span>XP Total: <strong id="opponentXp">--</strong></span>
+                    </div>
+                </div>
+                <div class="popup-buttons">
+                    <button id="acceptMatchBtn" class="btn btn-accept">✅ Aceptar</button>
+                    <button id="rejectMatchBtn" class="btn btn-reject">❌ Rechazar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/socket.io/socket.io.js"></script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+        import { getAuth, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+        const firebaseConfig = {
+  apiKey: "AIzaSyDx_2b2rhaoRh7WawE9b-QVlVNj5PfycVA",
+  authDomain: "sabiquiz-8f915.firebaseapp.com",
+  projectId: "sabiquiz-8f915",
+  storageBucket: "sabiquiz-8f915.firebasestorage.app",
+  messagingSenderId: "1007656278742",
+  appId: "1:1007656278742:web:a17a204b430d2638e74777",
+  measurementId: "G-FB8HC6HV73"
+};
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const socket = io("http://localhost:3000");
+
+        const appContainer = document.getElementById('appContainer');
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const mainMenu = document.getElementById('mainMenu');
+        const multiplayerMenu = document.getElementById('multiplayerMenu');
+        const gameContainer = document.getElementById('gameContainer');
+        const countdownContainer = document.getElementById('countdownContainer');
+        const countdownText = document.getElementById('countdownText');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const player1ScoreDisp = document.getElementById('player1Score');
+        const player2ScoreDisp = document.getElementById('player2Score');
+        const roomCodeInput = document.getElementById('roomCodeInput');
+        const createRoomBtn = document.getElementById('createRoomBtn');
+        const joinRoomBtn = document.getElementById('joinRoomBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const endGameContainer = document.getElementById('endGameContainer');
+        const gameModeDisplay = document.getElementById('gameModeDisplay');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const findMatchBtn = document.getElementById('findMatchBtn');
+        const matchmakingStatus = document.getElementById('matchmakingStatus');
+        const cancelMatchBtn = document.getElementById('cancelMatchBtn');
+        const rematchBtn = document.getElementById('rematchBtn');
+        const matchFoundContainer = document.getElementById('matchFoundContainer');
+        const opponentAvatar = document.getElementById('opponentAvatar');
+        const opponentName = document.getElementById('opponentName');
+        const opponentLevel = document.getElementById('opponentLevel');
+        const opponentXp = document.getElementById('opponentXp');
+        const acceptMatchBtn = document.getElementById('acceptMatchBtn');
+        const rejectMatchBtn = document.getElementById('rejectMatchBtn');
+        
+        let currentUser = null, userProfile = {}, currentRoomCode = '', localPlayerId = '', tempRoomId = '';
+        
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                currentUser = user;
+                await setPersistence(auth, browserLocalPersistence);
+                appContainer.style.display = 'block';
+                const userDocRef = doc(db, "users", user.uid);
+                const docSnap = await getDoc(userDocRef);
+                if (docSnap.exists()) { userProfile = docSnap.data(); }
+                else { userProfile = { displayName: user.email.split('@')[0], photoURL: null, level: 1, quizXp: 0, pvpXp: 0 }; }
+                welcomeMessage.textContent = `¡Bienvenido, ${userProfile.displayName}!`;
+            } else { window.location.href = 'login.html'; }
+        });
+        
+        logoutBtn.addEventListener('click', () => signOut(auth));
+        
+        findMatchBtn.addEventListener('click', () => {
+            findMatchBtn.style.display = 'none';
+            document.getElementById('codeRoomContainer').style.display = 'none';
+            document.querySelector('.sub-heading').style.display = 'none';
+            matchmakingStatus.style.display = 'block';
+            const totalXp = (userProfile.quizXp || 0) + (userProfile.pvpXp || 0);
+            const playerData = { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL, level: userProfile.level || 1, totalXp: totalXp };
+            socket.emit('findMatch', playerData);
+        });
+
+        cancelMatchBtn.addEventListener('click', () => {
+            findMatchBtn.style.display = 'block';
+            document.getElementById('codeRoomContainer').style.display = 'flex';
+            document.querySelector('.sub-heading').style.display = 'block';
+            matchmakingStatus.style.display = 'none';
+            socket.emit('cancelFindMatch');
+        });
+
+        function setStatus(message) { statusMessage.textContent = message; }
+        createRoomBtn.addEventListener('click', () => {
+            const roomCode = roomCodeInput.value.trim();
+            if (roomCode && currentUser) {
+                socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } });
+            }
+        });
+        joinRoomBtn.addEventListener('click', () => {
+            const roomCode = roomCodeInput.value.trim();
+            if (roomCode && currentUser) {
+                socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } });
+            }
+        });
+        rematchBtn.addEventListener('click', () => {
+            endGameContainer.style.display = 'none';
+            multiplayerMenu.style.display = 'block';
+            setStatus('Esperando respuesta del otro jugador...');
+            socket.emit('requestRematch', { roomCode: currentRoomCode });
+        });
+
+        acceptMatchBtn.addEventListener('click', () => {
+            acceptMatchBtn.disabled = true;
+            rejectMatchBtn.disabled = true;
+            acceptMatchBtn.textContent = 'Esperando...';
+            socket.emit('acceptMatch', { roomId: tempRoomId });
+        });
+
+        rejectMatchBtn.addEventListener('click', () => {
+            matchFoundContainer.style.display = 'none';
+            findMatchBtn.click(); // Simula clic para volver a buscar
+            socket.emit('rejectMatch', { roomId: tempRoomId });
+        });
+
+        socket.on('connect', () => { localPlayerId = socket.id; });
+        socket.on('roomCreated', (rc) => { currentRoomCode = rc; setStatus(`Sala "${rc}" creada. Esperando...`); });
+        socket.on('playerJoined', () => setStatus('Oponente conectado. ¡Prepárense!'));
+        socket.on('roomFull', () => setStatus('La sala está llena.'));
+
+        socket.on('matchFound', (data) => {
+            const { roomId, opponent } = data;
+            tempRoomId = roomId;
+            opponentAvatar.src = opponent.photoURL || 'img/default-avatar.png';
+            opponentName.textContent = opponent.name;
+            opponentLevel.textContent = opponent.level;
+            opponentXp.textContent = opponent.totalXp;
+            matchmakingStatus.style.display = 'none';
+            matchFoundContainer.style.display = 'flex';
+            acceptMatchBtn.disabled = false;
+            rejectMatchBtn.disabled = false;
+            acceptMatchBtn.textContent = '✅ Aceptar';
+        });
+
+        socket.on('matchRejected', () => {
+            matchFoundContainer.style.display = 'none';
+            alert("Tu oponente ha rechazado la partida. Volviendo a la búsqueda...");
+            findMatchBtn.click();
+        });
+
+        socket.on('startCountdown', (data) => {
+            matchFoundContainer.style.display = 'none';
+            mainMenu.style.display = 'none';
+            multiplayerMenu.style.display = 'none';
+            currentRoomCode = data.roomCode;
+            gameModeDisplay.innerHTML = `Modo: <span>${data.gameMode.charAt(0).toUpperCase() + data.gameMode.slice(1)}</span>`;
+            countdownContainer.style.display = 'flex';
+            let count = 3;
+            countdownText.textContent = count;
+            const cdInterval = setInterval(() => {
+                count--;
+                if (count > 0) { countdownText.textContent = count; }
+                else {
+                    clearInterval(cdInterval);
+                    countdownText.textContent = '¡YA!';
+                    setTimeout(() => {
+                        countdownContainer.style.display = 'none';
+                        gameContainer.style.display = 'block';
+                    }, 1000);
+                }
+            }, 1000);
+        });
+
+        socket.on('timerUpdate', (timeLeft) => { timerDisplay.textContent = `Tiempo: ${timeLeft}`; });
+
+        socket.on('nextQuestion', (data) => {
+            timerDisplay.textContent = `Tiempo: 10`;
+            questionText.textContent = data.question;
+            optionsContainer.innerHTML = '';
+            data.options.forEach(option => {
+                const button = document.createElement('button');
+                button.classList.add('option-button');
+                button.textContent = option;
+                button.addEventListener('click', () => {
+                    socket.emit('playerAnswer', { roomCode: currentRoomCode, answer: option });
+                });
+                optionsContainer.appendChild(button);
+            });
+        });
+        
+        socket.on('answerReceived', () => {
+            optionsContainer.querySelectorAll('.option-button').forEach(btn => {
+                btn.disabled = true;
+            });
+        });
+
+        socket.on('roundResult', (data) => {
+            const { playerAnswers, correctAnswer, scores, playerData } = data;
+            const playerIds = Object.keys(playerData);
+            if (playerIds.length === 2) {
+                player1ScoreDisp.textContent = `${playerData[playerIds[0]].name}: ${scores[playerIds[0]]}`;
+                player2ScoreDisp.textContent = `${playerData[playerIds[1]].name}: ${scores[playerIds[1]]}`;
+            }
+            optionsContainer.querySelectorAll('.option-button').forEach(btn => {
+                btn.disabled = true;
+                if (btn.textContent === correctAnswer) {
+                    btn.classList.add('correct');
+                }
+                for (const playerId in playerAnswers) {
+                    if (btn.textContent === playerAnswers[playerId].answer && !playerAnswers[playerId].isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                }
+            });
+        });
+        
+        socket.on('endGame', (data) => {
+            gameContainer.style.display = 'none';
+            endGameContainer.style.display = 'block';
+            const myId = localPlayerId;
+            const otherId = Object.keys(data.playerData).find(id => id !== myId);
+            const myPd = data.playerData[myId], otherPd = data.playerData[otherId];
+            const myScore = data.scores[myId], otherScore = data.scores[otherId];
+            let msg = '';
+            if (myScore > otherScore) msg = `¡Ganaste, ${myPd.name}!`;
+            else if (otherScore > myScore) msg = `¡${otherPd.name} ha ganado!`;
+            else msg = '¡Es un empate!';
+            document.getElementById('endPlayer1Name').textContent = myPd.name;
+            document.getElementById('endPlayer1Score').textContent = `Puntuación: ${myScore}`;
+            document.getElementById('endAvatar1').src = myPd.photoURL || 'img/default-avatar.png';
+            document.getElementById('endPlayer2Name').textContent = otherPd.name;
+            document.getElementById('endPlayer2Score').textContent = `Puntuación: ${otherScore}`;
+            document.getElementById('endAvatar2').src = otherPd.photoURL || 'img/default-avatar.png';
+            document.getElementById('endGameMessage').textContent = msg;
+        });
+    </script>
+</body>
+</html>

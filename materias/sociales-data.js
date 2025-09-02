@@ -1,0 +1,365 @@
+export const levels = [
+    {
+                id: 1,
+                title: "Nivel 1",
+                passingScore: 0.6,
+                questions: [
+                    { "question": "¿Quién fue el primer presidente de los Estados Unidos?", "options": ["Abraham Lincoln", "George Washington", "Thomas Jefferson"], "correctAnswer": "George Washington" },
+                    { "question": "¿Qué país tiene una bandera con una hoja de arce?", "options": ["Estados Unidos", "México", "Canadá"], "correctAnswer": "Canadá" },
+                    { "question": "¿En qué continente se encuentra el desierto del Sahara?", "options": ["Asia", "África", "Europa"], "correctAnswer": "África" },
+                    { "question": "¿Qué civilización construyó las pirámides de Giza?", "options": ["Los romanos", "Los egipcios", "Los griegos"], "correctAnswer": "Los egipcios" },
+                    { "question": "El océano más grande del mundo es...", "options": ["el Atlántico", "el Índico", "el Pacífico"], "correctAnswer": "el Pacífico" }
+                ]
+            },
+            {
+                id: 2,
+                title: "Nivel 2",
+                passingScore: 0.65,
+                questions: [
+                    { "question": "¿En qué año llegó Cristóbal Colón a América?", "options": ["1492", "1500", "1620"], "correctAnswer": "1492" },
+                    { "question": "La capital de Francia es...", "options": ["Madrid", "Londres", "París"], "correctAnswer": "París" },
+                    { "question": "¿Cuál es el río más largo del mundo?", "options": ["El Nilo", "El Amazonas", "El Misisipi"], "correctAnswer": "El Amazonas" },
+                    { "question": "El 'Coliseo' se encuentra en...", "options": ["Grecia", "Italia", "Egipto"], "correctAnswer": "Italia" },
+                    { "question": "El 'muro de Berlín' separó a Alemania en dos partes: Este y...", "options": ["Oeste", "Norte", "Sur"], "correctAnswer": "Oeste" }
+                ]
+            },
+            {
+                id: 3,
+                title: "Nivel 3",
+                passingScore: 0.7,
+                questions: [
+                    { "question": "La 'Gran Muralla China' se construyó para...", "options": ["decorar el país", "proteger las fronteras", "facilitar el comercio"], "correctAnswer": "proteger las fronteras" },
+                    { "question": "¿Qué documento de 1776 declaró la independencia de los Estados Unidos?", "options": ["La Constitución", "La Declaración de Derechos", "La Declaración de Independencia"], "correctAnswer": "La Declaración de Independencia" },
+                    { "question": "El idioma más hablado en el mundo es...", "options": ["el inglés", "el español", "el mandarín"], "correctAnswer": "el mandarín" },
+                    { "question": "¿Qué metal fue el principal para la 'Edad de Bronce'?", "options": ["El hierro", "El oro", "El cobre y el estaño"], "correctAnswer": "El cobre y el estaño" },
+                    { "question": "Un 'continente' es...", "options": ["una isla", "una gran extensión de tierra", "un país"], "correctAnswer": "una gran extensión de tierra" }
+                ]
+            },
+            {
+                id: 4,
+                title: "Nivel 4",
+                passingScore: 0.7,
+                questions: [
+                    { "question": "¿Cuál es el país más grande del mundo por superficie?", "options": ["Canadá", "China", "Rusia"], "correctAnswer": "Rusia" },
+                    { "question": "La 'Revolución Francesa' de 1789 derrocó a la monarquía y estableció...", "options": ["un imperio", "una república", "una dictadura"], "correctAnswer": "una república" },
+                    { "question": "El 'Río Nilo' fluye a través de...", "options": ["Asia", "África", "América"], "correctAnswer": "África" },
+                    { "question": "¿Quién fue el líder del movimiento de independencia de la India?", "options": ["Mahatma Gandhi", "Nelson Mandela", "Martin Luther King Jr."], "correctAnswer": "Mahatma Gandhi" },
+                    { "question": "El 'monte Everest' se encuentra en la cordillera del...", "options": ["los Andes", "el Himalaya", "las Rocosas"], "correctAnswer": "el Himalaya" }
+                ]
+            },
+            {
+                id: 5,
+                title: "Nivel 5",
+                passingScore: 0.75,
+                questions: [
+                    { "question": "La 'dictadura' es una forma de gobierno donde el poder es ejercido por...", "options": ["un solo líder", "el pueblo", "un grupo de élite"], "correctAnswer": "un solo líder" },
+                    { "question": "¿Qué río sagrado fluye por la India?", "options": ["El Ganges", "El Nilo", "El Yangtsé"], "correctAnswer": "El Ganges" },
+                    { "question": "El 'Renacimiento' fue un periodo de gran desarrollo en...", "options": ["la tecnología y la industria", "el arte, la cultura y la ciencia", "el comercio y la exploración"], "correctAnswer": "el arte, la cultura y la ciencia" },
+                    { "question": "Los 'aztecas' se establecieron en la actual...", "options": ["Perú", "México", "España"], "correctAnswer": "México" },
+                    { "question": "La 'Constitución' de un país es un documento que...", "options": ["recopila las leyes", "describe la historia", "prohíbe el comercio"], "correctAnswer": "recopila las leyes" }
+                ]
+            },
+            // Dificultad Media (Niveles 6-12)
+            {
+                id: 6,
+                title: "Nivel 6",
+                passingScore: 0.75,
+                questions: [
+                    { "question": "La 'primera guerra mundial' comenzó en el año...", "options": ["1914", "1939", "1945"], "correctAnswer": "1914" },
+                    { "question": "El 'sistema capitalista' se basa en la propiedad privada y...", "options": ["la propiedad del Estado", "la economía de mercado", "el control centralizado"], "correctAnswer": "la economía de mercado" },
+                    { "question": "¿Qué explorador portugués fue el primero en circunnavegar la Tierra?", "options": ["Vasco da Gama", "Cristóbal Colón", "Fernando de Magallanes"], "correctAnswer": "Fernando de Magallanes" },
+                    { "question": "La 'Torre de Pisa' está en...", "options": ["París", "Roma", "Italia"], "correctAnswer": "Italia" },
+                    { "question": "La 'civilización maya' se desarrolló en...", "options": ["América del Sur", "Mesoamérica", "África"], "correctAnswer": "Mesoamérica" }
+                ]
+            },
+            {
+                id: 7,
+                title: "Nivel 7",
+                passingScore: 0.8,
+                questions: [
+                    { "question": "La 'guerra fría' fue un conflicto ideológico entre los bloques...", "options": ["capitalista y comunista", "europeo y americano", "asiático y africano"], "correctAnswer": "capitalista y comunista" },
+                    { "question": "El 'Canal de Panamá' conecta...", "options": ["el Océano Atlántico y el Índico", "el Mar Mediterráneo y el Mar Rojo", "el Océano Atlántico y el Pacífico"], "correctAnswer": "el Océano Atlántico y el Pacífico" },
+                    { "question": "La 'Edad Media' terminó con la caída de...", "options": ["el Imperio Romano de Occidente", "la ciudad de Constantinopla", "la caída del muro de Berlín"], "correctAnswer": "la ciudad de Constantinopla" },
+                    { "question": "¿Quién fue el líder del nazismo en Alemania?", "options": ["Adolf Hitler", "Benito Mussolini", "Winston Churchill"], "correctAnswer": "Adolf Hitler" },
+                    { "question": "El 'Día de la Tierra' se celebra el...", "options": ["1 de enero", "22 de abril", "4 de julio"], "correctAnswer": "22 de abril" }
+                ]
+            },
+            {
+                id: 8,
+                title: "Nivel 8",
+                passingScore: 0.8,
+                questions: [
+                    { "question": "El 'Imperio Romano' cayó en el año...", "options": ["476 d.C.", "1453 d.C.", "1789 d.C."], "correctAnswer": "476 d.C." },
+                    { "question": "El 'Tratado de Versalles' puso fin a...", "options": ["la Segunda Guerra Mundial", "la Primera Guerra Mundial", "la Guerra Fría"], "correctAnswer": "la Primera Guerra Mundial" },
+                    { "question": "La 'Declaración Universal de los Derechos Humanos' fue proclamada en...", "options": ["1919", "1945", "1948"], "correctAnswer": "1948" },
+                    { "question": "El 'socialismo' es un sistema político y económico que defiende...", "options": ["la propiedad privada", "el control de la producción por el Estado", "el libre mercado"], "correctAnswer": "el control de la producción por el Estado" },
+                    { "question": "La 'reforma protestante' fue iniciada por...", "options": ["Martín Lutero", "Enrique VIII", "Juan Calvino"], "correctAnswer": "Martín Lutero" }
+                ]
+            },
+            {
+                id: 9,
+                title: "Nivel 9",
+                passingScore: 0.8,
+                questions: [
+                    { "question": "La 'Edad Antigua' terminó con la caída de...", "options": ["el Imperio Griego", "el Imperio Romano de Occidente", "el Imperio Babilónico"], "correctAnswer": "el Imperio Romano de Occidente" },
+                    { "question": "El 'imperio inca' se ubicó en...", "options": ["Mesoamérica", "los Andes", "el Caribe"], "correctAnswer": "los Andes" },
+                    { "question": "La 'democracia' se originó en la antigua...", "options": ["Roma", "Grecia", "Egipto"], "correctAnswer": "Grecia" },
+                    { "question": "La 'Revolución Industrial' comenzó en...", "options": ["Estados Unidos", "Alemania", "Inglaterra"], "correctAnswer": "Inglaterra" },
+                    { "question": "El 'Estado' es una organización política que tiene el poder de...", "options": ["crear dinero", "gobernar a la población en un territorio", "hacer la guerra"], "correctAnswer": "gobernar a la población en un territorio" }
+                ]
+            },
+            {
+                id: 10,
+                title: "Nivel 10",
+                passingScore: 0.85,
+                questions: [
+                    { "question": "El 'Tratado de Tordesillas' de 1494 dividió las nuevas tierras entre...", "options": ["España y Portugal", "España y Francia", "Inglaterra y Portugal"], "correctAnswer": "España y Portugal" },
+                    { "question": "La 'línea del Ecuador' divide la Tierra en el hemisferio Norte y el hemisferio...", "options": ["Sur", "Este", "Oeste"], "correctAnswer": "Sur" },
+                    { "question": "La 'guerra de los Cien Años' fue un conflicto entre...", "options": ["Francia e Inglaterra", "Alemania y Rusia", "España y Portugal"], "correctAnswer": "Francia e Inglaterra" },
+                    { "question": "El 'Comunismo' es un sistema político y económico que promueve...", "options": ["la propiedad privada", "la abolición de las clases sociales", "la economía de mercado"], "correctAnswer": "la abolición de las clases sociales" },
+                    { "question": "El 'movimiento de los derechos civiles' en EE.UU. fue liderado por...", "options": ["Malcolm X", "Martin Luther King Jr.", "Rosa Parks"], "correctAnswer": "Martin Luther King Jr." }
+                ]
+            },
+            // Dificultad Avanzada (Niveles 11-20)
+            {
+                id: 11,
+                title: "Nivel 11",
+                passingScore: 0.85,
+                questions: [
+                    { "question": "La 'caída del muro de Berlín' ocurrió en el año...", "options": ["1989", "1991", "2001"], "correctAnswer": "1989" },
+                    { "question": "La 'Triple Alianza' en la Primera Guerra Mundial estaba formada por...", "options": ["Alemania, Austria-Hungría e Italia", "Francia, Reino Unido y Rusia", "Estados Unidos, Francia y Rusia"], "correctAnswer": "Alemania, Austria-Hungría e Italia" },
+                    { "question": "El 'Imperio Bizantino' tuvo como capital la ciudad de...", "options": ["Roma", "Constantinopla", "Atenas"], "correctAnswer": "Constantinopla" },
+                    { "question": "El 'Tratado de Maastricht' de 1992 fue el que dio origen a la...", "options": ["OTAN", "Unión Europea", "ONU"], "correctAnswer": "Unión Europea" },
+                    { "question": "La 'Ilustración' fue un movimiento intelectual que promovió...", "options": ["la fe y la tradición", "el uso de la razón y la ciencia", "la monarquía absoluta"], "correctAnswer": "el uso de la razón y la ciencia" }
+                ]
+            },
+            {
+                id: 12,
+                title: "Nivel 12",
+                passingScore: 0.85,
+                questions: [
+                    { "question": "La 'Segunda Guerra Mundial' comenzó en...", "options": ["1914", "1939", "1945"], "correctAnswer": "1939" },
+                    { "question": "La 'guerra civil española' se desarrolló entre los años...", "options": ["1914-1918", "1936-1939", "1945-1949"], "correctAnswer": "1936-1939" },
+                    { "question": "El 'populismo' es una ideología política que apela a...", "options": ["la clase alta", "el pueblo", "el ejército"], "correctAnswer": "el pueblo" },
+                    { "question": "El 'proletariado' es la clase social que, según el marxismo, no posee...", "options": ["propiedad privada", "dinero", "trabajo"], "correctAnswer": "propiedad privada" },
+                    { "question": "La 'Organización de las Naciones Unidas (ONU)' se fundó en el año...", "options": ["1919", "1945", "1950"], "correctAnswer": "1945" }
+                ]
+            },
+            {
+                id: 13,
+                title: "Nivel 13",
+                passingScore: 0.85,
+                questions: [
+                    { "question": "El 'Tratado de Roma' de 1957 estableció la...", "options": ["Comunidad Económica Europea", "OTAN", "ONU"], "correctAnswer": "Comunidad Económica Europea" },
+                    { "question": "El 'Holocausto' fue el genocidio de judíos en la Segunda Guerra Mundial, y fue perpetrado por...", "options": ["la URSS", "la Alemania nazi", "el Imperio Japonés"], "correctAnswer": "la Alemania nazi" },
+                    { "question": "La 'Guerra de Vietnam' fue un conflicto entre el Norte (comunista) y el Sur (apoyado por EE.UU.) que duró de...", "options": ["1955 a 1975", "1960 a 1970", "1950 a 1960"], "correctAnswer": "1955 a 1975" },
+                    { "question": "La 'civilización mesopotámica' se desarrolló entre los ríos...", "options": ["Nilo y Tigris", "Tigris y Éufrates", "Ganges e Indo"], "correctAnswer": "Tigris y Éufrates" },
+                    { "question": "El 'apartheid' fue un sistema de segregación racial en...", "options": ["Estados Unidos", "Sudáfrica", "Australia"], "correctAnswer": "Sudáfrica" }
+                ]
+            },
+            {
+                id: 14,
+                title: "Nivel 14",
+                passingScore: 0.85,
+                questions: [
+                    { "question": "La 'crisis del 29' fue una gran depresión económica que comenzó en...", "options": ["Europa", "Asia", "Estados Unidos"], "correctAnswer": "Estados Unidos" },
+                    { "question": "El 'socialismo utópico' se diferencia del científico en que...", "options": ["es más violento", "no se basa en el estudio de la sociedad", "promueve el libre mercado"], "correctAnswer": "no se basa en el estudio de la sociedad" },
+                    { "question": "El 'derecho consuetudinario' se basa en...", "options": ["leyes escritas", "la costumbre", "la jurisprudencia"], "correctAnswer": "la costumbre" },
+                    { "question": "La 'cultura de la antigua Grecia' se divide en varios periodos, el último es el...", "options": ["arcaico", "clásico", "helenístico"], "correctAnswer": "helenístico" },
+                    { "question": "El 'tratado de libre comercio' es un acuerdo entre países para...", "options": ["prohibir el comercio", "reducir aranceles y barreras comerciales", "aumentar los impuestos"], "correctAnswer": "reducir aranceles y barreras comerciales" }
+                ]
+            },
+            {
+                id: 15,
+                title: "Nivel 15",
+                passingScore: 0.85,
+                questions: [
+                    { "question": "El 'feudalismo' es un sistema político y económico basado en la relación entre...", "options": ["el rey y el pueblo", "el señor feudal y los vasallos", "el Estado y la Iglesia"], "correctAnswer": "el señor feudal y los vasallos" },
+                    { "question": "La 'Peste Negra' del siglo XIV fue una pandemia que afectó a...", "options": ["América", "Europa y Asia", "África"], "correctAnswer": "Europa y Asia" },
+                    { "question": "La 'guerra de las Rosas' fue un conflicto dinástico en...", "options": ["Francia", "Inglaterra", "Alemania"], "correctAnswer": "Inglaterra" },
+                    { "question": "El 'cisma de Oriente y Occidente' de 1054 dividió a la Iglesia en...", "options": ["Católica y Protestante", "Ortodoxa y Católica", "Anglicana y Católica"], "correctAnswer": "Ortodoxa y Católica" },
+                    { "question": "El 'movimiento de los no alineados' fue un grupo de países que se oponía a...", "options": ["el colonialismo", "la guerra fría", "la globalización"], "correctAnswer": "la guerra fría" }
+                ]
+            },
+            {
+                id: 16,
+                title: "Nivel 16",
+                passingScore: 0.9,
+                questions: [
+                    { "question": "El 'capitalismo de Estado' es un sistema en el que el Estado tiene un papel fundamental en la...", "options": ["economía", "religión", "cultura"], "correctAnswer": "economía" },
+                    { "question": "La 'Primavera Árabe' fue una serie de levantamientos populares que ocurrieron en...", "options": ["los años 60", "los años 80", "el año 2010"], "correctAnswer": "el año 2010" },
+                    { "question": "¿Qué río atraviesa la ciudad de Roma?", "options": ["El Sena", "El Támesis", "El Tíber"], "correctAnswer": "El Tíber" },
+                    { "question": "El 'genocidio de Ruanda' de 1994 fue un conflicto étnico entre...", "options": ["tutsi y hutu", "serbios y croatas", "judíos y alemanes"], "correctAnswer": "tutsi y hutu" },
+                    { "question": "El 'consenso de Washington' fue un conjunto de políticas económicas promovidas por...", "options": ["la ONU", "los países desarrollados", "el Fondo Monetario Internacional y el Banco Mundial"], "correctAnswer": "el Fondo Monetario Internacional y el Banco Mundial" }
+                ]
+            },
+            {
+                id: 17,
+                title: "Nivel 17",
+                passingScore: 0.9,
+                questions: [
+                    { "question": "La 'Revolución Rusa' de 1917 derrocó al zarismo e instauró...", "options": ["el comunismo", "la democracia", "la monarquía"], "correctAnswer": "el comunismo" },
+                    { "question": "La 'guerra del Opio' fue un conflicto entre...", "options": ["China y Francia", "China y Reino Unido", "Japón y China"], "correctAnswer": "China y Reino Unido" },
+                    { "question": "La 'diáspora' es la dispersión de un pueblo, y la más conocida es la del pueblo...", "options": ["romano", "judío", "griego"], "correctAnswer": "judío" },
+                    { "question": "La 'Liga de las Naciones' fue una organización internacional creada después de...", "options": ["la Primera Guerra Mundial", "la Segunda Guerra Mundial", "la Guerra Fría"], "correctAnswer": "la Primera Guerra Mundial" },
+                    { "question": "El 'Tratado de Utrecht' de 1713 puso fin a...", "options": ["la guerra de los Cien Años", "la guerra de Sucesión Española", "la guerra de los Treinta Años"], "correctAnswer": "la guerra de Sucesión Española" }
+                ]
+            },
+            {
+                id: 18,
+                title: "Nivel 18",
+                passingScore: 0.9,
+                questions: [
+                    { "question": "El 'plan Marshall' fue un programa de ayuda económica para reconstruir...", "options": ["Japón", "Europa Occidental", "Europa Oriental"], "correctAnswer": "Europa Occidental" },
+                    { "question": "La 'OTAN' es una alianza militar que se creó en 1949 para hacer frente a...", "options": ["la amenaza del nazismo", "la expansión del comunismo", "el terrorismo"], "correctAnswer": "la expansión del comunismo" },
+                    { "question": "La 'globalización' es un proceso de interacción e integración entre personas, empresas y gobiernos de diferentes...", "options": ["países", "regiones", "continentes"], "correctAnswer": "países" },
+                    { "question": "El 'capitalismo financiero' se caracteriza por la importancia de...", "options": ["la industria", "el capital bancario y especulativo", "la agricultura"], "correctAnswer": "el capital bancario y especulativo" },
+                    { "question": "La 'Guerra de Corea' dividió a la península en Corea del Norte (comunista) y Corea del Sur (capitalista) en el año...", "options": ["1945", "1950", "1953"], "correctAnswer": "1953" }
+                ]
+            },
+            {
+                id: 19,
+                title: "Nivel 19",
+                passingScore: 0.95,
+                questions: [
+                    { "question": "La 'doctrina Monroe' de 1823 estableció que...", "options": ["Europa debía colonizar América", "América era para los europeos", "América era para los americanos"], "correctAnswer": "América era para los americanos" },
+                    { "question": "La 'Batalla de Stalingrado' fue un punto de inflexión en la Segunda Guerra Mundial, y fue una derrota para...", "options": ["Alemania", "la URSS", "Reino Unido"], "correctAnswer": "Alemania" },
+                    { "question": "La 'guerra de los Seis Días' de 1967 fue un conflicto entre Israel y...", "options": ["Egipto, Jordania y Siria", "Irán e Irak", "Líbano y Siria"], "correctAnswer": "Egipto, Jordania y Siria" },
+                    { "question": "La 'Edad de los Metales' se divide en Edad del Cobre, Edad del Bronce y Edad del...", "options": ["Hierro", "Oro", "Plata"], "correctAnswer": "Hierro" },
+                    { "question": "La 'República de Weimar' fue un régimen democrático que existió en Alemania entre...", "options": ["1918 y 1933", "1933 y 1945", "1945 y 1989"], "correctAnswer": "1918 y 1933" }
+                ]
+            },
+            {
+                id: 20,
+                title: "Nivel 20",
+                passingScore: 0.95,
+                questions: [
+                    { "question": "La 'Organización Mundial del Comercio (OMC)' es una organización que regula...", "options": ["la política mundial", "el comercio internacional", "la inmigración"], "correctAnswer": "el comercio internacional" },
+                    { "question": "El 'Muro de las Lamentaciones' es un lugar sagrado para los judíos y se encuentra en...", "options": ["Roma", "Jerusalén", "El Cairo"], "correctAnswer": "Jerusalén" },
+                    { "question": "La 'guerra de la Independencia de los Estados Unidos' comenzó en el año...", "options": ["1776", "1789", "1812"], "correctAnswer": "1776" },
+                    { "question": "La 'civilización persa' se desarrolló en el actual territorio de...", "options": ["Turquía", "Irán", "Irak"], "correctAnswer": "Irán" },
+                    { "question": "El 'fascismo' es una ideología política que promueve el nacionalismo extremo y...", "options": ["la democracia", "el totalitarismo", "el socialismo"], "correctAnswer": "el totalitarismo" }
+                ]
+            },
+            // Dificultad Experta (Niveles 21-30)
+            {
+                id: 21,
+                title: "Nivel 21",
+                passingScore: 0.95,
+                questions: [
+                    { "question": "La 'Guerra de los Treinta Años' (1618-1648) fue un conflicto principalmente religioso y político que se desarrolló en...", "options": ["América", "Asia", "Europa"], "correctAnswer": "Europa" },
+                    { "question": "El 'Tratado de Westfalia' de 1648 puso fin a la Guerra de los Treinta Años y estableció el principio de...", "options": ["soberanía estatal", "autodeterminación", "libertad de comercio"], "correctAnswer": "soberanía estatal" },
+                    { "question": "La 'Dinastía Ming' (1368-1644) fue una de las más importantes en la historia de...", "options": ["Japón", "China", "Corea"], "correctAnswer": "China" },
+                    { "question": "La 'guerra de Secesión' de EE.UU. fue un conflicto entre los estados del Norte (Unión) y los del Sur (Confederación) que se desarrolló de...", "options": ["1861 a 1865", "1850 a 1855", "1870 a 1875"], "correctAnswer": "1861 a 1865" },
+                    { "question": "El 'Estado del bienestar' es un modelo de organización social que busca asegurar el bienestar de los ciudadanos a través de...", "options": ["servicios públicos", "el libre mercado", "la caridad"], "correctAnswer": "servicios públicos" }
+                ]
+            },
+            {
+                id: 22,
+                title: "Nivel 22",
+                passingScore: 1.0,
+                questions: [
+                    { "question": "La 'Revolución Gloriosa' de 1688 en Inglaterra estableció una monarquía...", "options": ["absoluta", "parlamentaria", "federal"], "correctAnswer": "parlamentaria" },
+                    { "question": "El 'proceso de descolonización' se desarrolló principalmente después de...", "options": ["la Primera Guerra Mundial", "la Segunda Guerra Mundial", "la Guerra Fría"], "correctAnswer": "la Segunda Guerra Mundial" },
+                    { "question": "La 'doctrina Truman' de 1947 se enfocó en contener la expansión de...", "options": ["el fascismo", "el comunismo", "la globalización"], "correctAnswer": "el comunismo" },
+                    { "question": "El 'tratado de libre comercio de América del Norte (TLCAN)' fue un acuerdo entre...", "options": ["México, EE.UU. y Canadá", "EE.UU., Brasil y Argentina", "Canadá, México y China"], "correctAnswer": "México, EE.UU. y Canadá" },
+                    { "question": "La 'Comuna de París' de 1871 fue un gobierno revolucionario y efímero que se estableció en...", "options": ["Moscú", "París", "Londres"], "correctAnswer": "París" }
+                ]
+            },
+            {
+                id: 23,
+                title: "Nivel 23",
+                passingScore: 1.0,
+                questions: [
+                    { "question": "La 'Guerra de las Galaxias' (Strategic Defense Initiative) fue un programa de defensa propuesto por...", "options": ["Ronald Reagan", "George Bush", "John F. Kennedy"], "correctAnswer": "Ronald Reagan" },
+                    { "question": "El 'populismo de derecha' se caracteriza por un fuerte nacionalismo, un líder carismático y una retórica anti...", "options": ["izquierdista", "socialista", "inmigrante"], "correctAnswer": "inmigrante" },
+                    { "question": "La 'teoría de la dependencia' es una teoría económica que explica el subdesarrollo de los países periféricos como resultado de su relación con...", "options": ["los países desarrollados", "el colonialismo", "la globalización"], "correctAnswer": "los países desarrollados" },
+                    { "question": "El 'Estado Islámico (ISIS)' es un grupo yihadista que busca establecer un califato en el...", "options": ["Oriente Medio", "Norte de África", "Sureste Asiático"], "correctAnswer": "Oriente Medio" },
+                    { "question": "La 'Pax Romana' fue un periodo de paz y prosperidad en el Imperio Romano que duró aproximadamente...", "options": ["50 años", "100 años", "200 años"], "correctAnswer": "200 años" }
+                ]
+            },
+            {
+                id: 24,
+                title: "Nivel 24",
+                passingScore: 1.0,
+                questions: [
+                    { "question": "La 'guerra del Golfo' de 1991 fue una operación militar para liberar a Kuwait de la invasión de...", "options": ["Irán", "Irak", "Siria"], "correctAnswer": "Irak" },
+                    { "question": "El 'movimiento sufragista' luchó por el derecho de las mujeres a...", "options": ["votar", "trabajar", "estudiar"], "correctAnswer": "votar" },
+                    { "question": "La 'Revolución Cultural China' de los años 60 fue una campaña liderada por Mao Zedong para eliminar los elementos capitalistas y tradicionales de la sociedad, y fue un periodo de...", "options": ["gran crecimiento económico", "violencia y purgas", "democracia"], "correctAnswer": "violencia y purgas" },
+                    { "question": "El 'neoliberalismo' es una teoría económica y política que promueve la libertad de mercado y la privatización de...", "options": ["las empresas públicas", "la educación", "la salud"], "correctAnswer": "las empresas públicas" },
+                    { "question": "La 'Liga Hanseática' fue una federación de ciudades comerciales que controló el comercio en el Mar Báltico y el Mar del Norte durante la...", "options": ["Edad Media", "Edad Moderna", "Edad Contemporánea"], "correctAnswer": "Edad Media" }
+                ]
+            },
+            {
+                id: 25,
+                title: "Nivel 25",
+                passingScore: 1.0,
+                questions: [
+                    { "question": "La 'guerra de los Balcanes' de los años 90 resultó en la desintegración de...", "options": ["Checoslovaquia", "la URSS", "Yugoslavia"], "correctAnswer": "Yugoslavia" },
+                    { "question": "El 'Tratado de Niza' de 2001 modificó el sistema de toma de decisiones en la...", "options": ["ONU", "Unión Europea", "OTAN"], "correctAnswer": "Unión Europea" },
+                    { "question": "La 'sociedad de la información' es una sociedad en la que la creación, distribución y manipulación de la información juega un papel importante en la...", "options": ["vida política", "vida económica y cultural", "vida religiosa"], "correctAnswer": "vida económica y cultural" },
+                    { "question": "La 'doctrina de la seguridad nacional' es una doctrina militar que surgió en la Guerra Fría y se basa en la idea de que la seguridad de un Estado es una prioridad sobre...", "options": ["la economía", "los derechos humanos", "la cultura"], "correctAnswer": "los derechos humanos" },
+                    { "question": "La 'Guerra de los Treinta Años' terminó con la firma de la...", "options": ["Paz de Westfalia", "Paz de París", "Paz de Versalles"], "correctAnswer": "Paz de Westfalia" }
+                ]
+            },
+            {
+                id: 26,
+                title: "Nivel 26",
+                passingScore: 1.0,
+                questions: [
+                    { "question": "La 'teoría de la conspiración' se refiere a la creencia en que un evento o situación es el resultado de un plan secreto de un grupo de...", "options": ["políticos", "gente influyente", "conspiradores"], "correctAnswer": "conspiradores" },
+                    { "question": "El 'estado laico' es un estado que no tiene una...", "options": ["religión oficial", "constitución", "monarquía"], "correctAnswer": "religión oficial" },
+                    { "question": "La 'política de contención' fue una estrategia de EE.UU. durante la Guerra Fría para prevenir la expansión del...", "options": ["fascismo", "comunismo", "imperialismo"], "correctAnswer": "comunismo" },
+                    { "question": "El 'tratado de Kioto' de 1997 fue un acuerdo para reducir las emisiones de...", "options": ["dióxido de carbono", "óxidos de nitrógeno", "clorofluorocarbonos"], "correctAnswer": "dióxido de carbono" },
+                    { "question": "La 'diplomacia' es la práctica de gestionar las relaciones internacionales a través de...", "options": ["la guerra", "la negociación", "la fuerza"], "correctAnswer": "la negociación" }
+                ]
+            },
+            {
+                id: 27,
+                title: "Nivel 27",
+                passingScore: 1.0,
+                questions: [
+                    { "question": "La 'Gran Depresión' (1929) se caracterizó por una gran caída de...", "options": ["la producción y el empleo", "la temperatura global", "la natalidad"], "correctAnswer": "la producción y el empleo" },
+                    { "question": "La 'doctrina de shock' es una teoría que sostiene que los desastres naturales o las crisis políticas se utilizan para imponer políticas económicas...", "options": ["neoliberales", "socialistas", "proteccionistas"], "correctAnswer": "neoliberales" },
+                    { "question": "El 'populismo de izquierda' se caracteriza por un discurso que apela a la clase trabajadora y promueve políticas...", "options": ["de libre mercado", "de redistribución de la riqueza", "proteccionistas"], "correctAnswer": "de redistribución de la riqueza" },
+                    { "question": "La 'teoría del fin de la historia' de Francis Fukuyama sostiene que la democracia liberal y la economía de mercado son el punto final de la evolución...", "options": ["social", "política e ideológica", "tecnológica"], "correctAnswer": "política e ideológica" },
+                    { "question": "El 'cisma de Occidente' (1378-1417) fue una división de la Iglesia Católica en la que había dos o tres...", "options": ["papas", "reyes", "emperadores"], "correctAnswer": "papas" }
+                ]
+            },
+            {
+                id: 28,
+                title: "Nivel 28",
+                passingScore: 1.0,
+                questions: [
+                    { "question": "La 'guerra civil de Siria' es un conflicto que comenzó en el año...", "options": ["2001", "2011", "2014"], "correctAnswer": "2011" },
+                    { "question": "La 'doctrina de seguridad humana' se enfoca en la protección de los individuos en lugar de la protección de...", "options": ["los Estados", "las empresas", "la religión"], "correctAnswer": "los Estados" },
+                    { "question": "El 'Maoísmo' es una variante del marxismo-leninismo que se adaptó a las condiciones de la China de...", "options": ["la industria", "la agricultura", "el comercio"], "correctAnswer": "la agricultura" },
+                    { "question": "La 'primavera de Praga' de 1968 fue un intento de liberalización política en Checoslovaquia que fue reprimido por...", "options": ["la OTAN", "la URSS", "EE.UU."], "correctAnswer": "la URSS" },
+                    { "question": "El 'Tratado de Lisboa' de 2007 modificó los tratados de la Unión Europea y le dio más poder al...", "options": ["Parlamento Europeo", "Consejo Europeo", "Presidente de la Comisión"], "correctAnswer": "Parlamento Europeo" }
+                ]
+            },
+            {
+                id: 29,
+                title: "Nivel 29",
+                passingScore: 1.0,
+                questions: [
+                    { "question": "La 'crisis de los misiles de Cuba' de 1962 fue un enfrentamiento entre EE.UU. y la URSS por la instalación de misiles nucleares en...", "options": ["México", "Cuba", "Puerto Rico"], "correctAnswer": "Cuba" },
+                    { "question": "La 'guerra de los Balcanes' de los años 90 fue un conflicto que se originó por la desintegración de...", "options": ["la URSS", "Yugoslavia", "Checoslovaquia"], "correctAnswer": "Yugoslavia" },
+                    { "question": "La 'Revolución Naranja' de 2004 fue un movimiento de protesta en Ucrania contra el fraude en las...", "options": ["elecciones presidenciales", "elecciones parlamentarias", "elecciones locales"], "correctAnswer": "elecciones presidenciales" },
+                    { "question": "La 'doctrina Brezhnev' de la URSS establecía que Moscú tenía derecho a intervenir en los asuntos de los países socialistas para defender el...", "options": ["capitalismo", "socialismo", "nacionalismo"], "correctAnswer": "socialismo" },
+                    { "question": "El 'movimiento 15-M' o 'Indignados' fue un movimiento de protesta en España que surgió en el año...", "options": ["2008", "2011", "2014"], "correctAnswer": "2011" }
+                ]
+            },
+            {
+                id: 30,
+                title: "Nivel 30",
+                passingScore: 1.0,
+                questions: [
+                    { "question": "El 'acuerdo de paz de Dayton' de 1995 puso fin a la guerra de...", "options": ["Croacia", "Serbia", "Bosnia"], "correctAnswer": "Bosnia" },
+                    { "question": "La 'Revolución Industrial' fue un proceso de transformación económica y social que comenzó en el siglo...", "options": ["XVI", "XVIII", "XX"], "correctAnswer": "XVIII" },
+                    { "question": "La 'teoría de la conspiración' de 'chemtrails' sostiene que las estelas de los aviones son en realidad productos químicos para...", "options": ["controlar el clima", "controlar la población", "controlar las mentes"], "correctAnswer": "controlar el clima" },
+                    { "question": "La 'diplomacia del dólar' fue una política exterior de EE.UU. en América Latina que consistía en el uso del poder económico y financiero para...", "options": ["promover la democracia", "proteger los intereses de EE.UU.", "promover el socialismo"], "correctAnswer": "proteger los intereses de EE.UU." },
+                    { "question": "La 'teoría del desarrollo sostenible' es un enfoque que busca un equilibrio entre el crecimiento económico, la protección del medio ambiente y la...", "options": ["equidad social", "política", "religión"], "correctAnswer": "equidad social" }
+                ]
+            }
+        ];
