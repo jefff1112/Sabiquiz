@@ -99,13 +99,21 @@
         import { getAuth, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-        const firebaseConfig = { /* ... Tu configuración ... */ };
+        const firebaseConfig = {
+  apiKey: "AIzaSyDx_2b2rhaoRh7WawE9b-QVlVNj5PfycVA",
+  authDomain: "sabiquiz-8f915.firebaseapp.com",
+  projectId: "sabiquiz-8f915",
+  storageBucket: "sabiquiz-8f915.firebasestorage.app",
+  messagingSenderId: "1007656278742",
+  appId: "1:1007656278742:web:a17a204b430d2638e74777",
+  measurementId: "G-FB8HC6HV73"
+};
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
         // --- ¡LA CORRECCIÓN MÁS IMPORTANTE PARA VERCEL! ---
-        const productionURL = "https://sabiquiz.vercel.app"; // <-- Asegúrate que esta sea tu URL de Vercel
+        const productionURL = "https://sabiquiz.vercel.app/"; // <-- Asegúrate que esta sea tu URL de Vercel
         const socketURL = window.location.hostname.includes('localhost') 
             ? "http://localhost:3000" 
             : productionURL;
