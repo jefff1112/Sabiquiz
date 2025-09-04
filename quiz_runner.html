@@ -5,9 +5,33 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SabiQuiz - Quiz</title>
     <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap">
 </head>
 <body>
+    <div class="container quiz-container">
+        <a href="#" id="backBtn" class="back-btn">← Volver a los niveles</a>
+        <h3 id="subjectTitle">Cargando Quiz...</h3>
+        <div id="quiz-game">
+            <div class="quiz-status">
+                Pregunta <span id="questionCounter"></span> | Puntos: <span id="scoreDisplay">0</span> | Tiempo: <span id="timerDisplay"></span>
+            </div>
+            <div id="currentQuestionCard" class="question-card">
+                <p id="questionText"></p>
+                <div id="optionsContainer" class="options-grid"></div>
+            </div>
+            <div class="quiz-footer">
+                <img id="quizMascot" src="img/confundido_perro_4.png" alt="Mascota del Quiz">
+                <div id="feedback" class="feedback-message"></div>
+            </div>
+            <button id="nextQuestionBtn" class="next-btn" style="display:none;">Siguiente Pregunta</button>
+        </div>
+    </div>
+    
+    <audio id="correctSound" src="img/correct.mp3"></audio>
+    <audio id="incorrectSound" src="img/incorrect.mp3"></audio>
+
     <script type="module">
+        // --- 1. IMPORTACIONES Y CONFIGURACIÓN ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -21,11 +45,10 @@
   appId: "1:1007656278742:web:a17a204b430d2638e74777",
   measurementId: "G-FB8HC6HV73"
 };
+
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-
-        // ... (El resto de tu script completo de quiz_runner.html que ya funcionaba) ...
         let currentUser = null;
 
         // --- EL "GUARDIA DE SEGURIDAD" DE AUTENTICACIÓN ---
@@ -37,14 +60,15 @@
             }, reject);
         });
 
-        // --- 2. LÓGICA DEL QUIZ (ESPERA AL "GUARDIA") ---
+        // --- 2. LÓGICA DEL QUIZ (ESTRUCTURA CORREGIDA) ---
         document.addEventListener('DOMContentLoaded', async () => {
-            await authReady;
+            await authReady; // Primero esperamos a que la autenticación esté lista
             
             if (!currentUser) {
                 console.error("Usuario no autenticado. El XP no se guardará.");
             }
 
+            // El resto del código del juego va aquí adentro
             const backBtn = document.getElementById('backBtn');
             const subjectTitle = document.getElementById('subjectTitle');
             const questionCounter = document.getElementById('questionCounter');
