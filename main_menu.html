@@ -72,7 +72,7 @@
             <h3 id="endGameMessage" class="end-game-message"></h3>
             <button id="rematchBtn" class="btn btn-rematch">Revancha</button>
         </div>
-
+        
         <div id="matchFoundContainer" class="popup-overlay" style="display: none;">
             <div class="popup-card animate__animated animate__zoomIn">
                 <h2>¡Oponente Encontrado!</h2>
@@ -93,6 +93,7 @@
     </div>
     
     <script src="/socket.io/socket.io.js"></script>
+    
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
@@ -112,6 +113,7 @@
         const db = getFirestore(app);
         const socket = io("http://localhost:3000");
 
+        // --- ELEMENTOS DEL DOM ---
         const appContainer = document.getElementById('appContainer');
         const welcomeMessage = document.getElementById('welcomeMessage');
         const logoutBtn = document.getElementById('logoutBtn');
@@ -143,8 +145,10 @@
         const acceptMatchBtn = document.getElementById('acceptMatchBtn');
         const rejectMatchBtn = document.getElementById('rejectMatchBtn');
         
+        // --- VARIABLES GLOBALES ---
         let currentUser = null, userProfile = {}, currentRoomCode = '', localPlayerId = '', tempRoomId = '';
         
+        // --- LÓGICA DE AUTENTICACIÓN ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
@@ -158,15 +162,16 @@
             } else { window.location.href = 'login.html'; }
         });
         
+        // --- EVENT LISTENERS DE BOTONES ---
         logoutBtn.addEventListener('click', () => signOut(auth));
         
         findMatchBtn.addEventListener('click', () => {
-            findMatchBtn.style.display = 'none';
-            document.getElementById('codeRoomContainer').style.display = 'none';
             document.querySelector('.sub-heading').style.display = 'none';
+            document.getElementById('codeRoomContainer').style.display = 'none';
+            findMatchBtn.style.display = 'none';
             matchmakingStatus.style.display = 'block';
             const totalXp = (userProfile.quizXp || 0) + (userProfile.pvpXp || 0);
-            const playerData = { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL, level: userProfile.level || 1, totalXp: totalXp };
+            const playerData = { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL, level: userProfile.level || 1, totalXp };
             socket.emit('findMatch', playerData);
         });
 
@@ -179,18 +184,21 @@
         });
 
         function setStatus(message) { statusMessage.textContent = message; }
+        
         createRoomBtn.addEventListener('click', () => {
             const roomCode = roomCodeInput.value.trim();
             if (roomCode && currentUser) {
                 socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } });
             }
         });
+
         joinRoomBtn.addEventListener('click', () => {
             const roomCode = roomCodeInput.value.trim();
             if (roomCode && currentUser) {
                 socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } });
             }
         });
+
         rematchBtn.addEventListener('click', () => {
             endGameContainer.style.display = 'none';
             multiplayerMenu.style.display = 'block';
@@ -207,10 +215,11 @@
 
         rejectMatchBtn.addEventListener('click', () => {
             matchFoundContainer.style.display = 'none';
-            findMatchBtn.click(); // Simula clic para volver a buscar
+            findMatchBtn.click();
             socket.emit('rejectMatch', { roomId: tempRoomId });
         });
 
+        // --- HANDLERS DE SOCKET.IO ---
         socket.on('connect', () => { localPlayerId = socket.id; });
         socket.on('roomCreated', (rc) => { currentRoomCode = rc; setStatus(`Sala "${rc}" creada. Esperando...`); });
         socket.on('playerJoined', () => setStatus('Oponente conectado. ¡Prepárense!'));
@@ -307,6 +316,7 @@
             endGameContainer.style.display = 'block';
             const myId = localPlayerId;
             const otherId = Object.keys(data.playerData).find(id => id !== myId);
+            if (!myId || !otherId) return;
             const myPd = data.playerData[myId], otherPd = data.playerData[otherId];
             const myScore = data.scores[myId], otherScore = data.scores[otherId];
             let msg = '';
