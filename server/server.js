@@ -13,7 +13,15 @@ admin.initializeApp({
 const db = admin.firestore();
 const app = express();
 const server = http.createServer(app);
-const io = socketIO(server);
+
+// --- ¡LA CORRECCIÓN MÁS IMPORTANTE PARA VERCEL! ---
+const io = socketIO(server, {
+  cors: {
+    origin: ["http://localhost:3000", "https://sabiquiz.vercel.app"],
+    methods: ["GET", "POST"]
+  }
+});
+
 const publicPath = path.join(__dirname, '..');
 app.use(express.static(publicPath));
 app.get('/', (req, res) => res.sendFile(path.join(publicPath, 'index.html')));
@@ -22,7 +30,6 @@ let rooms = {};
 let matchmakingPool = [];
 
 // --- 2. FUNCIONES DE LÓGICA DE JUEGO ---
-
 function startGame(roomCode) {
     const room = rooms[roomCode];
     if (!room || room.players.length !== 2) return;
@@ -170,21 +177,16 @@ io.on('connection', (socket) => {
             socket.emit('roomFull');
         }
     });
-
     socket.on('acceptMatch', ({ roomId }) => {
         const room = rooms[roomId];
         if (!room || room.votes.has(socket.id)) return;
         room.votes.add(socket.id);
         if (room.votes.size === 2) {
-            // --- ¡LA CORRECCIÓN CLAVE! ---
-            // Preparamos la sala para el juego añadiendo la propiedad que faltaba.
             room.rematchVoters = new Set();
             delete room.votes;
-            
             startGame(roomId);
         }
     });
-
     socket.on('rejectMatch', ({ roomId }) => {
         const room = rooms[roomId];
         if (!room) return;
@@ -197,7 +199,6 @@ io.on('connection', (socket) => {
         });
         delete rooms[roomId];
     });
-
     socket.on('playerAnswer', ({ roomCode, answer }) => {
         const room = rooms[roomCode];
         if (!room || !room.gameData || room.gameData.playerAnswers[socket.id]) return;
@@ -230,7 +231,6 @@ io.on('connection', (socket) => {
             socket.emit('answerReceived');
         }
     });
-
     socket.on('requestRematch', (data) => {
         const room = rooms[data.roomCode];
         if (!room || room.rematchVoters.has(socket.id)) return;
@@ -239,7 +239,6 @@ io.on('connection', (socket) => {
             startGame(data.roomCode);
         }
     });
-    
     socket.on('disconnect', () => {
         console.log(`Usuario desconectado: ${socket.id}`);
         matchmakingPool = matchmakingPool.filter(p => p.socketId !== socket.id);
