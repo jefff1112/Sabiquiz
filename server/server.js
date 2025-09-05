@@ -14,7 +14,6 @@ const db = admin.firestore();
 const app = express();
 const server = http.createServer(app);
 
-// --- ¡LA CORRECCIÓN MÁS IMPORTANTE PARA VERCEL! ---
 const io = socketIO(server, {
   cors: {
     origin: ["http://localhost:3000", "https://sabiquiz.vercel.app"],
@@ -30,6 +29,7 @@ let rooms = {};
 let matchmakingPool = [];
 
 // --- 2. FUNCIONES DE LÓGICA DE JUEGO ---
+
 function startGame(roomCode) {
     const room = rooms[roomCode];
     if (!room || room.players.length !== 2) return;
@@ -193,9 +193,7 @@ io.on('connection', (socket) => {
         io.to(roomId).emit('matchRejected');
         room.players.forEach(playerId => {
             const playerProfile = room.playerData[playerId];
-            if (playerProfile) {
-                matchmakingPool.unshift({ socketId: playerId, data: playerProfile });
-            }
+            if (playerProfile) matchmakingPool.unshift({ socketId: playerId, data: playerProfile });
         });
         delete rooms[roomId];
     });
@@ -235,9 +233,7 @@ io.on('connection', (socket) => {
         const room = rooms[data.roomCode];
         if (!room || room.rematchVoters.has(socket.id)) return;
         room.rematchVoters.add(socket.id);
-        if (room.rematchVoters.size === 2) {
-            startGame(data.roomCode);
-        }
+        if (room.rematchVoters.size === 2) startGame(data.roomCode);
     });
     socket.on('disconnect', () => {
         console.log(`Usuario desconectado: ${socket.id}`);

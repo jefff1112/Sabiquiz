@@ -113,7 +113,7 @@
         const db = getFirestore(app);
 
         // --- ¡LA CORRECCIÓN MÁS IMPORTANTE PARA VERCEL! ---
-        const productionURL = "https://sabiquiz.vercel.app/"; // <-- Asegúrate que esta sea tu URL de Vercel
+        const productionURL = ""; // <-- Asegúrate que esta sea tu URL de Vercel
         const socketURL = window.location.hostname.includes('localhost') 
             ? "http://localhost:3000" 
             : productionURL;
