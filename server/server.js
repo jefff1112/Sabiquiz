@@ -7,9 +7,7 @@ const serviceAccount = require('./serviceAccountKey.json');
 const questions = require('./questions');
 
 // --- 1. CONFIGURACIÓN ---
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
 const db = admin.firestore();
 const app = express();
 const server = http.createServer(app);
@@ -21,9 +19,16 @@ const io = socketIO(server, {
   }
 });
 
-const publicPath = path.join(__dirname, '..');
+// --- ¡CORRECCIÓN CLAVE PARA VERCEL! ---
+// Esta nueva forma de definir la ruta a los archivos públicos funciona tanto
+// en localhost como en el servidor de Vercel.
+const publicPath = path.resolve(__dirname, '..');
 app.use(express.static(publicPath));
-app.get('/', (req, res) => res.sendFile(path.join(publicPath, 'index.html')));
+// ------------------------------------
+
+app.get('/', (req, res) => {
+    res.sendFile(path.join(publicPath, 'index.html'));
+});
 
 let rooms = {};
 let matchmakingPool = [];
