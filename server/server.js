@@ -4,11 +4,9 @@ const socketIO = require('socket.io');
 const path = require('path');
 const admin = require('firebase-admin');
 
-// Rutas absolutas para que Vercel encuentre los archivos
 const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
 const questions = require(path.join(__dirname, 'questions.js'));
 
-// --- 1. CONFIGURACIÓN ---
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
@@ -23,14 +21,11 @@ const io = socketIO(server, {
   }
 });
 
-// Ruta a la carpeta raíz del proyecto (un nivel arriba de /server)
 const publicPath = path.resolve(__dirname, '..');
 app.use(express.static(publicPath));
 
 let rooms = {};
 let matchmakingPool = [];
-
-// --- 2. FUNCIONES DE LÓGICA DE JUEGO ---
 
 function startGame(roomCode) {
     const room = rooms[roomCode];
@@ -51,7 +46,6 @@ function startGame(roomCode) {
         startQuestionTimer(roomCode);
     }, 4000);
 }
-
 function startQuestionTimer(roomCode) {
     const room = rooms[roomCode];
     if (!room || !room.gameData) return;
@@ -63,17 +57,11 @@ function startQuestionTimer(roomCode) {
         if (timeLeft < 0) {
             clearInterval(room.timerInterval);
             const currentQuestion = room.gameData.questions[room.gameData.currentQuestionIndex];
-            io.to(roomCode).emit('roundResult', {
-                playerAnswers: {},
-                correctAnswer: currentQuestion.correctAnswer,
-                scores: room.gameData.scores,
-                playerData: room.playerData
-            });
+            io.to(roomCode).emit('roundResult', { playerAnswers: {}, correctAnswer: currentQuestion.correctAnswer, scores: room.gameData.scores, playerData: room.playerData });
             setTimeout(() => proceedToNextQuestion(roomCode), 2000);
         }
     }, 1000);
 }
-
 function proceedToNextQuestion(roomCode) {
     const room = rooms[roomCode];
     if (!room || !room.gameData) return;
@@ -88,7 +76,6 @@ function proceedToNextQuestion(roomCode) {
         startQuestionTimer(roomCode);
     }
 }
-
 async function handleEndGame(roomCode) {
     const room = rooms[roomCode];
     if (!room || !room.gameData) return;
@@ -116,12 +103,9 @@ async function handleEndGame(roomCode) {
         }
     } catch (error) { console.error("Error al guardar datos de 1vs1 en Firestore:", error); }
 }
-
 function getRandomGameMode() {
     return Math.random() < 0.5 ? 'normal' : 'revancha';
 }
-
-// --- 3. "ÁRBITRO" DE MATCHMAKING ---
 setInterval(() => {
     if (matchmakingPool.length >= 2) {
         const player1 = matchmakingPool.shift();
@@ -141,8 +125,6 @@ setInterval(() => {
         socket2.emit('matchFound', { roomId: tempRoomId, opponent: player1.data });
     }
 }, 3000);
-
-// --- 4. MANEJO DE CONEXIONES DE SOCKET.IO ---
 io.on('connection', (socket) => {
     console.log(`Usuario conectado: ${socket.id}`);
     socket.on('findMatch', (playerData) => { if (matchmakingPool.some(p => p.socketId === socket.id)) return; matchmakingPool.push({ socketId: socket.id, data: playerData }); });
@@ -205,9 +187,7 @@ io.on('connection', (socket) => {
         }
         if (roundOver) {
             for (const playerId in gameData.playerAnswers) {
-                if (gameData.playerAnswers[playerId].isCorrect) {
-                    gameData.scores[playerId]++;
-                }
+                if (gameData.playerAnswers[playerId].isCorrect) gameData.scores[playerId]++;
             }
             io.to(roomCode).emit('roundResult', { playerAnswers: gameData.playerAnswers, correctAnswer: correctAnswer || 'Error', scores: gameData.scores, playerData: room.playerData });
             setTimeout(() => proceedToNextQuestion(roomCode), 2500);
@@ -244,12 +224,10 @@ io.on('connection', (socket) => {
     });
 });
 
-// --- RUTA FINAL PARA CAPTURAR TODO Y SERVIR index.html ---
 app.get('*', (req, res) => {
     res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-// --- 5. INICIO DEL SERVIDOR ---
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);
