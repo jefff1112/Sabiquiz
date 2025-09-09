@@ -1,18 +1,17 @@
 {
-  "name": "server",
+  "name": "sabiquiz",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Juego de quizzes educativo",
+  "main": "server/server.js",
   "scripts": {
     "start": "node server/server.js",
-    "build": "echo 'Build step not required'"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "express": "^5.1.0",
-    "firebase-admin": "^13.5.0",
-    "socket.io": "^4.8.1"
+    "express": "^4.18.2",
+    "firebase-admin": "^11.10.1",
+    "socket.io": "^4.7.2"
   }
 }
