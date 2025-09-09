@@ -10,34 +10,16 @@
 <body>
     <div id="appContainer" style="display: none;">
         <div id="mainMenu" class="container main-menu-container">
-            <div class="main-menu-header">
-                <h1 id="welcomeMessage">¡Bienvenido a SabiQuiz!</h1>
-                <div class="header-buttons">
-                    <a href="leaderboard.html" class="btn btn-leaderboard">Ranking</a>
-                    <a href="profile.html" id="profileBtn" class="btn btn-profile">Mi Perfil</a>
-                    <button id="logoutBtn" class="btn btn-logout">Cerrar Sesión</button>
-                </div>
-            </div>
+            <div class="main-menu-header"><h1 id="welcomeMessage">¡Bienvenido a SabiQuiz!</h1><div class="header-buttons"><a href="leaderboard.html" class="btn btn-leaderboard">Ranking</a><a href="profile.html" id="profileBtn" class="btn btn-profile">Mi Perfil</a><button id="logoutBtn" class="btn btn-logout">Cerrar Sesión</button></div></div>
             <div class="sabiquiz-logo"><img src="img/celebrando_perro_2.png" alt="SabiQuiz Dog Logo"></div>
             <h2>Elige tu materia para comenzar</h2>
-            
-            <div class="subject-grid">
-                <a href="materias/lenguaje.html" class="subject-card language"><img src="img/lenguaje.png" alt="Lenguaje"><h3>Lenguaje</h3></a>
-                <a href="materias/matematicas.html" class="subject-card maths"><img src="img/mat.png" alt="Matemáticas"><h3>Matemáticas</h3></a>
-                <a href="materias/ciencias.html" class="subject-card science"><img src="img/ciencia.png" alt="Ciencias"><h3>Ciencias</h3></a>
-                <a href="materias/sociales.html" class="subject-card social"><img src="img/sociales.png" alt="Sociales"><h3>Sociales</h3></a>
-                <a href="materias/ingles.html" class="subject-card english"><img src="img/ingles.png" alt="Inglés"><h3>Inglés</h3></a>
-                <a href="materias/programacion.html" class="subject-card programming"><img src="img/programacion.png" alt="Programación"><h3>Programación</h3></a>
-                <a href="materias/salud.html" class="subject-card health"><img src="img/salud.png" alt="Salud"><h3>Salud</h3></a>
-            </div>
+            <div class="subject-grid"><a href="materias/lenguaje.html" class="subject-card language"><img src="img/lenguaje.png" alt="Lenguaje"><h3>Lenguaje</h3></a></div>
         </div>
-
         <div id="multiplayerMenu" class="multiplayer-menu">
             <h2>Modo Duelo 1vs1</h2>
             <button id="findMatchBtn" class="btn btn-find-match">🚀 Buscar Partida Rápida</button>
             <div id="matchmakingStatus" class="matchmaking-status" style="display: none;"><p>Buscando oponente...</p><div class="spinner"></div><button id="cancelMatchBtn" class="btn btn-cancel">Cancelar</button></div>
-            <hr class="separator">
-            <p class="sub-heading">O juega con un amigo usando un código:</p>
+            <hr class="separator"><p class="sub-heading">O juega con un amigo usando un código:</p>
             <div id="codeRoomContainer" class="input-group"><input type="text" id="roomCodeInput" placeholder="Ingresa el código de la sala"><button id="createRoomBtn">Crear Sala</button><button id="joinRoomBtn">Unirse a Sala</button></div>
             <div id="statusMessage"></div>
         </div>
@@ -70,22 +52,15 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        const firebaseConfig = {
-          apiKey: "AIzaSyDx_2b2rhaoRh7WawE9b-QVlVNj5PfycVA",
-          authDomain: "sabiquiz-8f915.firebaseapp.com",
-          projectId: "sabiquiz-8f915",
-          storageBucket: "sabiquiz-8f915.firebasestorage.app",
-          messagingSenderId: "1007656278742",
-          appId: "1:1007656278742:web:a17a204b430d2638e74777",
-          measurementId: "G-FB8HC6HV73"
-    };
-
+        const firebaseConfig = { /* ... Tu configuración ... */ };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+        
         const productionURL = "https://sabiquiz.vercel.app";
         const socketURL = window.location.hostname.includes('localhost') ? "http://localhost:3000" : productionURL;
         const socket = io(socketURL);
+        
         const appContainer = document.getElementById('appContainer');
         const welcomeMessage = document.getElementById('welcomeMessage');
         const logoutBtn = document.getElementById('logoutBtn');

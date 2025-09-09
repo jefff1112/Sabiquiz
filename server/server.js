@@ -7,7 +7,9 @@ const serviceAccount = require('./serviceAccountKey.json');
 const questions = require('./questions');
 
 // --- 1. CONFIGURACIÓN ---
-admin.initializeApp({ credential: admin.credential.cert(serviceAccount) });
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
 const db = admin.firestore();
 const app = express();
 const server = http.createServer(app);
@@ -19,16 +21,8 @@ const io = socketIO(server, {
   }
 });
 
-// --- ¡CORRECCIÓN CLAVE PARA VERCEL! ---
-// Esta nueva forma de definir la ruta a los archivos públicos funciona tanto
-// en localhost como en el servidor de Vercel.
 const publicPath = path.resolve(__dirname, '..');
 app.use(express.static(publicPath));
-// ------------------------------------
-
-app.get('/', (req, res) => {
-    res.sendFile(path.join(publicPath, 'index.html'));
-});
 
 let rooms = {};
 let matchmakingPool = [];
@@ -152,13 +146,8 @@ setInterval(() => {
 // --- 4. MANEJO DE CONEXIONES DE SOCKET.IO ---
 io.on('connection', (socket) => {
     console.log(`Usuario conectado: ${socket.id}`);
-    socket.on('findMatch', (playerData) => {
-        if (matchmakingPool.some(p => p.socketId === socket.id)) return;
-        matchmakingPool.push({ socketId: socket.id, data: playerData });
-    });
-    socket.on('cancelFindMatch', () => {
-        matchmakingPool = matchmakingPool.filter(p => p.socketId !== socket.id);
-    });
+    socket.on('findMatch', (playerData) => { if (matchmakingPool.some(p => p.socketId === socket.id)) return; matchmakingPool.push({ socketId: socket.id, data: playerData }); });
+    socket.on('cancelFindMatch', () => { matchmakingPool = matchmakingPool.filter(p => p.socketId !== socket.id); });
     socket.on('createRoom', (data) => {
         const { roomCode, player } = data;
         if (rooms[roomCode] && rooms[roomCode].players.length < 2) {
@@ -172,11 +161,7 @@ io.on('connection', (socket) => {
             }
         } else if (!rooms[roomCode]) {
             socket.join(roomCode);
-            rooms[roomCode] = {
-                players: [socket.id],
-                playerData: { [socket.id]: player },
-                gameData: null, gameMode: null, rematchVoters: new Set(), timerInterval: null
-            };
+            rooms[roomCode] = { players: [socket.id], playerData: { [socket.id]: player }, gameData: null, gameMode: null, rematchVoters: new Set(), timerInterval: null };
             socket.emit('roomCreated', roomCode);
         } else {
             socket.emit('roomFull');
@@ -225,10 +210,7 @@ io.on('connection', (socket) => {
                     gameData.scores[playerId]++;
                 }
             }
-            io.to(roomCode).emit('roundResult', {
-                playerAnswers: gameData.playerAnswers, correctAnswer: correctAnswer || 'Error',
-                scores: gameData.scores, playerData: room.playerData
-            });
+            io.to(roomCode).emit('roundResult', { playerAnswers: gameData.playerAnswers, correctAnswer: correctAnswer || 'Error', scores: gameData.scores, playerData: room.playerData });
             setTimeout(() => proceedToNextQuestion(roomCode), 2500);
         } else {
             socket.emit('answerReceived');
@@ -263,7 +245,11 @@ io.on('connection', (socket) => {
     });
 });
 
-// --- 5. INICIO DEL SERVIDOR ---
+// --- RUTA FINAL PARA CAPTURAR TODO Y SERVIR index.html ---
+app.get('*', (req, res) => {
+    res.sendFile(path.join(publicPath, 'index.html'));
+});
+
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);
