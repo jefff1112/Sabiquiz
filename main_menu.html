@@ -1,255 +1,236 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SabiQuiz - Menú Principal</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
-</head>
-<body>
-    <div id="appContainer" style="display: none;">
-        <div id="mainMenu" class="container main-menu-container">
-            <div class="main-menu-header"><h1 id="welcomeMessage">¡Bienvenido a SabiQuiz!</h1><div class="header-buttons"><a href="leaderboard.html" class="btn btn-leaderboard">Ranking</a><a href="profile.html" id="profileBtn" class="btn btn-profile">Mi Perfil</a><button id="logoutBtn" class="btn btn-logout">Cerrar Sesión</button></div></div>
-            <div class="sabiquiz-logo"><img src="img/celebrando_perro_2.png" alt="SabiQuiz Dog Logo"></div>
-            <h2>Elige tu materia para comenzar</h2>
-            <div class="subject-grid"><a href="materias/lenguaje.html" class="subject-card language"><img src="img/lenguaje.png" alt="Lenguaje"><h3>Lenguaje</h3></a></div>
-        </div>
-        <div id="multiplayerMenu" class="multiplayer-menu">
-            <h2>Modo Duelo 1vs1</h2>
-            <button id="findMatchBtn" class="btn btn-find-match">🚀 Buscar Partida Rápida</button>
-            <div id="matchmakingStatus" class="matchmaking-status" style="display: none;"><p>Buscando oponente...</p><div class="spinner"></div><button id="cancelMatchBtn" class="btn btn-cancel">Cancelar</button></div>
-            <hr class="separator"><p class="sub-heading">O juega con un amigo usando un código:</p>
-            <div id="codeRoomContainer" class="input-group"><input type="text" id="roomCodeInput" placeholder="Ingresa el código de la sala"><button id="createRoomBtn">Crear Sala</button><button id="joinRoomBtn">Unirse a Sala</button></div>
-            <div id="statusMessage"></div>
-        </div>
-        <div id="gameContainer" class="quiz-container" style="display: none;">
-            <div class="game-info-bar"><div id="gameModeDisplay" class="game-mode-display">Modo: <span>---</span></div><div id="timerDisplay" class="timer-display">Tiempo: 10</div></div>
-            <div class="score-display"><div id="player1Score">Jugador 1: 0</div><div id="player2Score">Jugador 2: 0</div></div>
-            <div class="question-container"><h2 id="questionText"></h2><div id="optionsContainer" class="options-container"></div></div>
-        </div>
-        <div id="countdownContainer" style="display: none;"><h1 id="countdownText"></h1></div>
-        <div id="endGameContainer" class="end-game-container" style="display: none;">
-             <h2 class="results-title">Resultados</h2>
-            <div class="players-container">
-                <div class="player-result"><img src="img/default-avatar.png" alt="Jugador 1" class="player-avatar" id="endAvatar1"><p id="endPlayer1Name" class="player-name"></p><p id="endPlayer1Score" class="player-score"></p></div>
-                <div class="vs-container"><img src="img/vs.png" alt="VS" class="vs-icon"></div>
-                <div class="player-result"><img src="img/default-avatar.png" alt="Jugador 2" class="player-avatar" id="endAvatar2"><p id="endPlayer2Name" class="player-name"></p><p id="endPlayer2Score" class="player-score"></p></div>
-            </div>
-            <h3 id="endGameMessage" class="end-game-message"></h3><button id="rematchBtn" class="btn btn-rematch">Revancha</button>
-        </div>
-        <div id="matchFoundContainer" class="popup-overlay" style="display: none;">
-            <div class="popup-card animate__animated animate__zoomIn">
-                <h2>¡Oponente Encontrado!</h2>
-                <div class="opponent-info"><img src="img/default-avatar.png" id="opponentAvatar" alt="Avatar del Oponente" class="player-avatar"><h3 id="opponentName">---</h3><div class="opponent-stats"><span>Nivel: <strong id="opponentLevel">--</strong></span><span>XP Total: <strong id="opponentXp">--</strong></span></div></div>
-                <div class="popup-buttons"><button id="acceptMatchBtn" class="btn btn-accept">✅ Aceptar</button><button id="rejectMatchBtn" class="btn btn-reject">❌ Rechazar</button></div>
-            </div>
-        </div>
-    </div>
-    
-    <script src="/socket.io/socket.io.js"></script>
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-        import { getAuth, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        const firebaseConfig = { /* ... Tu configuración ... */ };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        
-        const productionURL = "https://sabiquiz.vercel.app";
-        const socketURL = window.location.hostname.includes('localhost') ? "http://localhost:3000" : productionURL;
-        const socket = io(socketURL);
-        
-        const appContainer = document.getElementById('appContainer');
-        const welcomeMessage = document.getElementById('welcomeMessage');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const mainMenu = document.getElementById('mainMenu');
-        const multiplayerMenu = document.getElementById('multiplayerMenu');
-        const gameContainer = document.getElementById('gameContainer');
-        const countdownContainer = document.getElementById('countdownContainer');
-        const countdownText = document.getElementById('countdownText');
-        const questionText = document.getElementById('questionText');
-        const optionsContainer = document.getElementById('optionsContainer');
-        const player1ScoreDisp = document.getElementById('player1Score');
-        const player2ScoreDisp = document.getElementById('player2Score');
-        const roomCodeInput = document.getElementById('roomCodeInput');
-        const createRoomBtn = document.getElementById('createRoomBtn');
-        const joinRoomBtn = document.getElementById('joinRoomBtn');
-        const statusMessage = document.getElementById('statusMessage');
-        const endGameContainer = document.getElementById('endGameContainer');
-        const gameModeDisplay = document.getElementById('gameModeDisplay');
-        const timerDisplay = document.getElementById('timerDisplay');
-        const findMatchBtn = document.getElementById('findMatchBtn');
-        const matchmakingStatus = document.getElementById('matchmakingStatus');
-        const cancelMatchBtn = document.getElementById('cancelMatchBtn');
-        const rematchBtn = document.getElementById('rematchBtn');
-        const matchFoundContainer = document.getElementById('matchFoundContainer');
-        const opponentAvatar = document.getElementById('opponentAvatar');
-        const opponentName = document.getElementById('opponentName');
-        const opponentLevel = document.getElementById('opponentLevel');
-        const opponentXp = document.getElementById('opponentXp');
-        const acceptMatchBtn = document.getElementById('acceptMatchBtn');
-        const rejectMatchBtn = document.getElementById('rejectMatchBtn');
-        let currentUser = null, userProfile = {}, currentRoomCode = '', localPlayerId = '', tempRoomId = '';
-        onAuthStateChanged(auth, async (user) => {
-            if (user) {
-                currentUser = user;
-                await setPersistence(auth, browserLocalPersistence);
-                appContainer.style.display = 'block';
-                const userDocRef = doc(db, "users", user.uid);
-                const docSnap = await getDoc(userDocRef);
-                if (docSnap.exists()) { userProfile = docSnap.data(); }
-                else { userProfile = { displayName: user.email.split('@')[0], photoURL: null, level: 1, quizXp: 0, pvpXp: 0 }; }
-                welcomeMessage.textContent = `¡Bienvenido, ${userProfile.displayName}!`;
-            } else { window.location.href = 'login.html'; }
-        });
-        logoutBtn.addEventListener('click', () => signOut(auth));
-        findMatchBtn.addEventListener('click', () => {
-            document.querySelector('.sub-heading').style.display = 'none';
-            document.getElementById('codeRoomContainer').style.display = 'none';
-            findMatchBtn.style.display = 'none';
-            matchmakingStatus.style.display = 'block';
-            const totalXp = (userProfile.quizXp || 0) + (userProfile.pvpXp || 0);
-            const playerData = { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL, level: userProfile.level || 1, totalXp };
-            socket.emit('findMatch', playerData);
-        });
-        cancelMatchBtn.addEventListener('click', () => {
-            findMatchBtn.style.display = 'block';
-            document.getElementById('codeRoomContainer').style.display = 'flex';
-            document.querySelector('.sub-heading').style.display = 'block';
-            matchmakingStatus.style.display = 'none';
-            socket.emit('cancelFindMatch');
-        });
-        function setStatus(message) { statusMessage.textContent = message; }
-        createRoomBtn.addEventListener('click', () => {
-            const roomCode = roomCodeInput.value.trim();
-            if (roomCode && currentUser) { socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } }); }
-        });
-        joinRoomBtn.addEventListener('click', () => {
-            const roomCode = roomCodeInput.value.trim();
-            if (roomCode && currentUser) { socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } }); }
-        });
-        rematchBtn.addEventListener('click', () => {
-            endGameContainer.style.display = 'none';
-            multiplayerMenu.style.display = 'block';
-            setStatus('Esperando respuesta del otro jugador...');
-            socket.emit('requestRematch', { roomCode: currentRoomCode });
-        });
-        acceptMatchBtn.addEventListener('click', () => {
-            acceptMatchBtn.disabled = true;
-            rejectMatchBtn.disabled = true;
-            acceptMatchBtn.textContent = 'Esperando...';
-            socket.emit('acceptMatch', { roomId: tempRoomId });
-        });
-        rejectMatchBtn.addEventListener('click', () => {
-            matchFoundContainer.style.display = 'none';
-            findMatchBtn.click();
-            socket.emit('rejectMatch', { roomId: tempRoomId });
-        });
-        socket.on('connect', () => { localPlayerId = socket.id; });
-        socket.on('roomCreated', (rc) => { currentRoomCode = rc; setStatus(`Sala "${rc}" creada. Esperando...`); });
-        socket.on('playerJoined', () => setStatus('Oponente conectado. ¡Prepárense!'));
-        socket.on('roomFull', () => setStatus('La sala está llena.'));
-        socket.on('matchFound', (data) => {
-            const { roomId, opponent } = data;
-            tempRoomId = roomId;
-            opponentAvatar.src = opponent.photoURL || 'img/default-avatar.png';
-            opponentName.textContent = opponent.name;
-            opponentLevel.textContent = opponent.level;
-            opponentXp.textContent = opponent.totalXp;
-            matchmakingStatus.style.display = 'none';
-            matchFoundContainer.style.display = 'flex';
-            acceptMatchBtn.disabled = false;
-            rejectMatchBtn.disabled = false;
-            acceptMatchBtn.textContent = '✅ Aceptar';
-        });
-        socket.on('matchRejected', () => {
-            matchFoundContainer.style.display = 'none';
-            alert("Tu oponente ha rechazado la partida. Volviendo a la búsqueda...");
-            findMatchBtn.click();
-        });
-        socket.on('startCountdown', (data) => {
-            matchFoundContainer.style.display = 'none';
-            mainMenu.style.display = 'none';
-            multiplayerMenu.style.display = 'none';
-            currentRoomCode = data.roomCode;
-            gameModeDisplay.innerHTML = `Modo: <span>${data.gameMode.charAt(0).toUpperCase() + data.gameMode.slice(1)}</span>`;
-            countdownContainer.style.display = 'flex';
-            let count = 3;
-            countdownText.textContent = count;
-            const cdInterval = setInterval(() => {
-                count--;
-                if (count > 0) { countdownText.textContent = count; }
-                else {
-                    clearInterval(cdInterval);
-                    countdownText.textContent = '¡YA!';
-                    setTimeout(() => {
-                        countdownContainer.style.display = 'none';
-                        gameContainer.style.display = 'block';
-                    }, 1000);
-                }
-            }, 1000);
-        });
-        socket.on('timerUpdate', (timeLeft) => { timerDisplay.textContent = `Tiempo: ${timeLeft}`; });
-        socket.on('nextQuestion', (data) => {
-            timerDisplay.textContent = `Tiempo: 10`;
-            questionText.textContent = data.question;
-            optionsContainer.innerHTML = '';
-            data.options.forEach(option => {
-                const button = document.createElement('button');
-                button.classList.add('option-button');
-                button.textContent = option;
-                button.addEventListener('click', () => {
-                    socket.emit('playerAnswer', { roomCode: currentRoomCode, answer: option });
-                });
-                optionsContainer.appendChild(button);
-            });
-        });
-        socket.on('answerReceived', () => {
-            optionsContainer.querySelectorAll('.option-button').forEach(btn => {
-                btn.disabled = true;
-            });
-        });
-        socket.on('roundResult', (data) => {
-            const { playerAnswers, correctAnswer, scores, playerData } = data;
-            const playerIds = Object.keys(playerData);
-            if (playerIds.length === 2) {
-                player1ScoreDisp.textContent = `${playerData[playerIds[0]].name}: ${scores[playerIds[0]]}`;
-                player2ScoreDisp.textContent = `${playerData[playerIds[1]].name}: ${scores[playerIds[1]]}`;
+const express = require('express');
+const http = require('http');
+const socketIO = require('socket.io');
+const path = require('path');
+const admin = require('firebase-admin');
+
+// --- ¡CORRECCIÓN CLAVE PARA VERCEL! ---
+const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
+const questions = require(path.join(__dirname, 'questions.js'));
+// ------------------------------------
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount)
+});
+const db = admin.firestore();
+const app = express();
+const server = http.createServer(app);
+
+const io = socketIO(server, {
+  cors: {
+    origin: ["http://localhost:3000", "https://sabiquiz.vercel.app"],
+    methods: ["GET", "POST"]
+  }
+});
+
+const publicPath = path.resolve(__dirname, '..');
+app.use(express.static(publicPath));
+
+let rooms = {};
+let matchmakingPool = [];
+
+function startGame(roomCode) {
+    const room = rooms[roomCode];
+    if (!room || room.players.length !== 2) return;
+    room.gameMode = getRandomGameMode();
+    room.rematchVoters.clear();
+    console.log(`--- INICIANDO PARTIDA --- Sala: ${roomCode}, Modo: ${room.gameMode}`);
+    room.gameData = {
+        questions: [...questions].sort(() => 0.5 - Math.random()).slice(0, 5),
+        currentQuestionIndex: 0,
+        scores: { [room.players[0]]: 0, [room.players[1]]: 0 },
+        playerAnswers: {}
+    };
+    io.to(roomCode).emit('startCountdown', { gameMode: room.gameMode, roomCode: roomCode });
+    setTimeout(() => {
+        const firstQuestion = room.gameData.questions[0];
+        io.to(roomCode).emit('nextQuestion', { question: firstQuestion.question, options: firstQuestion.options });
+        startQuestionTimer(roomCode);
+    }, 4000);
+}
+function startQuestionTimer(roomCode) {
+    const room = rooms[roomCode];
+    if (!room || !room.gameData) return;
+    if (room.timerInterval) clearInterval(room.timerInterval);
+    let timeLeft = 10;
+    room.timerInterval = setInterval(() => {
+        io.to(roomCode).emit('timerUpdate', timeLeft);
+        timeLeft--;
+        if (timeLeft < 0) {
+            clearInterval(room.timerInterval);
+            const currentQuestion = room.gameData.questions[room.gameData.currentQuestionIndex];
+            io.to(roomCode).emit('roundResult', { playerAnswers: {}, correctAnswer: currentQuestion.correctAnswer, scores: room.gameData.scores, playerData: room.playerData });
+            setTimeout(() => proceedToNextQuestion(roomCode), 2000);
+        }
+    }, 1000);
+}
+function proceedToNextQuestion(roomCode) {
+    const room = rooms[roomCode];
+    if (!room || !room.gameData) return;
+    if (room.timerInterval) clearInterval(room.timerInterval);
+    room.gameData.currentQuestionIndex++;
+    room.gameData.playerAnswers = {};
+    if (room.gameData.currentQuestionIndex >= room.gameData.questions.length) {
+        handleEndGame(roomCode);
+    } else {
+        const nextQuestion = room.gameData.questions[room.gameData.currentQuestionIndex];
+        io.to(roomCode).emit('nextQuestion', { question: nextQuestion.question, options: nextQuestion.options });
+        startQuestionTimer(roomCode);
+    }
+}
+async function handleEndGame(roomCode) {
+    const room = rooms[roomCode];
+    if (!room || !room.gameData) return;
+    io.to(roomCode).emit('endGame', { scores: room.gameData.scores, playerData: room.playerData });
+    const scores = room.gameData.scores;
+    const playerSocketIds = Object.keys(scores);
+    if (playerSocketIds.length < 2) return;
+    const [p1_socketId, p2_socketId] = playerSocketIds;
+    const p1_uid = room.playerData[p1_socketId].uid;
+    const p2_uid = room.playerData[p2_socketId].uid;
+    const p1_docRef = db.collection('users').doc(p1_uid);
+    const p2_docRef = db.collection('users').doc(p2_uid);
+    try {
+        await p1_docRef.update({ matchesPlayed: admin.firestore.FieldValue.increment(1) });
+        await p2_docRef.update({ matchesPlayed: admin.firestore.FieldValue.increment(1) });
+        if (scores[p1_socketId] > scores[p2_socketId]) {
+            await p1_docRef.update({ matchesWon: admin.firestore.FieldValue.increment(1), pvpXp: admin.firestore.FieldValue.increment(50) });
+            await p2_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(10) });
+        } else if (scores[p2_socketId] > scores[p1_socketId]) {
+            await p2_docRef.update({ matchesWon: admin.firestore.FieldValue.increment(1), pvpXp: admin.firestore.FieldValue.increment(50) });
+            await p1_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(10) });
+        } else {
+            await p1_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(15) });
+            await p2_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(15) });
+        }
+    } catch (error) { console.error("Error al guardar datos de 1vs1 en Firestore:", error); }
+}
+function getRandomGameMode() {
+    return Math.random() < 0.5 ? 'normal' : 'revancha';
+}
+setInterval(() => {
+    if (matchmakingPool.length >= 2) {
+        const player1 = matchmakingPool.shift();
+        const player2 = matchmakingPool.shift();
+        const socket1 = io.sockets.sockets.get(player1.socketId);
+        const socket2 = io.sockets.sockets.get(player2.socketId);
+        if (!socket1 || !socket2) {
+            if (player1 && socket1) matchmakingPool.unshift(player1);
+            if (player2 && socket2) matchmakingPool.unshift(player2);
+            return;
+        }
+        const tempRoomId = `vote_${Date.now()}`;
+        rooms[tempRoomId] = { players: [player1.socketId, player2.socketId], playerData: { [player1.socketId]: player1.data, [player2.socketId]: player2.data }, votes: new Set() };
+        socket1.join(tempRoomId);
+        socket2.join(tempRoomId);
+        socket1.emit('matchFound', { roomId: tempRoomId, opponent: player2.data });
+        socket2.emit('matchFound', { roomId: tempRoomId, opponent: player1.data });
+    }
+}, 3000);
+io.on('connection', (socket) => {
+    console.log(`Usuario conectado: ${socket.id}`);
+    socket.on('findMatch', (playerData) => { if (matchmakingPool.some(p => p.socketId === socket.id)) return; matchmakingPool.push({ socketId: socket.id, data: playerData }); });
+    socket.on('cancelFindMatch', () => { matchmakingPool = matchmakingPool.filter(p => p.socketId !== socket.id); });
+    socket.on('createRoom', (data) => {
+        const { roomCode, player } = data;
+        if (rooms[roomCode] && rooms[roomCode].players.length < 2) {
+            socket.join(roomCode);
+            rooms[roomCode].players.push(socket.id);
+            rooms[roomCode].playerData[socket.id] = player;
+            io.to(roomCode).emit('playerJoined', rooms[roomCode].players.length);
+            if (rooms[roomCode].players.length === 2) {
+                rooms[roomCode].rematchVoters = new Set();
+                startGame(roomCode);
             }
-            optionsContainer.querySelectorAll('.option-button').forEach(btn => {
-                btn.disabled = true;
-                if (btn.textContent === correctAnswer) {
-                    btn.classList.add('correct');
-                }
-                for (const playerId in playerAnswers) {
-                    if (btn.textContent === playerAnswers[playerId].answer && !playerAnswers[playerId].isCorrect) {
-                        btn.classList.add('incorrect');
+        } else if (!rooms[roomCode]) {
+            socket.join(roomCode);
+            rooms[roomCode] = { players: [socket.id], playerData: { [socket.id]: player }, gameData: null, gameMode: null, rematchVoters: new Set(), timerInterval: null };
+            socket.emit('roomCreated', roomCode);
+        } else {
+            socket.emit('roomFull');
+        }
+    });
+    socket.on('acceptMatch', ({ roomId }) => {
+        const room = rooms[roomId];
+        if (!room || room.votes.has(socket.id)) return;
+        room.votes.add(socket.id);
+        if (room.votes.size === 2) {
+            room.rematchVoters = new Set();
+            delete room.votes;
+            startGame(roomId);
+        }
+    });
+    socket.on('rejectMatch', ({ roomId }) => {
+        const room = rooms[roomId];
+        if (!room) return;
+        io.to(roomId).emit('matchRejected');
+        room.players.forEach(playerId => {
+            const playerProfile = room.playerData[playerId];
+            if (playerProfile) matchmakingPool.unshift({ socketId: playerId, data: playerProfile });
+        });
+        delete rooms[roomId];
+    });
+    socket.on('playerAnswer', ({ roomCode, answer }) => {
+        const room = rooms[roomCode];
+        if (!room || !room.gameData || room.gameData.playerAnswers[socket.id]) return;
+        if (room.timerInterval) clearInterval(room.timerInterval);
+        const gameData = room.gameData;
+        const currentQuestion = gameData.questions[gameData.currentQuestionIndex];
+        const correctAnswer = currentQuestion?.correctAnswer;
+        const isCorrect = correctAnswer ? (answer.toLowerCase() === correctAnswer.toLowerCase()) : false;
+        gameData.playerAnswers[socket.id] = { answer, isCorrect };
+        const answersCount = Object.keys(gameData.playerAnswers).length;
+        const aPlayerWasCorrect = Object.values(gameData.playerAnswers).some(p => p.isCorrect);
+        let roundOver = false;
+        if (room.gameMode === 'revancha') {
+            if (aPlayerWasCorrect || answersCount === 2) roundOver = true;
+        } else {
+            if (answersCount === 2) roundOver = true;
+        }
+        if (roundOver) {
+            for (const playerId in gameData.playerAnswers) {
+                if (gameData.playerAnswers[playerId].isCorrect) gameData.scores[playerId]++;
+            }
+            io.to(roomCode).emit('roundResult', { playerAnswers: gameData.playerAnswers, correctAnswer: correctAnswer || 'Error', scores: gameData.scores, playerData: room.playerData });
+            setTimeout(() => proceedToNextQuestion(roomCode), 2500);
+        } else {
+            socket.emit('answerReceived');
+        }
+    });
+    socket.on('requestRematch', (data) => {
+        const room = rooms[data.roomCode];
+        if (!room || room.rematchVoters.has(socket.id)) return;
+        room.rematchVoters.add(socket.id);
+        if (room.rematchVoters.size === 2) startGame(data.roomCode);
+    });
+    socket.on('disconnect', () => {
+        console.log(`Usuario desconectado: ${socket.id}`);
+        matchmakingPool = matchmakingPool.filter(p => p.socketId !== socket.id);
+        for (const roomCode in rooms) {
+            const room = rooms[roomCode];
+            const playerIndex = room.players.indexOf(socket.id);
+            if (playerIndex > -1) {
+                const disconnectedPlayerName = room.playerData[socket.id]?.name || 'Un jugador';
+                room.players.splice(playerIndex, 1);
+                delete room.playerData[socket.id];
+                if (room.players.length < 2) {
+                    if (room.players.length === 1) {
+                        const remainingPlayerSocketId = room.players[0];
+                        io.to(remainingPlayerSocketId).emit('opponentLeft', `${disconnectedPlayerName} ha abandonado la partida.`);
                     }
+                    delete rooms[roomCode];
                 }
-            });
-        });
-        socket.on('endGame', (data) => {
-            gameContainer.style.display = 'none';
-            endGameContainer.style.display = 'block';
-            const myId = localPlayerId;
-            const otherId = Object.keys(data.playerData).find(id => id !== myId);
-            if (!myId || !otherId) return;
-            const myPd = data.playerData[myId], otherPd = data.playerData[otherId];
-            const myScore = data.scores[myId], otherScore = data.scores[otherId];
-            let msg = '';
-            if (myScore > otherScore) msg = `¡Ganaste, ${myPd.name}!`;
-            else if (otherScore > myScore) msg = `¡${otherPd.name} ha ganado!`;
-            else msg = '¡Es un empate!';
-            document.getElementById('endPlayer1Name').textContent = myPd.name;
-            document.getElementById('endPlayer1Score').textContent = `Puntuación: ${myScore}`;
-            document.getElementById('endAvatar1').src = myPd.photoURL || 'img/default-avatar.png';
-            document.getElementById('endPlayer2Name').textContent = otherPd.name;
-            document.getElementById('endPlayer2Score').textContent = `Puntuación: ${otherScore}`;
-            document.getElementById('endAvatar2').src = otherPd.photoURL || 'img/default-avatar.png';
-            document.getElementById('endGameMessage').textContent = msg;
-        });
-    </script>
-</body>
-</html>
+                break;
+            }
+        }
+    });
+});
+
+app.get('*', (req, res) => {
+    res.sendFile(path.join(publicPath, 'index.html'));
+});
+
+const PORT = process.env.PORT || 3000;
+server.listen(PORT, () => {
+    console.log(`Servidor escuchando en el puerto ${PORT}`);
+});
