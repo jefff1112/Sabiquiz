@@ -3,8 +3,10 @@ const http = require('http');
 const socketIO = require('socket.io');
 const path = require('path');
 const admin = require('firebase-admin');
-const serviceAccount = require('./serviceAccountKey.json');
-const questions = require('./questions');
+
+// Rutas absolutas para que Vercel encuentre los archivos
+const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
+const questions = require(path.join(__dirname, 'questions.js'));
 
 // --- 1. CONFIGURACIÓN ---
 admin.initializeApp({
@@ -21,6 +23,7 @@ const io = socketIO(server, {
   }
 });
 
+// Ruta a la carpeta raíz del proyecto (un nivel arriba de /server)
 const publicPath = path.resolve(__dirname, '..');
 app.use(express.static(publicPath));
 
@@ -131,11 +134,7 @@ setInterval(() => {
             return;
         }
         const tempRoomId = `vote_${Date.now()}`;
-        rooms[tempRoomId] = {
-            players: [player1.socketId, player2.socketId],
-            playerData: { [player1.socketId]: player1.data, [player2.socketId]: player2.data },
-            votes: new Set()
-        };
+        rooms[tempRoomId] = { players: [player1.socketId, player2.socketId], playerData: { [player1.socketId]: player1.data, [player2.socketId]: player2.data }, votes: new Set() };
         socket1.join(tempRoomId);
         socket2.join(tempRoomId);
         socket1.emit('matchFound', { roomId: tempRoomId, opponent: player2.data });
@@ -250,6 +249,7 @@ app.get('*', (req, res) => {
     res.sendFile(path.join(publicPath, 'index.html'));
 });
 
+// --- 5. INICIO DEL SERVIDOR ---
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);
