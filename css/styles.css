@@ -2340,3 +2340,60 @@ h1, h2, h3 {
     border-color: #e74c3c !important;
     opacity: 0.6;
 }
+/* --- ESTILOS PARA EL BOTÓN DE IDIOMA --- */
+.language-switcher {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    z-index: 1001;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 5px;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+}
+
+.language-switcher button {
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    color: #555;
+    transition: all 0.2s ease;
+}
+
+.language-switcher button:hover {
+    background: rgba(0, 0, 0, 0.1);
+}
+/* --- ESTILOS PARA EL BOTÓN DE IDIOMA --- */
+.language-switcher {
+    position: fixed; /* Lo fija en la pantalla */
+    top: 15px;
+    right: 15px;
+    z-index: 1001;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 5px;
+    border-radius: 10px;
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.language-switcher button {
+    background: none;
+    border: none;
+    padding: 8px 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 8px;
+    color: #555;
+    transition: all 0.2s ease;
+    box-shadow: none; /* Quitamos la sombra para que se vea más plano */
+}
+
+.language-switcher button:hover {
+    background: rgba(0, 0, 0, 0.1);
+    transform: none; /* Quitamos el efecto de salto */
+    box-shadow: none;
+}
+

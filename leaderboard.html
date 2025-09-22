@@ -3,35 +3,45 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SabiQuiz - Ranking</title>
+    <title data-translate="leaderboardTitle">SabiQuiz - Ranking</title>
     <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
     <div class="leaderboard-container">
-        <h1>🏆 Tabla de Clasificación 🏆</h1>
+        <h1 data-translate="leaderboardHeader">🏆 Tabla de Clasificación 🏆</h1>
+        <p data-translate="leaderboardSubHeader">¡Los mejores jugadores de SabiQuiz!</p>
         
         <div id="leaderboard-top3" class="podium-container">
-            </div>
+            <!-- El Top 3 se cargará aquí -->
+        </div>
         
-        <h2 class="others-title">Ranking General (4 - 10)</h2>
+        <h2 class="others-title" data-translate="leaderboardOthersTitle">Ranking General (4 - 10)</h2>
         <div id="leaderboard-others" class="others-container">
-            </div>
+            <!-- El resto del ranking se cargará aquí -->
+        </div>
         
-        <button id="backToMenuBtn" class="button">← Volver al Menú</button>
+        <button id="backToMenuBtn" class="button" data-translate="backToMenu">← Volver al Menú</button>
     </div>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getFirestore, collection, query, orderBy, limit, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+    // ¡Importamos nuestro traductor!
+    import { loadLanguage } from '/js/translations.js';
+
+    // --- LÓGICA DE TRADUCCIÓN ---
+    // Carga el idioma guardado tan pronto como la página se carga
+    loadLanguage();
 
     const firebaseConfig = {
-  apiKey: "AIzaSyDx_2b2rhaoRh7WawE9b-QVlVNj5PfycVA",
-  authDomain: "sabiquiz-8f915.firebaseapp.com",
-  projectId: "sabiquiz-8f915",
-  storageBucket: "sabiquiz-8f915.firebasestorage.app",
-  messagingSenderId: "1007656278742",
-  appId: "1:1007656278742:web:a17a204b430d2638e74777",
-  measurementId: "G-FB8HC6HV73"
-};
+        apiKey: "AIzaSyDx_2b2rhaoRh7WawE9b-QVlVNj5PfycVA",
+        authDomain: "sabiquiz-8f915.firebaseapp.com",
+        projectId: "sabiquiz-8f915",
+        storageBucket: "sabiquiz-8f915.firebasestorage.app",
+        messagingSenderId: "1007656278742",
+        appId: "1:1007656278742:web:a17a204b430d2638e74777",
+        measurementId: "G-FB8HC6HV73"
+    };
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
@@ -51,20 +61,19 @@
 
             if (querySnapshot.empty) {
                 top3Container.innerHTML = '<p>¡Aún no hay jugadores en el ranking!</p>';
+                document.querySelector('.others-title').style.display = 'none';
                 return;
             }
 
             const players = querySnapshot.docs;
 
-            // --- Lógica para el TOP 3 (Podio) ---
+            // Lógica para el TOP 3 (Podio)
             players.slice(0, 3).forEach((doc, index) => {
                 const user = doc.data();
                 const totalXp = (user.quizXp || 0) + (user.pvpXp || 0);
                 const rank = index + 1;
-
                 const card = document.createElement('div');
-                card.classList.add('card', `rank-${rank}`); // Añadimos clase especial para el rango
-
+                card.classList.add('card', `rank-${rank}`);
                 card.innerHTML = `
                     <div class="card-rank">#${rank}</div>
                     <img src="${user.photoURL || 'img/default-avatar.png'}" class="card-avatar">
@@ -75,16 +84,14 @@
                 top3Container.appendChild(card);
             });
 
-            // --- Lógica para los demás jugadores (4 en adelante) ---
+            // Lógica para los demás jugadores (4 en adelante)
             if (players.length > 3) {
                 players.slice(3).forEach((doc, index) => {
                     const user = doc.data();
                     const totalXp = (user.quizXp || 0) + (user.pvpXp || 0);
-                    const rank = index + 4; // Empezamos a contar desde el #4
-
+                    const rank = index + 4;
                     const row = document.createElement('div');
-                    row.classList.add('leaderboard-row'); // Usamos un estilo de fila más simple
-
+                    row.classList.add('leaderboard-row');
                     row.innerHTML = `
                         <div class="row-rank">#${rank}</div>
                         <div class="row-player-info">
@@ -106,9 +113,9 @@
     }
 
     fetchLeaderboard();
-backBtn.addEventListener('click', () => {
-    window.location.href = 'main_menu.html';
-});
+    backBtn.addEventListener('click', () => {
+        window.location.href = 'main_menu.html';
+    });
 </script>
 </body>
 </html>

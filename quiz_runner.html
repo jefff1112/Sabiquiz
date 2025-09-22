@@ -3,38 +3,43 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SabiQuiz - Quiz</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <title data-translate="quizTitle">SabiQuiz - Quiz</title>
+    <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap">
 </head>
 <body>
     <div class="container quiz-container">
-        <a href="#" id="backBtn" class="back-btn">← Volver a los niveles</a>
+        <a href="#" id="backBtn" class="back-btn" data-translate="backToLevels">← Volver a los niveles</a>
         <h3 id="subjectTitle">Cargando Quiz...</h3>
         <div id="quiz-game">
             <div class="quiz-status">
-                Pregunta <span id="questionCounter"></span> | Puntos: <span id="scoreDisplay">0</span> | Tiempo: <span id="timerDisplay"></span>
+                <span data-translate="question">Pregunta</span> <span id="questionCounter"></span> | 
+                <span data-translate="points">Puntos</span>: <span id="scoreDisplay">0</span> | 
+                <span data-translate="time">Tiempo</span>: <span id="timerDisplay"></span>
             </div>
             <div id="currentQuestionCard" class="question-card">
                 <p id="questionText"></p>
                 <div id="optionsContainer" class="options-grid"></div>
             </div>
             <div class="quiz-footer">
-                <img id="quizMascot" src="img/confundido_perro_4.png" alt="Mascota del Quiz">
+                <img id="quizMascot" src="../img/confundido_perro_4.png" alt="Mascota del Quiz">
                 <div id="feedback" class="feedback-message"></div>
             </div>
-            <button id="nextQuestionBtn" class="next-btn" style="display:none;">Siguiente Pregunta</button>
+            <button id="nextQuestionBtn" class="next-btn" style="display:none;">Siguiente quiz</button>
         </div>
     </div>
     
-    <audio id="correctSound" src="img/correct.mp3"></audio>
-    <audio id="incorrectSound" src="img/incorrect.mp3"></audio>
+    <audio id="correctSound" src="../img/correct.mp3"></audio>
+    <audio id="incorrectSound" src="../img/incorrect.mp3"></audio>
 
     <script type="module">
-        // --- 1. IMPORTACIONES Y CONFIGURACIÓN ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, getDoc, updateDoc, increment } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { loadLanguage } from '../js/translations.js';
+
+        const lang = localStorage.getItem('language') || 'es';
+        loadLanguage();
 
         const firebaseConfig = {
   apiKey: "AIzaSyDx_2b2rhaoRh7WawE9b-QVlVNj5PfycVA",
@@ -51,24 +56,17 @@
         const db = getFirestore(app);
         let currentUser = null;
 
-        // --- EL "GUARDIA DE SEGURIDAD" DE AUTENTICACIÓN ---
-        const authReady = new Promise((resolve, reject) => {
+        const authReady = new Promise((resolve) => {
             const unsubscribe = onAuthStateChanged(auth, (user) => {
                 unsubscribe();
                 currentUser = user;
                 resolve(user);
-            }, reject);
+            });
         });
 
-        // --- 2. LÓGICA DEL QUIZ (ESTRUCTURA CORREGIDA) ---
         document.addEventListener('DOMContentLoaded', async () => {
-            await authReady; // Primero esperamos a que la autenticación esté lista
+            await authReady;
             
-            if (!currentUser) {
-                console.error("Usuario no autenticado. El XP no se guardará.");
-            }
-
-            // El resto del código del juego va aquí adentro
             const backBtn = document.getElementById('backBtn');
             const subjectTitle = document.getElementById('subjectTitle');
             const questionCounter = document.getElementById('questionCounter');
@@ -84,10 +82,10 @@
             const incorrectSound = document.getElementById('incorrectSound');
             
             const mascotImages = {
-                thinking: 'img/confundido_perro_4.png',
-                correct: 'img/celebrando_perro_2.png',
-                incorrect: 'img/triste_perro_3.png',
-                medal: 'img/medella_perro_5.png'
+                thinking: '../img/confundido_perro_4.png',
+                correct: '../img/celebrando_perro_2.png',
+                incorrect: '../img/triste_perro_3.png',
+                medal: '../img/medella_perro_5.png'
             };
 
             let currentQuestionIndex = 0;
@@ -105,7 +103,8 @@
             }
 
             try {
-                const subjectModule = await import(`./materias/${subjectId}-data.js`);
+                // La ruta ahora es relativa a la raíz del sitio
+                const subjectModule = await import(`/materias/${subjectId}-data.js`);
                 level = subjectModule.levels.find(l => l.id === levelId);
             } catch (error) {
                 console.error("No se pudo cargar el archivo de preguntas:", error);
@@ -119,7 +118,7 @@
             }
             
             subjectTitle.textContent = `${subjectId.charAt(0).toUpperCase() + subjectId.slice(1)} - Nivel ${level.id}`;
-            backBtn.href = `materias/${subjectId}.html`;
+            backBtn.href = `/materias/${subjectId}.html`;
             showQuestion();
 
             function showQuestion() {
@@ -128,41 +127,43 @@
                     return;
                 }
                 const questionData = level.questions[currentQuestionIndex];
-                questionText.textContent = questionData.question;
+                questionText.textContent = questionData.question[lang];
                 optionsContainer.innerHTML = '';
                 feedbackDiv.innerHTML = '';
                 nextQuestionBtn.style.display = 'none';
                 quizMascotElement.src = mascotImages.thinking;
-                questionData.options.forEach(option => {
+
+                questionData.options[lang].forEach(optionText => {
                     const button = document.createElement('button');
                     button.classList.add('option-btn');
-                    button.textContent = option;
-                    button.addEventListener('click', () => checkAnswer(button));
+                    button.textContent = optionText;
+                    button.addEventListener('click', () => checkAnswer(button, questionData.correctAnswer[lang]));
                     optionsContainer.appendChild(button);
                 });
+                
                 questionCounter.textContent = `${currentQuestionIndex + 1}/${level.questions.length}`;
                 scoreDisplay.textContent = score;
                 startTimer(questionData.timeLimit || 20);
             }
 
-            function checkAnswer(button) {
+            function checkAnswer(button, correctAnswer) {
                 optionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
                 clearInterval(timer);
-                const questionData = level.questions[currentQuestionIndex];
-                const correctAnswer = questionData.correctAnswer;
+                
                 if (!button) {
-                    feedbackDiv.innerHTML = `¡Se acabó el tiempo! La respuesta correcta era: <b>${correctAnswer}</b> ❌`;
+                    feedbackDiv.innerHTML = `¡Time's up! The correct answer was: <b>${correctAnswer}</b> ❌`;
                     incorrectSound.play();
                 } else if (button.textContent === correctAnswer) {
                     score++;
                     button.classList.add('correct');
-                    feedbackDiv.innerHTML = "¡Correcto! 🎉";
+                    feedbackDiv.innerHTML = "¡Correct! 🎉";
                     correctSound.play();
                 } else {
                     button.classList.add('incorrect');
-                    feedbackDiv.innerHTML = `Incorrecto. La respuesta correcta era: <b>${correctAnswer}</b> ❌`;
+                    feedbackDiv.innerHTML = `Incorrecto. The correct answer was: <b>${correctAnswer}</b> ❌`;
                     incorrectSound.play();
                 }
+                
                 if (button === null || button.textContent !== correctAnswer) {
                     optionsContainer.querySelectorAll('.option-btn').forEach(btn => {
                         if (btn.textContent === correctAnswer) btn.classList.add('correct');
@@ -175,6 +176,8 @@
             async function showResult() {
                 const finalScore = score / level.questions.length;
                 const stars = calculateStars(finalScore, level.passingScore);
+                
+                // Mantenemos localStorage por ahora para la lógica de estrellas
                 const levelsCompleted = JSON.parse(localStorage.getItem('levelsCompleted')) || {};
                 if (!levelsCompleted[subjectId]) levelsCompleted[subjectId] = {};
                 const previousStars = levelsCompleted[subjectId][levelId]?.stars || 0;
@@ -182,6 +185,7 @@
                 if (stars > previousStars) {
                     levelsCompleted[subjectId][levelId] = { score: finalScore, stars: stars };
                     localStorage.setItem('levelsCompleted', JSON.stringify(levelsCompleted));
+
                     if (currentUser) {
                         const previousXp = getXpFromStars(previousStars);
                         const newXp = getXpFromStars(stars);
@@ -200,15 +204,17 @@
                     }
                 }
                 
-                const resultText = finalScore >= level.passingScore ? '¡Nivel Completado!' : '¡Nivel Fallido!';
+                const resultTextKey = finalScore >= level.passingScore ? 'levelCompleted' : 'levelFailed';
                 quizGameEl.innerHTML = `
                     <div class="results-container">
-                        <h4>${resultText}</h4>
-                        <p>Tu puntaje: ${score} de ${level.questions.length}</p>
-                        <div class="result-stars">${Array(3).fill(0).map((_, i) => `<img src="img/${i < stars ? 'star_filled.png' : 'star_empty.png'}" class="star-icon">`).join('')}</div>
-                        <a href="materias/${subjectId}.html" class="main-menu-btn">Volver a los niveles</a>
+                        <h4 data-translate="${resultTextKey}"></h4>
+                        <p><span data-translate="finalScore"></span> ${score} / ${level.questions.length}</p>
+                        <div class="result-stars">${Array(3).fill(0).map((_, i) => `<img src="../img/${i < stars ? 'star_filled.png' : 'star_empty.png'}" class="star-icon">`).join('')}</div>
+                        <a href="/materias/${subjectId}.html" class="main-menu-btn" data-translate="backToLevels"></a>
                     </div>`;
+                quizMascotElement.src = finalScore >= level.passingScore ? mascotImages.medal : mascotImages.incorrect;
                 backBtn.style.display = 'none';
+                loadLanguage();
             }
 
             function calculateStars(score, passingScore) {
@@ -245,7 +251,7 @@
                     timerDisplay.textContent = timeLeft;
                     if (timeLeft <= 0) {
                         clearInterval(timer);
-                        checkAnswer(null);
+                        checkAnswer(null, level.questions[currentQuestionIndex].correctAnswer[lang]);
                     }
                 }, 1000);
             }

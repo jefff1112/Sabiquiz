@@ -1,365 +1,305 @@
 export const levels = [
-{
-                id: 1,
-                title: "Nivel 1",
-                passingScore: 0.6,
-                questions: [
-                    { "question": "¿Qué planeta es conocido como el planeta rojo?", "options": ["Venus", "Marte", "Júpiter"], "correctAnswer": "Marte" },
-                    { "question": "¿Cuál es la fuente de energía más importante para la Tierra?", "options": ["La Luna", "El Sol", "Las estrellas"], "correctAnswer": "El Sol" },
-                    { "question": "La fotosíntesis es el proceso que realizan las plantas para...", "options": ["dormir", "crecer y alimentarse", "moverse"], "correctAnswer": "crecer y alimentarse" },
-                    { "question": "El ciclo del agua tiene tres etapas: evaporación, condensación y...", "options": ["solidificación", "precipitación", "filtración"], "correctAnswer": "precipitación" },
-                    { "question": "¿Qué órgano se encarga de bombear la sangre en el cuerpo humano?", "options": ["El cerebro", "El corazón", "El pulmón"], "correctAnswer": "El corazón" }
-                ]
-            },
-            {
-                id: 2,
-                title: "Nivel 2",
-                passingScore: 0.65,
-                questions: [
-                    { "question": "El esqueleto humano está formado por...", "options": ["músculos", "huesos", "piel"], "correctAnswer": "huesos" },
-                    { "question": "Las mariposas, en su desarrollo, pasan por el proceso de...", "options": ["hibernación", "metamorfosis", "germinado"], "correctAnswer": "metamorfosis" },
-                    { "question": "Un animal herbívoro es aquel que se alimenta de...", "options": ["carne", "plantas", "ambas"], "correctAnswer": "plantas" },
-                    { "question": "¿Qué estado del agua es el vapor?", "options": ["Líquido", "Gaseoso", "Sólido"], "correctAnswer": "Gaseoso" },
-                    { "question": "El órgano principal del sistema respiratorio es...", "options": ["el estómago", "el pulmón", "el riñón"], "correctAnswer": "el pulmón" }
-                ]
-            },
-            {
-                id: 3,
-                title: "Nivel 3",
-                passingScore: 0.7,
-                questions: [
-                    { "question": "El sentido que nos permite ver es...", "options": ["el olfato", "la vista", "el gusto"], "correctAnswer": "la vista" },
-                    { "question": "El aire que respiramos está compuesto principalmente por...", "options": ["nitrógeno y oxígeno", "hidrógeno y helio", "dióxido de carbono"], "correctAnswer": "nitrógeno y oxígeno" },
-                    { "question": "Los tres estados de la materia son sólido, líquido y...", "options": ["plasma", "gaseoso", "fluido"], "correctAnswer": "gaseoso" },
-                    { "question": "Una serpiente es un reptil porque...", "options": ["pone huevos", "tiene sangre fría y escamas", "vuela"], "correctAnswer": "tiene sangre fría y escamas" },
-                    { "question": "La fuerza que atrae los objetos hacia la Tierra se llama...", "options": ["magnetismo", "gravedad", "fricción"], "correctAnswer": "gravedad" }
-                ]
-            },
-            {
-                id: 4,
-                title: "Nivel 4",
-                passingScore: 0.7,
-                questions: [
-                    { "question": "Las abejas polinizan las flores para que puedan...", "options": ["producir frutos", "moverse", "cambiar de color"], "correctAnswer": "producir frutos" },
-                    { "question": "El sistema nervioso está compuesto por el cerebro, la médula espinal y...", "options": ["las venas", "los nervios", "los músculos"], "correctAnswer": "los nervios" },
-                    { "question": "Un planeta gira alrededor del Sol en una órbita...", "options": ["cuadrada", "circular", "elíptica"], "correctAnswer": "elíptica" },
-                    { "question": "¿Qué tipo de energía utiliza un panel solar?", "options": ["Energía eólica", "Energía solar", "Energía geotérmica"], "correctAnswer": "Energía solar" },
-                    { "question": "Los seres vivos se clasifican en cinco reinos: animal, vegetal, fungi, protista y...", "options": ["bacterias", "minerales", "mónera"], "correctAnswer": "mónera" }
-                ]
-            },
-            {
-                id: 5,
-                title: "Nivel 5",
-                passingScore: 0.75,
-                questions: [
-                    { "question": "El sistema digestivo se encarga de...", "options": ["respirar", "absorber nutrientes", "mover el cuerpo"], "correctAnswer": "absorber nutrientes" },
-                    { "question": "¿Qué enfermedad se previene con la vacunación?", "options": ["La gripe", "La tuberculosis", "La poliomielitis"], "correctAnswer": "La poliomielitis" },
-                    { "question": "La capa de la atmósfera que protege la Tierra de la radiación ultravioleta es...", "options": ["La estratosfera", "La capa de ozono", "La troposfera"], "correctAnswer": "La capa de ozono" },
-                    { "question": "El agua dulce se encuentra en...", "options": ["ríos, lagos y glaciares", "océanos y mares", "volcanes"], "correctAnswer": "ríos, lagos y glaciares" },
-                    { "question": "La unidad básica de la vida es...", "options": ["el átomo", "la molécula", "la célula"], "correctAnswer": "la célula" }
-                ]
-            },
-            // Dificultad Media (Niveles 6-12)
-            {
-                id: 6,
-                title: "Nivel 6",
-                passingScore: 0.75,
-                questions: [
-                    { "question": "Los cromosomas contienen la información genética en forma de...", "options": ["ARN", "proteínas", "ADN"], "correctAnswer": "ADN" },
-                    { "question": "Un cuerpo está en movimiento si cambia de...", "options": ["color", "forma", "posición con respecto a un punto fijo"], "correctAnswer": "posición con respecto a un punto fijo" },
-                    { "question": "La energía que se obtiene del movimiento del viento se llama...", "options": ["energía solar", "energía eólica", "energía hidráulica"], "correctAnswer": "energía eólica" },
-                    { "question": "La unidad de medida de la fuerza es el...", "options": ["voltio", "newton", "julio"], "correctAnswer": "newton" },
-                    { "question": "¿Qué tipo de lente usa una lupa?", "options": ["Cóncava", "Convexa", "Plana"], "correctAnswer": "Convexa" }
-                ]
-            },
-            {
-                id: 7,
-                title: "Nivel 7",
-                passingScore: 0.8,
-                questions: [
-                    { "question": "El proceso por el cual la materia se transforma en vapor es...", "options": ["condensación", "evaporación", "fusión"], "correctAnswer": "evaporación" },
-                    { "question": "El planeta más grande del sistema solar es...", "options": ["la Tierra", "Júpiter", "Saturno"], "correctAnswer": "Júpiter" },
-                    { "question": "La velocidad del sonido es mayor en...", "options": ["el aire", "el agua", "el vacío"], "correctAnswer": "el agua" },
-                    { "question": "El sistema circulatorio está compuesto por el corazón, los vasos sanguíneos y...", "options": ["los pulmones", "la sangre", "el estómago"], "correctAnswer": "la sangre" },
-                    { "question": "Una 'reacción química' es un proceso donde...", "options": ["la materia cambia de estado", "se forman nuevas sustancias", "la materia se destruye"], "correctAnswer": "se forman nuevas sustancias" }
-                ]
-            },
-            {
-                id: 8,
-                title: "Nivel 8",
-                passingScore: 0.8,
-                questions: [
-                    { "question": "El órgano que produce la bilis para la digestión es...", "options": ["el páncreas", "el hígado", "el riñón"], "correctAnswer": "el hígado" },
-                    { "question": "Los 'recursos no renovables' son aquellos que...", "options": ["se pueden usar una sola vez", "se regeneran rápidamente", "tienen un ciclo de vida corto"], "correctAnswer": "se pueden usar una sola vez" },
-                    { "question": "Los animales vertebrados se caracterizan por tener...", "options": ["un esqueleto interno", "un esqueleto externo", "alas"], "correctAnswer": "un esqueleto interno" },
-                    { "question": "¿Qué capa de la Tierra es líquida y está formada principalmente por hierro y níquel?", "options": ["Núcleo interno", "Núcleo externo", "Manto"], "correctAnswer": "Núcleo externo" },
-                    { "question": "La 'ley de la conservación de la energía' dice que la energía...", "options": ["se crea y se destruye", "se transforma, no se crea ni se destruye", "se agota con el tiempo"], "correctAnswer": "se transforma, no se crea ni se destruye" }
-                ]
-            },
-            {
-                id: 9,
-                title: "Nivel 9",
-                passingScore: 0.8,
-                questions: [
-                    { "question": "El 'proceso de mitosis' es la división de...", "options": ["células sexuales", "células somáticas", "tejidos nerviosos"], "correctAnswer": "células somáticas" },
-                    { "question": "La 'presión atmosférica' es el peso de...", "options": ["el agua sobre la Tierra", "el aire sobre la superficie", "la tierra sobre los océanos"], "correctAnswer": "el aire sobre la superficie" },
-                    { "question": "¿Qué enfermedad es causada por un virus?", "options": ["La diabetes", "La gripe", "La artritis"], "correctAnswer": "La gripe" },
-                    { "question": "La 'ecuación química' de la fotosíntesis es...", "options": ["C₆H₁₂O₆ + 6O₂", "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂", "CO₂ + H₂O"], "correctAnswer": "6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂" },
-                    { "question": "La 'gravedad' depende de la masa de los objetos y...", "options": ["su color", "la distancia entre ellos", "su tamaño"], "correctAnswer": "la distancia entre ellos" }
-                ]
-            },
-            {
-                id: 10,
-                title: "Nivel 10",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "Los 'electrones' son partículas con carga...", "options": ["positiva", "negativa", "neutra"], "correctAnswer": "negativa" },
-                    { "question": "El 'punto de ebullición' es la temperatura en la que un líquido...", "options": ["se congela", "se convierte en gas", "se convierte en sólido"], "correctAnswer": "se convierte en gas" },
-                    { "question": "La 'escala de pH' mide el nivel de...", "options": ["temperatura", "acidez o alcalinidad", "densidad"], "correctAnswer": "acidez o alcalinidad" },
-                    { "question": "Los 'glóbulos rojos' transportan...", "options": ["nutrientes", "oxígeno", "dióxido de carbono"], "correctAnswer": "oxígeno" },
-                    { "question": "Un 'ecosistema' es la interacción entre una comunidad de organismos y...", "options": ["su clima", "su medio físico", "su temperatura"], "correctAnswer": "su medio físico" }
-                ]
-            },
-            // Dificultad Avanzada (Niveles 11-20)
-            {
-                id: 11,
-                title: "Nivel 11",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "La 'termodinámica' es la rama de la física que estudia...", "options": ["el movimiento", "la luz", "el calor y la energía"], "correctAnswer": "el calor y la energía" },
-                    { "question": "El 'sistema endocrino' se encarga de la producción de...", "options": ["hormonas", "glóbulos rojos", "neuronas"], "correctAnswer": "hormonas" },
-                    { "question": "Los 'isótopos' son átomos del mismo elemento con diferente número de...", "options": ["protones", "electrones", "neutrones"], "correctAnswer": "neutrones" },
-                    { "question": "La 'ley de la inercia' de Newton establece que un cuerpo en movimiento o reposo...", "options": ["cambia su estado por sí mismo", "permanece en su estado si no hay fuerza externa", "se acelera automáticamente"], "correctAnswer": "permanece en su estado si no hay fuerza externa" },
-                    { "question": "El 'efecto invernadero' se produce por la acumulación de gases en la atmósfera como...", "options": ["el oxígeno", "el dióxido de carbono", "el helio"], "correctAnswer": "el dióxido de carbono" }
-                ]
-            },
-            {
-                id: 12,
-                title: "Nivel 12",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "La 'capa de ozono' está compuesta por moléculas de...", "options": ["O₂", "O₃", "CO₂"], "correctAnswer": "O₃" },
-                    { "question": "La 'genética' es la ciencia que estudia...", "options": ["las plantas", "la herencia y la variación", "los átomos"], "correctAnswer": "la herencia y la variación" },
-                    { "question": "El 'ciclo de Krebs' forma parte de la...", "options": ["fotosíntesis", "respiración celular", "digestión"], "correctAnswer": "respiración celular" },
-                    { "question": "El 'tejido' es un conjunto de...", "options": ["órganos", "células con funciones similares", "moléculas"], "correctAnswer": "células con funciones similares" },
-                    { "question": "La 'velocidad de la luz' en el vacío es aproximadamente...", "options": ["300.000 km/s", "30.000 km/s", "3.000 km/s"], "correctAnswer": "300.000 km/s" }
-                ]
-            },
-            {
-                id: 13,
-                title: "Nivel 13",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "La 'fase de la Luna' en la que no se ve desde la Tierra es...", "options": ["Luna llena", "Cuarto creciente", "Luna nueva"], "correctAnswer": "Luna nueva" },
-                    { "question": "El 'número atómico' de un elemento es el número de...", "options": ["neutrones", "protones", "electrones"], "correctAnswer": "protones" },
-                    { "question": "El 'efecto Doppler' es un cambio en la frecuencia de una onda debido al movimiento de...", "options": ["la fuente o el observador", "la temperatura", "la presión"], "correctAnswer": "la fuente o el observador" },
-                    { "question": "Un 'catalizador' es una sustancia que...", "options": ["aumenta la velocidad de una reacción", "disminuye la velocidad de una reacción", "detiene una reacción"], "correctAnswer": "aumenta la velocidad de una reacción" },
-                    { "question": "¿Qué capa de la atmósfera contiene la mayor parte de la masa de aire y ocurre el clima?", "options": ["Troposfera", "Estratosfera", "Mesosfera"], "correctAnswer": "Troposfera" }
-                ]
-            },
-            {
-                id: 14,
-                title: "Nivel 14",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "Los 'plásticos' son polímeros obtenidos de...", "options": ["plantas", "petróleo", "minerales"], "correctAnswer": "petróleo" },
-                    { "question": "La 'ley de la gravedad' de Newton establece que la fuerza de atracción entre dos cuerpos es directamente proporcional a...", "options": ["su tamaño", "su masa", "su color"], "correctAnswer": "su masa" },
-                    { "question": "El 'proceso de ósmosis' es el movimiento de agua a través de una membrana...", "options": ["permeable", "impermeable", "semipermeable"], "correctAnswer": "semipermeable" },
-                    { "question": "La 'corriente eléctrica' es el flujo de...", "options": ["protones", "neutrones", "electrones"], "correctAnswer": "electrones" },
-                    { "question": "La 'ecuación de Einstein' E=mc² relaciona la energía con...", "options": ["la masa", "la velocidad", "la fuerza"], "correctAnswer": "la masa" }
-                ]
-            },
-            {
-                id: 15,
-                title: "Nivel 15",
-                passingScore: 0.85,
-                questions: [
-                    { "question": "Un 'átomo' está compuesto por protones, neutrones y...", "options": ["iones", "electrones", "moléculas"], "correctAnswer": "electrones" },
-                    { "question": "La 'escala de Richter' se utiliza para medir la magnitud de...", "options": ["los tornados", "los terremotos", "los huracanes"], "correctAnswer": "los terremotos" },
-                    { "question": "El 'principio de Arquímedes' explica por qué los cuerpos...", "options": ["flotan o se hunden", "se aceleran", "se calientan"], "correctAnswer": "flotan o se hunden" },
-                    { "question": "La 'energía potencial' es la energía almacenada debido a la...", "options": ["temperatura", "posición", "velocidad"], "correctAnswer": "posición" },
-                    { "question": "¿Qué enfermedad es causada por una bacteria?", "options": ["La viruela", "La poliomielitis", "El cólera"], "correctAnswer": "El cólera" }
-                ]
-            },
-            {
-                id: 16,
-                title: "Nivel 16",
-                passingScore: 0.9,
-                questions: [
-                    { "question": "La 'fotosíntesis' ocurre en los cloroplastos de las células...", "options": ["animales", "vegetales", "fúngicas"], "correctAnswer": "vegetales" },
-                    { "question": "La 'densidad' es una propiedad de la materia que relaciona la masa con...", "options": ["el volumen", "la temperatura", "la presión"], "correctAnswer": "el volumen" },
-                    { "question": "¿Qué hormona es la responsable de la sensación de 'lucha o huida'?", "options": ["Insulina", "Adrenalina", "Testosterona"], "correctAnswer": "Adrenalina" },
-                    { "question": "Los 'huevos de tortuga' tienen cáscara...", "options": ["blanda", "dura", "quebrable"], "correctAnswer": "dura" },
-                    { "question": "El 'fenómeno de refracción' es el cambio de dirección de la luz al...", "options": ["chocar con una superficie", "pasar de un medio a otro", "atravesar una abertura"], "correctAnswer": "pasar de un medio a otro" }
-                ]
-            },
-            {
-                id: 17,
-                title: "Nivel 17",
-                passingScore: 0.9,
-                questions: [
-                    { "question": "El 'phylum' más grande del reino animal es...", "options": ["los cordados", "los moluscos", "los artrópodos"], "correctAnswer": "los artrópodos" },
-                    { "question": "La 'gravedad' del Sol es la responsable de que los planetas...", "options": ["se alejen", "giren a su alrededor", "se calienten"], "correctAnswer": "giren a su alrededor" },
-                    { "question": "Los 'vasos sanguíneos' que transportan sangre oxigenada del corazón al resto del cuerpo son las...", "options": ["arterias", "venas", "capilares"], "correctAnswer": "arterias" },
-                    { "question": "El 'principio de Pascal' se aplica a...", "options": ["líquidos incompresibles", "gases", "sólidos"], "correctAnswer": "líquidos incompresibles" },
-                    { "question": "La 'evolución' es un proceso de cambio en las especies a través del tiempo, y su mecanismo principal es...", "options": ["la mutación", "la selección natural", "la hibridación"], "correctAnswer": "la selección natural" }
-                ]
-            },
-            {
-                id: 18,
-                title: "Nivel 18",
-                passingScore: 0.9,
-                questions: [
-                    { "question": "Los 'plásmidos' son moléculas de ADN extracromosómico que se encuentran en...", "options": ["las células eucariotas", "las bacterias", "los virus"], "correctAnswer": "las bacterias" },
-                    { "question": "La 'energía cinética' es la energía asociada al...", "options": ["calor", "movimiento", "posición"], "correctAnswer": "movimiento" },
-                    { "question": "El 'metabolismo' es el conjunto de reacciones químicas que ocurren en un organismo para...", "options": ["producir movimiento", "mantener la vida", "eliminar toxinas"], "correctAnswer": "mantener la vida" },
-                    { "question": "La 'presión osmótica' es la fuerza que se necesita para evitar la...", "options": ["evaporación", "fusión", "ósmosis"], "correctAnswer": "ósmosis" },
-                    { "question": "La 'teoría de la relatividad' fue propuesta por...", "options": ["Isaac Newton", "Albert Einstein", "Stephen Hawking"], "correctAnswer": "Albert Einstein" }
-                ]
-            },
-            {
-                id: 19,
-                title: "Nivel 19",
-                passingScore: 0.95,
-                questions: [
-                    { "question": "La 'entropía' es una medida de...", "options": ["el orden de un sistema", "el desorden de un sistema", "la temperatura de un sistema"], "correctAnswer": "el desorden de un sistema" },
-                    { "question": "La 'biosfera' es la parte de la Tierra donde...", "options": ["no hay vida", "solo hay plantas", "existe la vida"], "correctAnswer": "existe la vida" },
-                    { "question": "Un 'voltio' es la unidad de medida de...", "options": ["la corriente", "la resistencia", "el potencial eléctrico"], "correctAnswer": "el potencial eléctrico" },
-                    { "question": "El 'efecto fotoeléctrico' es un fenómeno donde los electrones son liberados por la acción de la...", "options": ["electricidad", "luz", "calor"], "correctAnswer": "luz" },
-                    { "question": "La 'ecología' es la ciencia que estudia...", "options": ["el clima", "las relaciones entre los seres vivos y su entorno", "las plantas"], "correctAnswer": "las relaciones entre los seres vivos y su entorno" }
-                ]
-            },
-            {
-                id: 20,
-                title: "Nivel 20",
-                passingScore: 0.95,
-                questions: [
-                    { "question": "El 'sida' es causado por el virus del...", "options": ["sarampión", "VIH", "dengue"], "correctAnswer": "VIH" },
-                    { "question": "La 'mecánica cuántica' estudia la materia y la energía a nivel...", "options": ["macroscópico", "subatómico", "galáctico"], "correctAnswer": "subatómico" },
-                    { "question": "El 'principio de incertidumbre' de Heisenberg establece que es imposible conocer al mismo tiempo la posición y el momento de...", "options": ["un planeta", "un átomo", "una partícula subatómica"], "correctAnswer": "una partícula subatómica" },
-                    { "question": "La 'biotecnología' es la tecnología que utiliza...", "options": ["productos químicos", "sistemas biológicos", "robótica"], "correctAnswer": "sistemas biológicos" },
-                    { "question": "Un 'gen' es la unidad básica de...", "options": ["la materia", "la herencia", "la energía"], "correctAnswer": "la herencia" }
-                ]
-            },
-            // Dificultad Experta (Niveles 21-30)
-            {
-                id: 21,
-                title: "Nivel 21",
-                passingScore: 0.95,
-                questions: [
-                    { "question": "La 'hibridación molecular' es un proceso en el que...", "options": ["dos especies se cruzan", "dos hebras de ADN se unen", "dos átomos se unen"], "correctAnswer": "dos hebras de ADN se unen" },
-                    { "question": "El 'ciclo del carbono' es un proceso biogeoquímico en el que el carbono se intercambia entre la atmósfera, los océanos, la Tierra y...", "options": ["la biosfera", "la litosfera", "la hidrosfera"], "correctAnswer": "la biosfera" },
-                    { "question": "El 'plasma' es un estado de la materia parecido a un gas, pero compuesto por...", "options": ["iones y electrones libres", "átomos y moléculas", "partículas neutras"], "correctAnswer": "iones y electrones libres" },
-                    { "question": "La 'velocidad de escape' de un planeta es la velocidad mínima que un objeto necesita para...", "options": ["orbitar el planeta", "entrar en su atmósfera", "escapar de su gravedad"], "correctAnswer": "escapar de su gravedad" },
-                    { "question": "¿Qué capa de la atmósfera es la más externa y donde se encuentran los satélites?", "options": ["Mesosfera", "Termosfera", "Exosfera"], "correctAnswer": "Exosfera" }
-                ]
-            },
-            {
-                id: 22,
-                title: "Nivel 22",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "La 'teoría de la tectónica de placas' explica...", "options": ["el origen de los océanos", "la evolución de las especies", "el movimiento de los continentes"], "correctAnswer": "el movimiento de los continentes" },
-                    { "question": "La 'espectroscopia' es una técnica que se usa para estudiar la interacción de la materia con la...", "options": ["presión", "radiación electromagnética", "gravedad"], "correctAnswer": "radiación electromagnética" },
-                    { "question": "La 'corriente eléctrica' en un circuito se mide en...", "options": ["ohmios", "amperios", "voltios"], "correctAnswer": "amperios" },
-                    { "question": "El 'sistema linfático' se encarga de la defensa del cuerpo y del transporte de...", "options": ["hormonas", "glóbulos rojos", "lípidos"], "correctAnswer": "lípidos" },
-                    { "question": "El 'fenómeno de capilaridad' es el ascenso o descenso de un líquido en un tubo muy estrecho, y se debe a la tensión superficial y las fuerzas de...", "options": ["gravedad y fricción", "cohesión y adhesión", "magnetismo y gravedad"], "correctAnswer": "cohesión y adhesión" }
-                ]
-            },
-            {
-                id: 23,
-                title: "Nivel 23",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "La 'ecuación de Bernoulli' describe el comportamiento de...", "options": ["sólidos", "fluidos en movimiento", "gases"], "correctAnswer": "fluidos en movimiento" },
-                    { "question": "La 'fotosíntesis' produce glucosa (C₆H₁₂O₆) que es un tipo de...", "options": ["proteína", "carbohidrato", "lípido"], "correctAnswer": "carbohidrato" },
-                    { "question": "La 'radiación electromagnética' incluye ondas de radio, microondas, luz visible y...", "options": ["sonido", "rayos X", "calor"], "correctAnswer": "rayos X" },
-                    { "question": "Los 'plásmidos' son utilizados en ingeniería genética para...", "options": ["cultivar plantas", "clonar genes", "crear nuevos virus"], "correctAnswer": "clonar genes" },
-                    { "question": "La 'presión arterial' se mide con un...", "options": ["termómetro", "estetoscopio", "esfigmomanómetro"], "correctAnswer": "esfigmomanómetro" }
-                ]
-            },
-            {
-                id: 24,
-                title: "Nivel 24",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "La 'respiración celular' se lleva a cabo en la parte de la célula llamada...", "options": ["núcleo", "mitocondria", "citoplasma"], "correctAnswer": "mitocondria" },
-                    { "question": "Los 'cromosomas' se encuentran en el...", "options": ["citoplasma", "núcleo de la célula", "retículo endoplasmático"], "correctAnswer": "núcleo de la célula" },
-                    { "question": "La 'fase de Luna llena' ocurre cuando la Tierra se encuentra entre el Sol y...", "options": ["la Luna", "Marte", "Júpiter"], "correctAnswer": "la Luna" },
-                    { "question": "La 'ley de Snell' se utiliza para describir la...", "options": ["reflexión de la luz", "refracción de la luz", "polarización de la luz"], "correctAnswer": "refracción de la luz" },
-                    { "question": "Los 'estomas' son pequeñas aberturas en las hojas de las plantas que permiten...", "options": ["la fotosíntesis", "el intercambio de gases", "la absorción de agua"], "correctAnswer": "el intercambio de gases" }
-                ]
-            },
-            {
-                id: 25,
-                title: "Nivel 25",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "La 'tabla periódica' organiza los elementos en función de su...", "options": ["densidad", "color", "número atómico"], "correctAnswer": "número atómico" },
-                    { "question": "La 'velocidad de reacción' en una reacción química se ve afectada por...", "options": ["la temperatura y la concentración", "el color de los reactivos", "el tamaño del recipiente"], "correctAnswer": "la temperatura y la concentración" },
-                    { "question": "El 'principio de exclusión de Pauli' establece que en un átomo, dos electrones no pueden tener el mismo...", "options": ["número cuántico principal", "conjunto de cuatro números cuánticos", "spin"], "correctAnswer": "conjunto de cuatro números cuánticos" },
-                    { "question": "La 'clorofila' es el pigmento que le da el color verde a las plantas y es esencial para...", "options": ["la respiración", "la fotosíntesis", "la transpiración"], "correctAnswer": "la fotosíntesis" },
-                    { "question": "El 'efecto coriolis' es una fuerza inercial que afecta el movimiento de objetos en la superficie de un planeta que...", "options": ["está quieto", "tiene gravedad", "gira"], "correctAnswer": "gira" }
-                ]
-            },
-            {
-                id: 26,
-                title: "Nivel 26",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "El 'fenómeno de resonancia' es la amplificación de la vibración de un cuerpo debido a la coincidencia de...", "options": ["la frecuencia de una onda externa con su frecuencia natural", "el color de la onda", "la temperatura ambiente"], "correctAnswer": "la frecuencia de una onda externa con su frecuencia natural" },
-                    { "question": "Los 'neurotransmisores' son sustancias químicas que transmiten señales entre...", "options": ["células nerviosas (neuronas)", "músculos", "órganos"], "correctAnswer": "células nerviosas (neuronas)" },
-                    { "question": "La 'homeostasis' es la capacidad de los organismos para mantener su medio interno en...", "options": ["constante cambio", "un estado de equilibrio", "un estado de desorden"], "correctAnswer": "un estado de equilibrio" },
-                    { "question": "El 'punto de rocío' es la temperatura a la que el vapor de agua en el aire...", "options": ["se congela", "se condensa en líquido", "se evapora"], "correctAnswer": "se condensa en líquido" },
-                    { "question": "La 'biología molecular' estudia los procesos biológicos a nivel...", "options": ["celular", "de macromoléculas", "de tejidos"], "correctAnswer": "de macromoléculas" }
-                ]
-            },
-            {
-                id: 27,
-                title: "Nivel 27",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "La 'ley de Ohm' establece que la corriente es directamente proporcional al voltaje e inversamente proporcional a...", "options": ["la potencia", "la resistencia", "la energía"], "correctAnswer": "la resistencia" },
-                    { "question": "La 'termodinámica' tiene tres leyes principales. La 'primera ley' establece la conservación de...", "options": ["la masa", "la energía", "el calor"], "correctAnswer": "la energía" },
-                    { "question": "La 'escala de Mohs' se utiliza para medir la...", "options": ["dureza de los minerales", "temperatura", "densidad"], "correctAnswer": "dureza de los minerales" },
-                    { "question": "El 'splicing alternativo' es un proceso genético en el que una misma hebra de ARN da lugar a diferentes...", "options": ["genes", "proteínas", "células"], "correctAnswer": "proteínas" },
-                    { "question": "El 'teorema de Pitágoras' se aplica a...", "options": ["círculos", "triángulos rectángulos", "paralelogramos"], "correctAnswer": "triángulos rectángulos" }
-                ]
-            },
-            {
-                id: 28,
-                title: "Nivel 28",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "La 'radiación de cuerpo negro' es la radiación emitida por un objeto a una temperatura constante que se caracteriza por...", "options": ["ser invisible", "depender solo de la temperatura", "ser de un solo color"], "correctAnswer": "depender solo de la temperatura" },
-                    { "question": "La 'apoptosis' es el proceso de...", "options": ["división celular", "muerte celular programada", "reparación de tejidos"], "correctAnswer": "muerte celular programada" },
-                    { "question": "La 'Ley de Coulomb' describe la interacción entre...", "options": ["masas", "cargas eléctricas", "planetas"], "correctAnswer": "cargas eléctricas" },
-                    { "question": "Un 'antígeno' es una sustancia que el sistema inmunitario reconoce como...", "options": ["parte del propio cuerpo", "extraña", "inofensiva"], "correctAnswer": "extraña" },
-                    { "question": "La 'biología de sistemas' estudia los organismos como redes de componentes que...", "options": ["interactúan", "están aislados", "no se afectan entre sí"], "correctAnswer": "interactúan" }
-                ]
-            },
-            {
-                id: 29,
-                title: "Nivel 29",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "El 'código genético' es la secuencia de nucleótidos en el ADN y el ARN que determina la secuencia de...", "options": ["carbohidratos", "lípidos", "aminoácidos en las proteínas"], "correctAnswer": "aminoácidos en las proteínas" },
-                    { "question": "La 'ley de Hubble' establece que las galaxias se alejan de la Tierra a una velocidad proporcional a...", "options": ["su tamaño", "su distancia", "su brillo"], "correctAnswer": "su distancia" },
-                    { "question": "La 'masa crítica' de un material fisionable es la cantidad mínima necesaria para que una reacción en cadena...", "options": ["se detenga", "se mantenga", "se acelere"], "correctAnswer": "se mantenga" },
-                    { "question": "El 'principio de Le Châtelier' establece que un sistema en equilibrio, al ser perturbado, evoluciona en la dirección que...", "options": ["aumenta la perturbación", "compensa la perturbación", "ignora la perturbación"], "correctAnswer": "compensa la perturbación" },
-                    { "question": "La 'célula procariota' se caracteriza por no tener...", "options": ["pared celular", "material genético", "núcleo definido"], "correctAnswer": "núcleo definido" }
-                ]
-            },
-            {
-                id: 30,
-                title: "Nivel 30",
-                passingScore: 1.0,
-                questions: [
-                    { "question": "La 'teoría del Big Bang' describe el origen del universo a partir de una...", "options": ["pequeña partícula", "gran explosión", "nebulosa"], "correctAnswer": "gran explosión" },
-                    { "question": "La 'tercera ley de Kepler' relaciona el período orbital de un planeta con su...", "options": ["distancia al Sol", "masa", "color"], "correctAnswer": "distancia al Sol" },
-                    { "question": "El 'efecto Joule' es un fenómeno físico en el que la energía eléctrica se transforma en...", "options": ["energía cinética", "energía luminosa", "calor"], "correctAnswer": "calor" },
-                    { "question": "La 'inmunidad adaptativa' es aquella que se desarrolla a lo largo de la vida como respuesta a...", "options": ["la edad", "la exposición a patógenos", "el clima"], "correctAnswer": "la exposición a patógenos" },
-                    { "question": "La 'ley de Hess' se utiliza para calcular los cambios de entalpía en una reacción química de forma...", "options": ["directa", "indirecta", "experimental"], "correctAnswer": "indirecta" }
-                ]
-            }
-        ];
+    // --- Dificultad Baja (Niveles 1-10) ---
+    {
+        id: 1, title: "Nivel 1", passingScore: 0.6,
+        questions: [
+            { question: { es: "¿Qué planeta es conocido como el 'Planeta Rojo'?", en: "Which planet is known as the 'Red Planet'?" }, options: { es: ["Venus", "Marte", "Júpiter", "Saturno"], en: ["Venus", "Mars", "Jupiter", "Saturn"] }, correctAnswer: { es: "Marte", en: "Mars" } },
+            { question: { es: "¿Cuál es el proceso por el cual las plantas fabrican su propio alimento?", en: "What is the process by which plants make their own food?" }, options: { es: ["Respiración", "Fotosíntesis", "Digestión", "Absorción"], en: ["Respiration", "Photosynthesis", "Digestion", "Absorption"] }, correctAnswer: { es: "Fotosíntesis", en: "Photosynthesis" } },
+            { question: { es: "El agua en estado sólido se llama...", en: "Water in a solid state is called..." }, options: { es: ["Vapor", "Líquido", "Hielo", "Gas"], en: ["Vapor", "Liquid", "Ice", "Gas"] }, correctAnswer: { es: "Hielo", en: "Ice" } },
+            { question: { es: "El centro de nuestro sistema solar es...", en: "The center of our solar system is..." }, options: { es: ["La Tierra", "La Luna", "Júpiter", "El Sol"], en: ["The Earth", "The Moon", "Jupiter", "The Sun"] }, correctAnswer: { es: "El Sol", en: "The Sun" } },
+            { question: { es: "¿Qué parte de la planta absorbe agua y nutrientes del suelo?", en: "Which part of the plant absorbs water and nutrients from the soil?" }, options: { es: ["Hoja", "Flor", "Tallo", "Raíz"], en: ["Leaf", "Flower", "Stem", "Root"] }, correctAnswer: { es: "Raíz", en: "Root" } }
+        ]
+    },
+    {
+        id: 2, title: "Nivel 2", passingScore: 0.6,
+        questions: [
+            { question: { es: "¿Cuál es el órgano principal del sistema respiratorio?", en: "What is the main organ of the respiratory system?" }, options: { es: ["Corazón", "Cerebro", "Pulmones", "Estómago"], en: ["Heart", "Brain", "Lungs", "Stomach"] }, correctAnswer: { es: "Pulmones", en: "Lungs" } },
+            { question: { es: "El ciclo del agua incluye evaporación, condensación y...", en: "The water cycle includes evaporation, condensation, and..." }, options: { es: ["Precipitación", "Filtración", "Erosión", "Congelación"], en: ["Precipitation", "Filtration", "Erosion", "Freezing"] }, correctAnswer: { es: "Precipitación", en: "Precipitation" } },
+            { question: { es: "¿Qué gas necesitamos los humanos para respirar?", en: "What gas do humans need to breathe?" }, options: { es: ["Nitrógeno", "Dióxido de Carbono", "Oxígeno", "Helio"], en: ["Nitrogen", "Carbon Dioxide", "Oxygen", "Helium"] }, correctAnswer: { es: "Oxígeno", en: "Oxygen" } },
+            { question: { es: "Un animal que come solo plantas se llama...", en: "An animal that only eats plants is called a..." }, options: { es: ["Carnívoro", "Omnívoro", "Herbívoro", "Insectívoro"], en: ["Carnivore", "Omnivore", "Herbivore", "Insectivore"] }, correctAnswer: { es: "Herbívoro", en: "Herbivore" } },
+            { question: { es: "¿Cuál es el satélite natural de la Tierra?", en: "What is Earth's natural satellite?" }, options: { es: ["El Sol", "Marte", "La Luna", "Estrella Polar"], en: ["The Sun", "Mars", "The Moon", "North Star"] }, correctAnswer: { es: "La Luna", en: "The Moon" } }
+        ]
+    },
+    {
+        id: 3, title: "Nivel 3", passingScore: 0.7,
+        questions: [
+            { question: { es: "La fuerza que nos mantiene pegados al suelo se llama...", en: "The force that keeps us attached to the ground is called..." }, options: { es: ["Magnetismo", "Fricción", "Gravedad", "Electricidad"], en: ["Magnetism", "Friction", "Gravity", "Electricity"] }, correctAnswer: { es: "Gravedad", en: "Gravity" } },
+            { question: { es: "El esqueleto humano está formado por...", en: "The human skeleton is made of..." }, options: { es: ["Músculos", "Huesos", "Piel", "Venas"], en: ["Muscles", "Bones", "Skin", "Veins"] }, correctAnswer: { es: "Huesos", en: "Bones" } },
+            { question: { es: "Los tres estados de la materia son sólido, líquido y...", en: "The three states of matter are solid, liquid, and..." }, options: { es: ["Plasma", "Gel", "Gaseoso", "Espuma"], en: ["Plasma", "Gel", "Gaseous", "Foam"] }, correctAnswer: { es: "Gaseoso", en: "Gaseous" } },
+            { question: { es: "¿Qué animal es un mamífero y puede volar?", en: "Which animal is a mammal and can fly?" }, options: { es: ["Pájaro", "Insecto", "Murciélago", "Pez volador"], en: ["Bird", "Insect", "Bat", "Flying fish"] }, correctAnswer: { es: "Murciélago", en: "Bat" } },
+            { question: { es: "¿Cuál es el símbolo químico del agua?", en: "What is the chemical symbol for water?" }, options: { es: ["O2", "CO2", "H2O", "NaCl"], en: ["O2", "CO2", "H2O", "NaCl"] }, correctAnswer: { es: "H2O", en: "H2O" } }
+        ]
+    },
+    {
+        id: 4, title: "Nivel 4", passingScore: 0.7,
+        questions: [
+            { question: { es: "¿Qué tipo de energía obtenemos del sol?", en: "What type of energy do we get from the sun?" }, options: { es: ["Eólica", "Geotérmica", "Solar", "Hidráulica"], en: ["Wind", "Geothermal", "Solar", "Hydraulic"] }, correctAnswer: { es: "Solar", en: "Solar" } },
+            { question: { es: "Un animal que come tanto plantas como carne es un...", en: "An animal that eats both plants and meat is a..." }, options: { es: ["Carnívoro", "Herbívoro", "Omnívoro", "Productor"], en: ["Carnivore", "Herbivore", "Omnivore", "Producer"] }, correctAnswer: { es: "Omnívoro", en: "Omnivore" } },
+            { question: { es: "¿Cuál es el hueso más largo del cuerpo humano?", en: "What is the longest bone in the human body?" }, options: { es: ["Cráneo", "Costilla", "Fémur", "Húmero"], en: ["Skull", "Rib", "Femur", "Humerus"] }, correctAnswer: { es: "Fémur", en: "Femur" } },
+            { question: { es: "¿Cómo se llama el estudio de los seres vivos?", en: "What is the study of living beings called?" }, options: { es: ["Geología", "Astronomía", "Química", "Biología"], en: ["Geology", "Astronomy", "Chemistry", "Biology"] }, correctAnswer: { es: "Biología", en: "Biology" } },
+            { question: { es: "¿Qué planeta es famoso por sus anillos?", en: "Which planet is famous for its rings?" }, options: { es: ["Júpiter", "Saturno", "Urano", "Neptuno"], en: ["Jupiter", "Saturn", "Uranus", "Neptune"] }, correctAnswer: { es: "Saturno", en: "Saturn" } }
+        ]
+    },
+    {
+        id: 5, title: "Nivel 5", passingScore: 0.7,
+        questions: [
+            { question: { es: "¿Cuál de estos es un recurso renovable?", en: "Which of these is a renewable resource?" }, options: { es: ["Petróleo", "Carbón", "Viento", "Gas Natural"], en: ["Oil", "Coal", "Wind", "Natural Gas"] }, correctAnswer: { es: "Viento", en: "Wind" } },
+            { question: { es: "La capa que rodea la Tierra y la protege se llama...", en: "The layer that surrounds and protects the Earth is called the..." }, options: { es: ["Corteza", "Manto", "Atmósfera", "Núcleo"], en: ["Crust", "Mantle", "Atmosphere", "Core"] }, correctAnswer: { es: "Atmósfera", en: "Atmosphere" } },
+            { question: { es: "El proceso de cambiar de líquido a gas se llama...", en: "The process of changing from liquid to gas is called..." }, options: { es: ["Fusión", "Solidificación", "Evaporación", "Condensación"], en: ["Melting", "Solidification", "Evaporation", "Condensation"] }, correctAnswer: { es: "Evaporación", en: "Evaporation" } },
+            { question: { es: "¿Qué órgano bombea sangre por todo el cuerpo?", en: "Which organ pumps blood throughout the body?" }, options: { es: ["Cerebro", "Pulmón", "Corazón", "Hígado"], en: ["Brain", "Lung", "Heart", "Liver"] }, correctAnswer: { es: "Corazón", en: "Heart" } },
+            { question: { es: "¿Qué tipo de animal es una rana?", en: "What type of animal is a frog?" }, options: { es: ["Reptil", "Anfibio", "Mamífero", "Pez"], en: ["Reptile", "Amphibian", "Mammal", "Fish"] }, correctAnswer: { es: "Anfibio", en: "Amphibian" } }
+        ]
+    },
+    {
+        id: 6, title: "Nivel 6", passingScore: 0.75,
+        questions: [
+            { question: { es: "¿Cuál es el símbolo químico del oro?", en: "What is the chemical symbol for gold?" }, options: { es: ["Ag", "Au", "O", "Fe"], en: ["Ag", "Au", "O", "Fe"] }, correctAnswer: { es: "Au", en: "Au" } },
+            { question: { es: "La unidad básica de la vida es la...", en: "The basic unit of life is the..." }, options: { es: ["Molécula", "Célula", "Átomo", "Tejido"], en: ["Molecule", "Cell", "Atom", "Tissue"] }, correctAnswer: { es: "Célula", en: "Cell" } },
+            { question: { es: "¿Qué científico desarrolló la teoría de la relatividad?", en: "Which scientist developed the theory of relativity?" }, options: { es: ["Isaac Newton", "Galileo Galilei", "Albert Einstein", "Marie Curie"], en: ["Isaac Newton", "Galileo Galilei", "Albert Einstein", "Marie Curie"] }, correctAnswer: { es: "Albert Einstein", en: "Albert Einstein" } },
+            { question: { es: "El movimiento de la Tierra sobre su propio eje causa...", en: "The movement of the Earth on its own axis causes..." }, options: { es: ["Las estaciones", "El día y la noche", "Los eclipses", "Las mareas"], en: ["The seasons", "Day and night", "Eclipses", "The tides"] }, correctAnswer: { es: "El día y la noche", en: "Day and night" } },
+            { question: { es: "¿Cuál es el metal más abundante en la corteza terrestre?", en: "What is the most abundant metal in the Earth's crust?" }, options: { es: ["Hierro", "Cobre", "Aluminio", "Plata"], en: ["Iron", "Copper", "Aluminum", "Silver"] }, correctAnswer: { es: "Aluminio", en: "Aluminum" } }
+        ]
+    },
+    {
+        id: 7, title: "Nivel 7", passingScore: 0.75,
+        questions: [
+            { question: { es: "¿Cuál es la fórmula química del dióxido de carbono?", en: "What is the chemical formula for carbon dioxide?" }, options: { es: ["CO", "H2O", "O2", "CO2"], en: ["CO", "H2O", "O2", "CO2"] }, correctAnswer: { es: "CO2", en: "CO2" } },
+            { question: { es: "¿Qué tipo de estrella es el Sol?", en: "What type of star is the Sun?" }, options: { es: ["Gigante roja", "Enana blanca", "Enana amarilla", "Supernova"], en: ["Red giant", "White dwarf", "Yellow dwarf", "Supernova"] }, correctAnswer: { es: "Enana amarilla", en: "Yellow dwarf" } },
+            { question: { es: "El ADN es la abreviatura de...", en: "DNA is the abbreviation for..." }, options: { es: ["Ácido desoxirribonucleico", "Ácido ribonucleico", "Doble núcleo atómico", "Datos de nuestro ancestro"], en: ["Deoxyribonucleic acid", "Ribonucleic acid", "Double atomic nucleus", "Data of our ancestor"] }, correctAnswer: { es: "Ácido desoxirribonucleico", en: "Deoxyribonucleic acid" } },
+            { question: { es: "¿Cuál de estos no es un planeta enano?", en: "Which of these is not a dwarf planet?" }, options: { es: ["Ceres", "Plutón", "Europa", "Eris"], en: ["Ceres", "Pluto", "Europa", "Eris"] }, correctAnswer: { es: "Europa", en: "Europa" } },
+            { question: { es: "La energía en movimiento se conoce como...", en: "Energy in motion is known as..." }, options: { es: ["Energía potencial", "Energía química", "Energía cinética", "Energía nuclear"], en: ["Potential energy", "Chemical energy", "Kinetic energy", "Nuclear energy"] }, correctAnswer: { es: "Energía cinética", en: "Kinetic energy" } }
+        ]
+    },
+    {
+        id: 8, title: "Nivel 8", passingScore: 0.8,
+        questions: [
+            { question: { es: "¿Qué mide un sismógrafo?", en: "What does a seismograph measure?" }, options: { es: ["La velocidad del viento", "La presión atmosférica", "La intensidad de los terremotos", "La temperatura"], en: ["Wind speed", "Atmospheric pressure", "The intensity of earthquakes", "Temperature"] }, correctAnswer: { es: "La intensidad de los terremotos", en: "The intensity of earthquakes" } },
+            { question: { es: "La capa de ozono protege a la Tierra de...", en: "The ozone layer protects the Earth from..." }, options: { es: ["Meteoritos", "Radiación ultravioleta", "Viento solar", "Asteroides"], en: ["Meteorites", "Ultraviolet radiation", "Solar wind", "Asteroids"] }, correctAnswer: { es: "Radiación ultravioleta", en: "Ultraviolet radiation" } },
+            { question: { es: "¿Cuál es la velocidad del sonido en el aire?", en: "What is the speed of sound in air?" }, options: { es: ["343 m/s", "1,000 m/s", "100 m/s", "3,000 km/s"], en: ["343 m/s", "1,000 m/s", "100 m/s", "3,000 km/s"] }, correctAnswer: { es: "343 m/s", en: "343 m/s" } },
+            { question: { es: "¿Cómo se llama el proceso de división celular?", en: "What is the process of cell division called?" }, options: { es: ["Meiosis", "Mitosis", "Metamorfosis", "Ósmosis"], en: ["Meiosis", "Mitosis", "Metamorphosis", "Osmosis"] }, correctAnswer: { es: "Mitosis", en: "Mitosis" } },
+            { question: { es: "¿Qué gas liberan las plantas durante la fotosíntesis?", en: "What gas do plants release during photosynthesis?" }, options: { es: ["Nitrógeno", "Oxígeno", "Dióxido de Carbono", "Vapor de agua"], en: ["Nitrogen", "Oxygen", "Carbon Dioxide", "Water vapor"] }, correctAnswer: { es: "Oxígeno", en: "Oxygen" } }
+        ]
+    },
+    {
+        id: 9, title: "Nivel 9", passingScore: 0.8,
+        questions: [
+            { question: { es: "¿Cuál es el elemento más ligero de la tabla periódica?", en: "What is the lightest element in the periodic table?" }, options: { es: ["Helio", "Oxígeno", "Hidrógeno", "Carbono"], en: ["Helium", "Oxygen", "Hydrogen", "Carbon"] }, correctAnswer: { es: "Hidrógeno", en: "Hydrogen" } },
+            { question: { es: "Un conjunto de órganos que trabajan juntos forma un...", en: "A set of organs working together forms a..." }, options: { es: ["Tejido", "Sistema", "Célula", "Organismo"], en: ["Tissue", "System", "Cell", "Organism"] }, correctAnswer: { es: "Sistema", en: "System" } },
+            { question: { es: "¿Qué tipo de lente corrige la miopía?", en: "What type of lens corrects nearsightedness (myopia)?" }, options: { es: ["Convexa", "Plana", "Bifocal", "Cóncava"], en: ["Convex", "Flat", "Bifocal", "Concave"] }, correctAnswer: { es: "Cóncava", en: "Concave" } },
+            { question: { es: "El estudio de los fósiles se llama...", en: "The study of fossils is called..." }, options: { es: ["Arqueología", "Paleontología", "Geología", "Antropología"], en: ["Archaeology", "Paleontology", "Geology", "Anthropology"] }, correctAnswer: { es: "Paleontología", en: "Paleontology" } },
+            { question: { es: "¿Cuántos cromosomas tiene un ser humano?", en: "How many chromosomes does a human have?" }, options: { es: ["46", "23", "48", "24"], en: ["46", "23", "48", "24"] }, correctAnswer: { es: "46", en: "46" } }
+        ]
+    },
+    {
+        id: 10, title: "Nivel 10", passingScore: 0.8,
+        questions: [
+            { question: { es: "¿Qué es la Vía Láctea?", en: "What is the Milky Way?" }, options: { es: ["Un planeta", "Una estrella", "Una galaxia", "Un cometa"], en: ["A planet", "A star", "A galaxy", "A comet"] }, correctAnswer: { es: "Una galaxia", en: "A galaxy" } },
+            { question: { es: "¿Cuál es el metal más denso?", en: "What is the densest metal?" }, options: { es: ["Plomo", "Osmio", "Oro", "Platino"], en: ["Lead", "Osmium", "Gold", "Platinum"] }, correctAnswer: { es: "Osmio", en: "Osmium" } },
+            { question: { es: "La teoría del Big Bang describe el origen del...", en: "The Big Bang theory describes the origin of the..." }, options: { es: ["Universo", "Sistema Solar", "Planeta Tierra", "Ser humano"], en: ["Universe", "Solar System", "Planet Earth", "Human being"] }, correctAnswer: { es: "Universo", en: "Universe" } },
+            { question: { es: "¿Cuál es la principal función de los glóbulos rojos?", en: "What is the main function of red blood cells?" }, options: { es: ["Combatir infecciones", "Transportar oxígeno", "Coagular la sangre", "Producir anticuerpos"], en: ["Fight infections", "Transport oxygen", "Clot blood", "Produce antibodies"] }, correctAnswer: { es: "Transportar oxígeno", en: "Transport oxygen" } },
+            { question: { es: "¿Qué es un año luz?", en: "What is a light-year?" }, options: { es: ["Una medida de tiempo", "Una medida de velocidad", "Una medida de distancia", "Una medida de brillo"], en: ["A measure of time", "A measure of speed", "A measure of distance", "A measure of brightness"] }, correctAnswer: { es: "Una medida de distancia", en: "A measure of distance" } }
+        ]
+    },
+    // --- Dificultad Avanzada (Niveles 11-20) ---
+    {
+        id: 11, title: "Nivel 11", passingScore: 0.85,
+        questions: [
+            { question: { es: "¿Qué ley de Newton establece que a toda acción corresponde una reacción?", en: "Which of Newton's laws states that for every action there is an equal and opposite reaction?" }, options: { es: ["Primera Ley", "Segunda Ley", "Tercera Ley", "Ley de Gravitación"], en: ["First Law", "Second Law", "Third Law", "Law of Gravitation"] }, correctAnswer: { es: "Tercera Ley", en: "Third Law" } },
+            { question: { es: "La mitocondria es conocida como la 'central de energía' de la...", en: "The mitochondrion is known as the 'powerhouse' of the..." }, options: { es: ["Planta", "Célula", "Bacteria", "Estrella"], en: ["Plant", "Cell", "Bacteria", "Star"] }, correctAnswer: { es: "Célula", en: "Cell" } },
+            { question: { es: "¿Cuál es el pH de una sustancia neutra?", en: "What is the pH of a neutral substance?" }, options: { es: ["0", "14", "1", "7"], en: ["0", "14", "1", "7"] }, correctAnswer: { es: "7", en: "7" } },
+            { question: { es: "¿Qué tipo de roca se forma por el enfriamiento del magma?", en: "What type of rock is formed by the cooling of magma?" }, options: { es: ["Sedimentaria", "Metamórfica", "Ígnea", "Fósil"], en: ["Sedimentary", "Metamorphic", "Igneous", "Fossil"] }, correctAnswer: { es: "Ígnea", en: "Igneous" } },
+            { question: { es: "El efecto invernadero es causado principalmente por un aumento de...", en: "The greenhouse effect is primarily caused by an increase in..." }, options: { es: ["Oxígeno", "Nitrógeno", "Dióxido de Carbono", "Argón"], en: ["Oxygen", "Nitrogen", "Carbon Dioxide", "Argon"] }, correctAnswer: { es: "Dióxido de Carbono", en: "Carbon Dioxide" } }
+        ]
+    },
+    {
+        id: 12, title: "Nivel 12", passingScore: 0.85,
+        questions: [
+            { question: { es: "¿Qué parte del átomo tiene carga negativa?", en: "What part of the atom has a negative charge?" }, options: { es: ["Protón", "Neutrón", "Electrón", "Núcleo"], en: ["Proton", "Neutron", "Electron", "Nucleus"] }, correctAnswer: { es: "Electrón", en: "Electron" } },
+            { question: { es: "La penicilina, un famoso antibiótico, fue descubierta por...", en: "Penicillin, a famous antibiotic, was discovered by..." }, options: { es: ["Marie Curie", "Louis Pasteur", "Alexander Fleming", "Robert Koch"], en: ["Marie Curie", "Louis Pasteur", "Alexander Fleming", "Robert Koch"] }, correctAnswer: { es: "Alexander Fleming", en: "Alexander Fleming" } },
+            { question: { es: "¿Qué es la ósmosis?", en: "What is osmosis?" }, options: { es: ["Paso de soluto a través de una membrana", "Paso de solvente a través de una membrana", "División celular", "Creación de energía"], en: ["Passage of solute through a membrane", "Passage of solvent through a membrane", "Cell division", "Energy creation"] }, correctAnswer: { es: "Paso de solvente a través de una membrana", en: "Passage of solvent through a membrane" } },
+            { question: { es: "¿Cuál es el planeta más grande del sistema solar?", en: "What is the largest planet in the solar system?" }, options: { es: ["Tierra", "Marte", "Júpiter", "Saturno"], en: ["Earth", "Mars", "Jupiter", "Saturn"] }, correctAnswer: { es: "Júpiter", en: "Jupiter" } },
+            { question: { es: "La erosión es el desgaste de la superficie terrestre por...", en: "Erosion is the wearing away of the Earth's surface by..." }, options: { es: ["Agua y viento", "Actividad volcánica", "Terremotos", "Luz solar"], en: ["Water and wind", "Volcanic activity", "Earthquakes", "Sunlight"] }, correctAnswer: { es: "Agua y viento", en: "Water and wind" } }
+        ]
+    },
+    {
+        id: 13, title: "Nivel 13", passingScore: 0.85,
+        questions: [
+            { question: { es: "¿Qué es un ecosistema?", en: "What is an ecosystem?" }, options: { es: ["Una especie animal", "Un tipo de planta", "Una comunidad de seres vivos y su entorno", "Un bioma acuático"], en: ["An animal species", "A type of plant", "A community of living beings and their environment", "An aquatic biome"] }, correctAnswer: { es: "Una comunidad de seres vivos y su entorno", en: "A community of living beings and their environment" } },
+            { question: { es: "La tabla periódica organiza los elementos por su...", en: "The periodic table organizes elements by their..." }, options: { es: ["Masa atómica", "Número atómico", "Color", "Densidad"], en: ["Atomic mass", "Atomic number", "Color", "Density"] }, correctAnswer: { es: "Número atómico", en: "Atomic number" } },
+            { question: { es: "¿Qué es un herbívoro?", en: "What is a herbivore?" }, options: { es: ["Come carne", "Come plantas", "Come de todo", "No come"], en: ["Eats meat", "Eats plants", "Eats everything", "Doesn't eat"] }, correctAnswer: { es: "Come plantas", en: "Eats plants" } },
+            { question: { es: "La Vía Láctea es una galaxia de tipo...", en: "The Milky Way is a galaxy of the type..." }, options: { es: ["Elíptica", "Irregular", "Lenticular", "Espiral"], en: ["Elliptical", "Irregular", "Lenticular", "Spiral"] }, correctAnswer: { es: "Espiral", en: "Spiral" } },
+            { question: { es: "¿Qué vitamina se conoce como ácido ascórbico?", en: "Which vitamin is known as ascorbic acid?" }, options: { es: ["Vitamina A", "Vitamina B", "Vitamina C", "Vitamina D"], en: ["Vitamin A", "Vitamin B", "Vitamin C", "Vitamin D"] }, correctAnswer: { es: "Vitamina C", en: "Vitamin C" } }
+        ]
+    },
+    {
+        id: 14, title: "Nivel 14", passingScore: 0.9,
+        questions: [
+            { question: { es: "¿Cuál de estos animales es un reptil?", en: "Which of these animals is a reptile?" }, options: { es: ["Rana", "Serpiente", "Salmón", "Pelícano"], en: ["Frog", "Snake", "Salmon", "Pelican"] }, correctAnswer: { es: "Serpiente", en: "Snake" } },
+            { question: { es: "La ciencia que estudia el clima es la...", en: "The science that studies climate is..." }, options: { es: ["Meteorología", "Climatología", "Geografía", "Ecología"], en: ["Meteorology", "Climatology", "Geography", "Ecology"] }, correctAnswer: { es: "Climatología", en: "Climatology" } },
+            { question: { es: "¿Qué es la materia?", en: "What is matter?" }, options: { es: ["Solo lo que podemos ver", "Todo lo que tiene masa y ocupa espacio", "Energía pura", "Una idea abstracta"], en: ["Only what we can see", "Anything that has mass and takes up space", "Pure energy", "An abstract idea"] }, correctAnswer: { es: "Todo lo que tiene masa y ocupa espacio", en: "Anything that has mass and takes up space" } },
+            { question: { es: "La Luna refleja la luz del...", en: "The Moon reflects light from the..." }, options: { es: ["Sol", "La Tierra", "Marte", "Las estrellas"], en: ["Sun", "Earth", "Mars", "The stars"] }, correctAnswer: { es: "Sol", en: "Sun" } },
+            { question: { es: "¿Cuál es el proceso opuesto a la evaporación?", en: "What is the opposite process of evaporation?" }, options: { es: ["Fusión", "Sublimación", "Condensación", "Ebullición"], en: ["Melting", "Sublimation", "Condensation", "Boiling"] }, correctAnswer: { es: "Condensación", en: "Condensation" } }
+        ]
+    },
+    {
+        id: 15, title: "Nivel 15", passingScore: 0.9,
+        questions: [
+            { question: { es: "¿Qué es un tsunami?", en: "What is a tsunami?" }, options: { es: ["Un tornado en el mar", "Una ola gigante causada por un terremoto submarino", "Una tormenta tropical", "Una erupción volcánica"], en: ["A tornado at sea", "A giant wave caused by an underwater earthquake", "A tropical storm", "A volcanic eruption"] }, correctAnswer: { es: "Una ola gigante causada por un terremoto submarino", en: "A giant wave caused by an underwater earthquake" } },
+            { question: { es: "El estudio de los hongos se llama...", en: "The study of fungi is called..." }, options: { es: ["Botánica", "Zoología", "Micología", "Virología"], en: ["Botany", "Zoology", "Mycology", "Virology"] }, correctAnswer: { es: "Micología", en: "Mycology" } },
+            { question: { es: "¿Cuál es la galaxia más cercana a la Vía Láctea?", en: "What is the closest galaxy to the Milky Way?" }, options: { es: ["Triángulo", "Andrómeda", "Sombrero", "Remolino"], en: ["Triangulum", "Andromeda", "Sombrero", "Whirlpool"] }, correctAnswer: { es: "Andrómeda", en: "Andromeda" } },
+            { question: { es: "¿Qué parte de la célula contiene la información genética?", en: "What part of the cell contains the genetic information?" }, options: { es: ["Membrana", "Citoplasma", "Núcleo", "Mitocondria"], en: ["Membrane", "Cytoplasm", "Nucleus", "Mitochondrion"] }, correctAnswer: { es: "Núcleo", en: "Nucleus" } },
+            { question: { es: "La escala de Richter mide la magnitud de...", en: "The Richter scale measures the magnitude of..." }, options: { es: ["Huracanes", "Tornados", "Terremotos", "Erupciones"], en: ["Hurricanes", "Tornadoes", "Earthquakes", "Eruptions"] }, correctAnswer: { es: "Terremotos", en: "Earthquakes" } }
+        ]
+    },
+    {
+        id: 16, title: "Nivel 16", passingScore: 0.9,
+        questions: [
+            { question: { es: "¿Qué es la biotecnología?", en: "What is biotechnology?" }, options: { es: ["El estudio de los robots", "El uso de organismos vivos para crear productos", "La clonación de animales", "La creación de vida artificial"], en: ["The study of robots", "The use of living organisms to create products", "The cloning of animals", "The creation of artificial life"] }, correctAnswer: { es: "El uso de organismos vivos para crear productos", en: "The use of living organisms to create products" } },
+            { question: { es: "¿Qué es la materia oscura?", en: "What is dark matter?" }, options: { es: ["Materia que no emite luz", "El espacio entre estrellas", "Agujeros negros", "Materia quemada"], en: ["Matter that does not emit light", "The space between stars", "Black holes", "Burnt matter"] }, correctAnswer: { es: "Materia que no emite luz", en: "Matter that does not emit light" } },
+            { question: { es: "¿Cuál es el ácido presente en el estómago?", en: "What is the acid present in the stomach?" }, options: { es: ["Ácido sulfúrico", "Ácido acético", "Ácido clorhídrico", "Ácido cítrico"], en: ["Sulfuric acid", "Acetic acid", "Hydrochloric acid", "Citric acid"] }, correctAnswer: { es: "Ácido clorhídrico", en: "Hydrochloric acid" } },
+            { question: { es: "La fisión nuclear es el proceso de...", en: "Nuclear fission is the process of..." }, options: { es: ["Unir núcleos atómicos", "Dividir un núcleo atómico pesado", "Crear nuevos elementos", "Generar electricidad estática"], en: ["Joining atomic nuclei", "Splitting a heavy atomic nucleus", "Creating new elements", "Generating static electricity"] }, correctAnswer: { es: "Dividir un núcleo atómico pesado", en: "Splitting a heavy atomic nucleus" } },
+            { question: { es: "¿Qué es la penicilina?", en: "What is penicillin?" }, options: { es: ["Un virus", "Una bacteria", "Un hongo", "Un antibiótico"], en: ["A virus", "A bacterium", "A fungus", "An antibiotic"] }, correctAnswer: { es: "Un antibiótico", en: "An antibiotic" } }
+        ]
+    },
+    {
+        id: 17, title: "Nivel 17", passingScore: 0.95,
+        questions: [
+            { question: { es: "El efecto Doppler explica el cambio de... de una onda.", en: "The Doppler effect explains the change in... of a wave." }, options: { es: ["Frecuencia", "Amplitud", "Velocidad", "Longitud"], en: ["Frequency", "Amplitude", "Speed", "Length"] }, correctAnswer: { es: "Frecuencia", en: "Frequency" } },
+            { question: { es: "¿Qué es la entropía?", en: "What is entropy?" }, options: { es: ["Una medida del orden", "Una medida del desorden", "Energía almacenada", "Una fuerza fundamental"], en: ["A measure of order", "A measure of disorder", "Stored energy", "A fundamental force"] }, correctAnswer: { es: "Una medida del desorden", en: "A measure of disorder" } },
+            { question: { es: "Los quarks son partículas fundamentales que componen...", en: "Quarks are fundamental particles that make up..." }, options: { es: ["Electrones", "Protones y neutrones", "Fotones", "Átomos"], en: ["Electrons", "Protons and neutrons", "Photons", "Atoms"] }, correctAnswer: { es: "Protones y neutrones", en: "Protons and neutrons" } },
+            { question: { es: "¿Qué es un prión?", en: "What is a prion?" }, options: { es: ["Un virus", "Una bacteria", "Una proteína mal plegada", "Un tipo de hongo"], en: ["A virus", "A bacterium", "A misfolded protein", "A type of fungus"] }, correctAnswer: { es: "Una proteína mal plegada", en: "A misfolded protein" } },
+            { question: { es: "La antimateria está compuesta por...", en: "Antimatter is composed of..." }, options: { es: ["Energía oscura", "Antipartículas", "Materia exótica", "Neutrinos"], en: ["Dark energy", "Antiparticles", "Exotic matter", "Neutrinos"] }, correctAnswer: { es: "Antipartículas", en: "Antiparticles" } }
+        ]
+    },
+    {
+        id: 18, title: "Nivel 18", passingScore: 0.95,
+        questions: [
+            { question: { es: "¿Qué es la superconductividad?", en: "What is superconductivity?" }, options: { es: ["Resistencia eléctrica infinita", "Resistencia eléctrica cero", "Alta conductividad térmica", "Magnetismo perfecto"], en: ["Infinite electrical resistance", "Zero electrical resistance", "High thermal conductivity", "Perfect magnetism"] }, correctAnswer: { es: "Resistencia eléctrica cero", en: "Zero electrical resistance" } },
+            { question: { es: "El Bosón de Higgs es una partícula asociada con...", en: "The Higgs Boson is a particle associated with..." }, options: { es: ["La gravedad", "La masa", "La luz", "El magnetismo"], en: ["Gravity", "Mass", "Light", "Magnetism"] }, correctAnswer: { es: "La masa", en: "Mass" } },
+            { question: { es: "¿Qué es la edición genética CRISPR?", en: "What is CRISPR gene editing?" }, options: { es: ["Una técnica de clonación", "Una herramienta para cortar y pegar ADN", "Un tipo de terapia génica", "Un método de secuenciación"], en: ["A cloning technique", "A tool for cutting and pasting DNA", "A type of gene therapy", "A sequencing method"] }, correctAnswer: { es: "Una herramienta para cortar y pegar ADN", en: "A tool for cutting and pasting DNA" } },
+            { question: { es: "Un agujero negro es una región del espacio con una gravedad tan fuerte que ni siquiera... puede escapar.", en: "A black hole is a region of space with gravity so strong that not even... can escape." }, options: { es: ["La materia", "El sonido", "La luz", "El tiempo"], en: ["Matter", "Sound", "Light", "Time"] }, correctAnswer: { es: "La luz", en: "Light" } },
+            { question: { es: "La fotosíntesis artificial busca imitar a las plantas para producir...", en: "Artificial photosynthesis seeks to imitate plants to produce..." }, options: { es: ["Agua", "Oxígeno", "Combustible solar", "Electricidad"], en: ["Water", "Oxygen", "Solar fuel", "Electricity"] }, correctAnswer: { es: "Combustible solar", en: "Solar fuel" } }
+        ]
+    },
+    {
+        id: 19, title: "Nivel 19", passingScore: 1.0,
+        questions: [
+            { question: { es: "¿Qué es la computación cuántica?", en: "What is quantum computing?" }, options: { es: ["Computación ultrarrápida", "Uso de cúbits para procesar información", "Inteligencia artificial avanzada", "Simulación del cerebro humano"], en: ["Ultra-fast computing", "Using qubits to process information", "Advanced artificial intelligence", "Simulating the human brain"] }, correctAnswer: { es: "Uso de cúbits para procesar información", en: "Using qubits to process information" } },
+            { question: { es: "El entrelazamiento cuántico es un fenómeno donde dos partículas están...", en: "Quantum entanglement is a phenomenon where two particles are..." }, options: { es: ["Unidas físicamente", "Conectadas instantáneamente a distancia", "En el mismo estado cuántico", "Vibrando a la misma frecuencia"], en: ["Physically joined", "Instantly connected at a distance", "In the same quantum state", "Vibrating at the same frequency"] }, correctAnswer: { es: "Conectadas instantáneamente a distancia", en: "Instantly connected at a distance" } },
+            { question: { es: "¿Qué es la teoría de cuerdas?", en: "What is string theory?" }, options: { es: ["Una teoría sobre la música", "Un modelo que describe partículas como cuerdas vibrantes", "Una teoría de la relatividad", "Un concepto de la informática"], en: ["A theory about music", "A model that describes particles as vibrating strings", "A theory of relativity", "A computer science concept"] }, correctAnswer: { es: "Un modelo que describe partículas como cuerdas vibrantes", en: "A model that describes particles as vibrating strings" } },
+            { question: { es: "La fusión nuclear, la energía de las estrellas, consiste en...", en: "Nuclear fusion, the energy of stars, consists of..." }, options: { es: ["Dividir átomos", "Unir átomos ligeros para formar uno más pesado", "Quemar hidrógeno", "Crear antimateria"], en: ["Splitting atoms", "Joining light atoms to form a heavier one", "Burning hydrogen", "Creating antimatter"] }, correctAnswer: { es: "Unir átomos ligeros para formar uno más pesado", en: "Joining light atoms to form a heavier one" } },
+            { question: { es: "¿Qué son los extremófilos?", en: "What are extremophiles?" }, options: { es: ["Animales muy grandes", "Organismos que viven en condiciones extremas", "Plantas venenosas", "Bacterias de otros planetas"], en: ["Very large animals", "Organisms that live in extreme conditions", "Poisonous plants", "Bacteria from other planets"] }, correctAnswer: { es: "Organismos que viven en condiciones extremas", en: "Organisms that live in extreme conditions" } }
+        ]
+    },
+    {
+        id: 20, title: "Nivel 20", passingScore: 1.0,
+        questions: [
+            { question: { es: "¿Qué es la singularidad en el contexto de un agujero negro?", en: "What is the singularity in the context of a black hole?" }, options: { es: ["El borde del agujero negro", "Un punto de densidad infinita en su centro", "La radiación que emite", "Una galaxia cercana"], en: ["The edge of the black hole", "A point of infinite density at its center", "The radiation it emits", "A nearby galaxy"] }, correctAnswer: { es: "Un punto de densidad infinita en su centro", en: "A point of infinite density at its center" } },
+            { question: { es: "La 'materia extraña' es una forma hipotética de materia compuesta por...", en: "'Strange matter' is a hypothetical form of matter composed of..." }, options: { es: ["Quarks extraños", "Antimateria", "Materia oscura", "Neutrones"], en: ["Strange quarks", "Antimatter", "Dark matter", "Neutrons"] }, correctAnswer: { es: "Quarks extraños", en: "Strange quarks" } },
+            { question: { es: "¿Qué es la panspermia?", en: "What is panspermia?" }, options: { es: ["Una enfermedad espacial", "La teoría de que la vida existe en todo el universo", "La creación de vida en laboratorio", "Un tipo de estrella"], en: ["A space disease", "The theory that life exists throughout the universe", "The creation of life in a lab", "A type of star"] }, correctAnswer: { es: "La teoría de que la vida existe en todo el universo", en: "The theory that life exists throughout the universe" } },
+            { question: { es: "El principio de incertidumbre de Heisenberg establece que no se puede conocer con precisión simultáneamente...", en: "Heisenberg's uncertainty principle states that one cannot simultaneously know with precision..." }, options: { es: ["La masa y la velocidad de una partícula", "La posición y el momento de una partícula", "La energía y el tiempo de un evento", "La carga y el espín de un electrón"], en: ["The mass and velocity of a particle", "The position and momentum of a particle", "The energy and time of an event", "The charge and spin of an electron"] }, correctAnswer: { es: "La posición y el momento de una partícula", en: "The position and momentum of a particle" } },
+            { question: { es: "¿Qué es un 'motor de Alcubierre'?", en: "What is an 'Alcubierre drive'?" }, options: { es: ["Un motor de cohete", "Un concepto teórico para viajar más rápido que la luz", "Un tipo de motor de iones", "Un generador de agujeros de gusano"], en: ["A rocket engine", "A theoretical concept for faster-than-light travel", "A type of ion engine", "A wormhole generator"] }, correctAnswer: { es: "Un concepto teórico para viajar más rápido que la luz", en: "A theoretical concept for faster-than-light travel" } }
+        ]
+    },
+    // --- Dificultad Experto (Niveles 21-30) ---
+    {
+        id: 21, title: "Nivel 21", passingScore: 1.0,
+        questions: [
+            { question: { es: "La refracción es el cambio de... de una onda al pasar a otro medio.", en: "Refraction is the change in... of a wave when passing to another medium." }, options: { es: ["Dirección", "Frecuencia", "Amplitud", "Color"], en: ["Direction", "Frequency", "Amplitude", "Color"] }, correctAnswer: { es: "Dirección", en: "Direction" } },
+            { question: { es: "¿Qué es un isótopo?", en: "What is an isotope?" }, options: { es: ["Un átomo con diferente número de electrones", "Un átomo con diferente número de protones", "Un átomo con diferente número de neutrones", "Un átomo de otro elemento"], en: ["An atom with a different number of electrons", "An atom with a different number of protons", "An atom with a different number of neutrons", "An atom of another element"] }, correctAnswer: { es: "Un átomo con diferente número de neutrones", en: "An atom with a different number of neutrons" } },
+            { question: { es: "La Tercera Ley de la Termodinámica se relaciona con el concepto de...", en: "The Third Law of Thermodynamics is related to the concept of..." }, options: { es: ["Cero absoluto", "Energía perpetua", "Entropía máxima", "Equilibrio térmico"], en: ["Absolute zero", "Perpetual energy", "Maximum entropy", "Thermal equilibrium"] }, correctAnswer: { es: "Cero absoluto", en: "Absolute zero" } },
+            { question: { es: "¿Qué es la epigenética?", en: "What is epigenetics?" }, options: { es: ["El estudio de genes antiguos", "Cambios hereditarios que no alteran la secuencia de ADN", "La manipulación de genes", "La creación de nuevas especies"], en: ["The study of ancient genes", "Heritable changes that do not alter the DNA sequence", "The manipulation of genes", "The creation of new species"] }, correctAnswer: { es: "Cambios hereditarios que no alteran la secuencia de ADN", en: "Heritable changes that do not alter the DNA sequence" } },
+            { question: { es: "La magnetohidrodinámica estudia la dinámica de...", en: "Magnetohydrodynamics studies the dynamics of..." }, options: { es: ["Fluidos magnéticos", "Fluidos eléctricamente conductores", "Gases ionizados", "Cristales líquidos"], en: ["Magnetic fluids", "Electrically conducting fluids", "Ionized gases", "Liquid crystals"] }, correctAnswer: { es: "Fluidos eléctricamente conductores", en: "Electrically conducting fluids" } }
+        ]
+    },
+    {
+        id: 22, title: "Nivel 22", passingScore: 1.0,
+        questions: [
+            { question: { es: "¿Qué es un punto de Lagrange en astronomía?", en: "What is a Lagrange point in astronomy?" }, options: { es: ["Un punto de alta gravedad", "Un punto donde las fuerzas gravitacionales se equilibran", "Una órbita estable para satélites", "El centro de una galaxia"], en: ["A point of high gravity", "A point where gravitational forces balance", "A stable orbit for satellites", "The center of a galaxy"] }, correctAnswer: { es: "Un punto donde las fuerzas gravitacionales se equilibran", en: "A point where gravitational forces balance" } },
+            { question: { es: "El 'efecto túnel' es un fenómeno de la mecánica...", en: "The 'tunnel effect' is a phenomenon of... mechanics." }, options: { es: ["Clásica", "Relativista", "Cuántica", "Celeste"], en: ["Classical", "Relativistic", "Quantum", "Celestial"] }, correctAnswer: { es: "Cuántica", en: "Quantum" } },
+            { question: { es: "¿Qué es un ciclo de Krebs?", en: "What is a Krebs cycle?" }, options: { es: ["Un ciclo orbital", "Una ruta metabólica en la respiración celular", "Un ciclo climático", "Un modelo matemático"], en: ["An orbital cycle", "A metabolic pathway in cellular respiration", "A climatic cycle", "A mathematical model"] }, correctAnswer: { es: "Una ruta metabólica en la respiración celular", en: "A metabolic pathway in cellular respiration" } },
+            { question: { es: "¿Qué es un 'ferrofluido'?", en: "What is a 'ferrofluid'?" }, options: { es: ["Un gas magnético", "Un metal líquido", "Un líquido que se magnetiza fuertemente", "Un plasma frío"], en: ["A magnetic gas", "A liquid metal", "A liquid that becomes strongly magnetized", "A cold plasma"] }, correctAnswer: { es: "Un líquido que se magnetiza fuertemente", en: "A liquid that becomes strongly magnetized" } },
+            { question: { es: "La 'hipótesis de la Tierra rara' sugiere que la vida compleja en el universo es...", en: "The 'Rare Earth hypothesis' suggests that complex life in the universe is..." }, options: { es: ["Muy común", "Extremadamente rara", "Imposible", "Artificial"], en: ["Very common", "Extremely rare", "Impossible", "Artificial"] }, correctAnswer: { es: "Extremadamente rara", en: "Extremely rare" } }
+        ]
+    },
+    {
+        id: 23, title: "Nivel 23", passingScore: 1.0,
+        questions: [
+            { question: { es: "¿Qué mide la constante de Hubble?", en: "What does the Hubble constant measure?" }, options: { es: ["La edad del universo", "La velocidad de expansión del universo", "La distancia a las galaxias", "La temperatura del fondo cósmico"], en: ["The age of the universe", "The expansion rate of the universe", "The distance to galaxies", "The temperature of the cosmic background"] }, correctAnswer: { es: "La velocidad de expansión del universo", en: "The expansion rate of the universe" } },
+            { question: { es: "La 'paradoja del gato de Schrödinger' es un experimento mental sobre...", en: "Schrödinger's cat paradox is a thought experiment about..." }, options: { es: ["Viaje en el tiempo", "La superposición cuántica", "Agujeros negros", "La relatividad"], en: ["Time travel", "Quantum superposition", "Black holes", "Relativity"] }, correctAnswer: { es: "La superposición cuántica", en: "Quantum superposition" } },
+            { question: { es: "¿Qué son los tardígrados (osos de agua)?", en: "What are tardigrades (water bears)?" }, options: { es: ["Insectos acuáticos", "Crustáceos", "Microorganismos extremófilos", "Larvas de anfibios"], en: ["Aquatic insects", "Crustaceans", "Extremophile microorganisms", "Amphibian larvae"] }, correctAnswer: { es: "Microorganismos extremófilos", en: "Extremophile microorganisms" } },
+            { question: { es: "El 'horizonte de sucesos' es el límite de un...", en: "The 'event horizon' is the boundary of a..." }, options: { es: ["Agujero negro", "Estrella de neutrones", "Quásar", "Púlsar"], en: ["Black hole", "Neutron star", "Quasar", "Pulsar"] }, correctAnswer: { es: "Agujero negro", en: "Black hole" } },
+            { question: { es: "¿Qué es la 'sonoluminiscencia'?", en: "What is 'sonoluminescence'?" }, options: { es: ["Luz producida por el sonido", "Sonido producido por la luz", "Bioluminiscencia", "Fosforescencia"], en: ["Light produced by sound", "Sound produced by light", "Bioluminescence", "Phosphorescence"] }, correctAnswer: { es: "Luz producida por el sonido", en: "Light produced by sound" } }
+        ]
+    },
+    {
+        id: 24, title: "Nivel 24", passingScore: 1.0,
+        questions: [
+            { question: { es: "¿Qué describe la Ecuación de Drake?", en: "What does the Drake Equation describe?" }, options: { es: ["La probabilidad de vida extraterrestre inteligente", "La órbita de los planetas", "La formación de estrellas", "La expansión del universo"], en: ["The probability of intelligent extraterrestrial life", "The orbit of planets", "The formation of stars", "The expansion of the universe"] }, correctAnswer: { es: "La probabilidad de vida extraterrestre inteligente", en: "The probability of intelligent extraterrestrial life" } },
+            { question: { es: "La cromodinámica cuántica es la teoría que describe...", en: "Quantum chromodynamics is the theory that describes..." }, options: { es: ["La fuerza electromagnética", "La fuerza nuclear débil", "La fuerza nuclear fuerte", "La gravedad cuántica"], en: ["The electromagnetic force", "The weak nuclear force", "The strong nuclear force", "Quantum gravity"] }, correctAnswer: { es: "La fuerza nuclear fuerte", en: "The strong nuclear force" } },
+            { question: { es: "¿Qué es un 'aerogel'?", en: "What is an 'aerogel'?" }, options: { es: ["Un gas solidificado", "El material sólido menos denso", "Una espuma metálica", "Un polímero transparente"], en: ["A solidified gas", "The least dense solid material", "A metallic foam", "A transparent polymer"] }, correctAnswer: { es: "El material sólido menos denso", en: "The least dense solid material" } },
+            { question: { es: "La 'radiación de Cherenkov' es luz emitida cuando una partícula cargada viaja a través de un medio...", en: "Cherenkov radiation is light emitted when a charged particle travels through a medium..." }, options: { es: ["Más rápido que el sonido", "Más rápido que la luz en ese medio", "En el vacío", "A velocidad constante"], en: ["Faster than sound", "Faster than light in that medium", "In a vacuum", "At a constant speed"] }, correctAnswer: { es: "Más rápido que la luz en ese medio", en: "Faster than light in that medium" } },
+            { question: { es: "La reacción de Maillard es responsable del... de los alimentos cocinados.", en: "The Maillard reaction is responsible for the... of cooked foods." }, options: { es: ["Sabor y color", "Aroma", "Textura", "Nutrientes"], en: ["Flavor and color", "Aroma", "Texture", "Nutrients"] }, correctAnswer: { es: "Sabor y color", en: "Flavor and color" } }
+        ]
+    },
+    {
+        id: 25, title: "Nivel 25", passingScore: 1.0,
+        questions: [
+            { question: { es: "¿Qué es la 'superfluidez'?", en: "What is 'superfluidity'?" }, options: { es: ["Un líquido sin viscosidad", "Un gas sin resistencia", "Un sólido ultradenso", "Un plasma superconductor"], en: ["A liquid with no viscosity", "A gas with no resistance", "An ultra-dense solid", "A superconducting plasma"] }, correctAnswer: { es: "Un líquido sin viscosidad", en: "A liquid with no viscosity" } },
+            { question: { es: "La 'esfera de Dyson' es una megaestructura hipotética construida alrededor de...", en: "A 'Dyson sphere' is a hypothetical megastructure built around..." }, options: { es: ["Un planeta", "Una estrella", "Una galaxia", "Un agujero negro"], en: ["A planet", "A star", "A galaxy", "A black hole"] }, correctAnswer: { es: "Una estrella", en: "A star" } },
+            { question: { es: "¿Qué es la 'memoria del agua'?", en: "What is 'water memory'?" }, options: { es: ["Una propiedad cuántica", "Una idea pseudocientífica", "Un fenómeno químico", "Un efecto biológico"], en: ["A quantum property", "A pseudoscientific idea", "A chemical phenomenon", "A biological effect"] }, correctAnswer: { es: "Una idea pseudocientífica", en: "A pseudoscientific idea" } },
+            { question: { es: "El 'Gran Atractor' es una anomalía gravitacional en...", en: "The 'Great Attractor' is a gravitational anomaly in..." }, options: { es: ["Nuestra galaxia", "El espacio intergaláctico", "El cinturón de Kuiper", "La nube de Oort"], en: ["Our galaxy", "Intergalactic space", "The Kuiper Belt", "The Oort Cloud"] }, correctAnswer: { es: "El espacio intergaláctico", en: "Intergalactic space" } },
+            { question: { es: "¿Qué es la 'retrocausalidad' en física?", en: "What is 'retrocausality' in physics?" }, options: { es: ["Causar un efecto en el pasado", "Un bucle temporal", "La inversión del tiempo", "Un efecto sin causa"], en: ["Causing an effect in the past", "A time loop", "The reversal of time", "An effect without a cause"] }, correctAnswer: { es: "Causar un efecto en el pasado", en: "Causing an effect in the past" } }
+        ]
+    },
+    {
+        id: 26, title: "Nivel 26", passingScore: 1.0,
+        questions: [
+            { question: { es: "¿Qué es un 'condensado de Bose-Einstein'?", en: "What is a 'Bose-Einstein condensate'?" }, options: { es: ["Un estado de la materia a altas temperaturas", "Un estado de la materia cerca del cero absoluto", "Un tipo de cristal", "Un gas ionizado"], en: ["A state of matter at high temperatures", "A state of matter near absolute zero", "A type of crystal", "An ionized gas"] }, correctAnswer: { es: "Un estado de la materia cerca del cero absoluto", en: "A state of matter near absolute zero" } },
+            { question: { es: "El 'problema de la medida' es una cuestión fundamental en...", en: "The 'measurement problem' is a fundamental issue in..." }, options: { es: ["Mecánica cuántica", "Relatividad general", "Termodinámica", "Óptica"], en: ["Quantum mechanics", "General relativity", "Thermodynamics", "Optics"] }, correctAnswer: { es: "Mecánica cuántica", en: "Quantum mechanics" } },
+            { question: { es: "¿Qué es un 'magnetar'?", en: "What is a 'magnetar'?" }, options: { es: ["Un tipo de quásar", "Una estrella de neutrones con un campo magnético extremadamente fuerte", "Un púlsar de rayos gamma", "Un agujero blanco"], en: ["A type of quasar", "A neutron star with an extremely strong magnetic field", "A gamma-ray pulsar", "A white hole"] }, correctAnswer: { es: "Una estrella de neutrones con un campo magnético extremadamente fuerte", en: "A neutron star with an extremely strong magnetic field" } },
+            { question: { es: "La 'Paradoja de Fermi' se pregunta sobre la aparente contradicción entre la alta probabilidad de... y la falta de evidencia.", en: "The 'Fermi Paradox' asks about the apparent contradiction between the high probability of... and the lack of evidence." }, options: { es: ["Viaje en el tiempo", "Vida extraterrestre", "Agujeros de gusano", "Universos paralelos"], en: ["Time travel", "Extraterrestrial life", "Wormholes", "Parallel universes"] }, correctAnswer: { es: "Vida extraterrestre", en: "Extraterrestrial life" } },
+            { question: { es: "¿Qué es la 'nanotecnología molecular'?", en: "What is 'molecular nanotechnology'?" }, options: { es: ["El estudio de moléculas pequeñas", "La construcción de máquinas a escala molecular", "La creación de nanomateriales", "La manipulación de átomos individuales"], en: ["The study of small molecules", "The construction of machines at the molecular scale", "The creation of nanomaterials", "The manipulation of individual atoms"] }, correctAnswer: { es: "La construcción de máquinas a escala molecular", en: "The construction of machines at the molecular scale" } }
+        ]
+    },
+    {
+        id: 27, title: "Nivel 27", passingScore: 1.0,
+        questions: [
+            { question: { es: "El 'horizonte cosmológico' es el límite del universo...", en: "The 'cosmological horizon' is the limit of the... universe." }, options: { es: ["Conocido", "Observable", "Existente", "Físico"], en: ["Known", "Observable", "Existing", "Physical"] }, correctAnswer: { es: "Observable", en: "Observable" } },
+            { question: { es: "¿Qué es un 'axioma' en matemáticas y lógica?", en: "What is an 'axiom' in mathematics and logic?" }, options: { es: ["Una conjetura", "Una proposición considerada evidente y aceptada sin demostración", "Un teorema complejo", "Una contradicción"], en: ["A conjecture", "A proposition considered self-evident and accepted without proof", "A complex theorem", "A contradiction"] }, correctAnswer: { es: "Una proposición considerada evidente y aceptada sin demostración", en: "A proposition considered self-evident and accepted without proof" } },
+            { question: { es: "El 'problema de la jerarquía' en física de partículas se refiere a la gran discrepancia entre... y la fuerza de gravedad.", en: "The 'hierarchy problem' in particle physics refers to the large discrepancy between... and the force of gravity." }, options: { es: ["La fuerza electromagnética", "La fuerza nuclear débil", "La fuerza nuclear fuerte", "La masa del bosón de Higgs"], en: ["The electromagnetic force", "The weak nuclear force", "The strong nuclear force", "The mass of the Higgs boson"] }, correctAnswer: { es: "La fuerza nuclear débil", en: "The weak nuclear force" } },
+            { question: { es: "¿Qué es la 'radiación de Hawking'?", en: "What is 'Hawking radiation'?" }, options: { es: ["Radiación emitida por estrellas de neutrones", "Radiación teórica emitida por los agujeros negros", "El fondo cósmico de microondas", "Una forma de radiación gamma"], en: ["Radiation emitted by neutron stars", "Theoretical radiation emitted by black holes", "The cosmic microwave background", "A form of gamma radiation"] }, correctAnswer: { es: "Radiación teórica emitida por los agujeros negros", en: "Theoretical radiation emitted by black holes" } },
+            { question: { es: "La 'hipótesis del universo holográfico' sugiere que nuestro universo tridimensional podría ser una proyección de información en una superficie...", en: "The 'holographic universe hypothesis' suggests that our three-dimensional universe could be a projection of information on a... surface." }, options: { es: ["Esférica", "Plana", "Bidimensional", "Multidimensional"], en: ["Spherical", "Flat", "Two-dimensional", "Multidimensional"] }, correctAnswer: { es: "Bidimensional", en: "Two-dimensional" } }
+        ]
+    },
+    {
+        id: 28, title: "Nivel 28", passingScore: 1.0,
+        questions: [
+            { question: { es: "¿Qué es un 'fluido no newtoniano'?", en: "What is a 'non-Newtonian fluid'?" }, options: { es: ["Un fluido que no fluye", "Un fluido cuya viscosidad cambia bajo estrés", "Un fluido superdenso", "Un fluido gaseoso"], en: ["A fluid that does not flow", "A fluid whose viscosity changes under stress", "A superdense fluid", "A gaseous fluid"] }, correctAnswer: { es: "Un fluido cuya viscosidad cambia bajo estrés", en: "A fluid whose viscosity changes under stress" } },
+            { question: { es: "La 'paradoja de Olbers' pregunta por qué el cielo nocturno es...", en: "Olbers' paradox asks why the night sky is..." }, options: { es: ["Oscuro", "Brillante", "Lleno de estrellas", "Azul"], en: ["Dark", "Bright", "Full of stars", "Blue"] }, correctAnswer: { es: "Oscuro", en: "Dark" } },
+            { question: { es: "¿Qué son los 'puntos cuánticos'?", en: "What are 'quantum dots'?" }, options: { es: ["Partículas subatómicas", "Defectos en cristales", "Nanocristales semiconductores con propiedades ópticas", "Un estado de la materia"], en: ["Subatomic particles", "Defects in crystals", "Semiconductor nanocrystals with optical properties", "A state of matter"] }, correctAnswer: { es: "Nanocristales semiconductores con propiedades ópticas", en: "Semiconductor nanocrystals with optical properties" } },
+            { question: { es: "El 'problema de los tres cuerpos' en física se refiere a la dificultad de predecir el movimiento de tres cuerpos bajo la influencia de...", en: "The 'three-body problem' in physics refers to the difficulty of predicting the motion of three bodies under the influence of..." }, options: { es: ["El magnetismo", "La gravedad mutua", "La fricción", "La presión"], en: ["Magnetism", "Mutual gravity", "Friction", "Pressure"] }, correctAnswer: { es: "La gravedad mutua", en: "Mutual gravity" } },
+            { question: { es: "¿Qué es la 'espintrónica'?", en: "What is 'spintronics'?" }, options: { es: ["Electrónica basada en el espín del electrón", "Electrónica a escala atómica", "Computación óptica", "Electrónica flexible"], en: ["Electronics based on the electron's spin", "Electronics at the atomic scale", "Optical computing", "Flexible electronics"] }, correctAnswer: { es: "Electrónica basada en el espín del electrón", en: "Electronics based on the electron's spin" } }
+        ]
+    },
+    {
+        id: 29, title: "Nivel 29", passingScore: 1.0,
+        questions: [
+            { question: { es: "La 'escala de Kardashev' mide el nivel de avance tecnológico de una civilización basado en...", en: "The 'Kardashev scale' measures a civilization's level of technological advancement based on..." }, options: { es: ["Su capacidad de viaje espacial", "Su consumo de energía", "Su poder computacional", "Su población"], en: ["Its space travel capability", "Its energy consumption", "Its computational power", "Its population"] }, correctAnswer: { es: "Su consumo de energía", en: "Its energy consumption" } },
+            { question: { es: "¿Qué es la 'levitación acústica'?", en: "What is 'acoustic levitation'?" }, options: { es: ["Levitación magnética", "Uso de ondas sonoras para hacer levitar objetos", "Un truco de magia", "Un fenómeno antigravitacional"], en: ["Magnetic levitation", "Using sound waves to levitate objects", "A magic trick", "An anti-gravity phenomenon"] }, correctAnswer: { es: "Uso de ondas sonoras para hacer levitar objetos", en: "Using sound waves to levitate objects" } },
+            { question: { es: "El 'vacío cuántico' no está realmente vacío, sino lleno de...", en: "The 'quantum vacuum' is not truly empty, but filled with..." }, options: { es: ["Materia oscura", "Energía oscura", "Partículas virtuales que aparecen y desaparecen", "Neutrinos"], en: ["Dark matter", "Dark energy", "Virtual particles that appear and disappear", "Neutrinos"] }, correctAnswer: { es: "Partículas virtuales que aparecen y desaparecen", en: "Virtual particles that appear and disappear" } },
+            { question: { es: "La 'astrobiología' es el estudio de...", en: "Astrobiology is the study of..." }, options: { es: ["La historia de la astronomía", "La vida en otros planetas", "La composición de las estrellas", "Los agujeros negros"], en: ["The history of astronomy", "Life on other planets", "The composition of stars", "Black holes"] }, correctAnswer: { es: "La vida en otros planetas", en: "Life on other planets" } },
+            { question: { es: "¿Qué es un 'metamaterial'?", en: "What is a 'metamaterial'?" }, options: { es: ["Un material natural", "Un material con propiedades no encontradas en la naturaleza", "Un superaleación", "Un polímero avanzado"], en: ["A natural material", "A material with properties not found in nature", "A superalloy", "An advanced polymer"] }, correctAnswer: { es: "Un material con propiedades no encontradas en la naturaleza", en: "A material with properties not found in nature" } }
+        ]
+    },
+    {
+        id: 30, title: "Nivel 30", passingScore: 1.0,
+        questions: [
+            { question: { es: "¿Qué es la 'hipótesis de simulación'?", en: "What is the 'simulation hypothesis'?" }, options: { es: ["Una simulación por computadora", "La idea de que nuestra realidad es una simulación artificial", "Un modelo climático", "Una teoría económica"], en: ["A computer simulation", "The idea that our reality is an artificial simulation", "A climate model", "An economic theory"] }, correctAnswer: { es: "La idea de que nuestra realidad es una simulación artificial", en: "The idea that our reality is an artificial simulation" } },
+            { question: { es: "El 'problema del horizonte' en cosmología se refiere a por qué diferentes regiones del universo...", en: "The 'horizon problem' in cosmology refers to why different regions of the universe..." }, options: { es: ["Se están alejando", "Tienen la misma temperatura", "Tienen diferentes leyes físicas", "Están vacías"], en: ["Are moving apart", "Have the same temperature", "Have different physical laws", "Are empty"] }, correctAnswer: { es: "Tienen la misma temperatura", en: "Have the same temperature" } },
+            { question: { es: "¿Qué son los 'anillos de Einstein'?", en: "What are 'Einstein rings'?" }, options: { es: ["Joyas usadas por Einstein", "La deformación de la luz de una fuente distante en un anillo por una lente gravitacional", "Órbitas planetarias", "Una teoría de la relatividad"], en: ["Jewelry worn by Einstein", "The deformation of light from a distant source into a ring by a gravitational lens", "Planetary orbits", "A theory of relativity"] }, correctAnswer: { es: "La deformación de la luz de una fuente distante en un anillo por una lente gravitacional", en: "The deformation of light from a distant source into a ring by a gravitational lens" } },
+            { question: { es: "La 'muerte térmica del universo' es un escenario final donde el universo alcanza un estado de...", en: "The 'heat death of the universe' is an end scenario where the universe reaches a state of..." }, options: { es: ["Frío absoluto", "Máxima entropía", "Colapso total", "Expansión infinita"], en: ["Absolute cold", "Maximum entropy", "Total collapse", "Infinite expansion"] }, correctAnswer: { es: "Máxima entropía", en: "Maximum entropy" } },
+            { question: { es: "¿Qué es un 'ordenador de ADN'?", en: "What is a 'DNA computer'?" }, options: { es: ["Un ordenador que secuencia ADN", "Un ordenador que utiliza ADN para almacenar y procesar datos", "Un simulador biológico", "Una inteligencia artificial"], en: ["A computer that sequences DNA", "A computer that uses DNA to store and process data", "A biological simulator", "An artificial intelligence"] }, correctAnswer: { es: "Un ordenador que utiliza ADN para almacenar y procesar datos", en: "A computer that uses DNA to store and process data" } }
+        ]
+    }
+];

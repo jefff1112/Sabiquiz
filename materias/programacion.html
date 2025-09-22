@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SabiQuiz - programacion</title>
+    <title data-translate="languageTitle">SabiQuiz - programacion</title>
     <link rel="stylesheet" href="../css/styles.css">
 </head>
 <body data-subject-id="programacion">
     <div class="container level-selection-container">
-        <a href="../main_menu.html" class="back-btn">← Volver a materias</a>
-        <h3>Lenguaje</h3>
+        <a href="../main_menu.html" class="back-btn" data-translate="backToMenu">← Volver a materias</a>
+        <h3 data-translate="programacion">programacion</h3>
         <div id="level-grid" class="level-grid">
             <p>Cargando niveles...</p>
         </div>
@@ -20,21 +20,26 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { levels } from './programacion-data.js';
+        // ¡Importar nuevo traductor
+        import { loadLanguage } from '../js/translations.js';
+
+        // Carga el idioma guardado tan pronto como la página se carga
+        loadLanguage();
 
         const firebaseConfig = {
-  apiKey: "AIzaSyDx_2b2rhaoRh7WawE9b-QVlVNj5PfycVA",
-  authDomain: "sabiquiz-8f915.firebaseapp.com",
-  projectId: "sabiquiz-8f915",
-  storageBucket: "sabiquiz-8f915.firebasestorage.app",
-  messagingSenderId: "1007656278742",
-  appId: "1:1007656278742:web:a17a204b430d2638e74777",
-  measurementId: "G-FB8HC6HV73"
-};
+            apiKey: "AIzaSyDx_2b2rhaoRh7WawE9b-QVlVNj5PfycVA",
+            authDomain: "sabiquiz-8f915.firebaseapp.com",
+            projectId: "sabiquiz-8f915",
+            storageBucket: "sabiquiz-8f915.firebasestorage.app",
+            messagingSenderId: "1007656278742",
+            appId: "1:1007656278742:web:a17a204b430d2638e74777",
+            measurementId: "G-FB8HC6HV73"
+        };
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- FUNCIÓN PARA DIBUJAR LOS BOTONES DE NIVEL ---
+        // --- FUNCIÓN PARA DIBUJAR LOS BOTONES DE NIVEL (TU CÓDIGO ORIGINAL) ---
         function drawLevelButtons(profileProgress = {}) {
             const subjectId = document.body.dataset.subjectId;
             const levelGrid = document.getElementById('level-grid');
@@ -69,20 +74,17 @@
             });
         }
 
-        // --- VERIFICAMOS LA SESIÓN DEL USUARIO PARA OBTENER SU PROGRESO PERSONAL ---
+        // --- VERIFICAMOS LA SESIÓN DEL USUARIO (TU CÓDIGO ORIGINAL) ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const userDocRef = doc(db, "users", user.uid);
                 const docSnap = await getDoc(userDocRef);
                 if (docSnap.exists() && docSnap.data().quizProgress) {
-                    // Si el usuario tiene progreso guardado, lo usamos para dibujar
                     drawLevelButtons(docSnap.data().quizProgress);
                 } else {
-                    // Si no tiene progreso, dibujamos el estado inicial (todo bloqueado)
                     drawLevelButtons();
                 }
             } else {
-                // Si no hay usuario, dibujamos el estado inicial
                 drawLevelButtons();
             }
         });

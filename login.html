@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SabiQuiz - Iniciar Sesión</title>
+    <title data-translate="loginTitle">SabiQuiz - Iniciar Sesión</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <link rel="stylesheet" href="css/styles.css">
     <style>
         /* Paleta de colores para el diseño moderno */
         :root {
@@ -44,6 +45,8 @@
             flex-direction: column;
             align-items: center;
             text-align: center;
+            position: relative;
+            z-index: 1;
         }
 
         .sabi-logo {
@@ -93,7 +96,7 @@
             box-shadow: 0 0 10px rgba(0, 184, 148, 0.2);
         }
 
-        .btn {
+        .btn-primary {
             width: 100%;
             padding: 12px 30px;
             border-radius: 10px;
@@ -105,17 +108,10 @@
             text-decoration: none;
             color: var(--white);
             margin-top: 10px;
-        }
-
-        .btn-primary {
             background: var(--primary-purple);
         }
 
-        .btn-secondary {
-            background: var(--primary-green);
-        }
-
-        .btn-primary:hover, .btn-secondary:hover {
+        .btn-primary:hover {
             opacity: 0.9;
             transform: translateY(-2px);
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
@@ -142,48 +138,60 @@
 </head>
 <body>
 
+    <div class="language-switcher">
+        <button data-lang="es">Español</button>
+        <button data-lang="en">English</button>
+    </div>
+
     <div class="login-container animate__animated animate__fadeIn">
         <img src="img/celebrando_perro_2.png" alt="Sabi Logo" class="sabi-logo animate__animated animate__zoomIn">
-        <h1 id="form-title">Iniciar Sesión</h1>
-        <p>¡Bienvenido de vuelta a SabiQuiz!</p>
+        <h1 id="form-title" data-translate="loginHeader">Iniciar Sesión</h1>
+        <p data-translate="loginSubHeader">¡Bienvenido de vuelta a SabiQuiz!</p>
 
         <form id="auth-form">
             <div class="input-group">
-                <label for="email">Correo Electrónico:</label>
+                <label for="email" data-translate="emailLabel">Correo Electrónico:</label>
                 <input type="email" id="email" name="email" class="input-field" required>
             </div>
             <div class="input-group">
-                <label for="password">Contraseña:</label>
+                <label for="password" data-translate="passwordLabel">Contraseña:</label>
                 <input type="password" id="password" name="password" class="input-field" required>
             </div>
-            <button type="submit" id="submit-btn" class="btn btn-primary">Iniciar Sesión</button>
+            <button type="submit" id="submit-btn" class="btn-primary" data-translate="loginBtn">Iniciar Sesión</button>
         </form>
 
-        <p id="toggle-form" class="toggle-text">
-            ¿No tienes una cuenta? <a href="#">Crea una aquí</a>
-        </p>
+        <p id="toggle-form" class="toggle-text"></p>
 
         <div id="message"></div>
     </div>
 
 <script type="module">
-    // --- IMPORTACIONES (Añadimos setPersistence y browserLocalPersistence) ---
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
     import { getAuth, setPersistence, browserLocalPersistence, signInWithEmailAndPassword, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+    import { setLanguage, loadLanguage, translations } from '/js/translations.js';
 
     const firebaseConfig = {
-  apiKey: "AIzaSyDx_2b2rhaoRh7WawE9b-QVlVNj5PfycVA",
-  authDomain: "sabiquiz-8f915.firebaseapp.com",
-  projectId: "sabiquiz-8f915",
-  storageBucket: "sabiquiz-8f915.firebasestorage.app",
-  messagingSenderId: "1007656278742",
-  appId: "1:1007656278742:web:a17a204b430d2638e74777",
-  measurementId: "G-FB8HC6HV73"
-};
+        apiKey: "AIzaSyDx_2b2rhaoRh7WawE9b-QVlVNj5PfycVA",
+        authDomain: "sabiquiz-8f915.firebaseapp.com",
+        projectId: "sabiquiz-8f915",
+        storageBucket: "sabiquiz-8f915.firebasestorage.app",
+        messagingSenderId: "1007656278742",
+        appId: "1:1007656278742:web:a17a204b430d2638e74777",
+        measurementId: "G-FB8HC6HV73"
+    };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    
+    // --- LÓGICA DE TRADUCCIÓN ---
+    loadLanguage();
+    document.querySelectorAll('.language-switcher button').forEach(button => {
+        button.addEventListener('click', (event) => {
+            setLanguage(event.target.getAttribute('data-lang'));
+        });
+    });
 
+    // --- LÓGICA DE LOGIN ---
     const authForm = document.getElementById('auth-form');
     const emailInput = document.getElementById('email');
     const passwordInput = document.getElementById('password');
@@ -197,10 +205,19 @@
     toggleFormText.addEventListener('click', (e) => {
         e.preventDefault();
         isLogin = !isLogin;
-        formTitle.textContent = isLogin ? 'Iniciar Sesión' : 'Crear Cuenta';
-        submitBtn.textContent = isLogin ? 'Iniciar Sesión' : 'Crear Cuenta';
-        toggleFormText.innerHTML = isLogin ? '¿No tienes una cuenta? <a href="#">Crea una aquí</a>' : '¿Ya tienes una cuenta? <a href="#">Inicia sesión</a>';
-        messageDiv.textContent = '';
+        const lang = localStorage.getItem('language') || 'es';
+        
+        // Asignamos la clave de traducción correcta
+        if (isLogin) {
+            formTitle.setAttribute('data-translate', 'loginHeader');
+            submitBtn.setAttribute('data-translate', 'loginBtn');
+        } else {
+            formTitle.setAttribute('data-translate', 'createAccountHeader');
+            submitBtn.setAttribute('data-translate', 'createAccountBtn');
+        }
+        
+        // Llamamos a setLanguage para aplicar los cambios inmediatamente
+        setLanguage(lang);
     });
 
     authForm.addEventListener('submit', (e) => {
@@ -209,15 +226,11 @@
         const password = passwordInput.value;
         messageDiv.textContent = '';
 
-        // --- ¡LA CORRECCIÓN ESTÁ AQUÍ! ---
-        // Le decimos a Firebase que guarde la sesión de forma local y persistente.
         setPersistence(auth, browserLocalPersistence)
             .then(() => {
                 if (isLogin) {
-                    // Lógica de inicio de sesión
                     return signInWithEmailAndPassword(auth, email, password);
                 } else {
-                    // Lógica para crear una cuenta
                     return createUserWithEmailAndPassword(auth, email, password);
                 }
             })
@@ -227,24 +240,18 @@
                     console.log('Usuario ha iniciado sesión:', user.uid);
                     messageDiv.textContent = '¡Inicio de sesión exitoso!';
                     messageDiv.style.color = 'var(--primary-green)';
-                    // Redirigimos al menú principal
                     window.location.href = 'main_menu.html';
                 } else {
                     console.log('Usuario creado:', user.uid);
                     messageDiv.textContent = '¡Cuenta creada con éxito! Ahora puedes iniciar sesión.';
                     messageDiv.style.color = 'var(--primary-green)';
-                    // Cambiamos al modo login para que el usuario inicie sesión
                     isLogin = true;
-                    formTitle.textContent = 'Iniciar Sesión';
-                    submitBtn.textContent = 'Iniciar Sesión';
-                    toggleFormText.innerHTML = '¿No tienes una cuenta? <a href="#">Crea una aquí</a>';
+                    setLanguage(localStorage.getItem('language') || 'es');
                 }
             })
             .catch((error) => {
-                // Manejo de errores
                 console.error("Error de autenticación:", error.message);
                 messageDiv.textContent = 'Error: ' + error.message;
-                messageDiv.style.color = 'var(--red-error)';
             });
     });
 </script>
