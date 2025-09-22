@@ -85,7 +85,11 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const socket = io("http://localhost:3000");
+
+        // --- CONEXIÓN INTELIGENTE Y FINAL PARA VERCEL ---
+        const productionURL = "https://sabiquiz.vercel.app";
+        const socketURL = window.location.hostname.includes('localhost') ? "http://localhost:3000" : productionURL;
+        const socket = io(socketURL);
 
         // --- LÓGICA DE TRADUCCIÓN ---
         loadLanguage();
@@ -142,7 +146,6 @@
                 const docSnap = await getDoc(userDocRef);
                 if (docSnap.exists()) { userProfile = docSnap.data(); }
                 else { userProfile = { displayName: user.email.split('@')[0], photoURL: null, level: 1, quizXp: 0, pvpXp: 0 }; }
-                
                 const lang = localStorage.getItem('language') || 'es';
                 const nameToDisplay = userProfile.displayName || user.email.split('@')[0];
                 const welcomeText = translations[lang].welcome;
