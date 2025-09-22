@@ -4,12 +4,20 @@
     {
       "src": "server/server.js",
       "use": "@vercel/node"
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "."
+      }
     }
   ],
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/socket.io/(.*)",
       "destination": "/server/server.js"
     }
   ]
 }
+

@@ -23,6 +23,7 @@ const io = socketIO(server, {
   }
 });
 
+// Ruta a la carpeta raíz del proyecto (un nivel arriba de /server)
 const publicPath = path.resolve(__dirname, '..');
 app.use(express.static(publicPath));
 
