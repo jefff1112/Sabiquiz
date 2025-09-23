@@ -16,12 +16,14 @@ const db = admin.firestore();
 const app = express();
 const server = http.createServer(app);
 
+// --- ¡LA CORRECCIÓN MÁS IMPORTANTE PARA VERCEL ESTÁ AQUÍ! ---
 const io = socketIO(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://sabiquiz.vercel.app"],
+    origin: ["https://sabiquiz.vercel.app", "http://localhost:3000"],
     methods: ["GET", "POST"]
   }
 });
+// ---------------------------------------------------------
 
 // Ruta a la carpeta raíz del proyecto (un nivel arriba de /server)
 const publicPath = path.resolve(__dirname, '..');
@@ -242,8 +244,6 @@ io.on('connection', (socket) => {
     });
 });
 
-// --- RUTA DE ENTRADA PRINCIPAL ---
-// Esta línea es necesaria para que el servidor sirva index.html en la ruta raíz.
 app.get('/', (req, res) => {
     res.sendFile(path.join(publicPath, 'index.html'));
 });
