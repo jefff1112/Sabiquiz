@@ -4,7 +4,7 @@ const socketIO = require('socket.io');
 const path = require('path');
 const admin = require('firebase-admin');
 
-// --- Rutas Absolutas para que Vercel encuentre los archivos ---
+// Rutas absolutas para que Vercel encuentre los archivos
 const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
 const questions = require(path.join(__dirname, 'questions.js'));
 
@@ -242,8 +242,8 @@ io.on('connection', (socket) => {
     });
 });
 
-// --- RUTA FINAL PARA CAPTURAR TODO Y SERVIR index.html ---
-app.get('*', (req, res) => {
+// --- RUTA DE ENTRADA PRINCIPAL ---
+app.get('/', (req, res) => {
     res.sendFile(path.join(publicPath, 'index.html'));
 });
 
