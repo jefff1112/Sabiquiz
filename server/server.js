@@ -242,8 +242,9 @@ io.on('connection', (socket) => {
     });
 });
 
-// --- RUTA FINAL PARA CAPTURAR TODO Y SERVIR index.html ---
-app.get('*', (req, res) => {
+// --- RUTA DE ENTRADA PRINCIPAL ---
+// Esta línea es necesaria para que el servidor sirva index.html en la ruta raíz.
+app.get('/', (req, res) => {
     res.sendFile(path.join(publicPath, 'index.html'));
 });
 
