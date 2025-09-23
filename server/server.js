@@ -16,14 +16,12 @@ const db = admin.firestore();
 const app = express();
 const server = http.createServer(app);
 
-// --- ¡LA CORRECCIÓN MÁS IMPORTANTE PARA VERCEL ESTÁ AQUÍ! ---
 const io = socketIO(server, {
   cors: {
-    origin: ["https://sabiquiz.vercel.app", "http://localhost:3000"],
+    origin: ["http://localhost:3000", "https://sabiquiz.vercel.app"],
     methods: ["GET", "POST"]
   }
 });
-// ---------------------------------------------------------
 
 // Ruta a la carpeta raíz del proyecto (un nivel arriba de /server)
 const publicPath = path.resolve(__dirname, '..');
@@ -244,6 +242,8 @@ io.on('connection', (socket) => {
     });
 });
 
+// --- RUTA DE ENTRADA PRINCIPAL ---
+// Esta línea es necesaria para que el servidor sirva index.html en la ruta raíz.
 app.get('/', (req, res) => {
     res.sendFile(path.join(publicPath, 'index.html'));
 });
@@ -253,14 +253,3 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
-```
-
-### Pasos Finales
-1.  **Reemplaza** el contenido de tu `server/server.js` con este código.
-2.  **Sube el cambio a GitHub**.
-    ```bash
-    git add .
-    git commit -m "Solución definitiva de CORS para Vercel"
-    git push
-    
-
