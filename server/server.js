@@ -4,7 +4,7 @@ const socketIO = require('socket.io');
 const path = require('path');
 const admin = require('firebase-admin');
 
-// --- Rutas Absolutas para Vercel ---
+// --- Rutas Absolutas para que Vercel encuentre los archivos ---
 const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
 const questions = require(path.join(__dirname, 'questions.js'));
 
@@ -23,7 +23,7 @@ const io = socketIO(server, {
   }
 });
 
-// Ruta a la carpeta raíz del proyecto
+// Ruta a la carpeta raíz del proyecto (un nivel arriba de /server)
 const publicPath = path.resolve(__dirname, '..');
 app.use(express.static(publicPath));
 
