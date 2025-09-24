@@ -70,7 +70,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firestore.js";
         import { setLanguage, loadLanguage, translations } from '/js/translations.js';
 
         const firebaseConfig = {
@@ -85,6 +85,25 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
+
+        // --- CONEXIÓN INTELIGENTE Y FINAL PARA VERCEL ---
+        const productionURL = "https://sabiquiz.vercel.app";
+        const socketURL = window.location.hostname.includes('localhost') ? "http://localhost:3000" : productionURL;
+        const socket = io(socketURL, { transports: ["websocket"] }); // ¡Forzamos el uso de WebSockets!
+
+        // --- LÓGICA DE TRADUCCIÓN ---
+        loadLanguage();
+        document.querySelectorAll('.language-switcher button').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const lang = event.target.getAttribute('data-lang');
+                setLanguage(lang);
+                if (currentUser) {
+                    const nameToDisplay = userProfile.displayName || currentUser.email.split('@')[0];
+                    const welcomeText = translations[lang].welcome;
+                    welcomeMessage.textContent = `${welcomeText} ${nameToDisplay}!`;
+                }
+            });
+        });
         
         const appContainer = document.getElementById('appContainer');
         const welcomeMessage = document.getElementById('welcomeMessage');
@@ -116,27 +135,7 @@
         const opponentXp = document.getElementById('opponentXp');
         const acceptMatchBtn = document.getElementById('acceptMatchBtn');
         const rejectMatchBtn = document.getElementById('rejectMatchBtn');
-        
         let currentUser = null, userProfile = {}, currentRoomCode = '', localPlayerId = '', tempRoomId = '';
-        
-        // --- CONEXIÓN INTELIGENTE Y ROBUSTA PARA VERCEL ---
-        const productionURL = "https://sabiquiz.vercel.app";
-        const socketURL = window.location.hostname.includes('localhost') ? "http://localhost:3000" : productionURL;
-        const socket = io(socketURL);
-        
-        // --- LÓGICA DE TRADUCCIÓN ---
-        loadLanguage();
-        document.querySelectorAll('.language-switcher button').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const lang = event.target.getAttribute('data-lang');
-                setLanguage(lang);
-                if (currentUser) {
-                    const nameToDisplay = userProfile.displayName || currentUser.email.split('@')[0];
-                    const welcomeText = translations[lang].welcome;
-                    welcomeMessage.textContent = `${welcomeText} ${nameToDisplay}!`;
-                }
-            });
-        });
         
         onAuthStateChanged(auth, async (user) => {
             if (user) {
