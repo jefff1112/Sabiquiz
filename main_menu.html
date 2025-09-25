@@ -48,8 +48,6 @@
             <div class="question-container"><h2 id="questionText"></h2><div id="optionsContainer" class="options-container"></div></div>
         </div>
         <div id="countdownContainer" style="display: none;"><h1 id="countdownText"></h1></div>
-        
-        <!-- Contenedor de Resultados con Botón de Salir -->
         <div id="endGameContainer" class="end-game-container" style="display: none;">
              <h2 class="results-title" data-translate="results">Resultados</h2>
             <div class="players-container">
@@ -64,7 +62,6 @@
             </div>
         </div>
         
-        <!-- Contenedor de Oponente Desconectado -->
         <div id="opponentDisconnectedContainer" class="popup-overlay" style="display: none;">
             <div class="popup-card animate__animated animate__zoomIn">
                 <h2 id="opponentDisconnectedMessage"></h2>
@@ -83,9 +80,10 @@
     
     <script src="/socket.io/socket.io.js"></script>
     <script type="module">
+        // --- ¡LA CORRECCIÓN MÁS IMPORTANTE ESTÁ AQUÍ! ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firestore.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { setLanguage, loadLanguage, translations } from '/js/translations.js';
 
         const firebaseConfig = {
