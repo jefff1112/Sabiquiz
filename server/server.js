@@ -4,9 +4,8 @@ const socketIO = require('socket.io');
 const path = require('path');
 const admin = require('firebase-admin');
 
-// --- ¡LA CORRECCIÓN MÁS IMPORTANTE PARA RENDER! ---
-// Leemos la clave secreta desde las Variables de Entorno, no desde un archivo.
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+// --- Rutas Absolutas para Vercel/Render ---
+const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
 const questions = require(path.join(__dirname, 'questions.js'));
 
 // --- 1. CONFIGURACIÓN ---
@@ -24,8 +23,9 @@ const io = socketIO(server, {
   }
 });
 
-const publicPath = path.resolve(__dirname, '..');
-app.use(express.static(publicPath));
+// --- ¡LA CORRECCIÓN MÁS IMPORTANTE ESTÁ AQUÍ! ---
+// Esta línea le dice al servidor que sirva TODOS los archivos de tu proyecto.
+app.use(express.static(path.resolve(__dirname, '..')));
 
 let rooms = {};
 let matchmakingPool = [];
@@ -282,4 +282,3 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
-
