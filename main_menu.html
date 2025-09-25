@@ -48,6 +48,8 @@
             <div class="question-container"><h2 id="questionText"></h2><div id="optionsContainer" class="options-container"></div></div>
         </div>
         <div id="countdownContainer" style="display: none;"><h1 id="countdownText"></h1></div>
+        
+        <!-- Contenedor de Resultados con Botón de Salir -->
         <div id="endGameContainer" class="end-game-container" style="display: none;">
              <h2 class="results-title" data-translate="results">Resultados</h2>
             <div class="players-container">
@@ -56,14 +58,13 @@
                 <div class="player-result"><img src="img/default-avatar.png" class="player-avatar" id="endAvatar2"><p id="endPlayer2Name" class="player-name"></p><p id="endPlayer2Score" class="player-score"></p></div>
             </div>
             <h3 id="endGameMessage" class="end-game-message"></h3>
-            <!-- NUEVOS BOTONES DE SALIR Y REVANCHA -->
             <div class="end-game-buttons">
                 <button id="rematchBtn" class="btn btn-rematch" data-translate="rematch">Revancha</button>
                 <button id="exitGameBtn" class="btn btn-exit" data-translate="exit">Salir</button>
             </div>
         </div>
         
-        <!-- NUEVA PANTALLA DE OPONENTE DESCONECTADO -->
+        <!-- Contenedor de Oponente Desconectado -->
         <div id="opponentDisconnectedContainer" class="popup-overlay" style="display: none;">
             <div class="popup-card animate__animated animate__zoomIn">
                 <h2 id="opponentDisconnectedMessage"></h2>
@@ -84,7 +85,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firestore.js";
         import { setLanguage, loadLanguage, translations } from '/js/translations.js';
 
         const firebaseConfig = {
@@ -105,7 +106,6 @@
             : `wss://${window.location.hostname}`;
         const socket = io(socketURL, { transports: ["websocket"] });
 
-        // --- MANEJO DE ELEMENTOS Y LÓGICA (TU CÓDIGO) ---
         const appContainer = document.getElementById('appContainer');
         const welcomeMessage = document.getElementById('welcomeMessage');
         const logoutBtn = document.getElementById('logoutBtn');
@@ -136,8 +136,6 @@
         const opponentXp = document.getElementById('opponentXp');
         const acceptMatchBtn = document.getElementById('acceptMatchBtn');
         const rejectMatchBtn = document.getElementById('rejectMatchBtn');
-        
-        // --- NUEVOS ELEMENTOS ---
         const exitGameBtn = document.getElementById('exitGameBtn');
         const opponentDisconnectedContainer = document.getElementById('opponentDisconnectedContainer');
         const opponentDisconnectedMessage = document.getElementById('opponentDisconnectedMessage');
@@ -229,11 +227,11 @@
         });
 
         exitGameBtn.addEventListener('click', () => {
-            window.location.reload(); // La forma más robusta de reiniciar el estado
+            window.location.reload();
         });
 
         exitAfterDisconnectBtn.addEventListener('click', () => {
-            window.location.reload(); // La forma más robusta de reiniciar el estado
+            window.location.reload();
         });
         
         socket.on('connect', () => { localPlayerId = socket.id; });
@@ -374,4 +372,3 @@
     </script>
 </body>
 </html>
-

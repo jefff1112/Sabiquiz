@@ -4,9 +4,8 @@ const socketIO = require('socket.io');
 const path = require('path');
 const admin = require('firebase-admin');
 
-// --- ¡LA CORRECCIÓN MÁS IMPORTANTE PARA RENDER! ---
-// Leemos la clave secreta desde las Variables de Entorno, no desde un archivo.
-const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
+// --- Rutas Absolutas para Vercel/Render ---
+const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
 const questions = require(path.join(__dirname, 'questions.js'));
 
 // --- 1. CONFIGURACIÓN ---
@@ -19,12 +18,11 @@ const server = http.createServer(app);
 
 const io = socketIO(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://sabiquiz.onrender.com", "https://sabiquiz-kevin-altamiranos-projects.vercel.app"], // Añadida tu URL de Render
+    origin: ["http://localhost:3000", "https://sabiquiz.vercel.app", "https://sabiquiz.onrender.com"],
     methods: ["GET", "POST"]
   }
 });
 
-// Ruta a la carpeta raíz del proyecto (un nivel arriba de /server)
 const publicPath = path.resolve(__dirname, '..');
 app.use(express.static(publicPath));
 
@@ -48,7 +46,9 @@ function startGame(roomCode) {
     io.to(roomCode).emit('startCountdown', { gameMode: room.gameMode, roomCode: roomCode });
     setTimeout(() => {
         const firstQuestion = room.gameData.questions[0];
-        io.to(roomCode).emit('nextQuestion', { question: firstQuestion });
+        // --- ¡CORRECCIÓN CLAVE! ---
+        // Enviamos el objeto de pregunta directamente, sin envolverlo.
+        io.to(roomCode).emit('nextQuestion', firstQuestion);
         startQuestionTimer(roomCode);
     }, 4000);
 }
@@ -85,7 +85,8 @@ function proceedToNextQuestion(roomCode) {
         handleEndGame(roomCode, false);
     } else {
         const nextQuestion = room.gameData.questions[room.gameData.currentQuestionIndex];
-        io.to(roomCode).emit('nextQuestion', { question: nextQuestion });
+        // --- ¡CORRECCIÓN CLAVE! ---
+        io.to(roomCode).emit('nextQuestion', nextQuestion);
         startQuestionTimer(roomCode);
     }
 }
