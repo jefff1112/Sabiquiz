@@ -4,7 +4,8 @@ const socketIO = require('socket.io');
 const path = require('path');
 const admin = require('firebase-admin');
 
-// --- Rutas Absolutas para Vercel/Render ---
+// --- Rutas Absolutas para que Vercel/Render encuentre los archivos ---
+// Verifica que estos dos archivos SÍ existan en tu carpeta 'server'
 const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
 const questions = require(path.join(__dirname, 'questions.js'));
 
@@ -25,7 +26,13 @@ const io = socketIO(server, {
 
 // --- ¡LA CORRECCIÓN MÁS IMPORTANTE ESTÁ AQUÍ! ---
 // Esta línea le dice al servidor que sirva TODOS los archivos de tu proyecto.
-app.use(express.static(path.resolve(__dirname, '..')));
+const publicPath = path.resolve(__dirname, '..');
+app.use(express.static(publicPath));
+
+// Ruta de entrada principal para servir index.html
+app.get('/', (req, res) => {
+    res.sendFile(path.join(publicPath, 'index.html'));
+});
 
 let rooms = {};
 let matchmakingPool = [];
@@ -47,7 +54,7 @@ function startGame(roomCode) {
     io.to(roomCode).emit('startCountdown', { gameMode: room.gameMode, roomCode: roomCode });
     setTimeout(() => {
         const firstQuestion = room.gameData.questions[0];
-        io.to(roomCode).emit('nextQuestion', { question: firstQuestion });
+        io.to(roomCode).emit('nextQuestion', firstQuestion);
         startQuestionTimer(roomCode);
     }, 4000);
 }
@@ -84,7 +91,7 @@ function proceedToNextQuestion(roomCode) {
         handleEndGame(roomCode, false);
     } else {
         const nextQuestion = room.gameData.questions[room.gameData.currentQuestionIndex];
-        io.to(roomCode).emit('nextQuestion', { question: nextQuestion });
+        io.to(roomCode).emit('nextQuestion', nextQuestion);
         startQuestionTimer(roomCode);
     }
 }
