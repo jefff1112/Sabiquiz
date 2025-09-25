@@ -283,8 +283,7 @@
 
         socket.on('nextQuestion', (data) => {
             const lang = localStorage.getItem('language') || 'es';
-            // --- ¡LA CORRECCIÓN MÁS IMPORTANTE ESTÁ AQUÍ! ---
-            const questionData = data.question; // Abrimos el "sobre"
+            const questionData = data.question; // <- La corrección clave
             
             timerDisplay.textContent = `Tiempo: 10`;
             questionText.textContent = questionData.question[lang];
