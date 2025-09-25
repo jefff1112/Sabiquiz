@@ -139,6 +139,7 @@ function applyTranslations(lang) {
         }
     });
 
+    // Lógica especial para el texto de login/registro
     const toggleFormText = document.getElementById('toggle-form');
     if (toggleFormText) {
         const formTitleEl = document.getElementById('form-title');
@@ -150,6 +151,19 @@ function applyTranslations(lang) {
         }
     }
 }
+
+function setLanguage(lang) {
+    localStorage.setItem('language', lang);
+    applyTranslations(lang);
+}
+
+function loadLanguage() {
+    const savedLang = localStorage.getItem('language') || 'es';
+    applyTranslations(savedLang);
+}
+
+export { setLanguage, loadLanguage, translations };
+
 
 function setLanguage(lang) {
     localStorage.setItem('language', lang);

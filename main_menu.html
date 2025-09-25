@@ -179,7 +179,8 @@
             findMatchBtn.style.display = 'none';
             matchmakingStatus.style.display = 'block';
             const totalXp = (userProfile.quizXp || 0) + (userProfile.pvpXp || 0);
-            const playerData = { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL, level: userProfile.level || 1, totalXp };
+            const lang = localStorage.getItem('language') || 'es';
+            const playerData = { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL, level: userProfile.level || 1, totalXp, lang };
             socket.emit('findMatch', playerData);
         });
 
@@ -229,7 +230,7 @@
         exitAfterDisconnectBtn.addEventListener('click', () => {
             window.location.reload();
         });
-
+        
         socket.on('connect', () => { localPlayerId = socket.id; });
         socket.on('roomCreated', (rc) => { currentRoomCode = rc; setStatus(`Sala "${rc}" creada. Esperando...`); });
         socket.on('playerJoined', () => setStatus('Oponente conectado. ¡Prepárense!'));
@@ -246,7 +247,7 @@
             matchFoundContainer.style.display = 'flex';
             acceptMatchBtn.disabled = false;
             rejectMatchBtn.disabled = false;
-            acceptMatchBtn.textContent = '✅ Aceptar';
+            loadLanguage(); // Para traducir los botones de Aceptar/Rechazar
         });
 
         socket.on('matchRejected', () => {
@@ -283,7 +284,6 @@
         socket.on('nextQuestion', (data) => {
             const lang = localStorage.getItem('language') || 'es';
             const questionData = data.question;
-            timerDisplay.textContent = `Tiempo: 10`;
             questionText.textContent = questionData.question[lang];
             optionsContainer.innerHTML = '';
             

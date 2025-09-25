@@ -35,7 +35,7 @@ function startGame(roomCode) {
     const room = rooms[roomCode];
     if (!room || room.players.length !== 2) return;
     room.gameMode = getRandomGameMode();
-    room.rematchVoters.clear();
+    room.rematchVoters = new Set();
     console.log(`--- INICIANDO PARTIDA --- Sala: ${roomCode}, Modo: ${room.gameMode}`);
     room.gameData = {
         questions: [...questions].sort(() => 0.5 - Math.random()).slice(0, 5),
@@ -46,6 +46,7 @@ function startGame(roomCode) {
     io.to(roomCode).emit('startCountdown', { gameMode: room.gameMode, roomCode: roomCode });
     setTimeout(() => {
         const firstQuestion = room.gameData.questions[0];
+        // Se envía el objeto completo para que el cliente elija el idioma
         io.to(roomCode).emit('nextQuestion', { question: firstQuestion });
         startQuestionTimer(roomCode);
     }, 4000);
@@ -68,7 +69,7 @@ function startQuestionTimer(roomCode) {
                 scores: room.gameData.scores, 
                 playerData: room.playerData 
             });
-            setTimeout(() => proceedToNextQuestion(roomCode), 3000);
+            setTimeout(() => proceedToNextQuestion(roomCode), 3000); // Aumentado para ver resultados
         }
     }, 1000);
 }
@@ -80,7 +81,7 @@ function proceedToNextQuestion(roomCode) {
     room.gameData.currentQuestionIndex++;
     room.gameData.playerAnswers = {};
     if (room.gameData.currentQuestionIndex >= room.gameData.questions.length) {
-        handleEndGame(roomCode, false);
+        handleEndGame(roomCode, false); // Juego terminó normalmente
     } else {
         const nextQuestion = room.gameData.questions[room.gameData.currentQuestionIndex];
         io.to(roomCode).emit('nextQuestion', { question: nextQuestion });
@@ -133,7 +134,21 @@ function getRandomGameMode() { return Math.random() < 0.5 ? 'normal' : 'revancha
 // --- 3. "ÁRBITRO" DE MATCHMAKING ---
 setInterval(() => {
     if (matchmakingPool.length >= 2) {
-        // ... Tu lógica de matchmaking ...
+        const player1 = matchmakingPool.shift();
+        const player2 = matchmakingPool.shift();
+        const socket1 = io.sockets.sockets.get(player1.socketId);
+        const socket2 = io.sockets.sockets.get(player2.socketId);
+        if (!socket1 || !socket2) {
+            if (player1 && socket1) matchmakingPool.unshift(player1);
+            if (player2 && socket2) matchmakingPool.unshift(player2);
+            return;
+        }
+        const tempRoomId = `vote_${Date.now()}`;
+        rooms[tempRoomId] = { players: [player1.socketId, player2.socketId], playerData: { [player1.socketId]: player1.data, [player2.socketId]: player2.data }, votes: new Set() };
+        socket1.join(tempRoomId);
+        socket2.join(tempRoomId);
+        socket1.emit('matchFound', { roomId: tempRoomId, opponent: player2.data });
+        socket2.emit('matchFound', { roomId: tempRoomId, opponent: player1.data });
     }
 }, 3000);
 
@@ -141,11 +156,47 @@ setInterval(() => {
 io.on('connection', (socket) => {
     console.log(`Usuario conectado: ${socket.id}`);
     
-    socket.on('findMatch', (playerData) => { /* ... Tu lógica ... */ });
-    socket.on('cancelFindMatch', () => { /* ... Tu lógica ... */ });
-    socket.on('createRoom', (data) => { /* ... Tu lógica ... */ });
-    socket.on('acceptMatch', ({ roomId }) => { /* ... Tu lógica ... */ });
-    socket.on('rejectMatch', ({ roomId }) => { /* ... Tu lógica ... */ });
+    socket.on('findMatch', (playerData) => { if (matchmakingPool.some(p => p.socketId === socket.id)) return; matchmakingPool.push({ socketId: socket.id, data: playerData }); });
+    socket.on('cancelFindMatch', () => { matchmakingPool = matchmakingPool.filter(p => p.socketId !== socket.id); });
+    socket.on('createRoom', (data) => {
+        const { roomCode, player } = data;
+        if (rooms[roomCode] && rooms[roomCode].players.length < 2) {
+            socket.join(roomCode);
+            rooms[roomCode].players.push(socket.id);
+            rooms[roomCode].playerData[socket.id] = player;
+            io.to(roomCode).emit('playerJoined', rooms[roomCode].players.length);
+            if (rooms[roomCode].players.length === 2) {
+                rooms[roomCode].rematchVoters = new Set();
+                startGame(roomCode);
+            }
+        } else if (!rooms[roomCode]) {
+            socket.join(roomCode);
+            rooms[roomCode] = { players: [socket.id], playerData: { [socket.id]: player }, gameData: null, gameMode: null, rematchVoters: new Set(), timerInterval: null };
+            socket.emit('roomCreated', roomCode);
+        } else {
+            socket.emit('roomFull');
+        }
+    });
+    socket.on('acceptMatch', ({ roomId }) => {
+        const room = rooms[roomId];
+        if (!room || room.votes.has(socket.id)) return;
+        room.votes.add(socket.id);
+        if (room.votes.size === 2) {
+            room.rematchVoters = new Set();
+            delete room.votes;
+            startGame(roomId);
+        }
+    });
+    socket.on('rejectMatch', ({ roomId }) => {
+        const room = rooms[roomId];
+        if (!room) return;
+        io.to(roomId).emit('matchRejected');
+        room.players.forEach(playerId => {
+            const playerProfile = room.playerData[playerId];
+            if (playerProfile) matchmakingPool.unshift({ socketId: playerId, data: playerProfile });
+        });
+        delete rooms[roomId];
+    });
 
     socket.on('playerAnswer', ({ roomCode, answer }) => {
         const room = rooms[roomCode];
@@ -160,6 +211,10 @@ io.on('connection', (socket) => {
         
         gameData.playerAnswers[socket.id] = { answer, isCorrect };
         
+        if (isCorrect) {
+            gameData.scores[socket.id]++;
+        }
+        
         const answersCount = Object.keys(gameData.playerAnswers).length;
         const aPlayerWasCorrect = Object.values(gameData.playerAnswers).some(p => p.isCorrect);
         let roundOver = false;
@@ -171,7 +226,6 @@ io.on('connection', (socket) => {
         }
         
         if (roundOver) {
-            if (isCorrect) gameData.scores[socket.id]++;
             io.to(roomCode).emit('roundResult', { 
                 playerAnswers: gameData.playerAnswers, 
                 correctAnswer: currentQuestion.correctAnswer, 
