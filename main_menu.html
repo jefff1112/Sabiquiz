@@ -86,12 +86,10 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- CONEXIÓN INTELIGENTE Y FINAL PARA RENDER Y VERCEL ---
-        const socketURL = window.location.hostname.includes('localhost') 
-            ? "http://localhost:3000" 
-            : `wss://${window.location.hostname}`;
+        const productionURL = "https://sabiquiz.vercel.app";
+        const socketURL = window.location.hostname.includes('localhost') ? "http://localhost:3000" : productionURL;
         const socket = io(socketURL, { transports: ["websocket"] });
-
+        
         loadLanguage();
         document.querySelectorAll('.language-switcher button').forEach(button => {
             button.addEventListener('click', (event) => {
@@ -135,6 +133,7 @@
         const opponentXp = document.getElementById('opponentXp');
         const acceptMatchBtn = document.getElementById('acceptMatchBtn');
         const rejectMatchBtn = document.getElementById('rejectMatchBtn');
+        
         let currentUser = null, userProfile = {}, currentRoomCode = '', localPlayerId = '', tempRoomId = '';
         
         onAuthStateChanged(auth, async (user) => {
@@ -146,6 +145,7 @@
                 const docSnap = await getDoc(userDocRef);
                 if (docSnap.exists()) { userProfile = docSnap.data(); }
                 else { userProfile = { displayName: user.email.split('@')[0], photoURL: null, level: 1, quizXp: 0, pvpXp: 0 }; }
+                
                 const lang = localStorage.getItem('language') || 'es';
                 const nameToDisplay = userProfile.displayName || user.email.split('@')[0];
                 const welcomeText = translations[lang].welcome;
@@ -155,6 +155,7 @@
         });
         
         logoutBtn.addEventListener('click', () => signOut(auth));
+        
         findMatchBtn.addEventListener('click', () => {
             document.querySelector('.sub-heading').style.display = 'none';
             document.getElementById('codeRoomContainer').style.display = 'none';
@@ -164,6 +165,7 @@
             const playerData = { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL, level: userProfile.level || 1, totalXp };
             socket.emit('findMatch', playerData);
         });
+        
         cancelMatchBtn.addEventListener('click', () => {
             findMatchBtn.style.display = 'block';
             document.getElementById('codeRoomContainer').style.display = 'flex';
@@ -171,36 +173,44 @@
             matchmakingStatus.style.display = 'none';
             socket.emit('cancelFindMatch');
         });
+
         function setStatus(message) { statusMessage.textContent = message; }
+        
         createRoomBtn.addEventListener('click', () => {
             const roomCode = roomCodeInput.value.trim();
             if (roomCode && currentUser) { socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } }); }
         });
+
         joinRoomBtn.addEventListener('click', () => {
             const roomCode = roomCodeInput.value.trim();
             if (roomCode && currentUser) { socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } }); }
         });
+
         rematchBtn.addEventListener('click', () => {
             endGameContainer.style.display = 'none';
             multiplayerMenu.style.display = 'block';
             setStatus('Esperando respuesta del otro jugador...');
             socket.emit('requestRematch', { roomCode: currentRoomCode });
         });
+
         acceptMatchBtn.addEventListener('click', () => {
             acceptMatchBtn.disabled = true;
             rejectMatchBtn.disabled = true;
             acceptMatchBtn.textContent = 'Esperando...';
             socket.emit('acceptMatch', { roomId: tempRoomId });
         });
+
         rejectMatchBtn.addEventListener('click', () => {
             matchFoundContainer.style.display = 'none';
             findMatchBtn.click();
             socket.emit('rejectMatch', { roomId: tempRoomId });
         });
+
         socket.on('connect', () => { localPlayerId = socket.id; });
         socket.on('roomCreated', (rc) => { currentRoomCode = rc; setStatus(`Sala "${rc}" creada. Esperando...`); });
         socket.on('playerJoined', () => setStatus('Oponente conectado. ¡Prepárense!'));
         socket.on('roomFull', () => setStatus('La sala está llena.'));
+
         socket.on('matchFound', (data) => {
             const { roomId, opponent } = data;
             tempRoomId = roomId;
@@ -214,11 +224,13 @@
             rejectMatchBtn.disabled = false;
             acceptMatchBtn.textContent = '✅ Aceptar';
         });
+
         socket.on('matchRejected', () => {
             matchFoundContainer.style.display = 'none';
             alert("Tu oponente ha rechazado la partida. Volviendo a la búsqueda...");
             findMatchBtn.click();
         });
+
         socket.on('startCountdown', (data) => {
             matchFoundContainer.style.display = 'none';
             mainMenu.style.display = 'none';
@@ -241,7 +253,9 @@
                 }
             }, 1000);
         });
+
         socket.on('timerUpdate', (timeLeft) => { timerDisplay.textContent = `Tiempo: ${timeLeft}`; });
+
         socket.on('nextQuestion', (data) => {
             timerDisplay.textContent = `Tiempo: 10`;
             questionText.textContent = data.question;
@@ -256,11 +270,13 @@
                 optionsContainer.appendChild(button);
             });
         });
+        
         socket.on('answerReceived', () => {
             optionsContainer.querySelectorAll('.option-button').forEach(btn => {
                 btn.disabled = true;
             });
         });
+
         socket.on('roundResult', (data) => {
             const { playerAnswers, correctAnswer, scores, playerData } = data;
             const playerIds = Object.keys(playerData);
@@ -278,6 +294,7 @@
                 }
             });
         });
+        
         socket.on('endGame', (data) => {
             gameContainer.style.display = 'none';
             endGameContainer.style.display = 'block';

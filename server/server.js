@@ -4,7 +4,7 @@ const socketIO = require('socket.io');
 const path = require('path');
 const admin = require('firebase-admin');
 
-// --- Rutas Absolutas para que Vercel encuentre los archivos ---
+// --- Rutas Absolutas para Vercel ---
 const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
 const questions = require(path.join(__dirname, 'questions.js'));
 
@@ -18,12 +18,11 @@ const server = http.createServer(app);
 
 const io = socketIO(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://sabiquiz.vercel.app"],
+    origin: ["http://localhost:3000", "https://sabiquiz.vercel.app", "https://sabiquiz-kevin-altamiranos-projects.vercel.app"],
     methods: ["GET", "POST"]
   }
 });
 
-// Ruta a la carpeta raíz del proyecto (un nivel arriba de /server)
 const publicPath = path.resolve(__dirname, '..');
 app.use(express.static(publicPath));
 
@@ -47,7 +46,8 @@ function startGame(roomCode) {
     io.to(roomCode).emit('startCountdown', { gameMode: room.gameMode, roomCode: roomCode });
     setTimeout(() => {
         const firstQuestion = room.gameData.questions[0];
-        io.to(roomCode).emit('nextQuestion', { question: firstQuestion.question, options: firstQuestion.options });
+        // Se envía el objeto completo para que el cliente elija el idioma
+        io.to(roomCode).emit('nextQuestion', { question: firstQuestion });
         startQuestionTimer(roomCode);
     }, 4000);
 }
@@ -69,7 +69,7 @@ function startQuestionTimer(roomCode) {
                 scores: room.gameData.scores, 
                 playerData: room.playerData 
             });
-            setTimeout(() => proceedToNextQuestion(roomCode), 2000);
+            setTimeout(() => proceedToNextQuestion(roomCode), 3000); // Aumentado para ver resultados
         }
     }, 1000);
 }
@@ -81,40 +81,49 @@ function proceedToNextQuestion(roomCode) {
     room.gameData.currentQuestionIndex++;
     room.gameData.playerAnswers = {};
     if (room.gameData.currentQuestionIndex >= room.gameData.questions.length) {
-        handleEndGame(roomCode);
+        handleEndGame(roomCode, false); // Juego terminó normalmente
     } else {
         const nextQuestion = room.gameData.questions[room.gameData.currentQuestionIndex];
-        io.to(roomCode).emit('nextQuestion', { question: nextQuestion.question, options: nextQuestion.options });
+        io.to(roomCode).emit('nextQuestion', { question: nextQuestion });
         startQuestionTimer(roomCode);
     }
 }
 
-async function handleEndGame(roomCode) {
+async function handleEndGame(roomCode, opponentLeft = false) {
     const room = rooms[roomCode];
     if (!room || !room.gameData) return;
-    io.to(roomCode).emit('endGame', { scores: room.gameData.scores, playerData: room.playerData });
-    const scores = room.gameData.scores;
-    const playerSocketIds = Object.keys(scores);
-    if (playerSocketIds.length < 2) return;
-    const [p1_socketId, p2_socketId] = playerSocketIds;
-    const p1_uid = room.playerData[p1_socketId].uid;
-    const p2_uid = room.playerData[p2_socketId].uid;
-    const p1_docRef = db.collection('users').doc(p1_uid);
-    const p2_docRef = db.collection('users').doc(p2_uid);
-    try {
-        await p1_docRef.update({ matchesPlayed: admin.firestore.FieldValue.increment(1) });
-        await p2_docRef.update({ matchesPlayed: admin.firestore.FieldValue.increment(1) });
-        if (scores[p1_socketId] > scores[p2_socketId]) {
-            await p1_docRef.update({ matchesWon: admin.firestore.FieldValue.increment(1), pvpXp: admin.firestore.FieldValue.increment(50) });
-            await p2_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(10) });
-        } else if (scores[p2_socketId] > scores[p1_socketId]) {
-            await p2_docRef.update({ matchesWon: admin.firestore.FieldValue.increment(1), pvpXp: admin.firestore.FieldValue.increment(50) });
-            await p1_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(10) });
-        } else {
-            await p1_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(15) });
-            await p2_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(15) });
-        }
-    } catch (error) { console.error("Error al guardar datos de 1vs1 en Firestore:", error); }
+    
+    // Solo se guardan puntos si el juego terminó normalmente
+    if (!opponentLeft) {
+        io.to(roomCode).emit('endGame', { scores: room.gameData.scores, playerData: room.playerData });
+        const scores = room.gameData.scores;
+        const playerSocketIds = Object.keys(scores);
+        if (playerSocketIds.length < 2) return;
+        
+        const [p1_socketId, p2_socketId] = playerSocketIds;
+        const p1_uid = room.playerData[p1_socketId]?.uid;
+        const p2_uid = room.playerData[p2_socketId]?.uid;
+
+        if (!p1_uid || !p2_uid) return;
+
+        const p1_docRef = db.collection('users').doc(p1_uid);
+        const p2_docRef = db.collection('users').doc(p2_uid);
+        
+        try {
+            await p1_docRef.update({ matchesPlayed: admin.firestore.FieldValue.increment(1) });
+            await p2_docRef.update({ matchesPlayed: admin.firestore.FieldValue.increment(1) });
+            if (scores[p1_socketId] > scores[p2_socketId]) {
+                await p1_docRef.update({ matchesWon: admin.firestore.FieldValue.increment(1), pvpXp: admin.firestore.FieldValue.increment(50) });
+                await p2_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(10) });
+            } else if (scores[p2_socketId] > scores[p1_socketId]) {
+                await p2_docRef.update({ matchesWon: admin.firestore.FieldValue.increment(1), pvpXp: admin.firestore.FieldValue.increment(50) });
+                await p1_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(10) });
+            } else {
+                await p1_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(15) });
+                await p2_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(15) });
+            }
+        } catch (error) { console.error("Error al guardar datos de 1vs1 en Firestore:", error); }
+    }
 }
 
 function getRandomGameMode() {
@@ -193,7 +202,7 @@ io.on('connection', (socket) => {
         const gameData = room.gameData;
         const currentQuestion = gameData.questions[gameData.currentQuestionIndex];
         const correctAnswer = currentQuestion?.correctAnswer;
-        const isCorrect = correctAnswer ? (answer.toLowerCase() === correctAnswer.toLowerCase()) : false;
+        const isCorrect = correctAnswer ? (answer.toLowerCase() === correctAnswer[Object.keys(correctAnswer)[0]].toLowerCase()) : false;
         gameData.playerAnswers[socket.id] = { answer, isCorrect };
         const answersCount = Object.keys(gameData.playerAnswers).length;
         const aPlayerWasCorrect = Object.values(gameData.playerAnswers).some(p => p.isCorrect);
@@ -207,7 +216,7 @@ io.on('connection', (socket) => {
             for (const playerId in gameData.playerAnswers) {
                 if (gameData.playerAnswers[playerId].isCorrect) gameData.scores[playerId]++;
             }
-            io.to(roomCode).emit('roundResult', { playerAnswers: gameData.playerAnswers, correctAnswer: correctAnswer || 'Error', scores: gameData.scores, playerData: room.playerData });
+            io.to(roomCode).emit('roundResult', { playerAnswers: gameData.playerAnswers, correctAnswer: correctAnswer, scores: gameData.scores, playerData: room.playerData });
             setTimeout(() => proceedToNextQuestion(roomCode), 2500);
         } else {
             socket.emit('answerReceived');
@@ -217,7 +226,17 @@ io.on('connection', (socket) => {
         const room = rooms[data.roomCode];
         if (!room || room.rematchVoters.has(socket.id)) return;
         room.rematchVoters.add(socket.id);
-        if (room.rematchVoters.size === 2) startGame(data.roomCode);
+
+        // Notificar al otro jugador que se ha pedido revancha
+        const otherPlayerId = room.players.find(pId => pId !== socket.id);
+        if (otherPlayerId) {
+            const requesterName = room.playerData[socket.id].name;
+            io.to(otherPlayerId).emit('rematchRequested', { name: requesterName });
+        }
+
+        if (room.rematchVoters.size === 2) {
+             startGame(data.roomCode);
+        }
     });
     socket.on('disconnect', () => {
         console.log(`Usuario desconectado: ${socket.id}`);
@@ -228,21 +247,19 @@ io.on('connection', (socket) => {
             if (playerIndex > -1) {
                 const disconnectedPlayerName = room.playerData[socket.id]?.name || 'Un jugador';
                 room.players.splice(playerIndex, 1);
-                delete room.playerData[socket.id];
-                if (room.players.length < 2) {
-                    if (room.players.length === 1) {
-                        const remainingPlayerSocketId = room.players[0];
-                        io.to(remainingPlayerSocketId).emit('opponentLeft', `${disconnectedPlayerName} ha abandonado la partida.`);
-                    }
-                    delete rooms[roomCode];
+                
+                if (room.players.length > 0) {
+                    const remainingPlayerSocketId = room.players[0];
+                    io.to(remainingPlayerSocketId).emit('opponentDisconnected', { name: disconnectedPlayerName });
                 }
+                
+                delete rooms[roomCode];
                 break;
             }
         }
     });
 });
 
-// --- RUTA FINAL PARA CAPTURAR TODO Y SERVIR index.html ---
 app.get('/', (req, res) => {
     res.sendFile(path.join(publicPath, 'index.html'));
 });
@@ -252,4 +269,3 @@ const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);
 });
-
