@@ -4,8 +4,9 @@ const socketIO = require('socket.io');
 const path = require('path');
 const admin = require('firebase-admin');
 
-// --- Rutas Absolutas para Vercel/Render ---
-const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
+// --- ¡LA CORRECCIÓN MÁS IMPORTANTE PARA RENDER! ---
+// Leemos la clave secreta desde las Variables de Entorno, no desde un archivo.
+const serviceAccount = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT);
 const questions = require(path.join(__dirname, 'questions.js'));
 
 // --- 1. CONFIGURACIÓN ---
@@ -18,11 +19,12 @@ const server = http.createServer(app);
 
 const io = socketIO(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://sabiquiz.vercel.app", "https://sabiquiz.onrender.com"],
+    origin: ["http://localhost:3000", "https://sabiquiz.onrender.com", "https://sabiquiz-kevin-altamiranos-projects.vercel.app"], // Añadida tu URL de Render
     methods: ["GET", "POST"]
   }
 });
 
+// Ruta a la carpeta raíz del proyecto (un nivel arriba de /server)
 const publicPath = path.resolve(__dirname, '..');
 app.use(express.static(publicPath));
 
@@ -46,7 +48,6 @@ function startGame(roomCode) {
     io.to(roomCode).emit('startCountdown', { gameMode: room.gameMode, roomCode: roomCode });
     setTimeout(() => {
         const firstQuestion = room.gameData.questions[0];
-        // Se envía el objeto completo para que el cliente elija el idioma
         io.to(roomCode).emit('nextQuestion', { question: firstQuestion });
         startQuestionTimer(roomCode);
     }, 4000);
@@ -81,7 +82,7 @@ function proceedToNextQuestion(roomCode) {
     room.gameData.currentQuestionIndex++;
     room.gameData.playerAnswers = {};
     if (room.gameData.currentQuestionIndex >= room.gameData.questions.length) {
-        handleEndGame(roomCode, false); // Juego terminó normalmente
+        handleEndGame(roomCode, false);
     } else {
         const nextQuestion = room.gameData.questions[room.gameData.currentQuestionIndex];
         io.to(roomCode).emit('nextQuestion', { question: nextQuestion });
@@ -95,7 +96,6 @@ async function handleEndGame(roomCode, opponentLeft = false) {
     
     io.to(roomCode).emit('endGame', { scores: room.gameData.scores, playerData: room.playerData });
 
-    // Solo se guardan puntos si el juego terminó normalmente
     if (opponentLeft) {
         console.log(`Partida ${roomCode} terminada por desconexión. No se guardan puntos.`);
         return;
@@ -206,7 +206,6 @@ io.on('connection', (socket) => {
         
         const gameData = room.gameData;
         const currentQuestion = gameData.questions[gameData.currentQuestionIndex];
-        
         const correctAnswer_es = currentQuestion.correctAnswer.es.toLowerCase();
         const correctAnswer_en = currentQuestion.correctAnswer.en.toLowerCase();
         const isCorrect = (answer.toLowerCase() === correctAnswer_es) || (answer.toLowerCase() === correctAnswer_en);
