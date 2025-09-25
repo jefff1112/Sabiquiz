@@ -82,7 +82,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firestore.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { setLanguage, loadLanguage, translations } from '/js/translations.js';
 
         const firebaseConfig = {
@@ -98,7 +98,6 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- CONEXIÓN INTELIGENTE Y ROBUSTA PARA RENDER/VERCEL ---
         const socketURL = window.location.hostname.includes('localhost') 
             ? "http://localhost:3000" 
             : `wss://${window.location.hostname}`;
@@ -203,19 +202,6 @@
             const roomCode = roomCodeInput.value.trim();
             if (roomCode && currentUser) { socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } }); }
         });
-        
-        acceptMatchBtn.addEventListener('click', () => {
-            acceptMatchBtn.disabled = true;
-            rejectMatchBtn.disabled = true;
-            acceptMatchBtn.textContent = 'Esperando...';
-            socket.emit('acceptMatch', { roomId: tempRoomId });
-        });
-        
-        rejectMatchBtn.addEventListener('click', () => {
-            matchFoundContainer.style.display = 'none';
-            findMatchBtn.click();
-            socket.emit('rejectMatch', { roomId: tempRoomId });
-        });
 
         rematchBtn.addEventListener('click', () => {
             rematchBtn.disabled = true;
@@ -223,6 +209,19 @@
             socket.emit('requestRematch', { roomCode: currentRoomCode });
         });
         
+        acceptMatchBtn.addEventListener('click', () => {
+            acceptMatchBtn.disabled = true;
+            rejectMatchBtn.disabled = true;
+            acceptMatchBtn.textContent = 'Esperando...';
+            socket.emit('acceptMatch', { roomId: tempRoomId });
+        });
+
+        rejectMatchBtn.addEventListener('click', () => {
+            matchFoundContainer.style.display = 'none';
+            findMatchBtn.click();
+            socket.emit('rejectMatch', { roomId: tempRoomId });
+        });
+
         exitGameBtn.addEventListener('click', () => {
             window.location.reload();
         });
@@ -230,7 +229,7 @@
         exitAfterDisconnectBtn.addEventListener('click', () => {
             window.location.reload();
         });
-        
+
         socket.on('connect', () => { localPlayerId = socket.id; });
         socket.on('roomCreated', (rc) => { currentRoomCode = rc; setStatus(`Sala "${rc}" creada. Esperando...`); });
         socket.on('playerJoined', () => setStatus('Oponente conectado. ¡Prepárense!'));
