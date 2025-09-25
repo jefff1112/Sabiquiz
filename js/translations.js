@@ -1,5 +1,3 @@
-// js/translations.js
-
 // 1. El Diccionario con todas las frases de tu sitio web.
 const translations = {
     es: {
@@ -11,7 +9,7 @@ const translations = {
         quizTitle: "SabiQuiz - Quiz",
         languageTitle: "SabiQuiz - Lenguaje",
         mathsTitle: "SabiQuiz - Matemáticas",
-        // ... (añade títulos para las otras materias si quieres)
+        // ... (añade aquí los títulos para las demás materias)
 
         // --- Página de Login ---
         loginHeader: "Iniciar Sesión",
@@ -56,10 +54,13 @@ const translations = {
         opponentFound: "¡Oponente Encontrado!",
         accept: "✅ Aceptar",
         reject: "❌ Rechazar",
-
-        // --- Pantalla de Resultados 1vs1 ---
+        
+        // --- Mejoras 1vs1 ---
         results: "Resultados",
         rematch: "Revancha",
+        exit: "Salir", // <-- ¡NUEVO!
+        opponentLeft: "ha abandonado la partida.", // <-- ¡NUEVO!
+        wantsRematch: "quiere la revancha!", // <-- ¡NUEVO!
 
         // --- Página de Materias ---
         backToSubjects: "← Volver a materias",
@@ -85,7 +86,7 @@ const translations = {
         quizTitle: "SabiQuiz - Quiz",
         languageTitle: "SabiQuiz - Language",
         mathsTitle: "SabiQuiz - Mathematics",
-        // ... (add titles for other subjects if you want)
+        // ... (add titles for other subjects)
 
         // --- Login Page ---
         loginHeader: "Sign In",
@@ -131,9 +132,12 @@ const translations = {
         accept: "✅ Accept",
         reject: "❌ Decline",
         
-        // --- 1vs1 Results Screen ---
+        // --- 1vs1 Improvements ---
         results: "Results",
         rematch: "Rematch",
+        exit: "Exit", // <-- NEW!
+        opponentLeft: "has left the match.", // <-- NEW!
+        wantsRematch: "wants a rematch!", // <-- NEW!
 
         // --- Subjects Page ---
         backToSubjects: "← Back to subjects",
@@ -196,4 +200,3 @@ function loadLanguage() {
 
 // 3. Exportamos las funciones para que otras páginas puedan usarlas.
 export { setLanguage, loadLanguage, translations };
-
