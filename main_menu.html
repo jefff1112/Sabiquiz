@@ -284,8 +284,8 @@
         socket.on('nextQuestion', (data) => {
             const lang = localStorage.getItem('language') || 'es';
             // --- ¡LA CORRECCIÓN MÁS IMPORTANTE ESTÁ AQUÍ! ---
-            // Leemos el objeto de pregunta directamente desde 'data'
-            const questionData = data;
+            // Leemos el objeto de pregunta desde 'data.question' para abrir el "sobre".
+            const questionData = data.question; 
             
             timerDisplay.textContent = `Tiempo: 10`;
             questionText.textContent = questionData.question[lang];

@@ -46,9 +46,8 @@ function startGame(roomCode) {
     io.to(roomCode).emit('startCountdown', { gameMode: room.gameMode, roomCode: roomCode });
     setTimeout(() => {
         const firstQuestion = room.gameData.questions[0];
-        // --- ¡CORRECCIÓN CLAVE! ---
-        // Se envía el objeto de pregunta directamente, sin envolverlo.
-        io.to(roomCode).emit('nextQuestion', firstQuestion);
+        // Envía el objeto de pregunta completo para la traducción
+        io.to(roomCode).emit('nextQuestion', { question: firstQuestion });
         startQuestionTimer(roomCode);
     }, 4000);
 }
@@ -82,11 +81,10 @@ function proceedToNextQuestion(roomCode) {
     room.gameData.currentQuestionIndex++;
     room.gameData.playerAnswers = {};
     if (room.gameData.currentQuestionIndex >= room.gameData.questions.length) {
-        handleEndGame(roomCode, false);
+        handleEndGame(roomCode, false); // Juego terminó normalmente
     } else {
         const nextQuestion = room.gameData.questions[room.gameData.currentQuestionIndex];
-        // --- ¡CORRECCIÓN CLAVE! ---
-        io.to(roomCode).emit('nextQuestion', nextQuestion);
+        io.to(roomCode).emit('nextQuestion', { question: nextQuestion });
         startQuestionTimer(roomCode);
     }
 }
@@ -97,6 +95,7 @@ async function handleEndGame(roomCode, opponentLeft = false) {
     
     io.to(roomCode).emit('endGame', { scores: room.gameData.scores, playerData: room.playerData });
 
+    // Solo se guardan puntos si el juego terminó normalmente
     if (opponentLeft) {
         console.log(`Partida ${roomCode} terminada por desconexión. No se guardan puntos.`);
         return;
@@ -207,6 +206,7 @@ io.on('connection', (socket) => {
         
         const gameData = room.gameData;
         const currentQuestion = gameData.questions[gameData.currentQuestionIndex];
+        
         const correctAnswer_es = currentQuestion.correctAnswer.es.toLowerCase();
         const correctAnswer_en = currentQuestion.correctAnswer.en.toLowerCase();
         const isCorrect = (answer.toLowerCase() === correctAnswer_es) || (answer.toLowerCase() === correctAnswer_en);
