@@ -55,20 +55,8 @@
                 <div class="vs-container"><img src="img/vs.png" alt="VS" class="vs-icon"></div>
                 <div class="player-result"><img src="img/default-avatar.png" class="player-avatar" id="endAvatar2"><p id="endPlayer2Name" class="player-name"></p><p id="endPlayer2Score" class="player-score"></p></div>
             </div>
-            <h3 id="endGameMessage" class="end-game-message"></h3>
-            <div class="end-game-buttons">
-                <button id="rematchBtn" class="btn btn-rematch" data-translate="rematch">Revancha</button>
-                <button id="exitGameBtn" class="btn btn-exit" data-translate="exit">Salir</button>
-            </div>
+            <h3 id="endGameMessage" class="end-game-message"></h3><button id="rematchBtn" class="btn btn-rematch" data-translate="rematch">Revancha</button>
         </div>
-        
-        <div id="opponentDisconnectedContainer" class="popup-overlay" style="display: none;">
-            <div class="popup-card animate__animated animate__zoomIn">
-                <h2 id="opponentDisconnectedMessage"></h2>
-                <button id="exitAfterDisconnectBtn" class="btn btn-primary" data-translate="backToMenu">Volver al Menú</button>
-            </div>
-        </div>
-
         <div id="matchFoundContainer" class="popup-overlay" style="display: none;">
             <div class="popup-card animate__animated animate__zoomIn">
                 <h2 data-translate="opponentFound">¡Oponente Encontrado!</h2>
@@ -77,12 +65,12 @@
             </div>
         </div>
     </div>
-    
+
     <script src="/socket.io/socket.io.js"></script>
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firestore.js";
+        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { setLanguage, loadLanguage, translations } from '/js/translations.js';
 
         const firebaseConfig = {
@@ -98,10 +86,24 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const socketURL = window.location.hostname.includes('localhost') 
-            ? "http://localhost:3000" 
-            : `wss://${window.location.hostname}`;
+        const productionURL = "https://sabiquiz.vercel.app";
+        const socketURL = window.location.hostname.includes('localhost') ? "http://localhost:3000" : productionURL;
+
+
         const socket = io(socketURL, { transports: ["websocket"] });
+        
+        loadLanguage();
+        document.querySelectorAll('.language-switcher button').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const lang = event.target.getAttribute('data-lang');
+                setLanguage(lang);
+                if (currentUser) {
+                    const nameToDisplay = userProfile.displayName || currentUser.email.split('@')[0];
+                    const welcomeText = translations[lang].welcome;
+                    welcomeMessage.textContent = `${welcomeText} ${nameToDisplay}!`;
+                }
+            });
+        });
 
         const appContainer = document.getElementById('appContainer');
         const welcomeMessage = document.getElementById('welcomeMessage');
@@ -133,26 +135,9 @@
         const opponentXp = document.getElementById('opponentXp');
         const acceptMatchBtn = document.getElementById('acceptMatchBtn');
         const rejectMatchBtn = document.getElementById('rejectMatchBtn');
-        const exitGameBtn = document.getElementById('exitGameBtn');
-        const opponentDisconnectedContainer = document.getElementById('opponentDisconnectedContainer');
-        const opponentDisconnectedMessage = document.getElementById('opponentDisconnectedMessage');
-        const exitAfterDisconnectBtn = document.getElementById('exitAfterDisconnectBtn');
         
         let currentUser = null, userProfile = {}, currentRoomCode = '', localPlayerId = '', tempRoomId = '';
-        
-        loadLanguage();
-        document.querySelectorAll('.language-switcher button').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const lang = event.target.getAttribute('data-lang');
-                setLanguage(lang);
-                if (currentUser) {
-                    const nameToDisplay = userProfile.displayName || currentUser.email.split('@')[0];
-                    const welcomeText = translations[lang].welcome;
-                    welcomeMessage.textContent = `${welcomeText} ${nameToDisplay}!`;
-                }
-            });
-        });
-        
+
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 currentUser = user;
@@ -170,7 +155,7 @@
                 welcomeMessage.setAttribute('data-username', nameToDisplay);
             } else { window.location.href = 'login.html'; }
         });
-        
+
         logoutBtn.addEventListener('click', () => signOut(auth));
         
         findMatchBtn.addEventListener('click', () => {
@@ -179,11 +164,10 @@
             findMatchBtn.style.display = 'none';
             matchmakingStatus.style.display = 'block';
             const totalXp = (userProfile.quizXp || 0) + (userProfile.pvpXp || 0);
-            const lang = localStorage.getItem('language') || 'es';
-            const playerData = { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL, level: userProfile.level || 1, totalXp, lang };
+            const playerData = { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL, level: userProfile.level || 1, totalXp };
             socket.emit('findMatch', playerData);
         });
-
+        
         cancelMatchBtn.addEventListener('click', () => {
             findMatchBtn.style.display = 'block';
             document.getElementById('codeRoomContainer').style.display = 'flex';
@@ -205,11 +189,12 @@
         });
 
         rematchBtn.addEventListener('click', () => {
-            rematchBtn.disabled = true;
-            rematchBtn.textContent = 'Esperando...';
+            endGameContainer.style.display = 'none';
+            multiplayerMenu.style.display = 'block';
+            setStatus('Esperando respuesta del otro jugador...');
             socket.emit('requestRematch', { roomCode: currentRoomCode });
         });
-        
+
         acceptMatchBtn.addEventListener('click', () => {
             acceptMatchBtn.disabled = true;
             rejectMatchBtn.disabled = true;
@@ -223,14 +208,6 @@
             socket.emit('rejectMatch', { roomId: tempRoomId });
         });
 
-        exitGameBtn.addEventListener('click', () => {
-            window.location.reload();
-        });
-
-        exitAfterDisconnectBtn.addEventListener('click', () => {
-            window.location.reload();
-        });
-        
         socket.on('connect', () => { localPlayerId = socket.id; });
         socket.on('roomCreated', (rc) => { currentRoomCode = rc; setStatus(`Sala "${rc}" creada. Esperando...`); });
         socket.on('playerJoined', () => setStatus('Oponente conectado. ¡Prepárense!'));
@@ -247,7 +224,7 @@
             matchFoundContainer.style.display = 'flex';
             acceptMatchBtn.disabled = false;
             rejectMatchBtn.disabled = false;
-            loadLanguage();
+            acceptMatchBtn.textContent = '✅ Aceptar';
         });
 
         socket.on('matchRejected', () => {
@@ -282,45 +259,36 @@
         socket.on('timerUpdate', (timeLeft) => { timerDisplay.textContent = `Tiempo: ${timeLeft}`; });
 
         socket.on('nextQuestion', (data) => {
-            // --- ¡LA CORRECCIÓN MÁS IMPORTANTE ESTÁ AQUÍ! ---
-            // Leemos el objeto de pregunta directamente de 'data', no de 'data.question'
-            const questionData = data;
-            
-            const lang = localStorage.getItem('language') || 'es';
             timerDisplay.textContent = `Tiempo: 10`;
-            questionText.textContent = questionData.question[lang];
+            questionText.textContent = data.question;
             optionsContainer.innerHTML = '';
-            
-            questionData.options[lang].forEach(optionText => {
+            data.options.forEach(option => {
                 const button = document.createElement('button');
                 button.classList.add('option-button');
-                button.textContent = optionText;
+                button.textContent = option;
                 button.addEventListener('click', () => {
-                    socket.emit('playerAnswer', { roomCode: currentRoomCode, answer: optionText });
+                    socket.emit('playerAnswer', { roomCode: currentRoomCode, answer: option });
                 });
                 optionsContainer.appendChild(button);
             });
         });
         
         socket.on('answerReceived', () => {
-            optionsContainer.querySelectorAll('.option-button').forEach(btn => { btn.disabled = true; });
+            optionsContainer.querySelectorAll('.option-button').forEach(btn => {
+                btn.disabled = true;
+            });
         });
 
         socket.on('roundResult', (data) => {
-            const lang = localStorage.getItem('language') || 'es';
             const { playerAnswers, correctAnswer, scores, playerData } = data;
-            
             const playerIds = Object.keys(playerData);
-            if (playerIds.length === 2 && scores[playerIds[0]] !== undefined && scores[playerIds[1]] !== undefined) {
+            if (playerIds.length === 2) {
                 player1ScoreDisp.textContent = `${playerData[playerIds[0]].name}: ${scores[playerIds[0]]}`;
                 player2ScoreDisp.textContent = `${playerData[playerIds[1]].name}: ${scores[playerIds[1]]}`;
             }
-            
             optionsContainer.querySelectorAll('.option-button').forEach(btn => {
                 btn.disabled = true;
-                if (btn.textContent === correctAnswer[lang]) {
-                    btn.classList.add('correct');
-                }
+                if (btn.textContent === correctAnswer) { btn.classList.add('correct'); }
                 for (const playerId in playerAnswers) {
                     if (btn.textContent === playerAnswers[playerId].answer && !playerAnswers[playerId].isCorrect) {
                         btn.classList.add('incorrect');
@@ -332,8 +300,6 @@
         socket.on('endGame', (data) => {
             gameContainer.style.display = 'none';
             endGameContainer.style.display = 'block';
-            rematchBtn.disabled = false;
-            loadLanguage();
             const myId = localPlayerId;
             const otherId = Object.keys(data.playerData).find(id => id !== myId);
             if (!myId || !otherId) return;
@@ -351,24 +317,5 @@
             document.getElementById('endAvatar2').src = otherPd.photoURL || 'img/default-avatar.png';
             document.getElementById('endGameMessage').textContent = msg;
         });
-        
-        socket.on('rematchRequested', (data) => {
-            const lang = localStorage.getItem('language') || 'es';
-            const rematchText = translations[lang].wantsRematch || "quiere la revancha!";
-            rematchBtn.textContent = `${data.name} ${rematchText}`;
-        });
-
-        socket.on('opponentDisconnected', (data) => {
-            if (gameContainer.style.display === 'block' || endGameContainer.style.display === 'block') {
-                const lang = localStorage.getItem('language') || 'es';
-                const disconnectText = translations[lang].opponentLeft || "ha abandonado la partida.";
-                gameContainer.style.display = 'none';
-                endGameContainer.style.display = 'none';
-                opponentDisconnectedMessage.textContent = `${data.name} ${disconnectText}`;
-                opponentDisconnectedContainer.style.display = 'flex';
-                loadLanguage();
-            }
-        });
     </script>
 </body>
-</html>
