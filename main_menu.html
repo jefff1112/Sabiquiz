@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SabiQuiz - Menú Principal</title>
+    <title data-translate="mainMenuTitle">SabiQuiz - Menú Principal</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
 </head>
@@ -15,7 +15,7 @@
     <div id="appContainer" style="display: none;">
         <div id="mainMenu" class="container main-menu-container">
             <div class="main-menu-header">
-                <h1 id="welcomeMessage" data-translate="welcomeMessage">¡Bienvenido a SabiQuiz!</h1>
+                <h1 id="welcomeMessage"></h1>
                 <div class="header-buttons">
                     <a href="leaderboard.html" class="btn btn-leaderboard" data-translate="ranking">Ranking</a>
                     <a href="profile.html" id="profileBtn" class="btn btn-profile" data-translate="profile">Mi Perfil</a>
@@ -43,8 +43,8 @@
             <div id="statusMessage"></div>
         </div>
         <div id="gameContainer" class="quiz-container" style="display: none;">
-            <div class="game-info-bar"><div id="gameModeDisplay" class="game-mode-display"></div><div id="timerDisplay" class="timer-display">Tiempo: 10</div></div>
-            <div class="score-display"><div id="player1Score">Jugador 1: 0</div><div id="player2Score">Jugador 2: 0</div></div>
+            <div class="game-info-bar"><div id="gameModeDisplay" class="game-mode-display"></div><div id="timerDisplay" class="timer-display"></div></div>
+            <div class="score-display"><div id="player1Score"></div><div id="player2Score"></div></div>
             <div class="question-container"><h2 id="questionText"></h2><div id="optionsContainer" class="options-container"></div></div>
         </div>
         <div id="countdownContainer" style="display: none;"><h1 id="countdownText"></h1></div>
@@ -71,7 +71,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-        // --- ¡LA CORRECCIÓN MÁS IMPORTANTE ESTÁ AQUÍ! ---
         import { setLanguage, loadLanguage, translations } from '/js/translations.js';
 
         const firebaseConfig = {
@@ -86,8 +85,26 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
-        const socket = io("http://localhost:3000");
 
+        // --- CONEXIÓN INTELIGENTE Y FINAL PARA RENDER Y VERCEL ---
+        const socketURL = window.location.hostname.includes('localhost') 
+            ? "http://localhost:3000" 
+            : `wss://${window.location.hostname}`;
+        const socket = io(socketURL, { transports: ["websocket"] });
+
+        loadLanguage();
+        document.querySelectorAll('.language-switcher button').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const lang = event.target.getAttribute('data-lang');
+                setLanguage(lang);
+                if (currentUser) {
+                    const nameToDisplay = userProfile.displayName || currentUser.email.split('@')[0];
+                    const welcomeText = translations[lang].welcome;
+                    welcomeMessage.textContent = `${welcomeText} ${nameToDisplay}!`;
+                }
+            });
+        });
+        
         const appContainer = document.getElementById('appContainer');
         const welcomeMessage = document.getElementById('welcomeMessage');
         const logoutBtn = document.getElementById('logoutBtn');
@@ -118,21 +135,7 @@
         const opponentXp = document.getElementById('opponentXp');
         const acceptMatchBtn = document.getElementById('acceptMatchBtn');
         const rejectMatchBtn = document.getElementById('rejectMatchBtn');
-        
         let currentUser = null, userProfile = {}, currentRoomCode = '', localPlayerId = '', tempRoomId = '';
-        
-        loadLanguage();
-        document.querySelectorAll('.language-switcher button').forEach(button => {
-            button.addEventListener('click', (event) => {
-                const lang = event.target.getAttribute('data-lang');
-                setLanguage(lang);
-                if (currentUser) {
-                    const nameToDisplay = userProfile.displayName || currentUser.email.split('@')[0];
-                    const welcomeText = translations[lang].welcome;
-                    welcomeMessage.textContent = `${welcomeText} ${nameToDisplay}!`;
-                }
-            });
-        });
         
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -143,18 +146,15 @@
                 const docSnap = await getDoc(userDocRef);
                 if (docSnap.exists()) { userProfile = docSnap.data(); }
                 else { userProfile = { displayName: user.email.split('@')[0], photoURL: null, level: 1, quizXp: 0, pvpXp: 0 }; }
-                
                 const lang = localStorage.getItem('language') || 'es';
                 const nameToDisplay = userProfile.displayName || user.email.split('@')[0];
                 const welcomeText = translations[lang].welcome;
                 welcomeMessage.textContent = `${welcomeText} ${nameToDisplay}!`;
                 welcomeMessage.setAttribute('data-username', nameToDisplay);
-
             } else { window.location.href = 'login.html'; }
         });
         
         logoutBtn.addEventListener('click', () => signOut(auth));
-        
         findMatchBtn.addEventListener('click', () => {
             document.querySelector('.sub-heading').style.display = 'none';
             document.getElementById('codeRoomContainer').style.display = 'none';
@@ -164,7 +164,6 @@
             const playerData = { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL, level: userProfile.level || 1, totalXp };
             socket.emit('findMatch', playerData);
         });
-
         cancelMatchBtn.addEventListener('click', () => {
             findMatchBtn.style.display = 'block';
             document.getElementById('codeRoomContainer').style.display = 'flex';
@@ -172,48 +171,36 @@
             matchmakingStatus.style.display = 'none';
             socket.emit('cancelFindMatch');
         });
-
         function setStatus(message) { statusMessage.textContent = message; }
-        
         createRoomBtn.addEventListener('click', () => {
             const roomCode = roomCodeInput.value.trim();
-            if (roomCode && currentUser) {
-                socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } });
-            }
+            if (roomCode && currentUser) { socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } }); }
         });
-
         joinRoomBtn.addEventListener('click', () => {
             const roomCode = roomCodeInput.value.trim();
-            if (roomCode && currentUser) {
-                socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } });
-            }
+            if (roomCode && currentUser) { socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } }); }
         });
-
         rematchBtn.addEventListener('click', () => {
             endGameContainer.style.display = 'none';
             multiplayerMenu.style.display = 'block';
             setStatus('Esperando respuesta del otro jugador...');
             socket.emit('requestRematch', { roomCode: currentRoomCode });
         });
-
         acceptMatchBtn.addEventListener('click', () => {
             acceptMatchBtn.disabled = true;
             rejectMatchBtn.disabled = true;
             acceptMatchBtn.textContent = 'Esperando...';
             socket.emit('acceptMatch', { roomId: tempRoomId });
         });
-
         rejectMatchBtn.addEventListener('click', () => {
             matchFoundContainer.style.display = 'none';
             findMatchBtn.click();
             socket.emit('rejectMatch', { roomId: tempRoomId });
         });
-
         socket.on('connect', () => { localPlayerId = socket.id; });
         socket.on('roomCreated', (rc) => { currentRoomCode = rc; setStatus(`Sala "${rc}" creada. Esperando...`); });
         socket.on('playerJoined', () => setStatus('Oponente conectado. ¡Prepárense!'));
         socket.on('roomFull', () => setStatus('La sala está llena.'));
-
         socket.on('matchFound', (data) => {
             const { roomId, opponent } = data;
             tempRoomId = roomId;
@@ -227,13 +214,11 @@
             rejectMatchBtn.disabled = false;
             acceptMatchBtn.textContent = '✅ Aceptar';
         });
-
         socket.on('matchRejected', () => {
             matchFoundContainer.style.display = 'none';
             alert("Tu oponente ha rechazado la partida. Volviendo a la búsqueda...");
             findMatchBtn.click();
         });
-
         socket.on('startCountdown', (data) => {
             matchFoundContainer.style.display = 'none';
             mainMenu.style.display = 'none';
@@ -256,9 +241,7 @@
                 }
             }, 1000);
         });
-
         socket.on('timerUpdate', (timeLeft) => { timerDisplay.textContent = `Tiempo: ${timeLeft}`; });
-
         socket.on('nextQuestion', (data) => {
             timerDisplay.textContent = `Tiempo: 10`;
             questionText.textContent = data.question;
@@ -273,13 +256,11 @@
                 optionsContainer.appendChild(button);
             });
         });
-        
         socket.on('answerReceived', () => {
             optionsContainer.querySelectorAll('.option-button').forEach(btn => {
                 btn.disabled = true;
             });
         });
-
         socket.on('roundResult', (data) => {
             const { playerAnswers, correctAnswer, scores, playerData } = data;
             const playerIds = Object.keys(playerData);
@@ -297,7 +278,6 @@
                 }
             });
         });
-        
         socket.on('endGame', (data) => {
             gameContainer.style.display = 'none';
             endGameContainer.style.display = 'block';
