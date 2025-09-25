@@ -4,8 +4,7 @@ const socketIO = require('socket.io');
 const path = require('path');
 const admin = require('firebase-admin');
 
-// --- Rutas Absolutas para que Vercel/Render encuentre los archivos ---
-// Verifica que estos dos archivos SÍ existan en tu carpeta 'server'
+// --- Rutas Absolutas para Vercel/Render ---
 const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
 const questions = require(path.join(__dirname, 'questions.js'));
 
