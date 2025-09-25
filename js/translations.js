@@ -136,16 +136,16 @@ const translations = {
         results: "Results",
         rematch: "Rematch",
         exit: "Exit", // <-- NEW!
-        opponentLeft: "has left the match.", // <-- NEW!
-        wantsRematch: "wants a rematch!", // <-- NEW!
+        opponentLeft: "has left the match.", 
+        wantsRematch: "wants a rematch!",
 
-        // --- Subjects Page ---
+        
         backToSubjects: "← Back to subjects",
         languageSubject: "Language",
         mathsSubject: "Mathematics",
-        // ... (names of other subjects)
 
-        // --- Quiz Runner Page ---
+
+        
         backToLevels: "← Back to levels",
         question: "Question",
         points: "Points",
@@ -156,9 +156,9 @@ const translations = {
     }
 };
 
-// 2. La Lógica para aplicar las traducciones.
+
 function applyTranslations(lang) {
-    if (!['es', 'en'].includes(lang)) lang = 'es'; // Idioma por defecto
+    if (!['es', 'en'].includes(lang)) lang = 'es'; 
     document.documentElement.lang = lang;
 
     document.querySelectorAll('[data-translate]').forEach(element => {
@@ -166,7 +166,7 @@ function applyTranslations(lang) {
         const translation = translations[lang]?.[key];
         
         if (translation) {
-            // Caso especial para el saludo, que incluye el nombre de usuario
+            
             if (key === 'welcomeMessage') {
                 const username = element.getAttribute('data-username') || '';
                 element.textContent = `${translation} ${username}!`;
@@ -176,7 +176,7 @@ function applyTranslations(lang) {
         }
     });
 
-    // Casos especiales para textos con HTML adentro
+    
     const toggleForm = document.getElementById('toggle-form');
     if (toggleForm) {
         const isLoginMode = document.getElementById('form-title').getAttribute('data-translate') === 'loginHeader';
@@ -198,5 +198,6 @@ function loadLanguage() {
     applyTranslations(savedLang);
 }
 
-// 3. Exportamos las funciones para que otras páginas puedan usarlas.
+
 export { setLanguage, loadLanguage, translations };
+

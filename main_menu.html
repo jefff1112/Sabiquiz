@@ -71,6 +71,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
         import { getAuth, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
         import { setLanguage, loadLanguage, translations } from '/js/translations.js';
 
         const firebaseConfig = {
@@ -86,12 +87,13 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        const productionURL = "https://sabiquiz.vercel.app";
-        const socketURL = window.location.hostname.includes('localhost') ? "http://localhost:3000" : productionURL;
 
-
+        // --- CONEXIÓN INTELIGENTE Y FINAL PARA RENDER Y VERCEL ---
+        const socketURL = window.location.hostname.includes('localhost') 
+            ? "http://localhost:3000" 
+            : `wss://${window.location.hostname}`;
         const socket = io(socketURL, { transports: ["websocket"] });
-        
+
         loadLanguage();
         document.querySelectorAll('.language-switcher button').forEach(button => {
             button.addEventListener('click', (event) => {
@@ -104,7 +106,7 @@
                 }
             });
         });
-
+        
         const appContainer = document.getElementById('appContainer');
         const welcomeMessage = document.getElementById('welcomeMessage');
         const logoutBtn = document.getElementById('logoutBtn');
@@ -135,8 +137,21 @@
         const opponentXp = document.getElementById('opponentXp');
         const acceptMatchBtn = document.getElementById('acceptMatchBtn');
         const rejectMatchBtn = document.getElementById('rejectMatchBtn');
-        
+
         let currentUser = null, userProfile = {}, currentRoomCode = '', localPlayerId = '', tempRoomId = '';
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         onAuthStateChanged(auth, async (user) => {
             if (user) {
@@ -147,17 +162,18 @@
                 const docSnap = await getDoc(userDocRef);
                 if (docSnap.exists()) { userProfile = docSnap.data(); }
                 else { userProfile = { displayName: user.email.split('@')[0], photoURL: null, level: 1, quizXp: 0, pvpXp: 0 }; }
-                
+
                 const lang = localStorage.getItem('language') || 'es';
                 const nameToDisplay = userProfile.displayName || user.email.split('@')[0];
                 const welcomeText = translations[lang].welcome;
                 welcomeMessage.textContent = `${welcomeText} ${nameToDisplay}!`;
                 welcomeMessage.setAttribute('data-username', nameToDisplay);
+
             } else { window.location.href = 'login.html'; }
         });
 
         logoutBtn.addEventListener('click', () => signOut(auth));
-        
+
         findMatchBtn.addEventListener('click', () => {
             document.querySelector('.sub-heading').style.display = 'none';
             document.getElementById('codeRoomContainer').style.display = 'none';
@@ -167,7 +183,7 @@
             const playerData = { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL, level: userProfile.level || 1, totalXp };
             socket.emit('findMatch', playerData);
         });
-        
+
         cancelMatchBtn.addEventListener('click', () => {
             findMatchBtn.style.display = 'block';
             document.getElementById('codeRoomContainer').style.display = 'flex';
@@ -177,15 +193,19 @@
         });
 
         function setStatus(message) { statusMessage.textContent = message; }
-        
+
         createRoomBtn.addEventListener('click', () => {
             const roomCode = roomCodeInput.value.trim();
             if (roomCode && currentUser) { socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } }); }
+
+
         });
 
         joinRoomBtn.addEventListener('click', () => {
             const roomCode = roomCodeInput.value.trim();
             if (roomCode && currentUser) { socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } }); }
+
+
         });
 
         rematchBtn.addEventListener('click', () => {
@@ -272,7 +292,7 @@
                 optionsContainer.appendChild(button);
             });
         });
-        
+
         socket.on('answerReceived', () => {
             optionsContainer.querySelectorAll('.option-button').forEach(btn => {
                 btn.disabled = true;
@@ -296,7 +316,7 @@
                 }
             });
         });
-        
+
         socket.on('endGame', (data) => {
             gameContainer.style.display = 'none';
             endGameContainer.style.display = 'block';
