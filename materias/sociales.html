@@ -20,11 +20,10 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { levels } from './sociales-data.js';
-        // ¡Importamos nuestro nuevo traductor!
+        //
         import { loadLanguage } from '../js/translations.js';
 
-        // --- LÓGICA DE TRADUCCIÓN (AÑADIDA) ---
-        // Carga el idioma guardado tan pronto como la página se carga
+        //LÓGICA DE TRADUCCIÓN
         loadLanguage();
 
         const firebaseConfig = {
@@ -40,14 +39,14 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- FUNCIÓN PARA DIBUJAR LOS BOTONES DE NIVEL (TU CÓDIGO ORIGINAL) ---
+        // FUNCIÓN PARA DIBUJAR LOS BOTONES DE NIVEL
         function drawLevelButtons(profileProgress = {}) {
             const subjectId = document.body.dataset.subjectId;
             const levelGrid = document.getElementById('level-grid');
             levelGrid.innerHTML = '';
 
             const subjectProgress = profileProgress[subjectId] || {};
-
+            console.log("Progreso sociales:", subjectProgress);
             levels.forEach(level => {
                 const levelButton = document.createElement('a');
                 levelButton.classList.add('level-btn');
@@ -75,7 +74,7 @@
             });
         }
 
-        // --- VERIFICAMOS LA SESIÓN DEL USUARIO (TU CÓDIGO ORIGINAL) ---
+        // --- VERIFICAMOS LA SESIÓN DEL USUARIO
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const userDocRef = doc(db, "users", user.uid);

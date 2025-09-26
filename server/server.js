@@ -4,11 +4,11 @@ const socketIO = require('socket.io');
 const path = require('path');
 const admin = require('firebase-admin');
 
-// --- Rutas Absolutas para que Vercel encuentre los archivos ---
+//Rutas Absolutas para que Vercel encuentre los archivos
 const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
 const questions = require(path.join(__dirname, 'questions.js'));
 
-// --- 1. CONFIGURACIÓN ---
+//CONFIGURACIÓN
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount)
 });
@@ -22,15 +22,13 @@ const io = socketIO(server, {
     methods: ["GET", "POST"]
   }
 });
-
-// Ruta a la carpeta raíz del proyecto (un nivel arriba de /server)
 const publicPath = path.resolve(__dirname, '..');
 app.use(express.static(publicPath));
 
 let rooms = {};
 let matchmakingPool = [];
 
-// --- 2. FUNCIONES DE LÓGICA DE JUEGO ---
+//FUNCIONES DE LÓGICA DE JUEGO
 
 function startGame(roomCode) {
     const room = rooms[roomCode];
@@ -131,7 +129,7 @@ function getRandomGameMode() {
     return Math.random() < 0.5 ? 'normal' : 'revancha';
 }
 
-// --- 3. "ÁRBITRO" DE MATCHMAKING ---
+//"ÁRBITRO" DE MATCHMAKING
 setInterval(() => {
     if (matchmakingPool.length >= 2) {
         const player1 = matchmakingPool.shift();
@@ -156,12 +154,11 @@ function normalize(str) {
         .toString()
         .toLowerCase()
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "") // quita tildes
-        .trim();
+        .replace(/[\u0300-\u036f]/g, "")
 }
 
 
-// --- 4. MANEJO DE CONEXIONES DE SOCKET.IO ---
+// MANEJO DE CONEXIONES DE SOCKET.IO
 io.on('connection', (socket) => {
     
     console.log(`Usuario conectado: ${socket.id}`);
@@ -213,7 +210,6 @@ io.on('connection', (socket) => {
         const gameData = room.gameData;
         const currentQuestion = gameData.questions[gameData.currentQuestionIndex];
         const correctAnswer = currentQuestion?.correctAnswer;
-        // Usa la función normalize para comparar
         const isCorrect = correctAnswer ? (normalize(answer) === normalize(correctAnswer)) : false;
         gameData.playerAnswers[socket.id] = { answer, isCorrect };
         const answersCount = Object.keys(gameData.playerAnswers).length;
@@ -275,12 +271,12 @@ io.on('connection', (socket) => {
     });
 });
 
-// --- RUTA FINAL PARA CAPTURAR TODO Y SERVIR index.html ---
+//RUTA PARA CAPTURAR TODO Y SERVIR index.html
 app.get('/', (req, res) => {
     res.sendFile(path.join(publicPath, 'index.html'));
 });
 
-// --- 5. INICIO DEL SERVIDOR ---
+//INICIO DEL SERVIDOR
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Servidor escuchando en el puerto ${PORT}`);

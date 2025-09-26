@@ -34,7 +34,6 @@
 </div>
     </div>
 </div>
-<!-- ...existing code... -->
     <audio id="correctSound" src="../img/correct.mp3"></audio>
     <audio id="incorrectSound" src="../img/incorrect.mp3"></audio>
 
@@ -186,7 +185,7 @@ document.getElementById('levelDisplay').textContent = `Nivel ${level.id}`;
                 const finalScore = score / level.questions.length;
                 const stars = calculateStars(finalScore, level.passingScore);
                 
-                // Mantenemos localStorage por ahora para la lógica de estrellas
+                //localStorage por ahora para la lógica de estrellas
                 const levelsCompleted = JSON.parse(localStorage.getItem('levelsCompleted')) || {};
                 if (!levelsCompleted[subjectId]) levelsCompleted[subjectId] = {};
                 const previousStars = levelsCompleted[subjectId][levelId]?.stars || 0;
@@ -207,6 +206,7 @@ document.getElementById('levelDisplay').textContent = `Nivel ${level.id}`;
                                     quizXp: increment(xpGained),
                                     [fieldToUpdate]: stars
                                 });
+                                console.log("Firestore actualizado:", fieldToUpdate, stars); 
                                 await checkLevelUp(userDocRef);
                             } catch (error) { console.error("Error al actualizar XP y progreso:", error); }
                         }
