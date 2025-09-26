@@ -40,7 +40,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- FUNCIÓN PARA DIBUJAR LOS BOTONES DE NIVEL (TU CÓDIGO ORIGINAL) ---
+        //FUNCIÓN PARA DIBUJAR LOS BOTONES DE NIVEL
         function drawLevelButtons(profileProgress = {}) {
             const subjectId = document.body.dataset.subjectId;
             const levelGrid = document.getElementById('level-grid');
@@ -75,7 +75,7 @@
             });
         }
 
-        // --- VERIFICAMOS LA SESIÓN DEL USUARIO (TU CÓDIGO ORIGINAL) ---
+        // VERIFICAMOS LA SESIÓN DEL USUARIO
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const userDocRef = doc(db, "users", user.uid);

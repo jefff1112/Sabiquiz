@@ -20,7 +20,7 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { levels } from './programacion-data.js';
-        // ¡Importar nuevo traductor
+        // ¡
         import { loadLanguage } from '../js/translations.js';
 
         // Carga el idioma guardado tan pronto como la página se carga
@@ -39,7 +39,7 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- FUNCIÓN PARA DIBUJAR LOS BOTONES DE NIVEL (TU CÓDIGO ORIGINAL) ---
+        // FUNCIÓN PARA DIBUJAR LOS BOTONES DE NIVEL
         function drawLevelButtons(profileProgress = {}) {
             const subjectId = document.body.dataset.subjectId;
             const levelGrid = document.getElementById('level-grid');
@@ -53,7 +53,7 @@
 
                 let isLocked = level.id > 1;
                 const prevLevelStars = subjectProgress[level.id - 1]; // Progreso del nivel anterior
-                if (level.id === 1 || (prevLevelStars && prevLevelStars > 1)) {
+                if (level.id === 1 || (prevLevelStars && prevLevelStars >= 1)) {
                     isLocked = false;
                 }
 
@@ -74,7 +74,7 @@
             });
         }
 
-        // --- VERIFICAMOS LA SESIÓN DEL USUARIO (TU CÓDIGO ORIGINAL) ---
+        //VERIFICAR LA SESIÓN DEL USUARIO
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const userDocRef = doc(db, "users", user.uid);
