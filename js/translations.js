@@ -54,7 +54,7 @@ const translations = {
         opponentFound: "¡Oponente Encontrado!",
         accept: "✅ Aceptar",
         reject: "❌ Rechazar",
-        
+
         // --- Mejoras 1vs1 ---
         results: "Resultados",
         rematch: "Revancha",
@@ -131,7 +131,7 @@ const translations = {
         opponentFound: "Opponent Found!",
         accept: "✅ Accept",
         reject: "❌ Decline",
-        
+
         // --- 1vs1 Improvements ---
         results: "Results",
         rematch: "Rematch",
@@ -143,6 +143,7 @@ const translations = {
         backToSubjects: "← Back to subjects",
         languageSubject: "Language",
         mathsSubject: "Mathematics",
+
 
 
         
@@ -164,7 +165,7 @@ function applyTranslations(lang) {
     document.querySelectorAll('[data-translate]').forEach(element => {
         const key = element.getAttribute('data-translate');
         const translation = translations[lang]?.[key];
-        
+
         if (translation) {
             
             if (key === 'welcomeMessage') {
@@ -200,4 +201,3 @@ function loadLanguage() {
 
 
 export { setLanguage, loadLanguage, translations };
-

@@ -54,7 +54,7 @@
 
                 let isLocked = level.id > 1;
                 const prevLevelStars = subjectProgress[level.id - 1]; // Progreso del nivel anterior
-                if (level.id === 1 || (prevLevelStars && prevLevelStars > 0)) {
+                if (level.id === 1 || (prevLevelStars && prevLevelStars > 1)) {
                     isLocked = false;
                 }
 

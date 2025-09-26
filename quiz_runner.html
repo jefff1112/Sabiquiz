@@ -8,27 +8,33 @@
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap">
 </head>
 <body>
-    <div class="container quiz-container">
-        <a href="#" id="backBtn" class="back-btn" data-translate="backToLevels">← Volver a los niveles</a>
-        <h3 id="subjectTitle">Cargando Quiz...</h3>
-        <div id="quiz-game">
-            <div class="quiz-status">
-                <span data-translate="question">Pregunta</span> <span id="questionCounter"></span> | 
-                <span data-translate="points">Puntos</span>: <span id="scoreDisplay">0</span> | 
-                <span data-translate="time">Tiempo</span>: <span id="timerDisplay"></span>
-            </div>
+    <!-- ...existing code... -->
+<div id="quiz-game" class="container quiz-main-container">
+    <a href="#" id="backBtn" class="back-btn" data-translate="backToLevels">← Volver a los niveles</a>
+    <div class="quiz-top-bar">
+        <span id="subjectTitle">Cargando Quiz...</span>
+        <span id="levelDisplay"></span>
+        <span><span data-translate="question">Pregunta</span> <span id="questionCounter"></span></span>
+        <span><span data-translate="points">Puntos</span>: <span id="scoreDisplay">0</span></span>
+        <span><span data-translate="time">Tiempo</span>: <span id="timerDisplay"></span></span>
+    </div>
+    <div class="quiz-content-row">
+        <div class="quiz-question-block">
             <div id="currentQuestionCard" class="question-card">
                 <p id="questionText"></p>
                 <div id="optionsContainer" class="options-grid"></div>
             </div>
-            <div class="quiz-footer">
-                <img id="quizMascot" src="../img/confundido_perro_4.png" alt="Mascota del Quiz">
-                <div id="feedback" class="feedback-message"></div>
-            </div>
+            <div id="feedback" class="feedback-message"></div>
             <button id="nextQuestionBtn" class="next-btn" style="display:none;">Siguiente quiz</button>
         </div>
+        <div class="quiz-mascot-block">
+            <img id="quizMascot" src="../img/confundido_perro_4.png" alt="Mascota del Quiz" class="quiz-mascot-img">
+        </div>
     </div>
-    
+</div>
+    </div>
+</div>
+<!-- ...existing code... -->
     <audio id="correctSound" src="../img/correct.mp3"></audio>
     <audio id="incorrectSound" src="../img/incorrect.mp3"></audio>
 
@@ -117,7 +123,10 @@
                 quizGameEl.innerHTML = ''; return;
             }
             
-            subjectTitle.textContent = `${subjectId.charAt(0).toUpperCase() + subjectId.slice(1)} - Nivel ${level.id}`;
+            
+subjectTitle.textContent = `${subjectId.charAt(0).toUpperCase() + subjectId.slice(1)}`;
+document.getElementById('levelDisplay').textContent = `Nivel ${level.id}`;
+
             backBtn.href = `/materias/${subjectId}.html`;
             showQuestion();
 
@@ -151,16 +160,16 @@
                 clearInterval(timer);
                 
                 if (!button) {
-                    feedbackDiv.innerHTML = `¡Time's up! The correct answer was: <b>${correctAnswer}</b> ❌`;
+                    feedbackDiv.innerHTML = `¡Se acabó el tiempo! La respuesta correcta era: <b>${correctAnswer}</b> ❌`;
                     incorrectSound.play();
                 } else if (button.textContent === correctAnswer) {
                     score++;
                     button.classList.add('correct');
-                    feedbackDiv.innerHTML = "¡Correct! 🎉";
+                    feedbackDiv.innerHTML = "¡Correcto! 🎉";
                     correctSound.play();
                 } else {
                     button.classList.add('incorrect');
-                    feedbackDiv.innerHTML = `Incorrecto. The correct answer was: <b>${correctAnswer}</b> ❌`;
+                    feedbackDiv.innerHTML = `Incorrecto. La respuesta correcta era: <b>${correctAnswer}</b> ❌`;
                     incorrectSound.play();
                 }
                 

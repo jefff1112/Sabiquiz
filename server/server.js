@@ -48,6 +48,7 @@ function startGame(roomCode) {
     setTimeout(() => {
         const firstQuestion = room.gameData.questions[0];
         io.to(roomCode).emit('nextQuestion', { question: firstQuestion.question, options: firstQuestion.options });
+
         startQuestionTimer(roomCode);
     }, 4000);
 }
@@ -115,6 +116,15 @@ async function handleEndGame(roomCode) {
             await p2_docRef.update({ pvpXp: admin.firestore.FieldValue.increment(15) });
         }
     } catch (error) { console.error("Error al guardar datos de 1vs1 en Firestore:", error); }
+
+
+
+
+
+
+
+
+
 }
 
 function getRandomGameMode() {
@@ -141,9 +151,19 @@ setInterval(() => {
         socket2.emit('matchFound', { roomId: tempRoomId, opponent: player1.data });
     }
 }, 3000);
+function normalize(str) {
+    return (str || "")
+        .toString()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "") // quita tildes
+        .trim();
+}
+
 
 // --- 4. MANEJO DE CONEXIONES DE SOCKET.IO ---
 io.on('connection', (socket) => {
+    
     console.log(`Usuario conectado: ${socket.id}`);
     socket.on('findMatch', (playerData) => { if (matchmakingPool.some(p => p.socketId === socket.id)) return; matchmakingPool.push({ socketId: socket.id, data: playerData }); });
     socket.on('cancelFindMatch', () => { matchmakingPool = matchmakingPool.filter(p => p.socketId !== socket.id); });
@@ -193,7 +213,8 @@ io.on('connection', (socket) => {
         const gameData = room.gameData;
         const currentQuestion = gameData.questions[gameData.currentQuestionIndex];
         const correctAnswer = currentQuestion?.correctAnswer;
-        const isCorrect = correctAnswer ? (answer.toLowerCase() === correctAnswer.toLowerCase()) : false;
+        // Usa la función normalize para comparar
+        const isCorrect = correctAnswer ? (normalize(answer) === normalize(correctAnswer)) : false;
         gameData.playerAnswers[socket.id] = { answer, isCorrect };
         const answersCount = Object.keys(gameData.playerAnswers).length;
         const aPlayerWasCorrect = Object.values(gameData.playerAnswers).some(p => p.isCorrect);
@@ -218,6 +239,16 @@ io.on('connection', (socket) => {
         if (!room || room.rematchVoters.has(socket.id)) return;
         room.rematchVoters.add(socket.id);
         if (room.rematchVoters.size === 2) startGame(data.roomCode);
+
+
+
+
+
+
+
+
+
+
     });
     socket.on('disconnect', () => {
         console.log(`Usuario desconectado: ${socket.id}`);
@@ -236,6 +267,8 @@ io.on('connection', (socket) => {
                     }
                     delete rooms[roomCode];
                 }
+
+
                 break;
             }
         }
