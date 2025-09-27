@@ -47,6 +47,7 @@
             levelGrid.innerHTML = '';
 
             const subjectProgress = profileProgress[subjectId] || {};
+            console.log("Progreso [materia]:", subjectProgress);
 
             levels.forEach(level => {
                 const levelButton = document.createElement('a');

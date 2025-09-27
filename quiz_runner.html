@@ -181,37 +181,35 @@ document.getElementById('levelDisplay').textContent = `Nivel ${level.id}`;
                 scoreDisplay.textContent = score;
             }
 
-            async function showResult() {
-                const finalScore = score / level.questions.length;
-                const stars = calculateStars(finalScore, level.passingScore);
-                
-                //localStorage por ahora para la lógica de estrellas
-                const levelsCompleted = JSON.parse(localStorage.getItem('levelsCompleted')) || {};
-                if (!levelsCompleted[subjectId]) levelsCompleted[subjectId] = {};
-                const previousStars = levelsCompleted[subjectId][levelId]?.stars || 0;
-                
-                if (stars > previousStars) {
-                    levelsCompleted[subjectId][levelId] = { score: finalScore, stars: stars };
-                    localStorage.setItem('levelsCompleted', JSON.stringify(levelsCompleted));
+            // ...existing code...
+async function showResult() {
+    const finalScore = score / level.questions.length;
+    const stars = calculateStars(finalScore, level.passingScore);
 
-                    if (currentUser) {
-                        const previousXp = getXpFromStars(previousStars);
-                        const newXp = getXpFromStars(stars);
-                        const xpGained = newXp - previousXp;
-                        if (xpGained > 0) {
-                            const userDocRef = doc(db, "users", currentUser.uid);
-                            try {
-                                const fieldToUpdate = `quizProgress.${subjectId}.${levelId}`;
-                                await updateDoc(userDocRef, {
-                                    quizXp: increment(xpGained),
-                                    [fieldToUpdate]: stars
-                                });
-                                console.log("Firestore actualizado:", fieldToUpdate, stars); 
-                                await checkLevelUp(userDocRef);
-                            } catch (error) { console.error("Error al actualizar XP y progreso:", error); }
-                        }
-                    }
-                }
+    const levelsCompleted = JSON.parse(localStorage.getItem('levelsCompleted')) || {};
+    if (!levelsCompleted[subjectId]) levelsCompleted[subjectId] = {};
+    const previousStars = levelsCompleted[subjectId][levelId]?.stars || 0;
+
+    // Guarda SIEMPRE el progreso local y en Firestore
+    levelsCompleted[subjectId][levelId] = { score: finalScore, stars: stars };
+    localStorage.setItem('levelsCompleted', JSON.stringify(levelsCompleted));
+
+    if (currentUser) {
+        const previousXp = getXpFromStars(previousStars);
+        const newXp = getXpFromStars(stars);
+        const xpGained = Math.max(newXp - previousXp, 0);
+        const userDocRef = doc(db, "users", currentUser.uid);
+        try {
+            const fieldToUpdate = `quizProgress.${subjectId}.${levelId}`;
+            await updateDoc(userDocRef, {
+                quizXp: increment(xpGained),
+                [fieldToUpdate]: stars
+            });
+            console.log("Firestore actualizado:", fieldToUpdate, stars);
+            await checkLevelUp(userDocRef);
+        } catch (error) { console.error("Error al actualizar XP y progreso:", error); }
+    }
+
                 
                 const resultTextKey = finalScore >= level.passingScore ? 'levelCompleted' : 'levelFailed';
                 quizGameEl.innerHTML = `

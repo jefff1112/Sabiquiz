@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title data-translate="languageTitle">SabiQuiz - sociales</title>
+    <title data-translate="languageTitle">SabiQuiz - Sociales</title>
     <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" href="../favicon.ico" type="image/x-icon">
 </head>
 <body data-subject-id="sociales">
     <div class="container level-selection-container">
         <a href="../main_menu.html" class="back-btn" data-translate="backToMenu">← Volver a materias</a>
-        <h3 data-translate="sociales">sociales</h3>
+        <h3 data-translate="sociales">Sociales</h3>
         <div id="level-grid" class="level-grid">
             <p>Cargando niveles...</p>
         </div>
@@ -20,10 +21,8 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { levels } from './sociales-data.js';
-        //
         import { loadLanguage } from '../js/translations.js';
 
-        //LÓGICA DE TRADUCCIÓN
         loadLanguage();
 
         const firebaseConfig = {
@@ -39,20 +38,20 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // FUNCIÓN PARA DIBUJAR LOS BOTONES DE NIVEL
         function drawLevelButtons(profileProgress = {}) {
             const subjectId = document.body.dataset.subjectId;
             const levelGrid = document.getElementById('level-grid');
             levelGrid.innerHTML = '';
 
             const subjectProgress = profileProgress[subjectId] || {};
-            console.log("Progreso sociales:", subjectProgress);
+            console.log("Progreso [materia]:", subjectProgress);
+
             levels.forEach(level => {
                 const levelButton = document.createElement('a');
                 levelButton.classList.add('level-btn');
 
                 let isLocked = level.id > 1;
-                const prevLevelStars = subjectProgress[level.id - 1]; // Progreso del nivel anterior
+                const prevLevelStars = subjectProgress[level.id - 1];
                 if (level.id === 1 || (prevLevelStars && prevLevelStars >= 1)) {
                     isLocked = false;
                 }
@@ -62,7 +61,7 @@
                     levelButton.innerHTML = `<span>${level.title}</span> <img src="../img/lock.png" alt="Bloqueado" class="lock-icon">`;
                 } else {
                     levelButton.href = `../quiz_runner.html?subject=${subjectId}&level=${level.id}`;
-                    const starsWon = subjectProgress[level.id] || 0; // Estrellas de este nivel
+                    const starsWon = subjectProgress[level.id] || 0;
                     let starsHTML = '<div class="stars-container">';
                     for (let i = 0; i < 3; i++) {
                         starsHTML += `<img src="../img/${i < starsWon ? 'star_filled.png' : 'star_empty.png'}" class="star-icon">`;
@@ -74,7 +73,6 @@
             });
         }
 
-        // --- VERIFICAMOS LA SESIÓN DEL USUARIO
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const userDocRef = doc(db, "users", user.uid);

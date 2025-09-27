@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-translate="languageTitle">SabiQuiz - ciencias</title>
     <link rel="stylesheet" href="../css/styles.css">
+    <link rel="icon" href="../favicon.ico" type="image/x-icon">
 </head>
 <body data-subject-id="ciencias">
     <div class="container level-selection-container">
@@ -20,11 +21,8 @@
         import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
         import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
         import { levels } from './ciencias-data.js';
-        // ¡Importamos nuestro nuevo traductor!
         import { loadLanguage } from '../js/translations.js';
 
-        // --- LÓGICA DE TRADUCCIÓN (AÑADIDA) ---
-        // Carga el idioma guardado tan pronto como la página se carga
         loadLanguage();
 
         const firebaseConfig = {
@@ -40,22 +38,22 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // --- FUNCIÓN PARA DIBUJAR LOS BOTONES DE NIVEL (TU CÓDIGO ORIGINAL) ---
         function drawLevelButtons(profileProgress = {}) {
             const subjectId = document.body.dataset.subjectId;
             const levelGrid = document.getElementById('level-grid');
             levelGrid.innerHTML = '';
 
             const subjectProgress = profileProgress[subjectId] || {};
+            console.log("Progreso [materia]:", subjectProgress);
 
             levels.forEach(level => {
                 const levelButton = document.createElement('a');
                 levelButton.classList.add('level-btn');
 
                 let isLocked = level.id > 1;
-                const prevLevelStars = subjectProgress[level.id - 1]; // Progreso del nivel anterior
+                const prevLevelStars = subjectProgress[level.id - 1];
                 if (level.id === 1 || (prevLevelStars && prevLevelStars >= 1)) {
-                isLocked = false;
+                    isLocked = false;
                 }
 
                 if (isLocked) {
@@ -63,7 +61,7 @@
                     levelButton.innerHTML = `<span>${level.title}</span> <img src="../img/lock.png" alt="Bloqueado" class="lock-icon">`;
                 } else {
                     levelButton.href = `../quiz_runner.html?subject=${subjectId}&level=${level.id}`;
-                    const starsWon = subjectProgress[level.id] || 0; // Estrellas de este nivel
+                    const starsWon = subjectProgress[level.id] || 0;
                     let starsHTML = '<div class="stars-container">';
                     for (let i = 0; i < 3; i++) {
                         starsHTML += `<img src="../img/${i < starsWon ? 'star_filled.png' : 'star_empty.png'}" class="star-icon">`;
@@ -75,7 +73,6 @@
             });
         }
 
-        // --- VERIFICAMOS LA SESIÓN DEL USUARIO (TU CÓDIGO ORIGINAL) ---
         onAuthStateChanged(auth, async (user) => {
             if (user) {
                 const userDocRef = doc(db, "users", user.uid);
