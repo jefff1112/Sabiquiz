@@ -36,10 +36,21 @@
         </div>
         <div id="multiplayerMenu" class="multiplayer-menu">
             <h2 data-translate="duelMode">Modo Duelo 1vs1</h2>
-            <button id="findMatchBtn" class="btn btn-find-match" data-translate="findMatch">🚀 Buscar Partida Rápida</button>
             <div id="matchmakingStatus" class="matchmaking-status" style="display: none;"><p data-translate="findingOpponent">Buscando oponente...</p><div class="spinner"></div><button id="cancelMatchBtn" class="btn btn-cancel" data-translate="cancel">Cancelar</button></div>
+            <!-- ...existing code... -->
+<button id="findMatchBtn" class="btn btn-find-match" data-translate="findMatch">🚀 Buscar Partida Rápida</button>
+<button id="findMathMatchBtn" class="btn btn-find-match maths-mode" style="margin-top:8px;">🧮 Duelo Matemático</button>
+<!-- ...existing code... -->
             <hr class="separator"><p class="sub-heading" data-translate="playWithCode">O juega con un amigo usando un código:</p>
-            <div id="codeRoomContainer" class="input-group"><input type="text" id="roomCodeInput" placeholder="Ingresa el código"><button id="createRoomBtn" data-translate="createRoom">Crear Sala</button><button id="joinRoomBtn" data-translate="joinRoom">Unirse a Sala</button></div>
+            <div id="codeRoomContainer" class="input-group">
+    <input type="text" id="roomCodeInput" placeholder="Ingresa el código">
+    <select id="roomGameType" style="margin-right:8px;">
+        <option value="normal">Normal</option>
+        <option value="maths">Matemáticas</option>
+    </select>
+    <button id="createRoomBtn" data-translate="createRoom">Crear Sala</button>
+    <button id="joinRoomBtn" data-translate="joinRoom">Unirse a Sala</button>
+</div>
             <div id="statusMessage"></div>
         </div>
         <div id="gameContainer" class="quiz-container" style="display: none;">
@@ -140,6 +151,8 @@
         const opponentXp = document.getElementById('opponentXp');
         const acceptMatchBtn = document.getElementById('acceptMatchBtn');
         const rejectMatchBtn = document.getElementById('rejectMatchBtn');
+        const roomGameType = document.getElementById('roomGameType');
+        
 
         let currentUser = null, userProfile = {}, currentRoomCode = '', localPlayerId = '', tempRoomId = '';
 
@@ -177,39 +190,74 @@
 
         logoutBtn.addEventListener('click', () => signOut(auth));
 
-        findMatchBtn.addEventListener('click', () => {
-            document.querySelector('.sub-heading').style.display = 'none';
-            document.getElementById('codeRoomContainer').style.display = 'none';
-            findMatchBtn.style.display = 'none';
-            matchmakingStatus.style.display = 'block';
-            const totalXp = (userProfile.quizXp || 0) + (userProfile.pvpXp || 0);
-            const playerData = { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL, level: userProfile.level || 1, totalXp };
-            socket.emit('findMatch', playerData);
-        });
+       
+        const findMathMatchBtn = document.getElementById('findMathMatchBtn');
+        // ...existing code...
+// ...existing code...
+findMatchBtn.addEventListener('click', () => {
+    document.querySelector('.sub-heading').style.display = 'none';
+    document.getElementById('codeRoomContainer').style.display = 'none';
+    findMatchBtn.style.display = 'none';
+    findMathMatchBtn.style.display = 'none';
+    matchmakingStatus.style.display = 'block';
+    const totalXp = (userProfile.quizXp || 0) + (userProfile.pvpXp || 0);
+    const playerData = { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL, level: userProfile.level || 1, totalXp, gameType: 'normal' };
+    socket.emit('findMatch', playerData);
+});
+findMathMatchBtn.addEventListener('click', () => {
+    document.querySelector('.sub-heading').style.display = 'none';
+    document.getElementById('codeRoomContainer').style.display = 'none';
+    findMatchBtn.style.display = 'none';
+    findMathMatchBtn.style.display = 'none';
+    matchmakingStatus.style.display = 'block';
+    const totalXp = (userProfile.quizXp || 0) + (userProfile.pvpXp || 0);
+    const playerData = { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL, level: userProfile.level || 1, totalXp, gameType: 'maths' };
+    socket.emit('findMatch', playerData);
+});
+// ...existing code...
 
         cancelMatchBtn.addEventListener('click', () => {
-            findMatchBtn.style.display = 'block';
-            document.getElementById('codeRoomContainer').style.display = 'flex';
-            document.querySelector('.sub-heading').style.display = 'block';
-            matchmakingStatus.style.display = 'none';
-            socket.emit('cancelFindMatch');
-        });
+    findMatchBtn.style.display = 'block';
+    findMathMatchBtn.style.display = 'block';
+    document.getElementById('codeRoomContainer').style.display = 'flex';
+    document.querySelector('.sub-heading').style.display = 'block';
+    matchmakingStatus.style.display = 'none';
+    socket.emit('cancelFindMatch');
+});
 
         function setStatus(message) { statusMessage.textContent = message; }
 
         createRoomBtn.addEventListener('click', () => {
-            const roomCode = roomCodeInput.value.trim();
-            if (roomCode && currentUser) { socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } }); }
-
-
+    const roomCode = roomCodeInput.value.trim();
+    const gameType = roomGameType.value;
+    if (roomCode && currentUser) {
+        socket.emit('createRoom', {
+            roomCode,
+            player: {
+                uid: currentUser.uid,
+                name: userProfile.displayName,
+                photoURL: userProfile.photoURL || null
+            },
+            gameType
         });
+    }
+});
 
-        joinRoomBtn.addEventListener('click', () => {
-            const roomCode = roomCodeInput.value.trim();
-            if (roomCode && currentUser) { socket.emit('createRoom', { roomCode, player: { uid: currentUser.uid, name: userProfile.displayName, photoURL: userProfile.photoURL || null } }); }
-
-
+joinRoomBtn.addEventListener('click', () => {
+    const roomCode = roomCodeInput.value.trim();
+    const gameType = roomGameType.value;
+    if (roomCode && currentUser) {
+        socket.emit('createRoom', {
+            roomCode,
+            player: {
+                uid: currentUser.uid,
+                name: userProfile.displayName,
+                photoURL: userProfile.photoURL || null
+            },
+            gameType
         });
+    }
+});
 
         rematchBtn.addEventListener('click', () => {
             endGameContainer.style.display = 'none';

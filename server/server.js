@@ -7,6 +7,7 @@ const admin = require('firebase-admin');
 //Rutas Absolutas para que Vercel encuentre los archivos
 const serviceAccount = require(path.join(__dirname, 'serviceAccountKey.json'));
 const questions = require(path.join(__dirname, 'questions.js'));
+const questionsMaths = require(path.join(__dirname, 'questions_maths.js'));
 
 //CONFIGURACIÓN
 admin.initializeApp({
@@ -30,32 +31,39 @@ let matchmakingPool = [];
 
 //FUNCIONES DE LÓGICA DE JUEGO
 
-function startGame(roomCode) {
+function startGame(roomCode, gameType = 'normal') {
     const room = rooms[roomCode];
     if (!room || room.players.length !== 2) return;
     room.gameMode = getRandomGameMode();
     room.rematchVoters.clear();
-    console.log(`--- INICIANDO PARTIDA --- Sala: ${roomCode}, Modo: ${room.gameMode}`);
+    console.log(`--- INICIANDO PARTIDA --- Sala: ${roomCode}, Modo: ${room.gameMode}, Tipo: ${gameType}`);
+    let selectedQuestions;
+    if (gameType === 'maths') {
+        selectedQuestions = [...questionsMaths].sort(() => 0.5 - Math.random()).slice(0, 5);
+    } else {
+        selectedQuestions = [...questions].sort(() => 0.5 - Math.random()).slice(0, 5);
+    }
     room.gameData = {
-        questions: [...questions].sort(() => 0.5 - Math.random()).slice(0, 5),
+        questions: selectedQuestions,
         currentQuestionIndex: 0,
         scores: { [room.players[0]]: 0, [room.players[1]]: 0 },
         playerAnswers: {}
     };
-    io.to(roomCode).emit('startCountdown', { gameMode: room.gameMode, roomCode: roomCode });
+    io.to(roomCode).emit('startCountdown', { gameMode: room.gameMode, roomCode: roomCode, gameType });
     setTimeout(() => {
         const firstQuestion = room.gameData.questions[0];
         io.to(roomCode).emit('nextQuestion', { question: firstQuestion.question, options: firstQuestion.options });
-
-        startQuestionTimer(roomCode);
+        startQuestionTimer(roomCode, firstQuestion.difficulty);
     }, 4000);
 }
 
-function startQuestionTimer(roomCode) {
+function startQuestionTimer(roomCode, difficulty = 'easy') {
     const room = rooms[roomCode];
     if (!room || !room.gameData) return;
     if (room.timerInterval) clearInterval(room.timerInterval);
     let timeLeft = 10;
+    if (difficulty === 'hard') timeLeft = 18;
+    else if (difficulty === 'medium') timeLeft = 14;
     room.timerInterval = setInterval(() => {
         io.to(roomCode).emit('timerUpdate', timeLeft);
         timeLeft--;
@@ -84,7 +92,7 @@ function proceedToNextQuestion(roomCode) {
     } else {
         const nextQuestion = room.gameData.questions[room.gameData.currentQuestionIndex];
         io.to(roomCode).emit('nextQuestion', { question: nextQuestion.question, options: nextQuestion.options });
-        startQuestionTimer(roomCode);
+        startQuestionTimer(roomCode, nextQuestion.difficulty);
     }
 }
 
@@ -130,6 +138,7 @@ function getRandomGameMode() {
 }
 
 //"ÁRBITRO" DE MATCHMAKING
+// ...existing code...
 setInterval(() => {
     if (matchmakingPool.length >= 2) {
         const player1 = matchmakingPool.shift();
@@ -142,7 +151,13 @@ setInterval(() => {
             return;
         }
         const tempRoomId = `vote_${Date.now()}`;
-        rooms[tempRoomId] = { players: [player1.socketId, player2.socketId], playerData: { [player1.socketId]: player1.data, [player2.socketId]: player2.data }, votes: new Set() };
+        // Usa el gameType del primer jugador (ambos deberían tener el mismo)
+        rooms[tempRoomId] = {
+            players: [player1.socketId, player2.socketId],
+            playerData: { [player1.socketId]: player1.data, [player2.socketId]: player2.data },
+            votes: new Set(),
+            gameType: player1.data.gameType || 'normal' // <--- IMPORTANTE
+        };
         socket1.join(tempRoomId);
         socket2.join(tempRoomId);
         socket1.emit('matchFound', { roomId: tempRoomId, opponent: player2.data });
@@ -162,37 +177,40 @@ function normalize(str) {
 io.on('connection', (socket) => {
     
     console.log(`Usuario conectado: ${socket.id}`);
-    socket.on('findMatch', (playerData) => { if (matchmakingPool.some(p => p.socketId === socket.id)) return; matchmakingPool.push({ socketId: socket.id, data: playerData }); });
+    socket.on('findMatch', (playerData) => { 
+    if (matchmakingPool.some(p => p.socketId === socket.id)) return; 
+    matchmakingPool.push({ socketId: socket.id, data: playerData }); 
+});
     socket.on('cancelFindMatch', () => { matchmakingPool = matchmakingPool.filter(p => p.socketId !== socket.id); });
     socket.on('createRoom', (data) => {
-        const { roomCode, player } = data;
-        if (rooms[roomCode] && rooms[roomCode].players.length < 2) {
-            socket.join(roomCode);
-            rooms[roomCode].players.push(socket.id);
-            rooms[roomCode].playerData[socket.id] = player;
-            io.to(roomCode).emit('playerJoined', rooms[roomCode].players.length);
-            if (rooms[roomCode].players.length === 2) {
-                rooms[roomCode].rematchVoters = new Set();
-                startGame(roomCode);
-            }
-        } else if (!rooms[roomCode]) {
-            socket.join(roomCode);
-            rooms[roomCode] = { players: [socket.id], playerData: { [socket.id]: player }, gameData: null, gameMode: null, rematchVoters: new Set(), timerInterval: null };
-            socket.emit('roomCreated', roomCode);
-        } else {
-            socket.emit('roomFull');
+    const { roomCode, player, gameType } = data;
+    if (rooms[roomCode] && rooms[roomCode].players.length < 2) {
+        socket.join(roomCode);
+        rooms[roomCode].players.push(socket.id);
+        rooms[roomCode].playerData[socket.id] = player;
+        io.to(roomCode).emit('playerJoined', rooms[roomCode].players.length);
+        if (rooms[roomCode].players.length === 2) {
+            rooms[roomCode].rematchVoters = new Set();
+            startGame(roomCode, rooms[roomCode].gameType || gameType || 'normal');
         }
-    });
-    socket.on('acceptMatch', ({ roomId }) => {
-        const room = rooms[roomId];
-        if (!room || room.votes.has(socket.id)) return;
-        room.votes.add(socket.id);
-        if (room.votes.size === 2) {
-            room.rematchVoters = new Set();
-            delete room.votes;
-            startGame(roomId);
-        }
-    });
+    } else if (!rooms[roomCode]) {
+        socket.join(roomCode);
+        rooms[roomCode] = { players: [socket.id], playerData: { [socket.id]: player }, gameData: null, gameMode: null, rematchVoters: new Set(), timerInterval: null, gameType: gameType || 'normal' };
+        socket.emit('roomCreated', roomCode);
+    } else {
+        socket.emit('roomFull');
+    }
+});
+   socket.on('acceptMatch', ({ roomId }) => {
+    const room = rooms[roomId];
+    if (!room || room.votes.has(socket.id)) return;
+    room.votes.add(socket.id);
+    if (room.votes.size === 2) {
+        room.rematchVoters = new Set();
+        delete room.votes;
+        startGame(roomId, room.gameType || 'normal'); // <--- SIEMPRE PASA EL gameType
+    }
+});
     socket.on('rejectMatch', ({ roomId }) => {
         const room = rooms[roomId];
         if (!room) return;
@@ -231,21 +249,11 @@ io.on('connection', (socket) => {
         }
     });
     socket.on('requestRematch', (data) => {
-        const room = rooms[data.roomCode];
-        if (!room || room.rematchVoters.has(socket.id)) return;
-        room.rematchVoters.add(socket.id);
-        if (room.rematchVoters.size === 2) startGame(data.roomCode);
-
-
-
-
-
-
-
-
-
-
-    });
+    const room = rooms[data.roomCode];
+    if (!room || room.rematchVoters.has(socket.id)) return;
+    room.rematchVoters.add(socket.id);
+    if (room.rematchVoters.size === 2) startGame(data.roomCode, room.gameType || 'normal');
+});
     socket.on('disconnect', () => {
         console.log(`Usuario desconectado: ${socket.id}`);
         matchmakingPool = matchmakingPool.filter(p => p.socketId !== socket.id);
