@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="programmingTitle">SabiQuiz - Programación</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .level-selection-container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .level-selection-container h3 {
+            text-align: center;
+            color: #2d3748;
+            font-size: 28px;
+            margin-bottom: 25px;
+        }
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .level-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 10px;
+            background: #f7fafc;
+            border-radius: 15px;
+            text-decoration: none;
+            color: #2d3748;
+            font-weight: bold;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid #e2e8f0;
+            min-height: 100px;
+            gap: 8px;
+        }
+        .level-btn:hover:not(.locked) {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        .level-btn.locked {
+            background: #edf2f7;
+            color: #a0aec0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .level-btn .lock-icon {
+            width: 30px;
+            height: 30px;
+        }
+        .level-btn .stars-container {
+            display: flex;
+            gap: 4px;
+            margin-top: 5px;
+        }
+        .level-btn .star-icon {
+            width: 22px;
+            height: 22px;
+        }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .back-btn:hover {
+            text-decoration: underline;
+        }
+        .loading-text {
+            text-align: center;
+            color: #a0aec0;
+            padding: 40px;
+            font-size: 18px;
+            grid-column: 1 / -1;
+        }
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+        @media (max-width: 600px) {
+            .level-selection-container {
+                margin: 20px 15px;
+                padding: 20px;
+            }
+            .level-grid {
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 10px;
+            }
+            .level-btn {
+                padding: 15px 8px;
+                min-height: 80px;
+                font-size: 14px;
+            }
+            .level-btn .star-icon {
+                width: 18px;
+                height: 18px;
+            }
+            .level-btn .lock-icon {
+                width: 24px;
+                height: 24px;
+            }
+        }
+    </style>
+</head>
+<body data-subject-id="programacion">
+    <div class="container level-selection-container">
+        <a href="../main_menu.html" class="back-btn" data-translate="backToMenu">← Volver a materias</a>
+        <h3 data-translate="programmingSubject">💻 Programación</h3>
+        
+        <div id="errorMessage" class="error-message"></div>
+        <div id="level-grid" class="level-grid">
+            <div class="loading-text">⏳ Cargando niveles...</div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN DE LA API
+        // ============================================
+        const API_URL = 'http://localhost:3000/api';
+
+        // ============================================
+        // FUNCIONES DE AUTENTICACIÓN
+        // ============================================
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function getCurrentUser() {
+            const userStr = localStorage.getItem('user');
+            return userStr ? JSON.parse(userStr) : null;
+        }
+
+        function checkAuth() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = '../login.html';
+                return false;
+            }
+            return true;
+        }
+
+        // ============================================
+        // FUNCIÓN PARA PETICIONES A LA API
+        // ============================================
+        async function apiRequest(endpoint, options = {}) {
+            const token = getToken();
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            };
+            
+            const finalOptions = {
+                ...options,
+                headers: {
+                    ...headers,
+                    ...options.headers || {}
+                }
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        window.location.href = '../login.html';
+                    }
+                    throw new Error(data.error || `Error ${response.status}`);
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('❌ Error en apiRequest:', error);
+                throw error;
+            }
+        }
+
+        // ============================================
+        // FUNCIONES DE TRADUCCIÓN
+        // ============================================
+        function loadLanguage() {
+            const lang = localStorage.getItem('language') || 'es';
+            const translations = {
+                es: {
+                    programmingTitle: 'SabiQuiz - Programación',
+                    backToMenu: '← Volver a materias',
+                    programmingSubject: '💻 Programación'
+                },
+                en: {
+                    programmingTitle: 'SabiQuiz - Programming',
+                    backToMenu: '← Back to subjects',
+                    programmingSubject: '💻 Programming'
+                }
+            };
+
+            const t = translations[lang] || translations.es;
+            
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                if (t[key]) {
+                    el.textContent = t[key];
+                }
+            });
+
+            if (t.programmingTitle) {
+                document.title = t.programmingTitle;
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+        }
+
+        function hideError() {
+            document.getElementById('errorMessage').style.display = 'none';
+        }
+
+        // ============================================
+        // NORMALIZAR TEXTO (QUITAR TILDES)
+        // ============================================
+        function normalizarTexto(texto) {
+            return texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        // ============================================
+        // FUNCIÓN PARA DIBUJAR LOS BOTONES DE NIVEL
+        // ============================================
+        function drawLevelButtons(niveles, progresoMateria = {}) {
+            const subjectId = document.body.dataset.subjectId;
+            const levelGrid = document.getElementById('level-grid');
+            levelGrid.innerHTML = '';
+
+            if (!niveles || niveles.length === 0) {
+                levelGrid.innerHTML = '<div class="loading-text">📭 No hay niveles disponibles</div>';
+                return;
+            }
+
+            const nivelesOrdenados = niveles.sort((a, b) => a.numero - b.numero);
+
+            nivelesOrdenados.forEach((nivel, index) => {
+                const levelButton = document.createElement('a');
+                levelButton.classList.add('level-btn');
+
+                const nivelNumero = nivel.numero;
+                const nivelId = nivel.id;
+                const nivelTitulo = nivel.titulo || `Nivel ${nivelNumero}`;
+
+                let isLocked = false;
+                if (nivelNumero === 1) {
+                    isLocked = false;
+                } else {
+                    const nivelAnterior = nivelesOrdenados.find(n => n.numero === nivelNumero - 1);
+                    if (nivelAnterior) {
+                        const estrellasAnteriores = progresoMateria[nivelAnterior.id] || 0;
+                        isLocked = estrellasAnteriores < 1;
+                    } else {
+                        isLocked = true;
+                    }
+                }
+
+                if (isLocked) {
+                    levelButton.classList.add('locked');
+                    levelButton.innerHTML = `
+                        <span>${nivelTitulo}</span>
+                        <img src="../img/lock.png" alt="Bloqueado" class="lock-icon">
+                    `;
+                } else {
+                    levelButton.href = `../quiz_runner.html?subject=${subjectId}&level=${nivelId}`;
+                    
+                    const starsWon = progresoMateria[nivelId] || 0;
+                    let starsHTML = '<div class="stars-container">';
+                    for (let i = 0; i < 3; i++) {
+                        starsHTML += `<img src="../img/${i < starsWon ? 'star_filled.png' : 'star_empty.png'}" class="star-icon">`;
+                    }
+                    starsHTML += '</div>';
+                    
+                    levelButton.innerHTML = `
+                        <span>${nivelTitulo}</span>
+                        ${starsHTML}
+                    `;
+                }
+                levelGrid.appendChild(levelButton);
+            });
+        }
+
+        // ============================================
+        // FUNCIÓN PRINCIPAL: CARGAR NIVELES Y PROGRESO
+        // ============================================
+        async function cargarNiveles() {
+            try {
+                if (!checkAuth()) return;
+                
+                hideError();
+                const levelGrid = document.getElementById('level-grid');
+                levelGrid.innerHTML = '<div class="loading-text">⏳ Cargando niveles...</div>';
+
+                const materiasData = await apiRequest('/quiz/materias');
+                const materia = materiasData.materias.find(m => 
+                    normalizarTexto(m.nombre) === 'programacion'
+                );
+                
+                if (!materia) {
+                    showError('❌ Materia "Programación" no encontrada');
+                    levelGrid.innerHTML = '<div class="loading-text">❌ Error: Materia no encontrada</div>';
+                    return;
+                }
+
+                console.log('📚 Materia encontrada:', materia);
+
+                const nivelesData = await apiRequest(`/quiz/materia/${materia.id}/niveles`);
+                const niveles = nivelesData.niveles || [];
+
+                if (niveles.length === 0) {
+                    levelGrid.innerHTML = '<div class="loading-text">📭 No hay niveles disponibles para esta materia</div>';
+                    return;
+                }
+
+                console.log(`📖 ${niveles.length} niveles encontrados`);
+
+                let progresoData = {};
+                try {
+                    const progreso = await apiRequest('/progress');
+                    console.log('📊 Progreso completo:', progreso);
+                    
+                    if (progreso.success && progreso.progreso) {
+                        for (const [materiaNombre, nivelesProgreso] of Object.entries(progreso.progreso)) {
+                            if (normalizarTexto(materiaNombre) === 'programacion') {
+                                console.log('📊 Niveles de Programación:', nivelesProgreso);
+                                
+                                nivelesProgreso.forEach(n => {
+                                    const nivelId = n.nivel_id || n.id;
+                                    if (nivelId && n.completado) {
+                                        progresoData[nivelId] = n.estrellas || 0;
+                                        console.log(`  ✅ Nivel ${nivelId} -> ${n.estrellas} estrellas`);
+                                    }
+                                });
+                                break;
+                            }
+                        }
+                    }
+                    console.log('⭐ Progreso de Programación (procesado):', progresoData);
+                } catch (e) {
+                    console.log('ℹ️ No se pudo cargar progreso:', e);
+                }
+
+                if (Object.keys(progresoData).length === 0) {
+                    try {
+                        const levelsCompleted = JSON.parse(localStorage.getItem('levelsCompleted')) || {};
+                        const materiaProgress = levelsCompleted['programacion'] || {};
+                        for (const [nivelId, data] of Object.entries(materiaProgress)) {
+                            if (data.completed) {
+                                progresoData[parseInt(nivelId)] = data.stars || 0;
+                            }
+                        }
+                        console.log('⭐ Progreso desde localStorage:', progresoData);
+                    } catch (e) {
+                        console.log('ℹ️ No se pudo leer localStorage:', e);
+                    }
+                }
+
+                drawLevelButtons(niveles, progresoData);
+                loadLanguage();
+
+            } catch (error) {
+                console.error('❌ Error cargando niveles:', error);
+                showError('❌ Error al cargar los niveles: ' + error.message);
+                const levelGrid = document.getElementById('level-grid');
+                levelGrid.innerHTML = `
+                    <div class="loading-text" style="grid-column: 1/-1;">
+                        ❌ Error al cargar niveles<br>
+                        <small style="font-size:14px;color:#a0aec0;">${error.message}</small>
+                        <br><br>
+                        <button onclick="cargarNiveles()" style="padding:10px 24px;border:none;background:#667eea;color:#fff;border-radius:8px;cursor:pointer;font-weight:bold;">
+                            🔄 Reintentar
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarNiveles();
+        });
+
+        window.cargarNiveles = cargarNiveles;
+    </script>
+</body>
+</html>

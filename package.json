@@ -1,0 +1,36 @@
+{
+  "name": "sabiquiz",
+  "version": "1.0.0",
+  "description": "Quiz educativa con gamificación",
+  "main": "server/server.js",
+  "scripts": {
+    "start": "node server/server.js",
+    "dev": "nodemon server/server.js",
+    "migrate": "node server/scripts/migrate-firebase.js",
+    "test:db": "node server/scripts/test-db.js",
+    "migrate-maths": "node server/scripts/migrate-maths.js",
+    "migrate-lenguaje": "node server/scripts/migrate-lenguaje.js",
+    "migrate-ciencias": "node server/scripts/migrate-ciencias.js",
+    "migrate-sociales": "node server/scripts/migrate-sociales.js",
+    "migrate-ingles": "node server/scripts/migrate-ingles.js",
+    "migrate-programacion": "node server/scripts/migrate-programacion.js",
+    "migrate-salud": "node server/scripts/migrate-salud.js"
+  },
+  "dependencies": {
+    "bcrypt": "^5.1.0",
+    "cors": "^2.8.5",
+    "dotenv": "^16.0.3",
+    "express": "^4.22.2",
+    "firebase-admin": "^11.11.0",
+    "http": "^0.0.1-security",
+    "jsonwebtoken": "^9.0.0",
+    "mysql2": "^3.6.0",
+    "nodemailer": "^9.0.3",
+    "socket.io": "^4.8.3",
+    "socket.io-client": "^4.8.3"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.22"
+  }
+  
+}

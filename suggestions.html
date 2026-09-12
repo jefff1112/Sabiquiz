@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sabiquiz - Sugerir Pregunta</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .suggest-container {
+            max-width: 700px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .suggest-container h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 5px;
+            font-size: 28px;
+        }
+        .suggest-container .subtitle {
+            text-align: center;
+            color: #718096;
+            margin-bottom: 30px;
+            font-size: 16px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            font-weight: bold;
+            color: #4a5568;
+            margin-bottom: 5px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        .form-group textarea {
+            resize: vertical;
+            min-height: 80px;
+        }
+        .options-grid-input {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+        .options-grid-input input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+        .options-grid-input input:focus {
+            border-color: #667eea;
+            outline: none;
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-back {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .btn-back:hover {
+            text-decoration: underline;
+        }
+        .message {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            font-weight: bold;
+            text-align: center;
+        }
+        .message.success {
+            background: #c6f6d5;
+            color: #276749;
+            display: block;
+        }
+        .message.error {
+            background: #fed7d7;
+            color: #c53030;
+            display: block;
+        }
+        .message.loading {
+            background: #ebf4ff;
+            color: #2b6cb0;
+            display: block;
+        }
+        .char-counter {
+            text-align: right;
+            font-size: 12px;
+            color: #a0aec0;
+            margin-top: 4px;
+        }
+        @media (max-width: 600px) {
+            .suggest-container {
+                padding: 20px;
+            }
+            .options-grid-input {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="suggest-container">
+        <a href="main_menu.html" class="btn-back">← Volver al Menú</a>
+        <h1>💡 Sugerir Pregunta</h1>
+        <p class="subtitle">Comparte tu conocimiento con la comunidad Sabiquiz</p>
+
+        <div id="messageBox" class="message"></div>
+
+        <form id="suggestionForm">
+            <!-- Materia -->
+            <div class="form-group">
+                <label for="materiaId">📚 Materia</label>
+                <select id="materiaId" required>
+                    <option value="">Selecciona una materia</option>
+                </select>
+            </div>
+
+            <!-- Pregunta -->
+            <div class="form-group">
+                <label for="pregunta">❓ Pregunta</label>
+                <textarea id="pregunta" placeholder="Escribe tu pregunta aquí..." required maxlength="500"></textarea>
+                <div class="char-counter"><span id="charCount">0</span>/500</div>
+            </div>
+
+            <!-- Opciones -->
+            <div class="form-group">
+                <label>🔘 Opciones de respuesta</label>
+                <div class="options-grid-input">
+                    <input type="text" id="opcion1" placeholder="Opción A" required>
+                    <input type="text" id="opcion2" placeholder="Opción B" required>
+                    <input type="text" id="opcion3" placeholder="Opción C" required>
+                    <input type="text" id="opcion4" placeholder="Opción D" required>
+                </div>
+            </div>
+
+            <!-- Respuesta correcta -->
+            <div class="form-group">
+                <label for="respuestaCorrecta">✅ Respuesta correcta</label>
+                <select id="respuestaCorrecta" required>
+                    <option value="0">Opción A</option>
+                    <option value="1">Opción B</option>
+                    <option value="2">Opción C</option>
+                    <option value="3">Opción D</option>
+                </select>
+            </div>
+
+            <!-- Dificultad -->
+            <div class="form-group">
+                <label for="dificultad">📊 Dificultad</label>
+                <select id="dificultad">
+                    <option value="easy">Fácil</option>
+                    <option value="medium" selected>Media</option>
+                    <option value="hard">Difícil</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn-submit" id="submitBtn">📤 Enviar Sugerencia</button>
+        </form>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN DE LA API
+        // ============================================
+        const API_URL = 'http://localhost:3000/api';
+
+        // ============================================
+        // FUNCIONES DE AUTENTICACIÓN
+        // ============================================
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function checkAuth() {
+    const token = localStorage.getItem('token');
+    if (!token) {
+        window.location.href = 'login.html';
+        return false;
+    }
+    return true;
+}
+        // ============================================
+        // FUNCIÓN PARA PETICIONES A LA API
+        // ============================================
+        async function apiRequest(endpoint, options = {}) {
+            const token = getToken();
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            };
+
+            const finalOptions = {
+                ...options,
+                headers: {
+                    ...headers,
+                    ...options.headers || {}
+                }
+            };
+
+            console.log(`📤 Enviando petición a: ${endpoint}`, finalOptions);
+
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
+                const data = await response.json();
+
+                console.log(`📥 Respuesta:`, data);
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        window.location.href = 'login.html';
+                    }
+                    throw new Error(data.error || `Error ${response.status}: ${response.statusText}`);
+                }
+
+                return data;
+            } catch (error) {
+                console.error('❌ Error en apiRequest:', error);
+                throw error;
+            }
+        }
+
+        // ============================================
+        // FUNCIONES DE UI
+        // ============================================
+        function showMessage(message, type = 'info') {
+            const box = document.getElementById('messageBox');
+            box.textContent = message;
+            box.className = `message ${type}`;
+            box.style.display = 'block';
+        }
+
+        function hideMessage() {
+            const box = document.getElementById('messageBox');
+            box.style.display = 'none';
+            box.className = 'message';
+        }
+
+        function setLoading(loading) {
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = loading;
+            btn.textContent = loading ? '⏳ Enviando...' : '📤 Enviar Sugerencia';
+        }
+
+        // ============================================
+        // CARGAR MATERIAS
+        // ============================================
+        async function loadMaterias() {
+            try {
+                const select = document.getElementById('materiaId');
+                const data = await apiRequest('/quiz/materias');
+
+                if (data.success && data.materias) {
+                    select.innerHTML = '<option value="">Selecciona una materia</option>';
+                    data.materias.forEach(m => {
+                        const option = document.createElement('option');
+                        option.value = m.id;
+                        option.textContent = m.nombre;
+                        select.appendChild(option);
+                    });
+                } else {
+                    showMessage('Error al cargar las materias', 'error');
+                }
+            } catch (error) {
+                console.error('Error cargando materias:', error);
+                showMessage('Error al cargar las materias: ' + error.message, 'error');
+            }
+        }
+
+        // ============================================
+        // CONTADOR DE CARACTERES
+        // ============================================
+        document.getElementById('pregunta').addEventListener('input', function() {
+            document.getElementById('charCount').textContent = this.value.length;
+        });
+
+        // ============================================
+        // ENVIAR SUGERENCIA
+        // ============================================
+        document.getElementById('suggestionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            hideMessage();
+
+            // Validar que el usuario esté autenticado
+            if (!checkAuth()) return;
+
+            // Obtener valores
+            const materiaId = document.getElementById('materiaId').value;
+            const pregunta = document.getElementById('pregunta').value.trim();
+            const opcion1 = document.getElementById('opcion1').value.trim();
+            const opcion2 = document.getElementById('opcion2').value.trim();
+            const opcion3 = document.getElementById('opcion3').value.trim();
+            const opcion4 = document.getElementById('opcion4').value.trim();
+            const correcta = parseInt(document.getElementById('respuestaCorrecta').value);
+            const dificultad = document.getElementById('dificultad').value;
+
+            // Validaciones
+            if (!materiaId) {
+                showMessage('Por favor, selecciona una materia', 'error');
+                return;
+            }
+
+            if (pregunta.length < 5) {
+                showMessage('La pregunta debe tener al menos 5 caracteres', 'error');
+                return;
+            }
+
+            const opciones = [opcion1, opcion2, opcion3, opcion4];
+            if (opciones.some(o => o.length < 1)) {
+                showMessage('Todas las opciones deben tener al menos 1 carácter', 'error');
+                return;
+            }
+
+            // Verificar que las opciones no estén duplicadas
+            const opcionesSet = new Set(opciones.map(o => o.toLowerCase()));
+            if (opcionesSet.size < 4) {
+                showMessage('Las opciones deben ser diferentes', 'error');
+                return;
+            }
+
+            // Preparar datos
+            const payload = {
+    materiaId: parseInt(materiaId),
+    pregunta: pregunta,
+    opciones: opciones, // <--- opciones debe ser un array
+    correcta: correcta,
+    dificultad: dificultad
+};
+
+            console.log('📤 Enviando sugerencia:', payload);
+
+            try {
+                setLoading(true);
+                showMessage('⏳ Enviando tu sugerencia...', 'loading');
+
+                const response = await apiRequest('/suggestions', {
+                    method: 'POST',
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.success) {
+                    showMessage('✅ ¡Gracias! Tu pregunta ha sido enviada para revisión.', 'success');
+                    document.getElementById('suggestionForm').reset();
+                    document.getElementById('charCount').textContent = '0';
+                    setLoading(false);
+                } else {
+                    showMessage('❌ Error al enviar: ' + (response.error || 'Error desconocido'), 'error');
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.error('❌ Error:', error);
+                showMessage('❌ Error al enviar la sugerencia: ' + error.message, 'error');
+                setLoading(false);
+            }
+        });
+
+        // ============================================
+        // INICIALIZAR
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!checkAuth()) return;
+            await loadMaterias();
+            console.log('✅ Página de sugerencias cargada');
+        });
+    </script>
+</body>
+</html>

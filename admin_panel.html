@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sabiquiz - Panel de Administración</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .admin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .admin-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 15px;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .admin-header h1 { margin: 0; color: #2d3748; }
+        .admin-header h1 span { color: #667eea; }
+        .admin-header .btn-back {
+            background: #718096;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            text-decoration: none;
+        }
+        .admin-header .btn-back:hover { background: #4a5568; }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+        .stat-card {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-card .number { font-size: 28px; font-weight: bold; color: #2d3748; }
+        .stat-card .label { font-size: 14px; color: #718096; }
+        .stat-card.pendiente .number { color: #ed8936; }
+        .stat-card.aprobada .number { color: #48bb78; }
+        .stat-card.rechazada .number { color: #fc8181; }
+        .suggestion-card {
+            background: #f7fafc;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #ed8936;
+            transition: transform 0.2s;
+        }
+        .suggestion-card:hover { transform: translateX(5px); }
+        .suggestion-card .suggestion-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .suggestion-card .suggestion-header .user { font-weight: bold; color: #2d3748; }
+        .suggestion-card .suggestion-header .date { color: #718096; font-size: 14px; }
+        .suggestion-card .suggestion-header .materia {
+            background: #667eea;
+            color: white;
+            padding: 2px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .suggestion-card .question-text { font-size: 18px; color: #2d3748; margin: 10px 0; }
+        .suggestion-card .options-list {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 10px 0;
+        }
+        .suggestion-card .options-list .opt {
+            background: white;
+            padding: 4px 12px;
+            border-radius: 8px;
+            border: 1px solid #e2e8f0;
+            font-size: 14px;
+        }
+        .suggestion-card .options-list .opt.correct { border-color: #48bb78; background: #c6f6d5; }
+        .suggestion-card .actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .suggestion-card .actions select {
+            padding: 8px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        .suggestion-card .actions select:focus { border-color: #667eea; outline: none; }
+        .btn-approve {
+            background: #48bb78;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn-approve:hover { background: #38a169; }
+        .btn-approve:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .btn-reject {
+            background: #fc8181;
+            color: white;
+            padding: 8px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .btn-reject:hover { background: #f56565; }
+        .btn-reject:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .no-suggestions { text-align: center; color: #718096; padding: 40px; font-size: 18px; }
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .filter-tabs button {
+            padding: 8px 20px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        .filter-tabs button:hover { border-color: #667eea; }
+        .filter-tabs button.active { border-color: #667eea; background: #667eea; color: white; }
+        .loading-text { text-align: center; color: #718096; padding: 40px; }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            z-index: 999;
+            animation: slideIn 0.3s ease;
+            display: none;
+        }
+        .toast.success { background: #48bb78; }
+        .toast.error { background: #fc8181; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @media (max-width: 600px) {
+            .admin-container { padding: 15px; }
+            .suggestion-card .actions { flex-direction: column; align-items: stretch; }
+            .suggestion-card .actions select { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <div class="admin-header">
+            <h1>🛡️ Panel de <span>Administración</span></h1>
+            <a href="main_menu.html" class="btn-back">← Volver al Menú</a>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card pendiente">
+                <div class="number" id="statPendientes">0</div>
+                <div class="label">⏳ Pendientes</div>
+            </div>
+            <div class="stat-card aprobada">
+                <div class="number" id="statAprobadas">0</div>
+                <div class="label">✅ Aprobadas</div>
+            </div>
+            <div class="stat-card rechazada">
+                <div class="number" id="statRechazadas">0</div>
+                <div class="label">❌ Rechazadas</div>
+            </div>
+            <div class="stat-card">
+                <div class="number" id="statTotal">0</div>
+                <div class="label">📊 Total</div>
+            </div>
+        </div>
+
+        <div class="filter-tabs">
+            <button class="active" data-filter="pendiente">⏳ Pendientes</button>
+            <button data-filter="aprobada">✅ Aprobadas</button>
+            <button data-filter="rechazada">❌ Rechazadas</button>
+            <button data-filter="todas">📋 Todas</button>
+        </div>
+
+        <div id="suggestionsList">
+            <div class="loading-text">⏳ Cargando sugerencias...</div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN
+        // ============================================
+        const API_URL = 'http://localhost:3000/api';
+
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function checkAuth() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+
+        async function apiRequest(endpoint, options = {}) {
+            const token = getToken();
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            };
+
+            const finalOptions = {
+                ...options,
+                headers: { ...headers, ...options.headers }
+            };
+
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
+                const data = await response.json();
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        window.location.href = 'login.html';
+                    }
+                    throw new Error(data.error || `Error ${response.status}`);
+                }
+                return data;
+            } catch (error) {
+                console.error('❌ Error:', error);
+                throw error;
+            }
+        }
+
+        let currentFilter = 'pendiente';
+        // 🔥 Flag para evitar múltiples solicitudes
+        let isLoading = false;
+
+        function showToast(message, type = 'success') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type}`;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+
+        // ============================================
+        // APROBAR SUGERENCIA (CON BLOQUEO)
+        // ============================================
+        async function approveSuggestion(sugerenciaId, nivelId) {
+            // 🔥 Evitar ejecuciones múltiples
+            if (isLoading) return;
+            
+            try {
+                isLoading = true;
+                
+                const data = await apiRequest(`/suggestions/aprobar/${sugerenciaId}`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        comentario: 'Aprobada por el administrador',
+                        nivelId: parseInt(nivelId)
+                    })
+                });
+
+                if (data.success) {
+                    showToast('✅ ¡Pregunta aprobada!', 'success');
+                    // 🔥 Recargar después de un breve retraso
+                    setTimeout(() => {
+                        loadSuggestions(currentFilter);
+                    }, 500);
+                } else {
+                    showToast('❌ Error: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('❌ Error: ' + error.message, 'error');
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        // ============================================
+        // RECHAZAR SUGERENCIA
+        // ============================================
+        async function rejectSuggestion(sugerenciaId) {
+            if (isLoading) return;
+            
+            const motivo = prompt('Motivo del rechazo (opcional):');
+            try {
+                isLoading = true;
+                
+                const data = await apiRequest(`/suggestions/rechazar/${sugerenciaId}`, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        comentario: motivo || 'Rechazada por el administrador'
+                    })
+                });
+
+                if (data.success) {
+                    showToast('❌ Pregunta rechazada', 'success');
+                    setTimeout(() => {
+                        loadSuggestions(currentFilter);
+                    }, 500);
+                } else {
+                    showToast('❌ Error: ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('❌ Error: ' + error.message, 'error');
+            } finally {
+                isLoading = false;
+            }
+        }
+
+        // ============================================
+        // CARGAR SUGERENCIAS (CON LIMPIEZA DE EVENTOS)
+        // ============================================
+        async function loadSuggestions(filter = 'pendiente') {
+            // 🔥 Si ya está cargando, no hacer nada
+            if (isLoading) return;
+            
+            try {
+                if (!checkAuth()) return;
+
+                const list = document.getElementById('suggestionsList');
+                list.innerHTML = '<div class="loading-text">⏳ Cargando sugerencias...</div>';
+
+                const data = await apiRequest('/suggestions/pendientes');
+
+                if (!data.success) {
+                    throw new Error(data.error || 'Error al cargar sugerencias');
+                }
+
+                let sugerencias = data.sugerencias || [];
+
+                if (filter !== 'todas') {
+                    sugerencias = sugerencias.filter(s => s.estado === filter);
+                }
+
+                // Actualizar estadísticas
+                const todas = data.sugerencias || [];
+                document.getElementById('statPendientes').textContent = todas.filter(s => s.estado === 'pendiente').length;
+                document.getElementById('statAprobadas').textContent = todas.filter(s => s.estado === 'aprobada').length;
+                document.getElementById('statRechazadas').textContent = todas.filter(s => s.estado === 'rechazada').length;
+                document.getElementById('statTotal').textContent = todas.length;
+
+                if (sugerencias.length === 0) {
+                    list.innerHTML = `<div class="no-suggestions">📭 No hay sugerencias ${filter === 'pendiente' ? 'pendientes' : filter === 'aprobada' ? 'aprobadas' : 'rechazadas'}</div>`;
+                    return;
+                }
+
+                list.innerHTML = '';
+
+                const materiasData = await apiRequest('/quiz/materias');
+                const materias = materiasData.materias || [];
+
+                for (const sug of sugerencias) {
+                    const card = document.createElement('div');
+                    card.className = 'suggestion-card';
+                    card.dataset.sugerenciaId = sug.id;
+
+                    if (sug.estado === 'aprobada') {
+                        card.style.borderLeftColor = '#48bb78';
+                    } else if (sug.estado === 'rechazada') {
+                        card.style.borderLeftColor = '#fc8181';
+                    }
+
+                    const opciones = sug.opciones || [];
+                    const correcta = sug.respuesta_correcta || 0;
+
+                    let optionsHTML = '';
+                    if (opciones.length === 0) {
+                        optionsHTML = '<span style="color:#718096;">Sin opciones</span>';
+                    } else {
+                        opciones.forEach((opt, index) => {
+                            const isCorrect = index === correcta;
+                            optionsHTML += `<span class="opt ${isCorrect ? 'correct' : ''}">${opt}</span>`;
+                        });
+                    }
+
+                    let nivelSelectHTML = '';
+                    if (sug.estado === 'pendiente') {
+                        const materia = materias.find(m => m.id === sug.materia_id);
+                        let nivelesHTML = '<option value="">Seleccionar nivel...</option>';
+                        if (materia) {
+                            try {
+                                const nivelesData = await apiRequest(`/quiz/materia/${materia.id}/niveles`);
+                                if (nivelesData.success && nivelesData.niveles) {
+                                    nivelesData.niveles.forEach(n => {
+                                        nivelesHTML += `<option value="${n.id}">Nivel ${n.numero}</option>`;
+                                    });
+                                }
+                            } catch (e) {
+                                console.log('Error cargando niveles:', e);
+                            }
+                        }
+                        nivelSelectHTML = `
+                            <select class="nivel-select" data-sugerencia="${sug.id}">
+                                ${nivelesHTML}
+                            </select>
+                        `;
+                    }
+
+                    card.innerHTML = `
+                        <div class="suggestion-header">
+                            <span class="user">👤 ${sug.username || 'Usuario'}</span>
+                            <span class="materia">${sug.materia_nombre || 'Sin materia'}</span>
+                            <span class="date">${new Date(sug.fecha_sugerencia).toLocaleDateString()}</span>
+                            <span style="font-size:12px;font-weight:bold;padding:2px 10px;border-radius:10px;background:${sug.estado === 'pendiente' ? '#ed8936' : sug.estado === 'aprobada' ? '#48bb78' : '#fc8181'};color:white;">
+                                ${sug.estado === 'pendiente' ? '⏳ Pendiente' : sug.estado === 'aprobada' ? '✅ Aprobada' : '❌ Rechazada'}
+                            </span>
+                        </div>
+                        <div class="question-text">❓ ${sug.texto_es || 'Pregunta'}</div>
+                        <div class="options-list">${optionsHTML}</div>
+                        ${sug.estado === 'pendiente' ? `
+                            <div class="actions">
+                                ${nivelSelectHTML}
+                                <button class="btn-approve" data-sugerencia="${sug.id}">✅ Aprobar</button>
+                                <button class="btn-reject" data-sugerencia="${sug.id}">❌ Rechazar</button>
+                            </div>
+                        ` : `
+                            <div style="margin-top:10px;font-size:14px;color:#718096;">
+                                ${sug.comentario_moderador ? `📝 Comentario: ${sug.comentario_moderador}` : ''}
+                                ${sug.fecha_revision ? `📅 Revisado: ${new Date(sug.fecha_revision).toLocaleDateString()}` : ''}
+                            </div>
+                        `}
+                    `;
+
+                    list.appendChild(card);
+                }
+
+                // 🔥 AGREGAR EVENTOS USANDO DELEGACIÓN (más eficiente y evita duplicados)
+                // En lugar de agregar listeners a cada botón, usamos un solo listener en el contenedor
+                list.addEventListener('click', function(event) {
+                    const target = event.target;
+                    
+                    // Botón Aprobar
+                    if (target.classList.contains('btn-approve')) {
+                        const sugerenciaId = target.dataset.sugerencia;
+                        const card = target.closest('.suggestion-card');
+                        const select = card ? card.querySelector('.nivel-select') : null;
+                        const nivelId = select ? select.value : null;
+
+                        if (!nivelId) {
+                            showToast('⚠️ Por favor, selecciona un nivel para la pregunta', 'error');
+                            return;
+                        }
+
+                        // Deshabilitar el botón para evitar doble clic
+                        target.disabled = true;
+                        target.textContent = '⏳ Procesando...';
+                        
+                        approveSuggestion(sugerenciaId, nivelId).finally(() => {
+                            target.disabled = false;
+                            target.textContent = '✅ Aprobar';
+                        });
+                    }
+                    
+                    // Botón Rechazar
+                    if (target.classList.contains('btn-reject')) {
+                        const sugerenciaId = target.dataset.sugerencia;
+                        
+                        target.disabled = true;
+                        target.textContent = '⏳ Procesando...';
+                        
+                        rejectSuggestion(sugerenciaId).finally(() => {
+                            target.disabled = false;
+                            target.textContent = '❌ Rechazar';
+                        });
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+                document.getElementById('suggestionsList').innerHTML = `
+                    <div class="no-suggestions">❌ Error: ${error.message}</div>
+                `;
+            }
+        }
+
+        // ============================================
+        // FILTROS
+        // ============================================
+        document.querySelectorAll('.filter-tabs button').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-tabs button').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                loadSuggestions(currentFilter);
+            });
+        });
+
+        // ============================================
+        // INICIALIZAR
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!checkAuth()) return;
+            loadSuggestions('pendiente');
+        });
+    </script>
+</body>

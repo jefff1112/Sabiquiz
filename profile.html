@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="profileTitle">SabiQuiz - Mi Perfil</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        .language-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            gap: 10px;
+        }
+        .language-switcher button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            background: #667eea;
+            color: white;
+            transition: background 0.3s;
+        }
+        .language-switcher button:hover {
+            background: #5a67d8;
+        }
+        .profile-container {
+            max-width: 800px;
+            margin: 80px auto 20px;
+            padding: 20px;
+        }
+        .profile-card {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .profile-header {
+            display: flex;
+            align-items: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .avatar-label {
+            position: relative;
+            cursor: pointer;
+        }
+        .avatar {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            border: 4px solid #667eea;
+            object-fit: cover;
+        }
+        .edit-avatar-icon {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            background: #667eea;
+            color: white;
+            border-radius: 50%;
+            padding: 5px 8px;
+            font-size: 14px;
+        }
+        .player-info {
+            flex: 1;
+        }
+        .display-name-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .display-name-container h2 {
+            margin: 0;
+            color: #2d3748;
+        }
+        .btn-edit-name {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 18px;
+            color: #667eea;
+        }
+        .edit-name-input {
+            padding: 8px 12px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        .level-box {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+        .level-box span:first-child {
+            margin-right: 8px;
+        }
+        .xp-bar {
+            background: #e2e8f0;
+            border-radius: 20px;
+            height: 30px;
+            position: relative;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+        .xp-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 20px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+        .xp-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #2d3748;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        .profile-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        .stat-item {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-item h3 {
+            font-size: 14px;
+            color: #718096;
+            margin: 0 0 5px 0;
+        }
+        .stat-item p {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3748;
+            margin: 0;
+        }
+        .button {
+            width: 100%;
+            padding: 14px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background: #5a67d8;
+        }
+        .loading-text {
+            text-align: center;
+            color: #718096;
+            padding: 40px;
+        }
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+        /* Historial de partidas */
+        .historial-container {
+            margin-top: 25px;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        .historial-container h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+        .partida-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 15px;
+            background: #f7fafc;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border-left: 4px solid #667eea;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+        .partida-item .fecha {
+            font-size: 12px;
+            color: #a0aec0;
+        }
+        .partida-item .resultado {
+            font-weight: bold;
+        }
+        .partida-item .resultado.ganaste { color: #48bb78; }
+        .partida-item .resultado.perdiste { color: #fc8181; }
+        .partida-item .resultado.empate { color: #ed8936; }
+        .partida-item .modo {
+            background: #667eea;
+            color: white;
+            padding: 2px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        /* Logros */
+        .logros-container {
+            margin-top: 25px;
+            border-top: 2px solid #e2e8f0;
+            padding-top: 20px;
+        }
+        .logros-container h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+        .logros-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .logro-card {
+            background: #f7fafc;
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            border: 2px solid #48bb78;
+            transition: transform 0.2s;
+        }
+        .logro-card:hover {
+            transform: translateY(-3px);
+        }
+        .logro-card .icono {
+            font-size: 40px;
+        }
+        .logro-card .nombre {
+            font-weight: bold;
+            color: #2d3748;
+            font-size: 14px;
+        }
+        .logro-card .descripcion {
+            font-size: 12px;
+            color: #718096;
+        }
+        .logro-card .fecha {
+            font-size: 10px;
+            color: #a0aec0;
+            margin-top: 5px;
+        }
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 12px;
+            color: white;
+            font-weight: bold;
+            z-index: 9999;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .toast.success { background: #48bb78; }
+        .toast.error { background: #fc8181; }
+        .toast.warning { background: #ed8936; }
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @media (max-width: 600px) {
+            .profile-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+            .display-name-container {
+                justify-content: center;
+            }
+            .profile-stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="language-switcher">
+        <button data-lang="es" onclick="setLanguage('es')">Español</button>
+        <button data-lang="en" onclick="setLanguage('en')">English</button>
+    </div>
+
+    <div class="profile-container">
+        <div class="profile-card">
+            <div id="errorMessage" class="error-message"></div>
+            
+            <div class="profile-header">
+                <label for="avatarUpload" class="avatar-label">
+                    <img src="img/default-avatar.png" alt="Avatar del jugador" id="profile-avatar" class="avatar">
+                    <span class="edit-avatar-icon">✏️</span>
+                </label>
+                <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
+                
+                <div class="player-info">
+                    <div class="display-name-container">
+                        <h2 id="profile-name">Cargando...</h2>
+                        <input type="text" id="edit-name-input" class="edit-name-input" style="display: none;">
+                        <button id="edit-name-btn" class="btn-edit-name">✏️</button>
+                    </div>
+                    <div class="level-box">
+                        <span>NIVEL</span>
+                        <span id="profile-level">1</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="xp-bar">
+                <div id="xp-bar-fill" class="xp-bar-fill"></div>
+                <span id="xp-text" class="xp-text">0 / 100 XP</span>
+            </div>
+
+            <div class="profile-stats-grid">
+                <div class="stat-item"><h3>Partidas Jugadas</h3><p id="stats-played">0</p></div>
+                <div class="stat-item"><h3>Partidas Ganadas</h3><p id="stats-won">0</p></div>
+                <div class="stat-item"><h3>XP de Quizzes</h3><p id="stats-quiz-xp">0</p></div>
+                <div class="stat-item"><h3>XP de 1vs1</h3><p id="stats-pvp-xp">0</p></div>
+            </div>
+
+            <!-- HISTORIAL DE PARTIDAS -->
+            <div class="historial-container">
+                <h3>📊 Historial de Partidas 1vs1</h3>
+                <div id="historialPartidas">
+                    <p class="loading-text">Cargando historial...</p>
+                </div>
+            </div>
+
+            <!-- LOGROS -->
+            <div class="logros-container">
+                <h3>🏅 Logros</h3>
+                <div id="logrosContainer">
+                    <p class="loading-text">Cargando logros...</p>
+                </div>
+            </div>
+            
+            <button id="backToMenuBtn" class="button">← Volver al Menú</button>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN DE LA API
+        // ============================================
+        const API_URL = 'http://localhost:3000/api';
+
+        // ============================================
+// VERIFICAR AUTENTICACIÓN
+// ============================================
+function verificarAutenticacion() {
+    const token = localStorage.getItem('token');
+    const user = localStorage.getItem('user');
+    
+    if (!token || !user) {
+        window.location.href = 'login.html';
+        return false;
+    }
+    return true;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    if (!verificarAutenticacion()) return;
+    // ... resto del código
+});
+
+        // ============================================
+        // FUNCIONES DE AUTENTICACIÓN
+        // ============================================
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function getCurrentUser() {
+            const userStr = localStorage.getItem('user');
+            return userStr ? JSON.parse(userStr) : null;
+        }
+
+        function checkAuth() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+
+        // ============================================
+        // FUNCIÓN PARA PETICIONES A LA API
+        // ============================================
+        async function apiRequest(endpoint, options = {}) {
+            const token = getToken();
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            };
+            
+            const finalOptions = {
+                ...options,
+                headers: {
+                    ...headers,
+                    ...options.headers || {}
+                }
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        window.location.href = 'login.html';
+                    }
+                    throw new Error(data.error || `Error ${response.status}`);
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('❌ Error en apiRequest:', error);
+                throw error;
+            }
+        }
+
+        // ============================================
+        // FUNCIONES DE TRADUCCIÓN
+        // ============================================
+        function setLanguage(lang) {
+            localStorage.setItem('language', lang);
+            loadLanguage();
+        }
+
+        function loadLanguage() {
+            const lang = localStorage.getItem('language') || 'es';
+            const translations = {
+                es: {
+                    profileTitle: 'SabiQuiz - Mi Perfil'
+                },
+                en: {
+                    profileTitle: 'SabiQuiz - My Profile'
+                }
+            };
+
+            const t = translations[lang] || translations.es;
+            if (t.profileTitle) {
+                document.title = t.profileTitle;
+            }
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            if (errorDiv) {
+                errorDiv.textContent = message;
+                errorDiv.style.display = 'block';
+            }
+        }
+
+        function hideError() {
+            const errorDiv = document.getElementById('errorMessage');
+            if (errorDiv) {
+                errorDiv.style.display = 'none';
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transition = 'opacity 0.3s';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============================================
+        // EDITAR NOMBRE (GUARDAR EN MYSQL)
+        // ============================================
+        let isEditingName = false;
+
+        async function handleEditName() {
+            const profileNameEl = document.getElementById('profile-name');
+            const editNameInput = document.getElementById('edit-name-input');
+            const editNameBtn = document.getElementById('edit-name-btn');
+
+            if (isEditingName) {
+                const newName = editNameInput.value.trim();
+                if (newName.length >= 3 && newName.length <= 15) {
+                    try {
+                        await apiRequest('/auth/profile', {
+                            method: 'PUT',
+                            body: JSON.stringify({ username: newName })
+                        });
+
+                        const user = getCurrentUser();
+                        if (user) {
+                            user.username = newName;
+                            localStorage.setItem('user', JSON.stringify(user));
+                        }
+
+                        profileNameEl.textContent = newName;
+                        profileNameEl.style.display = 'block';
+                        editNameInput.style.display = 'none';
+                        editNameBtn.textContent = '✏️';
+                        isEditingName = false;
+                        
+                        showToast('✅ Nombre actualizado correctamente', 'success');
+                    } catch (error) {
+                        showToast('❌ Error al guardar el nombre', 'error');
+                    }
+                } else {
+                    showToast('⚠️ El nombre debe tener entre 3 y 15 caracteres', 'warning');
+                }
+            } else {
+                profileNameEl.style.display = 'none';
+                editNameInput.style.display = 'block';
+                editNameInput.value = profileNameEl.textContent;
+                editNameInput.focus();
+                editNameBtn.textContent = '✔️';
+                isEditingName = true;
+            }
+        }
+
+        // ============================================
+        // SUBIR AVATAR (GUARDAR EN MYSQL)
+        // ============================================
+        // ============================================
+// SUBIR AVATAR (CON COMPRESIÓN)
+// ============================================
+async function handleAvatarUpload(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    if (file.size > 2000000) {
+        showToast('⚠️ La imagen es demasiado grande (máx 2MB)', 'warning');
+        return;
+    }
+
+    // Comprimir la imagen antes de subirla
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = async (e) => {
+        try {
+            // Crear un canvas para redimensionar
+            const img = new Image();
+            img.src = e.target.result;
+            img.onload = async function() {
+                const canvas = document.createElement('canvas');
+                const MAX_WIDTH = 200;
+                const MAX_HEIGHT = 200;
+                let width = img.width;
+                let height = img.height;
+                
+                if (width > height) {
+                    if (width > MAX_WIDTH) {
+                        height *= MAX_WIDTH / width;
+                        width = MAX_WIDTH;
+                    }
+                } else {
+                    if (height > MAX_HEIGHT) {
+                        width *= MAX_HEIGHT / height;
+                        height = MAX_HEIGHT;
+                    }
+                }
+                
+                canvas.width = width;
+                canvas.height = height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+                
+                // Convertir a JPEG con calidad 0.7 para reducir tamaño
+                const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                
+                // Guardar en MySQL
+                await apiRequest('/auth/profile', {
+                    method: 'PUT',
+                    body: JSON.stringify({ avatar: compressedBase64 })
+                });
+
+                const user = getCurrentUser();
+                if (user) {
+                    user.avatar = compressedBase64;
+                    localStorage.setItem('user', JSON.stringify(user));
+                }
+                
+                document.getElementById('profile-avatar').src = compressedBase64;
+                showToast('✅ Avatar actualizado correctamente', 'success');
+            };
+        } catch (error) {
+            console.error('Error:', error);
+            showToast('❌ Error al procesar la imagen', 'error');
+        }
+    };
+}
+
+        // ============================================
+        // CARGAR HISTORIAL DE PARTIDAS
+        // ============================================
+        async function loadHistorialPartidas() {
+            try {
+                const container = document.getElementById('historialPartidas');
+                container.innerHTML = '<p class="loading-text">Cargando historial...</p>';
+
+                const data = await apiRequest('/progress/historial-partidas');
+
+                if (!data.success || !data.partidas || data.partidas.length === 0) {
+                    container.innerHTML = '<p style="color:#718096;text-align:center;">📭 Aún no has jugado partidas 1vs1</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                data.partidas.forEach(p => {
+                    const item = document.createElement('div');
+                    item.className = 'partida-item';
+
+                    const resultadoClass = p.resultado === 'Ganaste' ? 'ganaste' : 
+                                          p.resultado === 'Perdiste' ? 'perdiste' : 'empate';
+
+                    const fecha = new Date(p.fecha_inicio).toLocaleDateString();
+                    const hora = new Date(p.fecha_inicio).toLocaleTimeString();
+
+                    item.innerHTML = `
+                        <div style="display:flex;flex-direction:column;flex:1;">
+                            <span style="font-weight:bold;">
+                                ${p.anfitrion} vs ${p.oponente}
+                            </span>
+                            <span style="font-size:12px;color:#a0aec0;">
+                                ${fecha} ${hora}
+                            </span>
+                        </div>
+                        <span class="modo">${p.modo_juego || 'normal'}</span>
+                        <span class="resultado ${resultadoClass}">${p.resultado}</span>
+                    `;
+                    container.appendChild(item);
+                });
+
+            } catch (error) {
+                console.error('Error cargando historial:', error);
+                document.getElementById('historialPartidas').innerHTML = 
+                    '<p style="color:#fc8181;text-align:center;">❌ Error al cargar el historial</p>';
+            }
+        }
+
+        // ============================================
+        // CARGAR LOGROS
+        // ============================================
+        async function loadLogros() {
+            try {
+                const container = document.getElementById('logrosContainer');
+                container.innerHTML = '<p class="loading-text">Cargando logros...</p>';
+
+                // Verificar y desbloquear nuevos logros
+                await apiRequest('/progress/logros/check', { method: 'POST' });
+
+                // Obtener logros actualizados
+                const data = await apiRequest('/progress/logros');
+
+                if (!data.success || !data.logros || data.logros.length === 0) {
+                    container.innerHTML = '<p style="color:#718096;text-align:center;">📭 Aún no has desbloqueado logros. ¡Sigue jugando!</p>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                data.logros.forEach(logro => {
+                    const card = document.createElement('div');
+                    card.className = 'logro-card';
+                    card.innerHTML = `
+                        <div class="icono">${logro.icono || '🏅'}</div>
+                        <div class="nombre">${logro.nombre}</div>
+                        <div class="descripcion">${logro.descripcion}</div>
+                        <div class="fecha">✅ ${new Date(logro.fecha_desbloqueo).toLocaleDateString()}</div>
+                    `;
+                    container.appendChild(card);
+                });
+
+            } catch (error) {
+                console.error('Error cargando logros:', error);
+                document.getElementById('logrosContainer').innerHTML = 
+                    '<p style="color:#fc8181;text-align:center;">❌ Error al cargar logros</p>';
+            }
+        }
+
+        // ============================================
+// CARGAR PERFIL COMPLETO
+// ============================================
+async function loadProfile() {
+    try {
+        if (!checkAuth()) return;
+        
+        hideError();
+        
+        const user = getCurrentUser();
+        const profileNameEl = document.getElementById('profile-name');
+        const profileAvatarEl = document.getElementById('profile-avatar');
+        
+        if (user) {
+            if (profileNameEl) profileNameEl.textContent = user.username || 'Jugador';
+            if (profileAvatarEl) profileAvatarEl.src = user.avatar || 'img/default-avatar.png';
+        }
+
+        // ============================================
+        // 🔥 OBTENER DATOS FRESCOS DESDE LA BD
+        // ============================================
+        try {
+            // 1. Obtener perfil del usuario
+            const userData = await apiRequest('/auth/profile');
+            console.log('📊 Datos del usuario:', userData);
+            
+            // 2. Obtener estadísticas de progreso
+            const stats = await apiRequest('/progress/stats');
+            console.log('📊 Estadísticas:', stats);
+            
+            // 3. Obtener progreso detallado
+            const progress = await apiRequest('/progress');
+            console.log('📊 Progreso completo:', progress);
+            
+            // Calcular XP desde estrellas
+            const totalEstrellas = stats.stats?.total_estrellas || 0;
+            const quizXp = totalEstrellas * 10;
+            const pvpXp = stats.stats?.pvpXp || 0;  // 🔥 TOMAR PVPXP DESDE STATS
+            const nivelesCompletados = stats.stats?.niveles_completados || 0;
+            
+            // Actualizar estadísticas en la interfaz
+            document.getElementById('stats-played').textContent = userData.user?.partidas_jugadas || 0;
+            document.getElementById('stats-won').textContent = userData.user?.partidas_ganadas || 0;
+            document.getElementById('stats-quiz-xp').textContent = quizXp;
+            document.getElementById('stats-pvp-xp').textContent = pvpXp;  // 🔥 AHORA USA PVPXP
+            
+            // Calcular nivel y XP
+            const totalXp = quizXp + (userData.user?.pvpXp || 0);
+            const level = Math.floor(totalXp / 100) + 1;
+            document.getElementById('profile-level').textContent = level;
+            
+            // Actualizar barra de XP
+            const xpForLastLevel = (level - 1) * 100;
+            const xpInCurrentLevel = totalXp - xpForLastLevel;
+            const xpNeededForNextLevel = 100;
+            const xpPercentage = Math.min((xpInCurrentLevel / xpNeededForNextLevel) * 100, 100);
+            
+            document.getElementById('xp-bar-fill').style.width = `${xpPercentage}%`;
+            document.getElementById('xp-text').textContent = `${xpInCurrentLevel} / ${xpNeededForNextLevel} XP`;
+            
+        } catch (e) {
+            console.error('Error cargando estadísticas:', e);
+            showError('Error al cargar estadísticas: ' + e.message);
+        }
+
+        // ============================================
+        // CARGAR HISTORIAL DE PARTIDAS
+        // ============================================
+        await loadHistorialPartidas();
+
+        // ============================================
+        // CARGAR LOGROS
+        // ============================================
+        await loadLogros();
+
+        loadLanguage();
+
+    } catch (error) {
+        console.error('Error cargando perfil:', error);
+        showError('Error al cargar el perfil: ' + error.message);
+    }
+}
+
+        // ============================================
+        // INICIALIZAR
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!checkAuth()) return;
+            
+            loadProfile();
+
+            document.getElementById('backToMenuBtn').addEventListener('click', () => {
+                window.location.href = 'main_menu.html';
+            });
+
+            document.getElementById('edit-name-btn').addEventListener('click', handleEditName);
+
+            document.getElementById('avatarUpload').addEventListener('change', handleAvatarUpload);
+
+            document.getElementById('edit-name-input').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') {
+                    handleEditName();
+                }
+            });
+        });
+
+        // Exponer funciones globalmente
+        window.setLanguage = setLanguage;
+        window.loadLanguage = loadLanguage;
+        window.loadProfile = loadProfile;
+    </script>
+</body>
+</html>

@@ -1,0 +1,688 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sabiquiz - Quiz</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap">
+    <style>
+        .quiz-main-container {
+            max-width: 900px;
+            margin: 30px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .back-btn:hover { text-decoration: underline; }
+        .quiz-top-bar {
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 10px;
+            background: #f7fafc;
+            padding: 15px 20px;
+            border-radius: 12px;
+            margin-bottom: 25px;
+            font-weight: bold;
+            color: #2d3748;
+        }
+        .quiz-content-row {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+        }
+        .quiz-question-block { flex: 1; }
+        .question-card {
+            background: #f7fafc;
+            padding: 25px;
+            border-radius: 15px;
+            min-height: 200px;
+        }
+        .question-card #questionText {
+            font-size: 22px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 20px;
+        }
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .option-btn {
+            padding: 14px 20px;
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.3s;
+            text-align: left;
+        }
+        .option-btn:hover:not(:disabled) {
+            border-color: #667eea;
+            background: #ebf4ff;
+            transform: translateY(-2px);
+        }
+        .option-btn.correct {
+            border-color: #48bb78;
+            background: #c6f6d5;
+        }
+        .option-btn.incorrect {
+            border-color: #fc8181;
+            background: #fed7d7;
+        }
+        .option-btn:disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .feedback-message {
+            margin-top: 15px;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 18px;
+            text-align: center;
+        }
+        .next-btn {
+            margin-top: 15px;
+            padding: 12px 30px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .next-btn:hover { background: #5a67d8; }
+        .quiz-mascot-block { flex-shrink: 0; }
+        .quiz-mascot-img {
+            width: 150px;
+            height: 150px;
+            object-fit: contain;
+        }
+        .results-container {
+            text-align: center;
+            padding: 30px;
+        }
+        .results-container h4 {
+            font-size: 28px;
+            color: #2d3748;
+            margin-bottom: 10px;
+        }
+        .results-container .result-stars { margin: 20px 0; }
+        .results-container .result-stars .star-icon {
+            width: 50px;
+            height: 50px;
+            margin: 0 5px;
+        }
+        .results-container .main-menu-btn {
+            display: inline-block;
+            margin-top: 20px;
+            padding: 14px 40px;
+            background: #667eea;
+            color: white;
+            border-radius: 12px;
+            text-decoration: none;
+            font-weight: bold;
+            transition: background 0.3s;
+        }
+        .results-container .main-menu-btn:hover { background: #5a67d8; }
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+        }
+        .loading-text {
+            text-align: center;
+            color: #a0aec0;
+            padding: 50px;
+            font-size: 20px;
+        }
+        @media (max-width: 700px) {
+            .quiz-content-row { flex-direction: column; align-items: center; }
+            .quiz-mascot-img { width: 100px; height: 100px; }
+            .options-grid { grid-template-columns: 1fr; }
+            .quiz-top-bar { font-size: 14px; padding: 10px 15px; }
+            .question-card #questionText { font-size: 18px; }
+        }
+        @media (max-width: 480px) {
+            .quiz-main-container { padding: 15px; margin: 10px; }
+            .quiz-top-bar { flex-direction: column; align-items: center; gap: 5px; font-size: 13px; }
+            .results-container h4 { font-size: 22px; }
+            .results-container .result-stars .star-icon { width: 35px; height: 35px; }
+        }
+    </style>
+</head>
+<body>
+    <div id="quiz-game" class="container quiz-main-container">
+        <a href="#" id="backBtn" class="back-btn">← Volver a los niveles</a>
+        
+        <div id="errorMessage" class="error-message"></div>
+        
+        <div class="quiz-top-bar">
+            <span id="subjectTitle">Cargando Quiz...</span>
+            <span id="levelDisplay"></span>
+            <span>Pregunta <span id="questionCounter"></span></span>
+            <span>Puntos: <span id="scoreDisplay">0</span></span>
+            <span>Tiempo: <span id="timerDisplay">20</span>s</span>
+        </div>
+        
+        <div class="quiz-content-row">
+            <div class="quiz-question-block">
+                <div id="currentQuestionCard" class="question-card">
+                    <p id="questionText">Cargando pregunta...</p>
+                    <div id="optionsContainer" class="options-grid"></div>
+                </div>
+                <div id="feedback" class="feedback-message"></div>
+                <button id="nextQuestionBtn" class="next-btn" style="display:none;">Siguiente pregunta ➜</button>
+            </div>
+            <div class="quiz-mascot-block">
+                <img id="quizMascot" src="img/confundido_perro_4.png" alt="Mascota del Quiz" class="quiz-mascot-img">
+            </div>
+        </div>
+    </div>
+
+    <audio id="correctSound" src="img/correct.mp3"></audio>
+    <audio id="incorrectSound" src="img/incorrect.mp3"></audio>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN DE LA API
+        // ============================================
+        const API_URL = 'http://localhost:3000/api';
+
+        // ============================================
+        // FUNCIONES DE AUTENTICACIÓN
+        // ============================================
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function getCurrentUser() {
+            const userStr = localStorage.getItem('user');
+            return userStr ? JSON.parse(userStr) : null;
+        }
+
+        function checkAuth() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+
+        // ============================================
+        // FUNCIÓN PARA PETICIONES A LA API
+        // ============================================
+        async function apiRequest(endpoint, options = {}) {
+            const token = getToken();
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            };
+            
+            const finalOptions = {
+                ...options,
+                headers: {
+                    ...headers,
+                    ...options.headers || {}
+                }
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        window.location.href = 'login.html';
+                    }
+                    throw new Error(data.error || `Error ${response.status}`);
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('❌ Error en apiRequest:', error);
+                throw error;
+            }
+        }
+
+        // ============================================
+        // FUNCIÓN PARA NORMALIZAR TEXTO (quitar tildes)
+        // ============================================
+        function normalizarTexto(texto) {
+            return texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        // ============================================
+        // VARIABLES GLOBALES DEL QUIZ
+        // ============================================
+        let questions = [];
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timer;
+        let timeLimit = 20;
+        let nivelId = null;
+        let nivelNumero = null;
+        let subjectId = null;
+        let materiaNombre = '';
+        let userAnswers = [];
+        let totalQuestions = 0;
+
+        // ============================================
+        // REFERENCIAS A ELEMENTOS DOM
+        // ============================================
+        const backBtn = document.getElementById('backBtn');
+        const subjectTitle = document.getElementById('subjectTitle');
+        const questionCounter = document.getElementById('questionCounter');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const feedbackDiv = document.getElementById('feedback');
+        const quizMascot = document.getElementById('quizMascot');
+        const nextQuestionBtn = document.getElementById('nextQuestionBtn');
+        const quizGameEl = document.getElementById('quiz-game');
+        const correctSound = document.getElementById('correctSound');
+        const incorrectSound = document.getElementById('incorrectSound');
+        const errorMessage = document.getElementById('errorMessage');
+
+        const mascotImages = {
+            thinking: 'img/confundido_perro_4.png',
+            correct: 'img/celebrando_perro_2.png',
+            incorrect: 'img/triste_perro_3.png',
+            medal: 'img/medella_perro_5.png'
+        };
+
+        // ============================================
+        // FUNCIONES DE UI
+        // ============================================
+        function showError(message) {
+            errorMessage.textContent = message;
+            errorMessage.style.display = 'block';
+        }
+
+        function hideError() {
+            errorMessage.style.display = 'none';
+        }
+
+        // ============================================
+        // INICIAR TEMPORIZADOR
+        // ============================================
+        function startTimer(duration) {
+            let timeLeft = duration;
+            timerDisplay.textContent = timeLeft;
+            
+            clearInterval(timer);
+            timer = setInterval(() => {
+                timeLeft--;
+                timerDisplay.textContent = timeLeft;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    const lang = localStorage.getItem('language') || 'es';
+                    const questionData = questions[currentQuestionIndex];
+                    const respuestaCorrecta = questionData.correctAnswer[lang] || questionData.correctAnswer.es || '';
+                    checkAnswer(null, respuestaCorrecta, questionData);
+                }
+            }, 1000);
+        }
+
+        // ============================================
+        // VERIFICAR RESPUESTA
+        // ============================================
+        function checkAnswer(button, correctAnswer, questionData) {
+            const lang = localStorage.getItem('language') || 'es';
+            const respuestaCorrecta = questionData.correctAnswer[lang] || questionData.correctAnswer.es || correctAnswer;
+
+            optionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
+            clearInterval(timer);
+
+            const userAnswer = button ? button.textContent : null;
+            const isCorrect = userAnswer === respuestaCorrecta;
+
+            userAnswers.push({
+                preguntaId: questionData.id,
+                opcionSeleccionada: userAnswer,
+                esCorrecta: isCorrect
+            });
+
+            if (!button) {
+                feedbackDiv.innerHTML = `⏰ ¡Se acabó el tiempo! La respuesta correcta era: <b>${respuestaCorrecta}</b>`;
+                feedbackDiv.style.color = '#c53030';
+                incorrectSound.play();
+                quizMascot.src = mascotImages.incorrect;
+            } else if (isCorrect) {
+                score++;
+                button.classList.add('correct');
+                feedbackDiv.innerHTML = '✅ ¡Correcto! 🎉';
+                feedbackDiv.style.color = '#276749';
+                correctSound.play();
+                quizMascot.src = mascotImages.correct;
+            } else {
+                button.classList.add('incorrect');
+                feedbackDiv.innerHTML = `❌ Incorrecto. La respuesta correcta era: <b>${respuestaCorrecta}</b>`;
+                feedbackDiv.style.color = '#c53030';
+                incorrectSound.play();
+                quizMascot.src = mascotImages.incorrect;
+            }
+
+            if (!button || button.textContent !== respuestaCorrecta) {
+                optionsContainer.querySelectorAll('.option-btn').forEach(btn => {
+                    if (btn.textContent === respuestaCorrecta) {
+                        btn.classList.add('correct');
+                    }
+                });
+            }
+
+            nextQuestionBtn.style.display = 'block';
+            scoreDisplay.textContent = score;
+        }
+
+        // ============================================
+        // MOSTRAR PREGUNTA
+        // ============================================
+        function showQuestion() {
+            if (currentQuestionIndex >= questions.length) {
+                showResult();
+                return;
+            }
+
+            const lang = localStorage.getItem('language') || 'es';
+            const questionData = questions[currentQuestionIndex];
+            
+            questionText.textContent = questionData.question[lang] || questionData.question.es || 'Pregunta sin texto';
+            
+            optionsContainer.innerHTML = '';
+            feedbackDiv.innerHTML = '';
+            nextQuestionBtn.style.display = 'none';
+            quizMascot.src = mascotImages.thinking;
+
+            const opciones = questionData.options[lang] || questionData.options.es || [];
+            const respuestaCorrecta = questionData.correctAnswer[lang] || questionData.correctAnswer.es || '';
+
+            opciones.forEach(optionText => {
+                const button = document.createElement('button');
+                button.classList.add('option-btn');
+                button.textContent = optionText;
+                button.dataset.opcionId = optionText;
+                button.addEventListener('click', () => checkAnswer(button, respuestaCorrecta, questionData));
+                optionsContainer.appendChild(button);
+            });
+
+            questionCounter.textContent = `${currentQuestionIndex + 1}/${questions.length}`;
+            scoreDisplay.textContent = score;
+
+            timeLimit = questionData.timeLimit || 20;
+            startTimer(timeLimit);
+        }
+
+        // ============================================
+// MOSTRAR RESULTADOS Y GUARDAR PROGRESO
+// ============================================
+async function showResult() {
+    const lang = localStorage.getItem('language') || 'es';
+    
+    const correctas = userAnswers.filter(a => a.esCorrecta).length;
+    const totalQuestionsLocal = questions.length;
+    const porcentaje = correctas / totalQuestionsLocal;
+    
+    let estrellas = 0;
+    if (porcentaje >= 1) estrellas = 3;
+    else if (porcentaje >= 0.7) estrellas = 2;
+    else if (porcentaje >= 0.5) estrellas = 1;
+    
+    const completado = porcentaje >= 0.6;
+
+    // ============================================
+    // 🔥 ACTUALIZAR LOCALSTORAGE (para desbloquear niveles)
+    // ============================================
+    function actualizarProgresoLocal(subjectId, nivelId, estrellas) {
+        try {
+            let levelsCompleted = JSON.parse(localStorage.getItem('levelsCompleted')) || {};
+            
+            if (!levelsCompleted[subjectId]) {
+                levelsCompleted[subjectId] = {};
+            }
+            
+            levelsCompleted[subjectId][nivelId] = {
+                stars: estrellas,
+                completed: true,
+                timestamp: Date.now()
+            };
+            
+            localStorage.setItem('levelsCompleted', JSON.stringify(levelsCompleted));
+            console.log('✅ Progreso local actualizado:', levelsCompleted);
+        } catch (e) {
+            console.error('❌ Error actualizando localStorage:', e);
+        }
+    }
+
+    // Guardar progreso en MySQL
+    try {
+        console.log('📤 Guardando progreso...');
+        console.log('  nivelId (real):', nivelId);
+        console.log('  correctas:', correctas);
+        console.log('  estrellas:', estrellas);
+        console.log('  completado:', completado);
+
+        const puntaje = Math.round(porcentaje * 100);
+        
+        const respuestasParaEnviar = userAnswers.map(a => ({
+            opcionId: a.preguntaId,
+            esCorrecta: a.esCorrecta
+        }));
+
+        const resultado = await apiRequest('/quiz/submit', {
+            method: 'POST',
+            body: JSON.stringify({
+                nivelId: nivelId,
+                respuestas: respuestasParaEnviar,
+                tiempo: 0
+            })
+        });
+
+        console.log('✅ Progreso guardado:', resultado);
+
+        // 🔥 Actualizar localStorage después de guardar en MySQL
+        if (resultado.success) {
+            actualizarProgresoLocal(subjectId, nivelId, estrellas);
+        }
+
+    } catch (error) {
+        console.error('❌ Error guardando progreso:', error);
+        // Después de mostrar los resultados
+if (completado) {
+    setTimeout(() => {
+        window.location.href = backBtn.href;
+    }, 3000); // Redirige después de 3 segundos
+}
+    }
+
+    // ============================================
+    // MOSTRAR RESULTADOS
+    // ============================================
+    const resultTitle = completado ? '🎉 ¡Nivel Completado!' : '😢 Inténtalo de nuevo';
+    const resultEmoji = completado ? '🎉' : '😢';
+
+    quizGameEl.innerHTML = `
+        <div class="results-container">
+            <h4>${resultEmoji} ${resultTitle}</h4>
+            <p style="font-size:18px;color:#4a5568;">
+                Puntaje final: ${correctas} / ${totalQuestionsLocal}
+                <br>
+                <span style="font-size:14px;color:#a0aec0;">
+                    ${Math.round(porcentaje * 100)}% de respuestas correctas
+                </span>
+            </p>
+            <div class="result-stars">
+                ${Array(3).fill(0).map((_, i) => 
+                    `<img src="img/${i < estrellas ? 'star_filled.png' : 'star_empty.png'}" class="star-icon">`
+                ).join('')}
+            </div>
+            ${completado ? '<p style="color:#48bb78;font-weight:bold;">✅ ¡Nivel completado!</p>' : '<p style="color:#fc8181;font-weight:bold;">❌ Necesitas al menos 60% para aprobar</p>'}
+            <a href="${backBtn.href}" class="main-menu-btn">Volver a niveles</a>
+        </div>
+    `;
+
+    quizMascot.src = completado ? mascotImages.medal : mascotImages.incorrect;
+}
+
+        // ============================================
+        // INICIAR QUIZ
+        // ============================================
+        async function iniciarQuiz() {
+            try {
+                if (!checkAuth()) return;
+                
+                hideError();
+                
+                const urlParams = new URLSearchParams(window.location.search);
+                subjectId = urlParams.get('subject');
+                const levelParam = urlParams.get('level');
+                
+                console.log('🔍 Parámetros:', { subjectId, levelParam });
+                
+                if (!subjectId || !levelParam) {
+                    showError('❌ No se especificó la materia o el nivel');
+                    quizGameEl.innerHTML = '<div class="loading-text">❌ Error: Materia o nivel no especificado</div>';
+                    return;
+                }
+
+                // El levelParam puede ser el ID del nivel (ej: 126) o el número (ej: 1)
+                const levelIdOrNumber = parseInt(levelParam);
+
+                // 1. Obtener materias
+                const materiasData = await apiRequest('/quiz/materias');
+                console.log('📚 Materias obtenidas:', materiasData);
+                
+                const materia = materiasData.materias.find(m => 
+                    normalizarTexto(m.nombre) === normalizarTexto(subjectId)
+                );
+                
+                console.log('📚 Materia encontrada:', materia);
+                
+                if (!materia) {
+                    showError(`❌ Materia "${subjectId}" no encontrada`);
+                    return;
+                }
+
+                materiaNombre = materia.nombre;
+
+                // 2. Obtener niveles
+                const nivelesData = await apiRequest(`/quiz/materia/${materia.id}/niveles`);
+                console.log('📖 Niveles obtenidos:', nivelesData);
+                
+                // Buscar por ID o por número
+                let nivel = nivelesData.niveles.find(n => n.id === levelIdOrNumber);
+                if (!nivel) {
+                    nivel = nivelesData.niveles.find(n => n.numero === levelIdOrNumber);
+                }
+                
+                console.log('📖 Nivel encontrado:', nivel);
+                
+                if (!nivel) {
+                    showError(`❌ Nivel ${levelParam} no encontrado`);
+                    return;
+                }
+
+                nivelId = nivel.id;
+                nivelNumero = nivel.numero;
+                
+                console.log('✅ nivelId real:', nivelId);
+                console.log('✅ numero real:', nivelNumero);
+
+                backBtn.href = `materias/${subjectId}.html`;
+                subjectTitle.textContent = `${materiaNombre}`;
+                document.getElementById('levelDisplay').textContent = `Nivel ${nivelNumero}`;
+
+                // 3. Cargar preguntas
+                const preguntasData = await apiRequest(`/quiz/nivel/${nivelId}`);
+                console.log('❓ Preguntas obtenidas:', preguntasData);
+                
+                if (!preguntasData.success || !preguntasData.preguntas || preguntasData.preguntas.length === 0) {
+                    showError('❌ No hay preguntas disponibles para este nivel');
+                    return;
+                }
+
+                questions = preguntasData.preguntas.map(p => ({
+                    id: p.id,
+                    question: { es: p.texto_es || p.texto },
+                    options: {
+                        es: p.opciones.map(o => o.texto || o.texto_es)
+                    },
+                    correctAnswer: {
+                        es: p.opciones.find(o => o.es_correcta)?.texto || ''
+                    },
+                    timeLimit: 20
+                }));
+
+                console.log('✅ Preguntas procesadas:', questions);
+
+                if (questions.length === 0) {
+                    showError('❌ No se pudieron cargar las preguntas');
+                    return;
+                }
+
+                totalQuestions = questions.length;
+                userAnswers = [];
+                currentQuestionIndex = 0;
+                score = 0;
+                scoreDisplay.textContent = score;
+                showQuestion();
+
+            } catch (error) {
+                console.error('❌ Error iniciando quiz:', error);
+                showError('❌ Error al cargar el quiz: ' + error.message);
+                quizGameEl.innerHTML = `
+                    <div class="loading-text">
+                        ❌ Error al cargar el quiz<br>
+                        <small style="font-size:14px;color:#a0aec0;">${error.message}</small>
+                        <br><br>
+                        <button onclick="iniciarQuiz()" style="padding:10px 24px;border:none;background:#667eea;color:#fff;border-radius:8px;cursor:pointer;font-weight:bold;">
+                            🔄 Reintentar
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // ============================================
+        // EVENTO: SIGUIENTE PREGUNTA
+        // ============================================
+        nextQuestionBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            showQuestion();
+        });
+
+        // ============================================
+        // INICIALIZAR
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            iniciarQuiz();
+        });
+
+        // Exponer funciones globalmente para el botón de reintentar
+        window.iniciarQuiz = iniciarQuiz;
+    </script>
+</body>
+</html>

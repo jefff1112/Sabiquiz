@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sabiquiz - Login</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        /* ============================================
+           ESTILOS COMPLETOS DEL LOGIN
+           ============================================ */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .login-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 420px;
+        }
+        .login-container h1 {
+            text-align: center;
+            color: #4a5568;
+            margin-bottom: 5px;
+            font-size: 32px;
+        }
+        .login-container h1 span { color: #667eea; }
+        .login-container .subtitle {
+            text-align: center;
+            color: #a0aec0;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        .form-group {
+            margin-bottom: 18px;
+            position: relative;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            color: #4a5568;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            padding-right: 45px;
+        }
+        .form-group input:focus {
+            border-color: #667eea;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+        .form-group input.error {
+            border-color: #fc8181;
+            box-shadow: 0 0 0 3px rgba(252, 129, 129, 0.15);
+        }
+        .form-group input.success {
+            border-color: #48bb78;
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.15);
+        }
+        .password-toggle {
+            position: absolute;
+            right: 15px;
+            bottom: 14px;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 20px;
+            color: #a0aec0;
+            transition: color 0.3s;
+        }
+        .password-toggle:hover { color: #4a5568; }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            margin-top: 10px;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .btn-secondary {
+            background: #48bb78;
+        }
+        .btn-secondary:hover {
+            box-shadow: 0 8px 25px rgba(72, 187, 120, 0.4);
+        }
+        .message {
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            display: none;
+            font-weight: 600;
+            font-size: 14px;
+            text-align: center;
+        }
+        .message.error {
+            background: #fed7d7;
+            color: #c53030;
+            display: block;
+            border-left: 4px solid #fc8181;
+        }
+        .message.success {
+            background: #c6f6d5;
+            color: #276749;
+            display: block;
+            border-left: 4px solid #48bb78;
+        }
+        .message.warning {
+            background: #feebc8;
+            color: #9c4221;
+            display: block;
+            border-left: 4px solid #ed8936;
+        }
+        .message.info {
+            background: #ebf4ff;
+            color: #2b6cb0;
+            display: block;
+            border-left: 4px solid #4299e1;
+        }
+        .switch-mode {
+            text-align: center;
+            margin-top: 20px;
+            color: #4a5568;
+            font-size: 14px;
+        }
+        .switch-mode a {
+            color: #667eea;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        .switch-mode a:hover { text-decoration: underline; }
+        #registerForm { display: none; }
+        .forgot-link {
+            text-align: right;
+            margin-top: 5px;
+            font-size: 13px;
+        }
+        .forgot-link a {
+            color: #718096;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        .forgot-link a:hover {
+            color: #667eea;
+            text-decoration: underline;
+        }
+        .intentos-info {
+            font-size: 13px;
+            color: #718096;
+            margin-top: 5px;
+            text-align: right;
+        }
+        .intentos-info.warning { color: #ed8936; }
+        .intentos-info.danger { color: #fc8181; font-weight: bold; }
+        .field-validation {
+            font-size: 12px;
+            margin-top: 4px;
+            display: none;
+        }
+        .field-validation.visible { display: block; }
+        .field-validation.success { color: #48bb78; }
+        .field-validation.error { color: #fc8181; }
+        .last-login-info {
+            font-size: 13px;
+            color: #718096;
+            margin-top: 5px;
+            text-align: center;
+            background: #f7fafc;
+            padding: 8px;
+            border-radius: 8px;
+        }
+        .last-login-info strong { color: #2d3748; }
+        /* Estilos para el indicador de fuerza en el registro */
+        .password-strength-bar {
+            margin-top: 5px;
+            height: 4px;
+            background: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .password-strength-bar .fill {
+            height: 100%;
+            width: 0%;
+            border-radius: 4px;
+            transition: width 0.3s;
+        }
+        .password-strength-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+        @media (max-width: 480px) {
+            .login-container { padding: 25px; }
+            .login-container h1 { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1>📚 <span>Sabiquiz</span></h1>
+        <p class="subtitle">Aprende jugando</p>
+
+        <div id="messageBox" class="message"></div>
+
+        <!-- FORMULARIO DE LOGIN -->
+        <div id="loginForm">
+            <div class="form-group">
+                <label for="loginEmail">📧 Correo Electrónico</label>
+                <input type="email" id="loginEmail" placeholder="ejemplo@correo.com" required>
+                <div id="emailValidation" class="field-validation"></div>
+            </div>
+            <div class="form-group">
+                <label for="loginPassword">🔒 Contraseña</label>
+                <input type="password" id="loginPassword" placeholder="Ingresa tu contraseña" required>
+                <button type="button" class="password-toggle" id="togglePassword" aria-label="Mostrar contraseña">👁️</button>
+                <div id="passwordValidation" class="field-validation"></div>
+            </div>
+            <div id="lastLoginInfo" class="last-login-info" style="display:none;"></div>
+            <div id="intentosInfo" class="intentos-info"></div>
+            <div class="forgot-link">
+                <a href="forgot-password.html">¿Olvidaste tu contraseña?</a>
+            </div>
+            <button class="btn" id="loginBtn">Iniciar Sesión</button>
+            
+            <div class="switch-mode">
+                ¿No tienes cuenta? <a id="showRegisterBtn">Regístrate aquí</a>
+            </div>
+        </div>
+
+        <!-- FORMULARIO DE REGISTRO -->
+        <div id="registerForm">
+            <h2 style="text-align:center; color:#2d3748; margin-bottom:20px; font-size:24px;">Crear Cuenta</h2>
+            <div class="form-group">
+                <label for="registerUsername">👤 Nombre de Usuario</label>
+                <input type="text" id="registerUsername" placeholder="Tu nombre" required>
+            </div>
+            <div class="form-group">
+                <label for="registerEmail">📧 Correo Electrónico</label>
+                <input type="email" id="registerEmail" placeholder="ejemplo@correo.com" required>
+            </div>
+            <div class="form-group">
+                <label for="registerPassword">🔒 Contraseña</label>
+                <input type="password" id="registerPassword" placeholder="Mínimo 6 caracteres" required>
+                <button type="button" class="password-toggle" id="toggleRegisterPassword" aria-label="Mostrar contraseña">👁️</button>
+                <div class="password-strength-bar">
+                    <div class="fill" id="registerPasswordBar"></div>
+                </div>
+                <div class="password-strength-labels">
+                    <span>Débil</span>
+                    <span id="passwordStrengthText">Media</span>
+                    <span>Fuerte</span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label for="registerConfirmPassword">🔒 Confirmar Contraseña</label>
+                <input type="password" id="registerConfirmPassword" placeholder="Repite tu contraseña" required>
+            </div>
+            <button class="btn btn-secondary" id="registerBtn">Crear Cuenta</button>
+            
+            <div class="switch-mode">
+                ¿Ya tienes cuenta? <a id="showLoginBtn">Inicia sesión aquí</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN
+        // ============================================
+        const API_URL = 'http://localhost:3000/api';
+
+        // ============================================
+        // ELEMENTOS DOM
+        // ============================================
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const loginEmail = document.getElementById('loginEmail');
+        const loginPassword = document.getElementById('loginPassword');
+        const registerUsername = document.getElementById('registerUsername');
+        const registerEmail = document.getElementById('registerEmail');
+        const registerPassword = document.getElementById('registerPassword');
+        const registerConfirmPassword = document.getElementById('registerConfirmPassword');
+        const messageBox = document.getElementById('messageBox');
+        const loginBtn = document.getElementById('loginBtn');
+        const registerBtn = document.getElementById('registerBtn');
+        const showRegisterBtn = document.getElementById('showRegisterBtn');
+        const showLoginBtn = document.getElementById('showLoginBtn');
+        const togglePassword = document.getElementById('togglePassword');
+        const toggleRegisterPassword = document.getElementById('toggleRegisterPassword');
+        const intentosInfo = document.getElementById('intentosInfo');
+        const emailValidation = document.getElementById('emailValidation');
+        const passwordValidation = document.getElementById('passwordValidation');
+        const registerPasswordBar = document.getElementById('registerPasswordBar');
+        const passwordStrengthText = document.getElementById('passwordStrengthText');
+        const lastLoginInfo = document.getElementById('lastLoginInfo');
+
+        // ============================================
+        // MOSTRAR/OCULTAR FORMULARIOS
+        // ============================================
+        function showRegister() {
+            loginForm.style.display = 'none';
+            registerForm.style.display = 'block';
+            hideMessage();
+        }
+
+        function showLogin() {
+            loginForm.style.display = 'block';
+            registerForm.style.display = 'none';
+            hideMessage();
+        }
+
+        showRegisterBtn.addEventListener('click', showRegister);
+        showLoginBtn.addEventListener('click', showLogin);
+
+        // ============================================
+        // MOSTRAR/OCULTAR CONTRASEÑA
+        // ============================================
+        togglePassword.addEventListener('click', () => {
+            const type = loginPassword.type === 'password' ? 'text' : 'password';
+            loginPassword.type = type;
+            togglePassword.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+
+        toggleRegisterPassword.addEventListener('click', () => {
+            const type = registerPassword.type === 'password' ? 'text' : 'password';
+            registerPassword.type = type;
+            toggleRegisterPassword.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+
+        // ============================================
+// VALIDACIÓN EN TIEMPO REAL - EMAIL (SOLO FORMATO)
+// ============================================
+loginEmail.addEventListener('blur', () => {
+    const email = loginEmail.value.trim();
+    const isValidFormat = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    
+    if (email && !isValidFormat) {
+        loginEmail.classList.add('error');
+        loginEmail.classList.remove('success');
+        emailValidation.textContent = '❌ Formato de correo inválido';
+        emailValidation.className = 'field-validation visible error';
+    } else if (email && isValidFormat) {
+        loginEmail.classList.remove('error');
+        loginEmail.classList.add('success');
+        emailValidation.textContent = '✅ Formato de correo válido';
+        emailValidation.className = 'field-validation visible success';
+    } else {
+        loginEmail.classList.remove('error', 'success');
+        emailValidation.className = 'field-validation';
+    }
+});
+
+        // ============================================
+        // VALIDACIÓN EN TIEMPO REAL - CONTRASEÑA (LOGIN)
+        // ============================================
+        loginPassword.addEventListener('blur', () => {
+            const pwd = loginPassword.value;
+            if (pwd && pwd.length < 6) {
+                loginPassword.classList.add('error');
+                loginPassword.classList.remove('success');
+                passwordValidation.textContent = '❌ Mínimo 6 caracteres';
+                passwordValidation.className = 'field-validation visible error';
+            } else if (pwd && pwd.length >= 6) {
+                loginPassword.classList.remove('error');
+                loginPassword.classList.add('success');
+                passwordValidation.textContent = '✅ Longitud correcta';
+                passwordValidation.className = 'field-validation visible success';
+            } else {
+                loginPassword.classList.remove('error', 'success');
+                passwordValidation.className = 'field-validation';
+            }
+        });
+
+        // ============================================
+        // FUERZA DE CONTRASEÑA - REGISTRO
+        // ============================================
+        registerPassword.addEventListener('input', () => {
+            const pwd = registerPassword.value;
+            let strength = 0;
+            
+            if (pwd.length >= 6) strength++;
+            if (pwd.length >= 10) strength++;
+            if (/[a-z]/.test(pwd) && /[A-Z]/.test(pwd)) strength++;
+            if (/\d/.test(pwd)) strength++;
+            if (/[^a-zA-Z0-9]/.test(pwd)) strength++;
+            
+            const percentage = Math.min((strength / 5) * 100, 100);
+            registerPasswordBar.style.width = percentage + '%';
+            
+            let label = 'Débil';
+            let color = '#fc8181';
+            if (percentage >= 80) { label = 'Fuerte'; color = '#48bb78'; }
+            else if (percentage >= 50) { label = 'Media'; color = '#ed8936'; }
+            
+            registerPasswordBar.style.background = color;
+            passwordStrengthText.textContent = label;
+            passwordStrengthText.style.color = color;
+        });
+
+        // ============================================
+        // FUNCIONES DE UI
+        // ============================================
+        function showMessage(message, type = 'info') {
+            messageBox.textContent = message;
+            messageBox.className = `message ${type}`;
+            messageBox.style.display = 'block';
+        }
+
+        function hideMessage() {
+            messageBox.style.display = 'none';
+            messageBox.className = 'message';
+        }
+
+        function setLoading(loading) {
+            loginBtn.disabled = loading;
+            loginBtn.textContent = loading ? '⏳ Verificando...' : 'Iniciar Sesión';
+        }
+
+        function setRegisterLoading(loading) {
+            registerBtn.disabled = loading;
+            registerBtn.textContent = loading ? '⏳ Creando...' : 'Crear Cuenta';
+        }
+
+        function updateIntentosInfo(intentos, maxIntentos = 5) {
+            if (intentos === undefined || intentos === null) {
+                intentosInfo.textContent = '';
+                intentosInfo.className = 'intentos-info';
+                return;
+            }
+            
+            const restantes = maxIntentos - intentos;
+            if (restantes <= 0) {
+                intentosInfo.textContent = '⛔ Demasiados intentos fallidos. Espera 15 minutos.';
+                intentosInfo.className = 'intentos-info danger';
+            } else if (restantes <= 2) {
+                intentosInfo.textContent = `⚠️ Te quedan ${restantes} intentos antes de ser bloqueado.`;
+                intentosInfo.className = 'intentos-info warning';
+            } else {
+                intentosInfo.textContent = `🛡️ ${restantes} intentos restantes`;
+                intentosInfo.className = 'intentos-info';
+            }
+        }
+
+        function showLastLoginInfo(fecha) {
+            if (fecha) {
+                const date = new Date(fecha);
+                lastLoginInfo.style.display = 'block';
+                lastLoginInfo.innerHTML = `🔐 Último acceso: <strong>${date.toLocaleDateString()} ${date.toLocaleTimeString()}</strong>`;
+            } else {
+                lastLoginInfo.style.display = 'none';
+            }
+        }
+
+        // ============================================
+        // LOGIN (MEJORADO)
+        // ============================================
+        async function handleLogin() {
+            const email = loginEmail.value.trim();
+            const password = loginPassword.value.trim();
+
+            if (!email) {
+                showMessage('📧 Por favor, ingresa tu correo electrónico', 'error');
+                loginEmail.focus();
+                return;
+            }
+
+            if (!password) {
+                showMessage('🔒 Por favor, ingresa tu contraseña', 'error');
+                loginPassword.focus();
+                return;
+            }
+
+            if (password.length < 6) {
+                showMessage('🔒 La contraseña debe tener al menos 6 caracteres', 'error');
+                loginPassword.focus();
+                return;
+            }
+
+            hideMessage();
+            setLoading(true);
+            updateIntentosInfo(null);
+            showLastLoginInfo(null);
+
+            try {
+                const response = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    localStorage.setItem('token', data.token);
+                    localStorage.setItem('user', JSON.stringify(data.user));
+
+                    let mensaje = '✅ ¡Inicio de sesión exitoso!';
+                    if (data.user.ultimoLogin) {
+                        const fecha = new Date(data.user.ultimoLogin);
+                        mensaje += ` Último acceso: ${fecha.toLocaleDateString()} ${fecha.toLocaleTimeString()}`;
+                    }
+                    showMessage(mensaje, 'success');
+
+                    setTimeout(() => {
+                        window.location.href = 'main_menu.html';
+                    }, 1500);
+                } else {
+                    // Manejar errores específicos
+                    if (data.tipo === 'bloqueo') {
+                        showMessage(data.error, 'warning');
+                    } else if (data.tipo === 'password_incorrecta') {
+                        showMessage(data.error, 'error');
+                        if (data.intentos !== undefined) {
+                            updateIntentosInfo(data.intentos, data.maxIntentos || 5);
+                        }
+                        // Mostrar fecha del último cambio de contraseña si existe
+                        if (data.lastPasswordChange) {
+                            const fecha = new Date(data.lastPasswordChange);
+                            // Ya está incluido en el mensaje de error
+                        }
+                    } else {
+                        showMessage(data.error || '❌ Credenciales inválidas', 'error');
+                    }
+                    setLoading(false);
+                }
+            } catch (error) {
+                console.error('❌ Error en login:', error);
+                showMessage('❌ Error al conectar con el servidor', 'error');
+                setLoading(false);
+            }
+        }
+
+        // ============================================
+        // REGISTRO
+        // ============================================
+        async function handleRegister() {
+            const username = registerUsername.value.trim();
+            const email = registerEmail.value.trim();
+            const password = registerPassword.value.trim();
+            const confirmPassword = registerConfirmPassword.value.trim();
+
+            if (!username || username.length < 3) {
+                showMessage('👤 El nombre debe tener al menos 3 caracteres', 'error');
+                registerUsername.focus();
+                return;
+            }
+
+            if (!email || !email.includes('@')) {
+                showMessage('📧 Ingresa un correo válido', 'error');
+                registerEmail.focus();
+                return;
+            }
+
+            if (!password || password.length < 6) {
+                showMessage('🔒 La contraseña debe tener al menos 6 caracteres', 'error');
+                registerPassword.focus();
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showMessage('🔒 Las contraseñas no coinciden', 'error');
+                registerConfirmPassword.focus();
+                return;
+            }
+
+            hideMessage();
+            setRegisterLoading(true);
+
+            try {
+                const response = await fetch(`${API_URL}/auth/register`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username, email, password })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showMessage('✅ ¡Registro exitoso! Ahora inicia sesión.', 'success');
+                    setTimeout(() => {
+                        registerUsername.value = '';
+                        registerEmail.value = '';
+                        registerPassword.value = '';
+                        registerConfirmPassword.value = '';
+                        registerPasswordBar.style.width = '0%';
+                        passwordStrengthText.textContent = 'Media';
+                        showLogin();
+                    }, 2000);
+                } else {
+                    showMessage(data.error || '❌ Error al registrar usuario', 'error');
+                    setRegisterLoading(false);
+                }
+            } catch (error) {
+                console.error('❌ Error en registro:', error);
+                showMessage('❌ Error al conectar con el servidor', 'error');
+                setRegisterLoading(false);
+            }
+        }
+
+        // ============================================
+        // EVENTOS
+        // ============================================
+        loginBtn.addEventListener('click', handleLogin);
+        registerBtn.addEventListener('click', handleRegister);
+
+        loginPassword.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+        loginEmail.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleLogin();
+        });
+        registerConfirmPassword.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') handleRegister();
+        });
+
+        // ============================================
+        // INICIALIZAR
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const msg = params.get('message');
+            if (msg) {
+                showMessage(decodeURIComponent(msg), 'success');
+            }
+        });
+
+        // Exponer funciones globalmente
+        window.handleLogin = handleLogin;
+        window.handleRegister = handleRegister;
+        window.showLogin = showLogin;
+        window.showRegister = showRegister;
+    </script>
+</body>
+</html>

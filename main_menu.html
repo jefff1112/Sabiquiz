@@ -1,0 +1,1672 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title data-translate="mainMenuTitle">Sabiquiz - Menú Principal</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <style>
+        /* Estilos para los botones adicionales */
+        .menu-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin: 20px 0 30px;
+        }
+        .menu-actions .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 12px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .menu-actions .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+        }
+        .btn-duel {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+            color: white;
+        }
+        .btn-duel:hover {
+            background: linear-gradient(135deg, #fc8181, #e53e3e);
+        }
+        .btn-suggest {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            color: white;
+        }
+        .btn-suggest:hover {
+            background: linear-gradient(135deg, #f6ad55, #ed8936);
+        }
+        .btn-profile {
+            background: linear-gradient(135deg, #4299e1, #3182ce);
+            color: white;
+        }
+        .btn-profile:hover {
+            background: linear-gradient(135deg, #63b3ed, #4299e1);
+        }
+        .btn-leaderboard {
+            background: linear-gradient(135deg, #9f7aea, #805ad5);
+            color: white;
+        }
+        .btn-leaderboard:hover {
+            background: linear-gradient(135deg, #b794f4, #9f7aea);
+        }
+        .btn-logout {
+            background: linear-gradient(135deg, #718096, #4a5568);
+            color: white;
+        }
+        .btn-logout:hover {
+            background: linear-gradient(135deg, #a0aec0, #718096);
+        }
+        .btn-notifications {
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: bold;
+            position: relative;
+        }
+        .btn-notifications:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(237, 137, 54, 0.3);
+        }
+        .btn-admin {
+            background: linear-gradient(135deg, #e53e3e, #c53030);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-weight: bold;
+            text-decoration: none;
+            transition: transform 0.2s;
+            display: inline-block;
+            border: none;
+            cursor: pointer;
+        }
+        .btn-admin:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(229, 62, 62, 0.3);
+        }
+        .main-menu-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        .main-menu-header .header-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .main-menu-header .header-buttons .btn {
+            padding: 8px 16px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 14px;
+            border: none;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        .main-menu-header .header-buttons .btn:hover {
+            transform: translateY(-2px);
+        }
+        .sabiquiz-logo {
+            text-align: center;
+            margin: 10px 0;
+        }
+        .sabiquiz-logo img {
+            max-width: 120px;
+        }
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .subject-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px 10px;
+            background: #f7fafc;
+            border-radius: 15px;
+            text-decoration: none;
+            color: #2d3748;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid #e2e8f0;
+        }
+        .subject-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        .subject-card img {
+            width: 50px;
+            height: 50px;
+            object-fit: contain;
+            margin-bottom: 8px;
+        }
+        .subject-card h3 {
+            font-size: 14px;
+            text-align: center;
+            margin: 0;
+        }
+        .language-switcher {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            display: flex;
+            gap: 8px;
+        }
+        .language-switcher button {
+            padding: 6px 14px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            background: #667eea;
+            color: white;
+            transition: background 0.3s;
+        }
+        .language-switcher button:hover {
+            background: #5a67d8;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h2 {
+            text-align: center;
+            color: #2d3748;
+            margin: 20px 0 10px;
+        }
+        .notif-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #fc8181;
+            color: white;
+            border-radius: 50%;
+            padding: 2px 8px;
+            font-size: 12px;
+            display: none;
+        }
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        @keyframes zoomIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+/* ============================================
+   ESTILOS DEL 1VS1 - VERSIÓN MEJORADA
+   ============================================ */
+
+/* Contenedor principal */
+.quiz-container {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 40px rgba(0,0,0,0.12);
+    max-width: 750px;
+    margin: 0 auto;
+    border: 1px solid #f0f0f0;
+}
+
+/* Botón Salir */
+.btn-exit {
+    background: transparent;
+    color: #a0aec0;
+    padding: 8px 16px;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.3s;
+    margin-bottom: 20px;
+}
+
+.btn-exit:hover {
+    background: #f7fafc;
+    border-color: #cbd5e0;
+    color: #4a5568;
+}
+
+/* Barra de información (modo y tiempo) */
+.game-info-bar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    padding: 10px 0;
+    margin-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+}
+
+.game-mode-display {
+    font-size: 15px;
+    font-weight: 600;
+    color: #4a5568;
+    letter-spacing: 0.3px;
+}
+
+.game-mode-display span {
+    color: #667eea;
+}
+
+.timer-display {
+    font-size: 18px;
+    font-weight: 700;
+    color: #764ba2;
+    background: #f7fafc;
+    padding: 4px 16px;
+    border-radius: 20px;
+    border: 1px solid #e2e8f0;
+}
+
+/* Puntuación (limpia y simple) */
+.score-display {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 35px;
+    padding: 12px 0;
+    margin-bottom: 25px;
+    background: #fafbfc;
+    border-radius: 12px;
+    border: 1px solid #edf2f7;
+}
+
+.score-display .player-score {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2d3748;
+}
+
+.score-display .player-score .score-value {
+    font-size: 20px;
+    font-weight: 700;
+    margin-left: 4px;
+}
+
+.score-display .player-score .player-name {
+    font-weight: 500;
+    color: #4a5568;
+}
+
+.score-display .player-score.player1 .score-value {
+    color: #48bb78;
+}
+
+.score-display .player-score.player2 .score-value {
+    color: #fc8181;
+}
+
+.score-display .vs-divider {
+    color: #cbd5e0;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+/* Pregunta */
+.question-container {
+    background: #f7fafc;
+    padding: 30px 25px;
+    border-radius: 16px;
+    margin-bottom: 20px;
+    border: 1px solid #edf2f7;
+}
+
+.question-container #questionText {
+    font-size: 20px;
+    font-weight: 600;
+    color: #2d3748;
+    text-align: center;
+    line-height: 1.5;
+    margin: 0;
+}
+
+/* Opciones */
+.options-container {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.option-button {
+    padding: 16px 20px;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: 500;
+    color: #2d3748;
+    text-align: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.option-button:hover:not(:disabled) {
+    border-color: #667eea;
+    background: #f7faff;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.15);
+}
+
+.option-button:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
+.option-button.correct {
+    border-color: #48bb78;
+    background: #f0fff4;
+    color: #276749;
+}
+
+.option-button.incorrect {
+    border-color: #fc8181;
+    background: #fff5f5;
+    color: #9b2c2c;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .quiz-container {
+        padding: 20px 15px;
+    }
+    
+    .game-info-bar {
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .options-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .score-display {
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+    
+    .question-container #questionText {
+        font-size: 18px;
+    }
+}
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 600px) {
+    .game-info-bar {
+        gap: 20px;
+        padding: 10px 15px;
+        flex-direction: row;
+        justify-content: center;
+    }
+    
+    .options-container {
+        grid-template-columns: 1fr;
+    }
+    
+    .score-display {
+        gap: 20px;
+        flex-direction: row;
+        justify-content: center;
+    }
+    
+    .question-container #questionText {
+        font-size: 18px;
+    }
+}
+        @media (max-width: 600px) {
+            .main-menu-header {
+                flex-direction: column;
+                align-items: center;
+            }
+            .subject-grid {
+                grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+                gap: 10px;
+            }
+            .menu-actions .btn {
+                font-size: 14px;
+                padding: 10px 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="language-switcher">
+        <button data-lang="es" onclick="setLanguage('es')">Español</button>
+        <button data-lang="en" onclick="setLanguage('en')">English</button>
+    </div>
+
+    <div id="appContainer" style="display: block;">
+        <!-- MENÚ PRINCIPAL -->
+        <div id="mainMenu" class="container main-menu-container">
+            <div class="main-menu-header">
+                <h1 id="welcomeMessage">¡Bienvenido!</h1>
+                <div class="header-buttons">
+                    <a href="leaderboard.html" class="btn btn-leaderboard">🏅 Ranking</a>
+                    <a href="profile.html" class="btn btn-profile">👤 Mi Perfil</a>
+                    <button id="notificationsBtn" class="btn btn-notifications">
+                        🔔 Notificaciones
+                        <span id="notifBadge" class="notif-badge">0</span>
+                    </button>
+                    <button id="logoutBtn" class="btn btn-logout">🚪 Cerrar Sesión</button>
+                </div>
+            </div>
+
+            <!-- BOTONES DE ACCIONES RÁPIDAS -->
+            <div class="menu-actions">
+                <button id="duelBtn" class="btn btn-duel">⚔️ Modo Duelo 1vs1</button>
+                <a href="suggestions.html" class="btn btn-suggest">💡 Sugerir Pregunta</a>
+                <a href="admin_panel.html" id="adminPanelBtn" class="btn btn-admin" style="display:none;">
+                    🛡️ Panel Admin
+                </a>
+            </div>
+
+            <div class="sabiquiz-logo">
+                <img src="img/celebrando_perro_2.png" alt="SabiQuiz Dog Logo">
+            </div>
+
+            <h2>📖 Elige tu materia para comenzar</h2>
+            <div class="subject-grid">
+                <a href="materias/lenguaje.html" class="subject-card language">
+                    <img src="img/lenguaje.png" alt="Lenguaje"><h3>Lenguaje</h3>
+                </a>
+                <a href="materias/matematicas.html" class="subject-card maths">
+                    <img src="img/mat.png" alt="Matemáticas"><h3>Matemáticas</h3>
+                </a>
+                <a href="materias/ciencias.html" class="subject-card science">
+                    <img src="img/ciencia.png" alt="Ciencias"><h3>Ciencias</h3>
+                </a>
+                <a href="materias/sociales.html" class="subject-card social">
+                    <img src="img/sociales.png" alt="Sociales"><h3>Sociales</h3>
+                </a>
+                <a href="materias/ingles.html" class="subject-card english">
+                    <img src="img/ingles.png" alt="Inglés"><h3>Inglés</h3>
+                </a>
+                <a href="materias/programacion.html" class="subject-card programming">
+                    <img src="img/programacion.png" alt="Programación"><h3>Programación</h3>
+                </a>
+                <a href="materias/salud.html" class="subject-card health">
+                    <img src="img/salud.png" alt="Salud"><h3>Salud</h3>
+                </a>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- MENÚ DE 1VS1 (se muestra al hacer clic en Duelo) -->
+        <!-- ============================================ -->
+        <div id="multiplayerMenu" class="container multiplayer-menu" style="display: none;">
+            <button id="backToMainMenu" class="btn" style="background:#718096;color:white;padding:8px 20px;border:none;border-radius:10px;cursor:pointer;margin-bottom:15px;">← Volver al Menú</button>
+            <h2>⚔️ Modo Duelo 1vs1</h2>
+
+            <div id="matchmakingStatus" class="matchmaking-status" style="display: none;">
+                <p>🔍 Buscando oponente...</p>
+                <div class="spinner" style="margin:10px auto;width:40px;height:40px;border:4px solid #e2e8f0;border-top-color:#667eea;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+                <button id="cancelMatchBtn" class="btn" style="background:#fc8181;color:white;padding:8px 20px;border:none;border-radius:10px;cursor:pointer;">Cancelar</button>
+            </div>
+
+            <button id="findMatchBtn" class="btn" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:14px 30px;border:none;border-radius:12px;font-weight:bold;font-size:18px;cursor:pointer;width:100%;">🚀 Buscar Partida Rápida</button>
+            <button id="findMathMatchBtn" class="btn" style="background:linear-gradient(135deg,#48bb78,#38a169);color:white;padding:14px 30px;border:none;border-radius:12px;font-weight:bold;font-size:18px;cursor:pointer;width:100%;margin-top:10px;">🧮 Duelo Matemático</button>
+
+            <hr style="margin:20px 0;border:1px solid #e2e8f0;">
+
+            <p style="text-align:center;color:#4a5568;">O juega con un amigo usando un código:</p>
+            <div id="codeRoomContainer" style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin-top:10px;">
+                <input type="text" id="roomCodeInput" placeholder="Ingresa el código" style="padding:10px 15px;border:2px solid #e2e8f0;border-radius:10px;font-size:16px;flex:1;min-width:150px;">
+                <select id="roomGameType" style="padding:10px 15px;border:2px solid #e2e8f0;border-radius:10px;font-size:16px;">
+                    <option value="normal">Normal</option>
+                    <option value="maths">Matemáticas</option>
+                </select>
+                <button id="createRoomBtn" style="background:#667eea;color:white;padding:10px 20px;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">Crear Sala</button>
+                <button id="joinRoomBtn" style="background:#48bb78;color:white;padding:10px 20px;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">Unirse a Sala</button>
+            </div>
+            <div id="statusMessage" style="text-align:center;margin-top:15px;color:#4a5568;font-weight:bold;"></div>
+        </div>
+
+        <!-- ============================================ -->
+<!-- PANTALLA DE JUEGO 1VS1 (VERSIÓN MEJORADA) -->
+<!-- ============================================ -->
+<div id="gameContainer" class="quiz-container" style="display: none;">
+    <button id="backFromGame" class="btn-exit">← Salir</button>
+    
+    <div class="game-info-bar">
+        <div class="game-mode-display">Modo: <span id="gameModeDisplay">Normal</span></div>
+        <div class="timer-display" id="timerDisplay">⏱️ 10s</div>
+    </div>
+    
+    <div class="score-display">
+        <div class="player-score player1">
+            <span class="player-name" id="player1Name">Jugador 1</span>
+            <span class="score-value" id="player1ScoreValue">0</span>
+        </div>
+        <span class="vs-divider">⚔️</span>
+        <div class="player-score player2">
+            <span class="player-name" id="player2Name">Jugador 2</span>
+            <span class="score-value" id="player2ScoreValue">0</span>
+        </div>
+    </div>
+    
+    <div class="question-container">
+        <h2 id="questionText">Cargando pregunta...</h2>
+    </div>
+    
+    <div id="optionsContainer" class="options-container">
+        <!-- Opciones se generan dinámicamente -->
+    </div>
+</div>
+
+        <!-- ============================================ -->
+        <!-- CONTADOR REGRESIVO -->
+        <!-- ============================================ -->
+        <div id="countdownContainer" style="display: none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);justify-content:center;align-items:center;z-index:999;">
+            <h1 id="countdownText" style="font-size:120px;color:white;font-weight:bold;text-shadow:0 0 40px rgba(102,126,234,0.5);">3</h1>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- POPUP DE OPONENTE ENCONTRADO -->
+        <!-- ============================================ -->
+        <div id="matchFoundContainer" class="popup-overlay" style="display: none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;z-index:1000;">
+            <div class="popup-card" style="background:white;padding:40px;border-radius:20px;max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:zoomIn 0.3s ease;">
+                <h2 style="color:#2d3748;">🎯 ¡Oponente Encontrado!</h2>
+                <div class="opponent-info" style="margin:20px 0;">
+                    <img src="img/default-avatar.png" id="opponentAvatar" alt="Avatar" style="width:80px;height:80px;border-radius:50%;border:3px solid #667eea;object-fit:cover;">
+                    <h3 id="opponentName" style="margin:10px 0 5px;color:#2d3748;">---</h3>
+                    <div style="display:flex;gap:20px;justify-content:center;color:#4a5568;">
+                        <span>🎯 Nivel: <strong id="opponentLevel">--</strong></span>
+                        <span>⭐ XP: <strong id="opponentXp">--</strong></span>
+                    </div>
+                </div>
+                <div style="display:flex;gap:15px;justify-content:center;">
+                    <button id="acceptMatchBtn" style="background:#48bb78;color:white;padding:12px 30px;border:none;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;">✅ Aceptar</button>
+                    <button id="rejectMatchBtn" style="background:#fc8181;color:white;padding:12px 30px;border:none;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;">❌ Rechazar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================ -->
+        <!-- PANTALLA DE RESULTADOS -->
+        <!-- ============================================ -->
+        <div id="endGameContainer" class="end-game-container container" style="display: none;text-align:center;">
+            <h2 style="color:#2d3748;">🏆 Resultados</h2>
+            <div style="display:flex;justify-content:center;align-items:center;gap:30px;margin:30px 0;flex-wrap:wrap;">
+                <div>
+                    <img src="img/default-avatar.png" id="endAvatar1" style="width:80px;height:80px;border-radius:50%;border:3px solid #667eea;object-fit:cover;">
+                    <p id="endPlayer1Name" style="font-weight:bold;margin:5px 0;">Jugador 1</p>
+                    <p id="endPlayer1Score" style="color:#4a5568;">Puntuación: 0</p>
+                </div>
+                <div style="font-size:40px;font-weight:bold;color:#667eea;">⚔️</div>
+                <div>
+                    <img src="img/default-avatar.png" id="endAvatar2" style="width:80px;height:80px;border-radius:50%;border:3px solid #667eea;object-fit:cover;">
+                    <p id="endPlayer2Name" style="font-weight:bold;margin:5px 0;">Jugador 2</p>
+                    <p id="endPlayer2Score" style="color:#4a5568;">Puntuación: 0</p>
+                </div>
+            </div>
+            <h3 id="endGameMessage" style="font-size:24px;color:#2d3748;"></h3>
+            <button id="rematchBtn" style="background:#667eea;color:white;padding:14px 40px;border:none;border-radius:12px;font-weight:bold;font-size:18px;cursor:pointer;margin-top:20px;">🔄 Revancha</button>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        // ============================================
+        // CONFIGURACIÓN DE LA API Y SOCKET
+        // ============================================
+        const API_URL = 'http://localhost:3000/api';
+
+        const socketURL = window.location.hostname.includes('localhost') 
+            ? "http://localhost:3000" 
+            : `wss://${window.location.hostname}`;
+        const socket = io(socketURL, { transports: ["websocket"] });
+
+        // ============================================
+        // VERIFICAR AUTENTICACIÓN
+        // ============================================
+        function verificarAutenticacion() {
+            const token = localStorage.getItem('token');
+            const user = localStorage.getItem('user');
+            
+            if (!token || !user) {
+                console.warn('🔒 No autenticado, redirigiendo a login');
+                window.location.href = 'login.html';
+                return false;
+            }
+            
+            try {
+                const tokenData = JSON.parse(atob(token.split('.')[1]));
+                const expirado = tokenData.exp * 1000 < Date.now();
+                if (expirado) {
+                    console.warn('🔒 Token expirado, redirigiendo a login');
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+                    window.location.href = 'login.html';
+                    return false;
+                }
+            } catch (e) {
+                console.warn('🔒 Token inválido, redirigiendo a login');
+                localStorage.removeItem('token');
+                localStorage.removeItem('user');
+                window.location.href = 'login.html';
+                return false;
+            }
+            
+            return true;
+        }
+
+        // ============================================
+        // FUNCIONES DE AUTENTICACIÓN
+        // ============================================
+        function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        function getCurrentUser() {
+            const userStr = localStorage.getItem('user');
+            return userStr ? JSON.parse(userStr) : null;
+        }
+
+        function checkAuth() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return null;
+            }
+            return getCurrentUser();
+        }
+
+        // ============================================
+        // FUNCIÓN PARA PETICIONES A LA API
+        // ============================================
+        async function apiRequest(endpoint, options = {}) {
+            const token = getToken();
+            const headers = {
+                'Content-Type': 'application/json',
+                'Authorization': token ? `Bearer ${token}` : ''
+            };
+            
+            const finalOptions = {
+                ...options,
+                headers: {
+                    ...headers,
+                    ...options.headers || {}
+                }
+            };
+            
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token');
+                        localStorage.removeItem('user');
+                        window.location.href = 'login.html';
+                    }
+                    throw new Error(data.error || `Error ${response.status}`);
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('❌ Error en apiRequest:', error);
+                throw error;
+            }
+        }
+
+        // ============================================
+        // FUNCIONES DE TRADUCCIÓN
+        // ============================================
+        function setLanguage(lang) {
+            localStorage.setItem('language', lang);
+            loadLanguage();
+        }
+
+        function loadLanguage() {
+            const lang = localStorage.getItem('language') || 'es';
+            const translations = {
+                es: {
+                    welcome: '¡Bienvenido,'
+                },
+                en: {
+                    welcome: 'Welcome,'
+                }
+            };
+
+            const t = translations[lang] || translations.es;
+            const user = getCurrentUser();
+            const welcomeMsg = document.getElementById('welcomeMessage');
+            if (user && welcomeMsg) {
+                const nameToDisplay = userProfile?.displayName || user.username || 'Jugador';
+                welcomeMsg.textContent = `${t.welcome} ${nameToDisplay}!`;
+            }
+            return t;
+        }
+
+        // ============================================
+        // REFERENCIAS A ELEMENTOS DOM
+        // ============================================
+        const welcomeMessage = document.getElementById('welcomeMessage');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const mainMenu = document.getElementById('mainMenu');
+        const multiplayerMenu = document.getElementById('multiplayerMenu');
+        const gameContainer = document.getElementById('gameContainer');
+        const countdownContainer = document.getElementById('countdownContainer');
+        const countdownText = document.getElementById('countdownText');
+        const questionText = document.getElementById('questionText');
+        const optionsContainer = document.getElementById('optionsContainer');
+        const player1ScoreDisp = document.getElementById('player1Score');
+        const player2ScoreDisp = document.getElementById('player2Score');
+        const roomCodeInput = document.getElementById('roomCodeInput');
+        const createRoomBtn = document.getElementById('createRoomBtn');
+        const joinRoomBtn = document.getElementById('joinRoomBtn');
+        const statusMessage = document.getElementById('statusMessage');
+        const endGameContainer = document.getElementById('endGameContainer');
+        const gameModeDisplay = document.getElementById('gameModeDisplay');
+        const timerDisplay = document.getElementById('timerDisplay');
+        const findMatchBtn = document.getElementById('findMatchBtn');
+        const findMathMatchBtn = document.getElementById('findMathMatchBtn');
+        const matchmakingStatus = document.getElementById('matchmakingStatus');
+        const cancelMatchBtn = document.getElementById('cancelMatchBtn');
+        const rematchBtn = document.getElementById('rematchBtn');
+        const matchFoundContainer = document.getElementById('matchFoundContainer');
+        const opponentAvatar = document.getElementById('opponentAvatar');
+        const opponentName = document.getElementById('opponentName');
+        const opponentLevel = document.getElementById('opponentLevel');
+        const opponentXp = document.getElementById('opponentXp');
+        const acceptMatchBtn = document.getElementById('acceptMatchBtn');
+        const rejectMatchBtn = document.getElementById('rejectMatchBtn');
+        const roomGameType = document.getElementById('roomGameType');
+        const duelBtn = document.getElementById('duelBtn');
+        const backToMainMenu = document.getElementById('backToMainMenu');
+        const backFromGame = document.getElementById('backFromGame');
+        const notificationsBtn = document.getElementById('notificationsBtn');
+        const notifBadge = document.getElementById('notifBadge');
+        const adminPanelBtn = document.getElementById('adminPanelBtn');
+const player1Name = document.getElementById('player1Name');
+const player2Name = document.getElementById('player2Name');
+const player1ScoreValue = document.getElementById('player1ScoreValue');
+const player2ScoreValue = document.getElementById('player2ScoreValue');
+
+        let currentUser = null;
+        let userProfile = {};
+        let currentRoomCode = '';
+        let localPlayerId = '';
+        let tempRoomId = '';
+        let isInMatchmaking = false;
+
+        // ============================================
+        // CARGAR PERFIL DEL USUARIO
+        // ============================================
+        async function loadUserProfile() {
+            try {
+                const user = getCurrentUser();
+                if (!user) {
+                    window.location.href = 'login.html';
+                    return null;
+                }
+
+                currentUser = user;
+
+                try {
+                    const userData = await apiRequest('/auth/profile');
+                    
+                    let quizXp = 0;
+                    let nivelesCompletados = 0;
+                    let totalEstrellas = 0;
+                    
+                    try {
+                        const stats = await apiRequest('/progress/stats');
+                        if (stats.success) {
+                            totalEstrellas = stats.stats?.total_estrellas || 0;
+                            nivelesCompletados = stats.stats?.niveles_completados || 0;
+                            quizXp = totalEstrellas * 10;
+                        }
+                    } catch (e) {
+                        console.log('ℹ️ No se pudieron cargar estadísticas:', e);
+                    }
+                    
+                    const totalXp = quizXp;
+                    const level = Math.floor(totalXp / 100) + 1;
+                    
+                    userProfile = {
+                        uid: user.id,
+                        displayName: userData.user?.username || user.username || 'Jugador',
+                        photoURL: userData.user?.avatar || user.avatar || 'img/default-avatar.png',
+                        level: level,
+                        rol: userData.user?.rol || user.rol || 'usuario',
+                        quizXp: quizXp,
+                        pvpXp: 0,
+                        totalXp: totalXp,
+                        nivelesCompletados: nivelesCompletados,
+                        totalEstrellas: totalEstrellas
+                    };
+
+                    const updatedUser = {
+                        id: user.id,
+                        username: userData.user?.username || user.username,
+                        email: userData.user?.email || user.email,
+                        avatar: userData.user?.avatar || user.avatar,
+                        rol: userData.user?.rol || user.rol || 'usuario',
+                        level: level
+                    };
+                    localStorage.setItem('user', JSON.stringify(updatedUser));
+
+                } catch (e) {
+                    userProfile = {
+                        uid: user.id,
+                        displayName: user.username || 'Jugador',
+                        photoURL: user.avatar || 'img/default-avatar.png',
+                        level: 1,
+                        rol: user.rol || 'usuario',
+                        quizXp: 0,
+                        pvpXp: 0,
+                        totalXp: 0,
+                        nivelesCompletados: 0,
+                        totalEstrellas: 0
+                    };
+                }
+
+                loadLanguage();
+                
+                const avatarImg = document.querySelector('.user-info img') || document.getElementById('userAvatar');
+                if (avatarImg) {
+                    avatarImg.src = userProfile.photoURL;
+                }
+
+                return userProfile;
+            } catch (error) {
+                console.error('❌ Error cargando perfil:', error);
+                return null;
+            }
+        }
+
+        // ============================================
+        // VERIFICAR SI ES ADMIN
+        // ============================================
+        async function checkAndShowAdminButton() {
+            try {
+                const data = await apiRequest('/auth/isAdmin');
+                console.log('🔍 Verificando admin:', data);
+                
+                if (!adminPanelBtn) return;
+                
+                if (data.success && data.isAdmin === true) {
+                    adminPanelBtn.style.display = 'inline-block';
+                    console.log('✅ Usuario admin detectado, mostrando botón');
+                } else {
+                    adminPanelBtn.style.display = 'none';
+                    console.log('❌ Usuario no es admin, ocultando botón');
+                }
+            } catch (error) {
+                console.error('❌ Error verificando admin:', error);
+                if (adminPanelBtn) adminPanelBtn.style.display = 'none';
+            }
+        }
+
+        // ============================================
+        // FUNCIONES DE UI
+        // ============================================
+        function setStatus(message) {
+            statusMessage.textContent = message;
+        }
+
+        function showMainMenu() {
+            mainMenu.style.display = 'block';
+            multiplayerMenu.style.display = 'none';
+            gameContainer.style.display = 'none';
+            endGameContainer.style.display = 'none';
+            countdownContainer.style.display = 'none';
+            matchFoundContainer.style.display = 'none';
+        }
+
+        function showMultiplayerMenu() {
+            mainMenu.style.display = 'none';
+            multiplayerMenu.style.display = 'block';
+            gameContainer.style.display = 'none';
+            endGameContainer.style.display = 'none';
+            countdownContainer.style.display = 'none';
+            matchFoundContainer.style.display = 'none';
+            document.getElementById('codeRoomContainer').style.display = 'flex';
+            findMatchBtn.style.display = 'block';
+            findMathMatchBtn.style.display = 'block';
+            matchmakingStatus.style.display = 'none';
+        }
+
+        function showGame() {
+            mainMenu.style.display = 'none';
+            multiplayerMenu.style.display = 'none';
+            gameContainer.style.display = 'block';
+            endGameContainer.style.display = 'none';
+            countdownContainer.style.display = 'none';
+            matchFoundContainer.style.display = 'none';
+        }
+
+        function showCountdown() {
+            countdownContainer.style.display = 'flex';
+        }
+
+        function hideCountdown() {
+            countdownContainer.style.display = 'none';
+        }
+
+        function showEndGame() {
+            gameContainer.style.display = 'none';
+            endGameContainer.style.display = 'block';
+        }
+
+        function showMatchFound() {
+            matchFoundContainer.style.display = 'flex';
+        }
+
+        function hideMatchFound() {
+            matchFoundContainer.style.display = 'none';
+        }
+
+        // ============================================
+        // EVENTOS DE UI
+        // ============================================
+
+        document.querySelectorAll('.language-switcher button').forEach(button => {
+            button.addEventListener('click', (event) => {
+                const lang = event.target.getAttribute('data-lang');
+                setLanguage(lang);
+            });
+        });
+
+        logoutBtn.addEventListener('click', () => {
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = 'login.html';
+        });
+
+        duelBtn.addEventListener('click', showMultiplayerMenu);
+        backToMainMenu.addEventListener('click', showMainMenu);
+
+        backFromGame.addEventListener('click', () => {
+            showMainMenu();
+            socket.emit('cancelFindMatch');
+        });
+
+        // ============================================
+        // EVENTOS DE MATCHMAKING
+        // ============================================
+
+        function startMatchmaking(gameType) {
+            if (!userProfile.uid) {
+                alert('Primero inicia sesión');
+                return;
+            }
+
+            document.querySelector('#codeRoomContainer').style.display = 'none';
+            findMatchBtn.style.display = 'none';
+            findMathMatchBtn.style.display = 'none';
+            matchmakingStatus.style.display = 'block';
+            isInMatchmaking = true;
+
+            const playerData = {
+                uid: userProfile.uid,
+                name: userProfile.displayName,
+                photoURL: userProfile.photoURL,
+                level: userProfile.level || 1,
+                totalXp: userProfile.totalXp || 0,
+                gameType: gameType
+            };
+
+            socket.emit('findMatch', playerData);
+        }
+
+        findMatchBtn.addEventListener('click', () => {
+            startMatchmaking('normal');
+        });
+
+        findMathMatchBtn.addEventListener('click', () => {
+            startMatchmaking('maths');
+        });
+
+        cancelMatchBtn.addEventListener('click', () => {
+            isInMatchmaking = false;
+            findMatchBtn.style.display = 'block';
+            findMathMatchBtn.style.display = 'block';
+            document.getElementById('codeRoomContainer').style.display = 'flex';
+            matchmakingStatus.style.display = 'none';
+            socket.emit('cancelFindMatch');
+            setStatus('');
+        });
+
+        // ============================================
+        // EVENTOS DE SALAS CON CÓDIGO
+        // ============================================
+
+        createRoomBtn.addEventListener('click', () => {
+            const roomCode = roomCodeInput.value.trim();
+            const gameType = roomGameType.value;
+            if (roomCode && currentUser) {
+                socket.emit('createRoom', {
+                    roomCode,
+                    player: {
+                        uid: userProfile.uid || currentUser.id,
+                        name: userProfile.displayName || 'Jugador',
+                        photoURL: userProfile.photoURL || null
+                    },
+                    gameType
+                });
+            } else {
+                setStatus('Ingresa un código de sala');
+            }
+        });
+
+        joinRoomBtn.addEventListener('click', () => {
+            const roomCode = roomCodeInput.value.trim();
+            const gameType = roomGameType.value;
+            if (roomCode && currentUser) {
+                socket.emit('createRoom', {
+                    roomCode,
+                    player: {
+                        uid: userProfile.uid || currentUser.id,
+                        name: userProfile.displayName || 'Jugador',
+                        photoURL: userProfile.photoURL || null
+                    },
+                    gameType
+                });
+            } else {
+                setStatus('Ingresa un código de sala');
+            }
+        });
+
+        // ============================================
+        // EVENTOS DE REVANCHA
+        // ============================================
+
+        rematchBtn.addEventListener('click', () => {
+            endGameContainer.style.display = 'none';
+            multiplayerMenu.style.display = 'block';
+            setStatus('Esperando respuesta del otro jugador...');
+            socket.emit('requestRematch', { roomCode: currentRoomCode });
+        });
+
+        // ============================================
+        // EVENTOS DE ACEPTAR/RECHAZAR PARTIDA
+        // ============================================
+
+        acceptMatchBtn.addEventListener('click', () => {
+            acceptMatchBtn.disabled = true;
+            rejectMatchBtn.disabled = true;
+            acceptMatchBtn.textContent = 'Esperando...';
+            socket.emit('acceptMatch', { roomId: tempRoomId });
+        });
+
+        rejectMatchBtn.addEventListener('click', () => {
+            hideMatchFound();
+            socket.emit('rejectMatch', { roomId: tempRoomId });
+            showMultiplayerMenu();
+        });
+
+        // ============================================
+        // SISTEMA DE NOTIFICACIONES
+        // ============================================
+
+        let notificacionesSinLeer = 0;
+        let notificacionesData = [];
+
+        function registerUserForNotifications(uid) {
+            if (socket && uid) {
+                socket.emit('registerUser', uid);
+                console.log('📨 Usuario registrado para notificaciones');
+            }
+        }
+
+        async function loadNotifications() {
+            try {
+                console.log('📨 Cargando notificaciones desde la BD...');
+                const data = await apiRequest('/progress/notificaciones');
+                console.log('📥 Respuesta:', data);
+                
+                if (data.success) {
+                    notificacionesData = data.notificaciones || [];
+                    notificacionesSinLeer = notificacionesData.filter(n => !n.leida).length;
+                    console.log(`📨 ${notificacionesData.length} notificaciones cargadas (${notificacionesSinLeer} sin leer)`);
+                    updateNotificationBadge();
+                } else {
+                    console.error('❌ Error al cargar notificaciones:', data.error);
+                }
+            } catch (error) {
+                console.error('❌ Error cargando notificaciones:', error);
+            }
+        }
+
+        function updateNotificationBadge() {
+            if (notifBadge) {
+                if (notificacionesSinLeer > 0) {
+                    notifBadge.style.display = 'inline-block';
+                    notifBadge.textContent = notificacionesSinLeer > 99 ? '99+' : notificacionesSinLeer;
+                } else {
+                    notifBadge.style.display = 'none';
+                }
+            }
+        }
+
+        function showNotifications() {
+            const existingPopup = document.getElementById('notificationsPopup');
+            if (existingPopup) {
+                existingPopup.remove();
+            }
+
+            const container = document.createElement('div');
+            container.id = 'notificationsPopup';
+            container.style.cssText = `
+                position: fixed;
+                top: 70px;
+                right: 20px;
+                width: 380px;
+                max-height: 450px;
+                overflow-y: auto;
+                background: white;
+                border-radius: 15px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.25);
+                z-index: 1000;
+                padding: 15px;
+                animation: slideIn 0.3s ease;
+                border: 1px solid #e2e8f0;
+            `;
+
+            const totalNotificaciones = notificacionesData.length;
+            const noLeidas = notificacionesData.filter(n => !n.leida).length;
+
+            let html = `
+                <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e2e8f0;padding-bottom:10px;margin-bottom:12px;">
+                    <div>
+                        <h3 style="margin:0;color:#2d3748;font-size:18px;">🔔 Notificaciones</h3>
+                        ${totalNotificaciones > 0 ? `<span style="font-size:12px;color:#718096;">${totalNotificaciones} total (${noLeidas} sin leer)</span>` : ''}
+                    </div>
+                    <div style="display:flex;gap:5px;align-items:center;">
+                        ${noLeidas > 0 ? `<button onclick="markAllNotifications()" style="background:none;border:none;color:#667eea;cursor:pointer;font-size:12px;padding:4px 8px;border-radius:4px;">✅ Marcar todas</button>` : ''}
+                        ${totalNotificaciones > 0 ? `<button onclick="deleteAllNotifications()" style="background:none;border:none;color:#fc8181;cursor:pointer;font-size:12px;padding:4px 8px;border-radius:4px;">🗑️ Eliminar todas</button>` : ''}
+                        <button onclick="closeNotifications()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#a0aec0;padding:0 4px;">×</button>
+                    </div>
+                </div>
+            `;
+
+            if (totalNotificaciones === 0) {
+                html += `
+                    <div style="text-align:center;padding:30px 0;color:#a0aec0;">
+                        <div style="font-size:48px;margin-bottom:10px;">📭</div>
+                        <p>No tienes notificaciones</p>
+                    </div>
+                `;
+            } else {
+                const notificacionesOrdenadas = [...notificacionesData].sort((a, b) => 
+                    new Date(b.fecha_creacion) - new Date(a.fecha_creacion)
+                );
+
+                notificacionesOrdenadas.forEach(n => {
+                    const fecha = new Date(n.fecha_creacion);
+                    const fechaStr = fecha.toLocaleDateString();
+                    const horaStr = fecha.toLocaleTimeString();
+                    
+                    const icono = n.tipo === 'suggestion_approved' ? '✅' : 
+                                  n.tipo === 'suggestion_rejected' ? '❌' : 
+                                  n.tipo === 'new_logro' ? '🏅' : '📨';
+                    
+                    const esLeida = n.leida;
+                    
+                    html += `
+                        <div style="padding:10px 12px;margin-bottom:8px;background:${esLeida ? '#f7fafc' : '#ebf4ff'};border-radius:10px;border-left:3px solid ${esLeida ? '#e2e8f0' : '#667eea'};display:flex;justify-content:space-between;align-items:start;gap:8px;">
+                            <div style="flex:1;">
+                                <div style="display:flex;align-items:center;gap:8px;margin-bottom:3px;">
+                                    <span style="font-size:18px;">${icono}</span>
+                                    <span style="font-size:11px;color:#a0aec0;">${fechaStr} ${horaStr}</span>
+                                    ${!esLeida ? '<span style="font-size:10px;background:#667eea;color:white;padding:1px 8px;border-radius:10px;">Nuevo</span>' : ''}
+                                </div>
+                                <div style="font-size:14px;color:#2d3748;word-break:break-word;">${n.mensaje}</div>
+                            </div>
+                            <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
+                                ${!esLeida ? `<button onclick="markNotification(${n.id})" style="background:none;border:none;color:#667eea;cursor:pointer;font-size:11px;padding:2px 6px;">📖 Leer</button>` : ''}
+                                <button onclick="deleteNotification(${n.id})" style="background:none;border:none;color:#fc8181;cursor:pointer;font-size:11px;padding:2px 6px;">🗑️</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            container.innerHTML = html;
+            document.body.appendChild(container);
+        }
+
+        function closeNotifications() {
+            const popup = document.getElementById('notificationsPopup');
+            if (popup) popup.remove();
+        }
+
+        async function markNotification(id) {
+            try {
+                await apiRequest(`/progress/notificaciones/${id}/leer`, { method: 'PUT' });
+                await loadNotifications();
+                showNotifications();
+            } catch (error) {
+                console.error('Error marcando notificación:', error);
+            }
+        }
+
+        async function markAllNotifications() {
+            try {
+                await apiRequest('/progress/notificaciones/leer-todas', { method: 'PUT' });
+                await loadNotifications();
+                showNotifications();
+            } catch (error) {
+                console.error('Error marcando todas las notificaciones:', error);
+            }
+        }
+
+        async function deleteNotification(id) {
+            if (!confirm('¿Eliminar esta notificación?')) return;
+            try {
+                await apiRequest(`/progress/notificaciones/${id}`, { method: 'DELETE' });
+                await loadNotifications();
+                const popup = document.getElementById('notificationsPopup');
+                if (popup) {
+                    showNotifications();
+                }
+            } catch (error) {
+                console.error('Error eliminando notificación:', error);
+                showToastNotification({
+                    type: 'error',
+                    data: { mensaje: '❌ Error al eliminar la notificación' }
+                });
+            }
+        }
+
+        async function deleteAllNotifications() {
+            const total = notificacionesData.length;
+            if (total === 0) {
+                alert('📭 No tienes notificaciones para eliminar');
+                return;
+            }
+            if (!confirm(`¿Eliminar todas las ${total} notificaciones?`)) return;
+            try {
+                await apiRequest('/progress/notificaciones', { method: 'DELETE' });
+                await loadNotifications();
+                const popup = document.getElementById('notificationsPopup');
+                if (popup) {
+                    showNotifications();
+                }
+            } catch (error) {
+                console.error('Error eliminando notificaciones:', error);
+                showToastNotification({
+                    type: 'error',
+                    data: { mensaje: '❌ Error al eliminar las notificaciones' }
+                });
+            }
+        }
+
+        function showToastNotification(notification) {
+            const toast = document.createElement('div');
+            const icono = notification.type === 'suggestion_approved' ? '✅' : 
+                          notification.type === 'suggestion_rejected' ? '❌' : 
+                          notification.type === 'new_logro' ? '🏅' : '📨';
+            
+            toast.style.cssText = `
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                background: white;
+                padding: 15px 20px;
+                border-radius: 12px;
+                box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+                z-index: 1001;
+                max-width: 350px;
+                border-left: 4px solid #667eea;
+                animation: slideIn 0.3s ease;
+                cursor: pointer;
+            `;
+            toast.innerHTML = `
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <span style="font-size:24px;">${icono}</span>
+                    <div>
+                        <div style="font-weight:bold;color:#2d3748;font-size:14px;">${notification.data.mensaje || 'Nueva notificación'}</div>
+                        <div style="font-size:12px;color:#a0aec0;">${new Date().toLocaleTimeString()}</div>
+                    </div>
+                </div>
+            `;
+            toast.onclick = () => {
+                toast.remove();
+                showNotifications();
+            };
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                if (toast.parentNode) toast.remove();
+            }, 5000);
+        }
+
+        // ============================================
+// EVENTOS DE SOCKET.IO (VERSIÓN CORREGIDA)
+// ============================================
+
+socket.on('connect', () => {
+    localPlayerId = socket.id;
+    console.log('✅ Conectado al servidor Socket.IO');
+});
+
+socket.on('notification', (notification) => {
+    console.log('📨 Notificación recibida:', notification);
+    notificacionesSinLeer++;
+    updateNotificationBadge();
+    showToastNotification(notification);
+});
+
+socket.on('roomCreated', (rc) => {
+    currentRoomCode = rc;
+    setStatus(`✅ Sala "${rc}" creada. Esperando oponente...`);
+});
+
+socket.on('playerJoined', () => {
+    setStatus('✅ Oponente conectado. ¡Prepárense!');
+});
+
+socket.on('roomFull', () => {
+    setStatus('❌ La sala está llena.');
+});
+
+socket.on('matchFound', (data) => {
+    const { roomId, opponent } = data;
+    tempRoomId = roomId;
+    opponentAvatar.src = opponent.photoURL || 'img/default-avatar.png';
+    opponentName.textContent = opponent.name || 'Jugador';
+    opponentLevel.textContent = opponent.level || 1;
+    opponentXp.textContent = opponent.totalXp || 0;
+    matchmakingStatus.style.display = 'none';
+    showMatchFound();
+    acceptMatchBtn.disabled = false;
+    rejectMatchBtn.disabled = false;
+    acceptMatchBtn.textContent = '✅ Aceptar';
+    isInMatchmaking = false;
+});
+
+socket.on('matchRejected', () => {
+    hideMatchFound();
+    setStatus('❌ Tu oponente ha rechazado la partida. Buscando de nuevo...');
+    setTimeout(() => {
+        findMatchBtn.click();
+    }, 1000);
+});
+
+// ============================================
+// EVENTO: INICIO DEL CONTADOR
+// ============================================
+socket.on('startCountdown', (data) => {
+    hideMatchFound();
+    mainMenu.style.display = 'none';
+    multiplayerMenu.style.display = 'none';
+    currentRoomCode = data.roomCode;
+    
+    const modeName = data.gameMode || 'normal';
+    document.getElementById('gameModeDisplay').textContent = modeName.charAt(0).toUpperCase() + modeName.slice(1);
+    
+    showCountdown();
+    let count = 3;
+    countdownText.textContent = count;
+    
+    const cdInterval = setInterval(() => {
+        count--;
+        if (count > 0) {
+            countdownText.textContent = count;
+        } else {
+            clearInterval(cdInterval);
+            countdownText.textContent = '¡YA!';
+            setTimeout(() => {
+                hideCountdown();
+                showGame();
+            }, 1000);
+        }
+    }, 1000);
+});
+
+// ============================================
+// EVENTO: ACTUALIZAR TEMPORIZADOR
+// ============================================
+socket.on('timerUpdate', (timeLeft) => {
+    document.getElementById('timerDisplay').textContent = `⏱️ ${timeLeft}s`;
+});
+
+// ============================================
+// EVENTO: RESULTADO DE LA RONDA
+// ============================================
+socket.on('roundResult', (data) => {
+    const { playerAnswers, correctAnswer, scores, playerData } = data;
+    const playerIds = Object.keys(playerData);
+    
+    if (playerIds.length === 2) {
+        const p1Name = playerData[playerIds[0]].name || 'Jugador 1';
+        const p2Name = playerData[playerIds[1]].name || 'Jugador 2';
+        const p1Score = scores[playerIds[0]] || 0;
+        const p2Score = scores[playerIds[1]] || 0;
+        
+        document.getElementById('player1Name').textContent = p1Name;
+        document.getElementById('player2Name').textContent = p2Name;
+        document.getElementById('player1ScoreValue').textContent = p1Score;
+        document.getElementById('player2ScoreValue').textContent = p2Score;
+    }
+    
+    document.querySelectorAll('.option-button').forEach(btn => {
+        btn.disabled = true;
+        if (btn.textContent === correctAnswer) {
+            btn.classList.add('correct');
+        }
+        for (const playerId in playerAnswers) {
+            const playerAnswer = playerAnswers[playerId];
+            if (btn.textContent === playerAnswer.answer && !playerAnswer.isCorrect) {
+                btn.classList.add('incorrect');
+            }
+        }
+    });
+});
+
+// ============================================
+// EVENTO: RECIBIR PREGUNTA (CORREGIDO - SIN correctAnswer)
+// ============================================
+// ============================================
+// EVENTO: RECIBIR PREGUNTA
+// ============================================
+socket.on('nextQuestion', (data) => {
+    document.getElementById('timerDisplay').textContent = '⏱️ 10s';
+    document.getElementById('questionText').textContent = data.question || 'Pregunta sin texto';
+    
+    const optionsContainer = document.getElementById('optionsContainer');
+    optionsContainer.innerHTML = '';
+    
+    const opciones = Array.isArray(data.options) ? data.options : [];
+    
+    if (opciones.length === 0) {
+        const fallbackOptions = ['Opción 1', 'Opción 2', 'Opción 3', 'Opción 4'];
+        fallbackOptions.forEach(option => {
+            const button = document.createElement('button');
+            button.classList.add('option-button');
+            button.textContent = option;
+            button.addEventListener('click', () => {
+                socket.emit('playerAnswer', { 
+                    roomCode: currentRoomCode, 
+                    answer: option 
+                });
+            });
+            optionsContainer.appendChild(button);
+        });
+        return;
+    }
+    
+    opciones.forEach((option) => {
+        const button = document.createElement('button');
+        button.classList.add('option-button');
+        button.textContent = option;
+        button.addEventListener('click', () => {
+            socket.emit('playerAnswer', { 
+                roomCode: currentRoomCode, 
+                answer: button.textContent 
+            });
+            document.querySelectorAll('.option-button').forEach(btn => {
+                btn.disabled = true;
+            });
+        });
+        optionsContainer.appendChild(button);
+    });
+});
+
+socket.on('answerReceived', () => {
+    optionsContainer.querySelectorAll('.option-button').forEach(btn => {
+        btn.disabled = true;
+    });
+});
+
+// ============================================
+// EVENTO: RESULTADO DE LA RONDA (CON NOMBRES)
+// ============================================
+socket.on('roundResult', (data) => {
+    const { playerAnswers, correctAnswer, scores, playerData } = data;
+    const playerIds = Object.keys(playerData);
+    
+    console.log('📊 Resultado de la ronda:', data);
+    
+    if (playerIds.length === 2) {
+        const p1Id = playerIds[0];
+        const p2Id = playerIds[1];
+        const p1Name = playerData[p1Id].name || 'Jugador 1';
+        const p2Name = playerData[p2Id].name || 'Jugador 2';
+        const p1Score = scores[p1Id] || 0;
+        const p2Score = scores[p2Id] || 0;
+        
+        document.getElementById('player1Score').textContent = `👤 ${p1Name}: ${p1Score}`;
+        document.getElementById('player2Score').textContent = `👤 ${p2Name}: ${p2Score}`;
+    }
+    
+    optionsContainer.querySelectorAll('.option-button').forEach(btn => {
+        btn.disabled = true;
+        
+        if (btn.textContent === correctAnswer) {
+            btn.classList.add('correct');
+        }
+        
+        for (const playerId in playerAnswers) {
+            const playerAnswer = playerAnswers[playerId];
+            if (btn.textContent === playerAnswer.answer && !playerAnswer.isCorrect) {
+                btn.classList.add('incorrect');
+            }
+        }
+    });
+});
+/// ============================================
+// EVENTO: FIN DE LA PARTIDA
+// ============================================
+socket.on('endGame', (data) => {
+    document.getElementById('gameContainer').style.display = 'none';
+    showEndGame();
+    
+    const myId = localPlayerId;
+    const otherId = Object.keys(data.playerData).find(id => id !== myId);
+    
+    if (!myId || !otherId) return;
+    
+    const myPd = data.playerData[myId];
+    const otherPd = data.playerData[otherId];
+    const myScore = data.scores[myId] || 0;
+    const otherScore = data.scores[otherId] || 0;
+    
+    document.getElementById('endPlayer1Name').textContent = myPd.name || 'Jugador 1';
+    document.getElementById('endPlayer1Score').textContent = `Puntuación: ${myScore}`;
+    document.getElementById('endAvatar1').src = myPd.photoURL || 'img/default-avatar.png';
+    
+    document.getElementById('endPlayer2Name').textContent = otherPd.name || 'Jugador 2';
+    document.getElementById('endPlayer2Score').textContent = `Puntuación: ${otherScore}`;
+    document.getElementById('endAvatar2').src = otherPd.photoURL || 'img/default-avatar.png';
+    
+    let msg = '';
+    if (myScore > otherScore) msg = `🎉 ¡Ganaste, ${myPd.name}!`;
+    else if (otherScore > myScore) msg = `😢 ${otherPd.name} ha ganado!`;
+    else msg = '🤝 ¡Es un empate!';
+    
+    document.getElementById('endGameMessage').textContent = msg;
+});
+
+
+socket.on('opponentLeft', (message) => {
+    gameContainer.style.display = 'none';
+    endGameContainer.style.display = 'none';
+    showMultiplayerMenu();
+    setStatus(`❌ ${message}`);
+});
+
+        // ============================================
+        // INICIALIZAR
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!verificarAutenticacion()) return;
+            
+            const profile = await loadUserProfile();
+            if (!profile) return;
+
+            loadLanguage();
+            showMainMenu();
+
+            await checkAndShowAdminButton();
+
+            await loadNotifications();
+            registerUserForNotifications(profile.uid);
+
+            if (notificationsBtn) {
+                notificationsBtn.addEventListener('click', showNotifications);
+            } else {
+                console.warn('⚠️ Botón de notificaciones no encontrado');
+            }
+
+            console.log('✅ Menú principal cargado correctamente');
+            console.log('👤 Usuario:', profile.displayName);
+            console.log('👑 Es admin:', profile.rol === 'admin');
+        });
+
+        // ============================================
+        // EXPONER FUNCIONES GLOBALMENTE
+        // ============================================
+        window.setLanguage = setLanguage;
+        window.loadLanguage = loadLanguage;
+        window.showMultiplayerMenu = showMultiplayerMenu;
+        window.showMainMenu = showMainMenu;
+        window.startMatchmaking = startMatchmaking;
+        window.showNotifications = showNotifications;
+        window.closeNotifications = closeNotifications;
+        window.markNotification = markNotification;
+        window.markAllNotifications = markAllNotifications;
+        window.deleteNotification = deleteNotification;
+        window.deleteAllNotifications = deleteAllNotifications;
+    </script>
+</body>
+</html>

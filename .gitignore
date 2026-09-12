@@ -1,0 +1,32 @@
+# Dependencias
+node_modules/
+package-lock.json
+
+# Variables de entorno (SECRETAS)
+.env
+.env.local
+.env.production
+
+# Firebase (si aún queda algo)
+serviceAccountKey.json
+
+# Logs
+*.log
+npm-debug.log*
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
+
+# Respaldos de base de datos
+*.sql
+*.sql.gz
+
+# Configuración del editor
+.vscode/
+.idea/
+
+# Caché
+.cache/
+dist/
+build/

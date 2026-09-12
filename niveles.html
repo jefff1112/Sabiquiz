@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sabiquiz - Niveles</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .back-btn {
+            background: #e2e8f0;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .back-btn:hover {
+            background: #cbd5e0;
+        }
+        .niveles-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .nivel-card {
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+            border: 2px solid #e2e8f0;
+        }
+        .nivel-card:hover {
+            transform: scale(1.05);
+        }
+        .nivel-card.completado {
+            background: #c6f6d5;
+            border-color: #48bb78;
+        }
+        .nivel-card.bloqueado {
+            background: #fed7d7;
+            border-color: #fc8181;
+            cursor: not-allowed;
+            opacity: 0.6;
+        }
+        .nivel-card.disponible {
+            background: #bee3f8;
+            border-color: #4299e1;
+        }
+        .nivel-card .estrellas {
+            font-size: 20px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-btn" onclick="window.location.href='main_menu.html'">← Volver</button>
+        <h1 id="materiaTitulo">Cargando niveles...</h1>
+        <div id="nivelesContainer" class="niveles-grid">
+            <div class="loading">Cargando niveles...</div>
+        </div>
+    </div>
+
+    <script src="js/app.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        async function getToken() {
+            return localStorage.getItem('token');
+        }
+
+        async function apiRequest(endpoint, options = {}) {
+            const token = await getToken();
+            const defaultOptions = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': token ? `Bearer ${token}` : ''
+                }
+            };
+            const finalOptions = { ...defaultOptions, ...options };
+            const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
+            return await response.json();
+        }
+
+        async function loadNiveles() {
+            const params = new URLSearchParams(window.location.search);
+            const materiaId = params.get('materiaId');
+            
+            if (!materiaId) {
+                document.getElementById('materiaTitulo').textContent = 'Error: No se seleccionó materia';
+                return;
+            }
+
+            try {
+                // Obtener datos de la materia
+                const materiasData = await apiRequest('/quiz/materias');
+                const materia = materiasData.materias.find(m => m.id == materiaId);
+                document.getElementById('materiaTitulo').textContent = `📚 ${materia ? materia.nombre : 'Materia'} - Niveles`;
+
+                // Obtener niveles
+                const nivelesData = await apiRequest(`/quiz/materia/${materiaId}/niveles`);
+                const progresoData = await apiRequest('/progress');
+
+                const container = document.getElementById('nivelesContainer');
+                container.innerHTML = '';
+
+                nivelesData.niveles.forEach(nivel => {
+                    // Buscar progreso de este nivel
+                    let progresoNivel = null;
+                    for (const [materia, niveles] of Object.entries(progresoData.progreso || {})) {
+                        const encontrado = niveles.find(n => n.nivel === nivel.numero);
+                        if (encontrado) {
+                            progresoNivel = encontrado;
+                            break;
+                        }
+                    }
+
+                    const card = document.createElement('div');
+                    card.className = 'nivel-card';
+                    
+                    let estado = 'disponible';
+                    let estrellasHTML = '';
+
+                    if (progresoNivel) {
+                        if (progresoNivel.completado) {
+                            estado = 'completado';
+                            estrellasHTML = '⭐'.repeat(progresoNivel.estrellas || 0);
+                        }
+                    } else {
+                        // Si no hay progreso, está disponible
+                        estado = 'disponible';
+                    }
+
+                    card.className = `nivel-card ${estado}`;
+                    card.innerHTML = `
+                        <div style="font-size: 24px; font-weight: bold;">${nivel.numero}</div>
+                        <div style="font-size: 14px; color: #4a5568;">${nivel.titulo || `Nivel ${nivel.numero}`}</div>
+                        <div class="estrellas">${estrellasHTML || '🔓'}</div>
+                        ${estado === 'completado' ? '<span style="color: #48bb78;">✅ Completado</span>' : ''}
+                        ${estado === 'bloqueado' ? '<span style="color: #fc8181;">🔒 Bloqueado</span>' : ''}
+                    `;
+
+                    // Solo permitir clic si está disponible o completado (para rejugar)
+                    if (estado !== 'bloqueado') {
+                        card.onclick = () => {
+                            localStorage.setItem('selectedNivelId', nivel.id);
+                            window.location.href = `quiz_runner.html?nivel=${nivel.id}`;
+                        };
+                    }
+
+                    container.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error cargando niveles:', error);
+                document.getElementById('nivelesContainer').innerHTML = `
+                    <div style="grid-column: 1/-1; text-align: center; color: #c53030;">
+                        ❌ Error al cargar niveles: ${error.message}
+                    </div>
+                `;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadNiveles);
+    </script>
+</body>
+</html>
