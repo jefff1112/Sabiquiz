@@ -645,7 +645,7 @@
         // ============================================
         // CONFIGURACIÓN DE LA API Y SOCKET
         // ============================================
-        const API_URL = 'http://localhost:3000/api';
+        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000/api' : (window.location.origin + '/api');
 
         const socketURL = window.location.hostname.includes('localhost') 
             ? "http://localhost:3000" 
