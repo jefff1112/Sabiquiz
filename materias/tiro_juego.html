@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiro Parabólico - Juego</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 24px;
+            background: radial-gradient(circle at 20% 10%, #eef2ff, #e0e7ff 45%, #dbeafe 100%);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        .game-container {
+            background: #ffffff;
+            padding: 26px 30px 22px;
+            border-radius: 24px;
+            box-shadow: 0 24px 60px rgba(56, 66, 120, 0.22);
+            text-align: center;
+            width: 100%;
+            max-width: 740px;
+            position: relative;
+            overflow: hidden;
+        }
+        .game-container::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 6px;
+            background: linear-gradient(90deg, #667eea, #9f7aea, #48bb78);
+        }
+        .back-btn { display: inline-block; margin-bottom: 6px; color: #667eea; text-decoration: none; font-weight: 600; font-size: 15px; }
+        .back-btn:hover { text-decoration: underline; }
+        .level-title { font-size: 24px; font-weight: 800; color: #2d3748; margin: 4px 0 2px; }
+        .stars { display: flex; justify-content: center; gap: 5px; margin: 4px 0; }
+        .star { font-size: 27px; color: #e2e8f0; transition: color .2s, transform .2s; }
+        .star.filled { color: #f6ad55; animation: pop .35s ease; }
+        .hint { font-size: 14px; color: #718096; margin: 4px 0 10px; }
+
+        #gameCanvas {
+            width: 100%;
+            max-width: 700px;
+            height: auto;
+            border-radius: 16px;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.06);
+            display: block;
+            margin: 0 auto;
+            touch-action: none;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 28px;
+            flex-wrap: wrap;
+            margin: 16px 0 4px;
+        }
+        .control { display: flex; flex-direction: column; align-items: center; gap: 6px; min-width: 150px; }
+        .control label { font-weight: 800; color: #2d3748; font-size: 13px; letter-spacing: .5px; }
+        .control .value { color: #667eea; font-weight: 800; font-size: 18px; }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            width: 190px;
+            height: 9px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            outline: none;
+            cursor: pointer;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid #667eea;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.22);
+            cursor: grab;
+        }
+        input[type="range"]::-webkit-slider-thumb:active { cursor: grabbing; }
+        input[type="range"]::-moz-range-thumb {
+            width: 24px; height: 24px;
+            border-radius: 50%;
+            background: #fff;
+            border: 3px solid #667eea;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.22);
+            cursor: grab;
+        }
+
+        .fire-btn {
+            margin-top: 10px;
+            padding: 13px 44px;
+            background: linear-gradient(135deg, #ed8936, #dd6b20);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 18px;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(237,137,54,0.4);
+            transition: transform .2s, box-shadow .2s;
+        }
+        .fire-btn:hover { transform: translateY(-2px); box-shadow: 0 14px 24px rgba(237,137,54,0.5); }
+        .fire-btn:disabled { background: #cbd5e0; box-shadow: none; cursor: not-allowed; transform: none; }
+
+        .feedback { margin-top: 14px; font-size: 18px; font-weight: 800; min-height: 26px; }
+        .formula-note { margin-top: 12px; font-size: 12px; color: #a0aec0; }
+        .next-btn {
+            margin-top: 10px;
+            padding: 13px 34px;
+            background: linear-gradient(90deg, #667eea, #48bb78);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 10px 20px rgba(102,126,234,0.35);
+        }
+        .next-btn:hover { transform: translateY(-2px); }
+
+        #confettiLayer { position: fixed; inset: 0; pointer-events: none; z-index: 999; overflow: hidden; }
+        #toastLayer { position: fixed; top: 18px; right: 18px; z-index: 1200; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast {
+            display: flex; align-items: center; gap: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff; padding: 14px 18px; border-radius: 16px;
+            box-shadow: 0 16px 34px rgba(30, 30, 60, 0.3);
+            min-width: 260px; max-width: 330px;
+            pointer-events: auto;
+            animation: toastIn 0.45s cubic-bezier(0.34,1.56,0.64,1), toastOut 0.4s ease 3.9s forwards;
+        }
+        .toast .t-icon { font-size: 32px; }
+        .toast .t-body { flex: 1; text-align: left; }
+        .toast .t-title { font-weight: 800; font-size: 12px; opacity: 0.85; letter-spacing: 0.5px; }
+        .toast .t-name { font-weight: 800; font-size: 16px; margin: 1px 0; }
+        .toast .t-desc { font-size: 12px; opacity: 0.92; }
+        @keyframes toastIn { from { transform: translateX(130%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastOut { to { transform: translateX(130%); opacity: 0; } }
+        .confetti { position: absolute; top: -14px; width: 10px; height: 14px; border-radius: 2px; animation: fall 2.4s ease-in forwards; }
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(calc(100vh + 30px)) translateX(var(--x, 0)) rotate(720deg); opacity: .9; }
+        }
+        @keyframes pop {
+            0% { transform: scale(.6); }
+            60% { transform: scale(1.12); }
+            100% { transform: scale(1); }
+        }
+        @media (max-width: 520px) {
+            .game-container { padding: 18px 14px 16px; }
+            input[type="range"] { width: 140px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <a href="tiro.html" class="back-btn">← Volver a niveles</a>
+        <div class="level-title">🚀 Tiro Parabólico - Nivel <span id="levelNum">1</span></div>
+        <div class="stars" id="starsContainer">
+            <span class="star" id="star1">☆</span>
+            <span class="star" id="star2">☆</span>
+            <span class="star" id="star3">☆</span>
+        </div>
+        <div class="hint" id="hintLine"></div>
+
+        <canvas id="gameCanvas" width="700" height="360"></canvas>
+
+        <div class="controls">
+            <div class="control">
+                <label>Ángulo (θ)</label>
+                <input type="range" id="angleSlider" min="5" max="85" value="45">
+                <span class="value" id="angleValue">45°</span>
+            </div>
+            <div class="control">
+                <label>Velocidad (v)</label>
+                <input type="range" id="powerSlider" min="10" max="30" value="20">
+                <span class="value" id="powerValue">20</span>
+            </div>
+        </div>
+
+        <button class="fire-btn" id="fireBtn">🚀 Disparar</button>
+
+        <div class="feedback" id="feedback"></div>
+        <button class="next-btn" id="nextBtn">Siguiente ➜</button>
+        <div class="formula-note">Alcance = (v² · sen 2θ) / g &nbsp;·&nbsp; Altura máx = (v² · sen² θ) / 2g</div>
+    </div>
+    <div id="confettiLayer"></div>
+    <div id="toastLayer"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        function getToken() { return localStorage.getItem('token'); }
+        async function apiRequest(endpoint, options = {}) {
+            const token = getToken();
+            const headers = { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' };
+            const finalOptions = { ...options, headers: { ...headers, ...options.headers } };
+            const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
+            if (!response.ok) throw new Error(await response.text());
+            return await response.json();
+        }
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const angleSlider = document.getElementById('angleSlider');
+        const powerSlider = document.getElementById('powerSlider');
+        const angleValue = document.getElementById('angleValue');
+        const powerValue = document.getElementById('powerValue');
+        const fireBtn = document.getElementById('fireBtn');
+        const feedback = document.getElementById('feedback');
+        const nextBtn = document.getElementById('nextBtn');
+        const hintLine = document.getElementById('hintLine');
+        const levelNumSpan = document.getElementById('levelNum');
+        const star1 = document.getElementById('star1');
+        const star2 = document.getElementById('star2');
+        const star3 = document.getElementById('star3');
+
+        // ============================================
+        // CONSTANTES FÍSICAS Y ESCENARIO
+        // ============================================
+        const GRAVITY = 0.9;
+        const DT = 0.5;
+        const SUBSTEPS = 2;
+        const ORIGIN_X = 60;
+        const ORIGIN_Y = 350;
+        const GROUND_Y = 350;
+
+        const levelConfigs = [
+            { tx: 250, ty: 290, radius: 42, hint: 'Objetivo cercano y bajo. Un ángulo medio y velocidad media funcionan.' },
+            { tx: 430, ty: 265, radius: 40, hint: 'Más lejos. Aumenta la velocidad (y un poco el ángulo).' },
+            { tx: 295, ty: 130, radius: 40, hint: 'Objetivo alto. Necesitas un ángulo pronunciado (θ grande).' },
+            { tx: 390, ty: 150, radius: 28, hint: 'Precisión: el objetivo es más pequeño.' },
+            { tx: 480, ty: 230, radius: 24, hint: 'Lejos y preciso. ¡Nivel experto!' }
+        ];
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const levelNum = parseInt(urlParams.get('nivel')) || 1;
+        const levelData = levelConfigs[(levelNum - 1) % levelConfigs.length];
+
+        let shots = 0;
+        let isCompleted = false;
+        let animating = false;
+        let projectile = null;
+        let angle = 45, power = 20;
+
+        function getStars() {
+            if (shots <= 1) return 3;
+            if (shots === 2) return 2;
+            return 1;
+        }
+        function updateStars(stars) {
+            [star1, star2, star3].forEach((s, i) => {
+                const on = i < stars;
+                s.textContent = on ? '⭐' : '☆';
+                s.classList.toggle('filled', on);
+            });
+        }
+
+        // ============================================
+        // DIBUJO
+        // ============================================
+        function drawSky() {
+            const g = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            g.addColorStop(0, '#dbeafe');
+            g.addColorStop(0.6, '#eff6ff');
+            g.addColorStop(1, '#fdf6e3');
+            ctx.fillStyle = g;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function drawGround() {
+            const g = ctx.createLinearGradient(0, GROUND_Y - 6, 0, canvas.height);
+            g.addColorStop(0, '#a7c957');
+            g.addColorStop(1, '#7cb342');
+            ctx.fillStyle = g;
+            ctx.fillRect(0, GROUND_Y, canvas.width, canvas.height - GROUND_Y);
+            ctx.strokeStyle = '#6b9b37';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(0, GROUND_Y); ctx.lineTo(canvas.width, GROUND_Y); ctx.stroke();
+
+            // Marcas de distancia
+            ctx.fillStyle = 'rgba(0,0,0,0.25)';
+            ctx.font = '11px sans-serif';
+            ctx.textAlign = 'center';
+            for (let x = ORIGIN_X + 100; x < canvas.width; x += 100) {
+                ctx.fillText((x - ORIGIN_X) + ' m', x, GROUND_Y + 17);
+                ctx.fillRect(x, GROUND_Y, 1, 5);
+            }
+            ctx.textAlign = 'left';
+        }
+
+        function drawLauncher() {
+            // Cañón/lanzador en el origen que apunta según θ
+            ctx.save();
+            ctx.translate(ORIGIN_X, ORIGIN_Y);
+            ctx.rotate(-angle * Math.PI / 180);
+            const g = ctx.createLinearGradient(0, 0, 34, 0);
+            g.addColorStop(0, '#475569');
+            g.addColorStop(1, '#64748b');
+            ctx.fillStyle = g;
+            ctx.strokeStyle = '#334155';
+            ctx.lineWidth = 2;
+            roundRect(-6, -9, 40, 18, 9);
+            ctx.fill(); ctx.stroke();
+            ctx.restore();
+        }
+
+        function roundRect(x, y, w, h, r) {
+            ctx.beginPath();
+            ctx.moveTo(x + r, y);
+            ctx.arcTo(x + w, y, x + w, y + h, r);
+            ctx.arcTo(x + w, y + h, x, y + h, r);
+            ctx.arcTo(x, y + h, x, y, r);
+            ctx.arcTo(x, y, x + w, y, r);
+            ctx.closePath();
+        }
+
+        function drawTarget() {
+            const { tx, ty, radius } = levelData;
+            // halo
+            const halo = ctx.createRadialGradient(tx, ty, radius * 0.3, tx, ty, radius * 1.4);
+            halo.addColorStop(0, 'rgba(252,129,129,0.35)');
+            halo.addColorStop(1, 'rgba(252,129,129,0)');
+            ctx.fillStyle = halo;
+            ctx.beginPath(); ctx.arc(tx, ty, radius * 1.4, 0, Math.PI * 2); ctx.fill();
+
+            const rings = [
+                { k: 1.0, color: '#fc8181' },
+                { k: 0.72, color: '#fefcbf' },
+                { k: 0.44, color: '#fc8181' }
+            ];
+            rings.forEach(r => {
+                ctx.beginPath();
+                ctx.arc(tx, ty, radius * r.k, 0, Math.PI * 2);
+                ctx.fillStyle = r.color;
+                ctx.fill();
+                ctx.strokeStyle = '#c53030';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+            });
+            ctx.fillStyle = '#c53030';
+            ctx.font = 'bold 12px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('objetivo', tx, ty - radius - 9);
+            ctx.textAlign = 'left';
+        }
+
+        function computeTrajectory(a, p) {
+            const rad = a * Math.PI / 180;
+            const vx = p * Math.cos(rad);
+            const vy = -p * Math.sin(rad);
+            const pts = [];
+            let x = 0, y = 0, vyy = vy;
+            for (let i = 0; i < 700; i++) {
+                pts.push({ x: ORIGIN_X + x, y: ORIGIN_Y + y });
+                x += vx * DT;
+                y += vyy * DT;
+                vyy += GRAVITY * DT;
+                if (i > 0 && y >= 0 && vyy > 0) break;
+            }
+            return pts;
+        }
+
+        function drawPreview() {
+            const pts = computeTrajectory(angle, power);
+            ctx.strokeStyle = 'rgba(102,126,234,0.5)';
+            ctx.lineWidth = 3;
+            ctx.setLineDash([8, 6]);
+            ctx.beginPath();
+            pts.forEach((p, i) => i === 0 ? ctx.moveTo(p.x, p.y) : ctx.lineTo(p.x, p.y));
+            ctx.stroke();
+            ctx.setLineDash([]);
+
+            // Punto de aterrizaje estimado
+            const last = pts[pts.length - 1];
+            ctx.fillStyle = '#667eea';
+            ctx.beginPath(); ctx.arc(last.x, last.y, 5, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = '#fff';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+        }
+
+        function drawProjectile() {
+            if (!projectile) return;
+            const t = projectile.trail;
+            // Estela
+            for (let i = 1; i < t.length; i++) {
+                const alpha = i / t.length;
+                ctx.strokeStyle = `rgba(237,137,54,${(alpha * 0.65).toFixed(3)})`;
+                ctx.lineWidth = 1 + alpha * 3;
+                ctx.beginPath(); ctx.moveTo(t[i - 1].x, t[i - 1].y); ctx.lineTo(t[i].x, t[i].y); ctx.stroke();
+            }
+            // Cabeza brillante
+            const g = ctx.createRadialGradient(projectile.px, projectile.py, 1, projectile.px, projectile.py, 9);
+            g.addColorStop(0, '#fff');
+            g.addColorStop(0.4, '#fbd38d');
+            g.addColorStop(1, '#ed8936');
+            ctx.fillStyle = g;
+            ctx.beginPath(); ctx.arc(projectile.px, projectile.py, 9, 0, Math.PI * 2); ctx.fill();
+        }
+
+        function render() {
+            drawSky();
+            drawGround();
+            drawTarget();
+            if (!animating) { drawLauncher(); drawPreview(); }
+            drawProjectile();
+        }
+
+        // ============================================
+        // LANZAMIENTO
+        // ============================================
+        fireBtn.addEventListener('click', () => {
+            if (animating || isCompleted) return;
+            shots++;
+            animating = true;
+            fireBtn.disabled = true;
+            angleSlider.disabled = true;
+            powerSlider.disabled = true;
+            feedback.textContent = '';
+            updateStars(0);
+
+            const rad = angle * Math.PI / 180;
+            const vx = power * Math.cos(rad);
+            const vy = -power * Math.sin(rad);
+            let x = 0, y = 0, vyy = vy;
+            projectile = { px: ORIGIN_X, py: ORIGIN_Y, trail: [] };
+
+            function step() {
+                let hit = false, landed = false;
+                for (let s = 0; s < SUBSTEPS; s++) {
+                    x += vx * DT;
+                    y += vyy * DT;
+                    vyy += GRAVITY * DT;
+                    const px = ORIGIN_X + x;
+                    const py = ORIGIN_Y + y;
+                    projectile.trail.push({ x: px, y: py });
+                    projectile.px = px; projectile.py = py;
+                    if (Math.hypot(px - levelData.tx, py - levelData.ty) <= levelData.radius) { hit = true; break; }
+                    if (y >= 0 && vyy > 0) { landed = true; break; }
+                }
+                render();
+                if (hit) {
+                    animating = false;
+                    isCompleted = true;
+                    const stars = getStars();
+                    updateStars(stars);
+                    feedback.textContent = `🎯 ¡Diana! Impactaste en ${shots} disparo(s). Ganaste ${stars} estrellas.`;
+                    feedback.style.color = '#48bb78';
+                    nextBtn.style.display = 'block';
+                    confetti();
+                    saveProgress('tiro', levelNum, stars, true);
+                    return;
+                }
+                if (landed) {
+                    animating = false;
+                    projectile = null;
+                    fireBtn.disabled = false;
+                    angleSlider.disabled = false;
+                    powerSlider.disabled = false;
+                    feedback.textContent = '❌ No alcanzaste el objetivo. Ajusta θ y v e inténtalo de nuevo.';
+                    feedback.style.color = '#fc8181';
+                    return;
+                }
+                requestAnimationFrame(step);
+            }
+            requestAnimationFrame(step);
+        });
+
+        function updateSliderFill(slider, pct, color) {
+            slider.style.background = `linear-gradient(to right, ${color} ${pct}%, #e2e8f0 ${pct}%)`;
+        }
+        function onSlider() {
+            angle = parseFloat(angleSlider.value);
+            power = parseFloat(powerSlider.value);
+            angleValue.textContent = angle + '°';
+            powerValue.textContent = power;
+            updateSliderFill(angleSlider, (angle - 5) / 80 * 100, '#667eea');
+            updateSliderFill(powerSlider, (power - 10) / 20 * 100, '#ed8936');
+            if (!animating && !isCompleted) render();
+        }
+        angleSlider.addEventListener('input', onSlider);
+        powerSlider.addEventListener('input', onSlider);
+
+        function confetti() {
+            const layer = document.getElementById('confettiLayer');
+            const colors = ['#667eea', '#48bb78', '#f6ad55', '#9f7aea', '#f56565', '#ed8936'];
+            for (let i = 0; i < 70; i++) {
+                const d = document.createElement('div');
+                d.className = 'confetti';
+                d.style.left = (Math.random() * 100) + '%';
+                d.style.background = colors[i % colors.length];
+                d.style.animationDelay = (Math.random() * 0.6) + 's';
+                d.style.setProperty('--x', (Math.random() * 160 - 80) + 'px');
+                layer.appendChild(d);
+                setTimeout(() => d.remove(), 3000);
+            }
+        }
+
+        function showLogroToast(logro) {
+            const layer = document.getElementById('toastLayer');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerHTML =
+                '<div class="t-icon">' + (logro.icono || '🏅') + '</div>' +
+                '<div class="t-body">' +
+                '<div class="t-title">🏆 ¡Logro desbloqueado!</div>' +
+                '<div class="t-name">' + logro.nombre + '</div>' +
+                '<div class="t-desc">' + (logro.descripcion || '') + '</div>' +
+                '</div>';
+            layer.appendChild(t);
+            setTimeout(() => t.remove(), 4200);
+        }
+
+        async function saveProgress(minijuego, nivel, estrellas, completado) {
+            try {
+                const data = await apiRequest('/minigames/submit', {
+                    method: 'POST',
+                    body: JSON.stringify({ minijuego, nivel, estrellas, completado })
+                });
+                if (data && data.nuevosLogros && data.nuevosLogros.length) {
+                    data.nuevosLogros.forEach(showLogroToast);
+                }
+            } catch (error) {
+                console.error('Error guardando progreso:', error);
+            }
+        }
+
+        function loadLevel() {
+            levelNumSpan.textContent = levelNum;
+            hintLine.textContent = levelData.hint;
+            shots = 0;
+            isCompleted = false;
+            animating = false;
+            projectile = null;
+            updateStars(0);
+            feedback.textContent = '';
+            nextBtn.style.display = 'none';
+            fireBtn.disabled = false;
+            angleSlider.disabled = false;
+            powerSlider.disabled = false;
+            angle = 45; power = 20;
+            angleSlider.value = angle; powerSlider.value = power;
+            onSlider();
+        }
+
+        nextBtn.addEventListener('click', () => { window.location.href = 'tiro.html'; });
+
+        loadLevel();
+    </script>
+</body>
+</html>

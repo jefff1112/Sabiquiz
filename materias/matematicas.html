@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matemáticas - Sabiquiz</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .mode-selector {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+        .mode-card {
+            background: #f7fafc;
+            border-radius: 20px;
+            padding: 30px 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            border: 2px solid transparent;
+            flex: 1;
+            max-width: 250px;
+            min-width: 180px;
+            text-decoration: none;
+            color: inherit;
+        }
+        .mode-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        .mode-card .icon { font-size: 48px; display: block; }
+        .mode-card h3 { margin: 10px 0 5px; color: #2d3748; }
+        .mode-card p { color: #718096; font-size: 14px; }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .back-btn:hover { text-decoration: underline; }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h3 { text-align: center; color: #2d3748; font-size: 28px; }
+        @media (max-width: 600px) {
+            .mode-selector { flex-direction: column; align-items: center; }
+            .mode-card { max-width: 100%; width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="../main_menu.html" class="back-btn">← Volver a materias</a>
+        <h3>📐 Matemáticas</h3>
+
+        <div class="mode-selector">
+            <a href="matematicas_quizzes.html" class="mode-card">
+                <span class="icon">📚</span>
+                <h3>Quizzes Clásicos</h3>
+                <p>Preguntas y respuestas para poner a prueba tu conocimiento.</p>
+            </a>
+            <a href="matematicas_minijuegos.html" class="mode-card">
+                <span class="icon">🎮</span>
+                <h3>Minijuegos</h3>
+                <p>Experiencias interactivas para aprender visualmente.</p>
+            </a>
+        </div>
+    </div>
+</body>
+</html>

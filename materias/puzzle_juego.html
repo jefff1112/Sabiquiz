@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Geométrico - Juego</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        :root {
+            --cell: 116px;
+        }
+        * { box-sizing: border-box; }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 24px;
+            background: radial-gradient(circle at 20% 10%, #eef2ff, #e0e7ff 45%, #dbeafe 100%);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        .game-container {
+            background: #ffffff;
+            padding: 28px 32px 24px;
+            border-radius: 24px;
+            box-shadow: 0 24px 60px rgba(56, 66, 120, 0.22);
+            text-align: center;
+            width: 100%;
+            max-width: 680px;
+            position: relative;
+            overflow: hidden;
+        }
+        .game-container::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 6px;
+            background: linear-gradient(90deg, #667eea, #9f7aea, #48bb78);
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 6px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .back-btn:hover { text-decoration: underline; }
+
+        .level-title { font-size: 24px; font-weight: 800; color: #2d3748; margin: 4px 0 2px; }
+        .stars { display: flex; justify-content: center; gap: 5px; margin: 4px 0; }
+        .star { font-size: 27px; color: #e2e8f0; transition: color .2s, transform .2s; }
+        .star.filled { color: #f6ad55; }
+        .star.filled { animation: pop .35s ease; }
+
+        .progress {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f1f5f9;
+            color: #475569;
+            font-weight: 700;
+            font-size: 14px;
+            padding: 6px 16px;
+            border-radius: 999px;
+            margin-top: 4px;
+        }
+        .progress .bar {
+            width: 90px;
+            height: 8px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            overflow: hidden;
+        }
+        .progress .bar span {
+            display: block;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #667eea, #48bb78);
+            border-radius: 999px;
+            transition: width .35s ease;
+        }
+
+        .board {
+            margin: 18px auto 10px;
+            padding: 20px;
+            background: #f8fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 20px;
+            min-height: 150px;
+        }
+        .board-label {
+            font-size: 12px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: #a0aec0;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+        .board-grid {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 18px;
+        }
+
+        .hole, .piece {
+            width: var(--cell);
+            height: var(--cell);
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+        }
+        .hole svg, .piece svg {
+            width: 84%;
+            height: 84%;
+            filter: drop-shadow(0 2px 3px rgba(0,0,0,0.12));
+        }
+        .hole { transition: background .2s, box-shadow .2s, transform .2s; }
+        .hole.hover-ok {
+            animation: pulse 0.8s infinite;
+        }
+        .hole.hover-no {
+            background: #fff1f2;
+            box-shadow: inset 0 0 0 2px #fca5a5;
+        }
+        .hole.filled { pointer-events: none; }
+        .hole.filled svg { filter: none; }
+        .hole.filled { animation: pop .4s ease; }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 6px 0 10px;
+            color: #cbd5e0;
+            font-size: 12px;
+        }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+
+        .tray {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 18px;
+            padding: 16px;
+            background: #f1f5f9;
+            border-radius: 20px;
+        }
+        .piece {
+            cursor: grab;
+            transition: transform .12s ease, box-shadow .2s ease;
+            touch-action: none;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+        .piece:hover { transform: translateY(-3px); }
+        .piece:active { cursor: grabbing; }
+        .piece.dragging {
+            z-index: 50;
+            cursor: grabbing;
+            transition: none;
+            filter: drop-shadow(0 18px 26px rgba(0,0,0,0.22));
+        }
+        .piece.placed { opacity: 0; pointer-events: none; }
+        .piece.animating { transition: transform .22s cubic-bezier(.34,1.56,.64,1), opacity .22s ease; }
+
+        .feedback { margin-top: 16px; font-size: 18px; font-weight: 800; min-height: 26px; }
+        .next-btn {
+            margin-top: 10px;
+            padding: 13px 34px;
+            background: linear-gradient(90deg, #667eea, #48bb78);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 10px 20px rgba(102,126,234,0.35);
+        }
+        .next-btn:hover { transform: translateY(-2px); }
+
+        #confettiLayer { position: fixed; inset: 0; pointer-events: none; z-index: 999; overflow: hidden; }
+        #toastLayer { position: fixed; top: 18px; right: 18px; z-index: 1200; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast {
+            display: flex; align-items: center; gap: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff; padding: 14px 18px; border-radius: 16px;
+            box-shadow: 0 16px 34px rgba(30, 30, 60, 0.3);
+            min-width: 260px; max-width: 330px;
+            pointer-events: auto;
+            animation: toastIn 0.45s cubic-bezier(0.34,1.56,0.64,1), toastOut 0.4s ease 3.9s forwards;
+        }
+        .toast .t-icon { font-size: 32px; }
+        .toast .t-body { flex: 1; text-align: left; }
+        .toast .t-title { font-weight: 800; font-size: 12px; opacity: 0.85; letter-spacing: 0.5px; }
+        .toast .t-name { font-weight: 800; font-size: 16px; margin: 1px 0; }
+        .toast .t-desc { font-size: 12px; opacity: 0.92; }
+        @keyframes toastIn { from { transform: translateX(130%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastOut { to { transform: translateX(130%); opacity: 0; } }
+        .confetti {
+            position: absolute;
+            top: -14px;
+            width: 10px;
+            height: 14px;
+            border-radius: 2px;
+            animation: fall 2.4s ease-in forwards;
+        }
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(calc(100vh + 30px)) translateX(var(--x,0)) rotate(720deg); opacity: .9; }
+        }
+        @keyframes pop {
+            0% { transform: scale(0.6); }
+            60% { transform: scale(1.12); }
+            100% { transform: scale(1); }
+        }
+        @keyframes pulse {
+            0%,100% { box-shadow: 0 0 0 0 rgba(72,187,120,.45); transform: scale(1); }
+            50% { box-shadow: 0 0 0 10px rgba(72,187,120,0); transform: scale(1.04); }
+        }
+        @media (max-width: 520px) {
+            :root { --cell: 92px; }
+            .game-container { padding: 20px 16px 18px; }
+            .board-grid, .tray { gap: 12px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <a href="puzzle.html" class="back-btn">← Volver a niveles</a>
+        <div class="level-title">🧩 Puzzle Geométrico - Nivel <span id="levelNum">1</span></div>
+        <div class="stars" id="starsContainer">
+            <span class="star" id="star1">☆</span>
+            <span class="star" id="star2">☆</span>
+            <span class="star" id="star3">☆</span>
+        </div>
+        <div class="progress">
+            <span id="placedLabel">0</span> / <span id="totalLabel">0</span> colocadas
+            <div class="bar"><span id="progressBar"></span></div>
+        </div>
+
+        <div class="board">
+            <div class="board-label">Tablero</div>
+            <div class="board-grid" id="boardGrid"></div>
+        </div>
+
+        <div class="divider">arrastra la pieza a su hueco</div>
+
+        <div class="tray" id="tray"></div>
+
+        <div class="feedback" id="feedback"></div>
+        <button class="next-btn" id="nextBtn">Siguiente ➜</button>
+    </div>
+    <div id="confettiLayer"></div>
+    <div id="toastLayer"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        function getToken() { return localStorage.getItem('token'); }
+        async function apiRequest(endpoint, options = {}) {
+            const token = getToken();
+            const headers = { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' };
+            const finalOptions = { ...options, headers: { ...headers, ...options.headers } };
+            const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
+            if (!response.ok) throw new Error(await response.text());
+            return await response.json();
+        }
+
+        // ============================================
+        // DEFINICIÓN DE FORMAS (geométricas SVG)
+        // ============================================
+        function pentagonPoints() {
+            const cx = 50, cy = 50, r = 40;
+            const pts = [];
+            for (let i = 0; i < 5; i++) {
+                const a = -Math.PI / 2 + i * 2 * Math.PI / 5;
+                pts.push(`${(cx + r * Math.cos(a)).toFixed(1)},${(cy + r * Math.sin(a)).toFixed(1)}`);
+            }
+            return pts.join(' ');
+        }
+
+        const SHAPES = {
+            triangle:  { geo: 'polygon', attrs: { points: '50,14 92,86 8,86' },            c1: '#6ee7b7', c2: '#38a169', stroke: '#2f855a' },
+            square:    { geo: 'rect',    attrs: { x: 16, y: 16, width: 68, height: 68, rx: 8 }, c1: '#86b8f5', c2: '#4299e1', stroke: '#2b6cb0' },
+            circle:    { geo: 'circle',  attrs: { cx: 50, cy: 50, r: 36 },                  c1: '#fbd38d', c2: '#ed8936', stroke: '#c05621' },
+            pentagon:  { geo: 'polygon', attrs: { points: pentagonPoints() },                 c1: '#d6bcfa', c2: '#9f7aea', stroke: '#6b46c1' },
+            rectangle: { geo: 'rect',    attrs: { x: 28, y: 12, width: 44, height: 76, rx: 8 }, c1: '#fecaca', c2: '#f56565', stroke: '#c53030' }
+        };
+
+        function shapeEl(shape, fill, stroke, extra = '') {
+            const s = SHAPES[shape];
+            if (s.geo === 'polygon') return `<polygon points="${s.attrs.points}" fill="${fill}" stroke="${stroke}" stroke-width="3" stroke-linejoin="round" ${extra}/>`;
+            if (s.geo === 'rect')    return `<rect x="${s.attrs.x}" y="${s.attrs.y}" width="${s.attrs.width}" height="${s.attrs.height}" rx="${s.attrs.rx}" fill="${fill}" stroke="${stroke}" stroke-width="3" ${extra}/>`;
+            return `<circle cx="${s.attrs.cx}" cy="${s.attrs.cy}" r="${s.attrs.r}" fill="${fill}" stroke="${stroke}" stroke-width="3" ${extra}/>`;
+        }
+
+        function gradientDef(shape) {
+            const s = SHAPES[shape];
+            const id = 'g-' + shape;
+            return `<defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${s.c1}"/><stop offset="1" stop-color="${s.c2}"/></linearGradient></defs>`;
+        }
+
+        function pieceSvg(shape, silhouette) {
+            const s = SHAPES[shape];
+            const fill = silhouette ? '#cbd5e0' : `url(#g-${shape})`;
+            const stroke = silhouette ? '#94a3b8' : s.stroke;
+            return `<svg viewBox="0 0 100 100">${gradientDef(shape)}${shapeEl(shape, fill, stroke)}</svg>`;
+        }
+
+        function holeSvg(shape, silhouette) {
+            const s = SHAPES[shape];
+            const stroke = silhouette ? '#94a3b8' : s.stroke;
+            return `<svg viewBox="0 0 100 100"><g opacity="0.9">${shapeEl(shape, 'rgba(148,163,184,0.08)', stroke, 'stroke-dasharray="7 7" stroke-width="3.5"')}</g></svg>`;
+        }
+
+        // ============================================
+        // NIVELES (progresivos; el 5 sólo por forma)
+        // ============================================
+        const levelConfigs = [
+            { shapes: ['triangle', 'square'], silhouette: false },
+            { shapes: ['triangle', 'square', 'circle'], silhouette: false },
+            { shapes: ['triangle', 'square', 'circle', 'pentagon'], silhouette: false },
+            { shapes: ['triangle', 'square', 'circle', 'pentagon', 'rectangle'], silhouette: false },
+            { shapes: ['rectangle', 'pentagon', 'circle', 'square', 'triangle'], silhouette: true }
+        ];
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const levelNum = parseInt(urlParams.get('nivel')) || 1;
+        const levelData = levelConfigs[(levelNum - 1) % levelConfigs.length];
+
+        const boardGrid = document.getElementById('boardGrid');
+        const trayEl = document.getElementById('tray');
+        const feedback = document.getElementById('feedback');
+        const nextBtn = document.getElementById('nextBtn');
+        const placedLabel = document.getElementById('placedLabel');
+        const totalLabel = document.getElementById('totalLabel');
+        const progressBar = document.getElementById('progressBar');
+        const star1 = document.getElementById('star1');
+        const star2 = document.getElementById('star2');
+        const star3 = document.getElementById('star3');
+
+        let shapes = [];
+        let mistakes = 0;
+        let placed = 0;
+        let isCompleted = false;
+
+        function getStars() {
+            if (mistakes === 0) return 3;
+            if (mistakes <= 2) return 2;
+            return 1;
+        }
+        function updateStars(stars) {
+            [star1, star2, star3].forEach((s, i) => {
+                const on = i < stars;
+                s.textContent = on ? '⭐' : '☆';
+                s.classList.toggle('filled', on);
+            });
+        }
+        function updateProgress() {
+            placedLabel.textContent = placed;
+            totalLabel.textContent = shapes.length;
+            progressBar.style.width = (placed / shapes.length * 100) + '%';
+        }
+
+        // ============================================
+        // CONSTRUIR TABLERO Y PIEZAS
+        // ============================================
+        function shuffle(arr) {
+            const a = [...arr];
+            for (let i = a.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [a[i], a[j]] = [a[j], a[i]];
+            }
+            return a;
+        }
+
+        function buildBoard() {
+            boardGrid.innerHTML = '';
+            shapes.forEach(shape => {
+                const hole = document.createElement('div');
+                hole.className = 'hole';
+                hole.dataset.shape = shape;
+                hole.innerHTML = holeSvg(shape, levelData.silhouette);
+                boardGrid.appendChild(hole);
+            });
+        }
+
+        function buildTray() {
+            trayEl.innerHTML = '';
+            const shuffled = shuffle(shapes);
+            shuffled.forEach(shape => {
+                const piece = document.createElement('div');
+                piece.className = 'piece';
+                piece.dataset.shape = shape;
+                piece.innerHTML = pieceSvg(shape, levelData.silhouette);
+                trayEl.appendChild(piece);
+                piece.addEventListener('pointerdown', onDragStart);
+            });
+        }
+
+        // ============================================
+        // ARRASTRE CON TAMAÑO EXACTO Y SNAP
+        // ============================================
+        let drag = null; // { piece, shape, startX, startY, startLeft, startTop }
+
+        function onDragStart(e) {
+            if (isCompleted) return;
+            const piece = e.currentTarget;
+            const rect = piece.getBoundingClientRect();
+            drag = {
+                piece,
+                shape: piece.dataset.shape,
+                centerX: rect.left + rect.width / 2,
+                centerY: rect.top + rect.height / 2
+            };
+            piece.classList.add('dragging');
+            piece.style.transform = 'scale(1.06)';
+            window.addEventListener('pointermove', onDragMove);
+            window.addEventListener('pointerup', onDragEnd);
+            e.preventDefault();
+        }
+
+        function onDragMove(e) {
+            if (!drag) return;
+            const dx = e.clientX - drag.centerX;
+            const dy = e.clientY - drag.centerY;
+            drag.piece.style.transform = `translate(${dx}px, ${dy}px) scale(1.06)`;
+
+            // Resaltar el hueco bajo el puntero
+            const target = findHoleAt(e.clientX, e.clientY);
+            document.querySelectorAll('.hole').forEach(h => {
+                h.classList.remove('hover-ok', 'hover-no');
+            });
+            if (target && !target.classList.contains('filled')) {
+                target.classList.add(target.dataset.shape === drag.shape ? 'hover-ok' : 'hover-no');
+            }
+        }
+
+        function findHoleAt(x, y) {
+            const holes = document.querySelectorAll('.hole');
+            for (const h of holes) {
+                const r = h.getBoundingClientRect();
+                if (x >= r.left - 16 && x <= r.right + 16 && y >= r.top - 16 && y <= r.bottom + 16) return h;
+            }
+            return null;
+        }
+
+        function onDragEnd(e) {
+            if (!drag) return;
+            window.removeEventListener('pointermove', onDragMove);
+            window.removeEventListener('pointerup', onDragEnd);
+
+            const piece = drag.piece;
+            const target = findHoleAt(e.clientX, e.clientY);
+
+            document.querySelectorAll('.hole').forEach(h => h.classList.remove('hover-ok', 'hover-no'));
+
+            if (target && !target.classList.contains('filled') && target.dataset.shape === drag.shape) {
+                // Acierto: snap al hueco
+                const rect = target.getBoundingClientRect();
+                const dx = rect.left + rect.width / 2 - drag.centerX;
+                const dy = rect.top + rect.height / 2 - drag.centerY;
+                piece.classList.remove('dragging');
+                piece.classList.add('animating');
+                requestAnimationFrame(() => {
+                    piece.style.transform = `translate(${dx}px, ${dy}px) scale(1)`;
+                });
+                setTimeout(() => {
+                    target.innerHTML = pieceSvg(drag.shape, levelData.silhouette);
+                    target.classList.add('filled');
+                    piece.classList.add('placed');
+                    placed++;
+                    updateProgress();
+                    if (placed === shapes.length) completeLevel();
+                }, 200);
+            } else {
+                // Error: rebota de vuelta
+                piece.classList.remove('dragging');
+                piece.classList.add('animating');
+                requestAnimationFrame(() => {
+                    piece.style.transform = 'translate(0,0) scale(1)';
+                });
+                setTimeout(() => piece.classList.remove('animating'), 240);
+                if (target && !target.classList.contains('filled') && target.dataset.shape !== drag.shape) {
+                    mistakes++;
+                    flashFeedback('✗ Esa pieza no encaja ahí');
+                }
+            }
+            drag = null;
+        }
+
+        function flashFeedback(msg) {
+            feedback.textContent = msg;
+            feedback.style.color = '#fc8181';
+            setTimeout(() => { if (!isCompleted) feedback.textContent = ''; }, 900);
+        }
+
+        // ============================================
+        // FINALIZAR
+        // ============================================
+        function completeLevel() {
+            isCompleted = true;
+            const stars = getStars();
+            updateStars(stars);
+            feedback.textContent = `✅ ¡Puzzle completado! Ganaste ${stars} estrellas.`;
+            feedback.style.color = '#48bb78';
+            nextBtn.style.display = 'block';
+            confetti();
+            saveProgress('puzzle', levelNum, stars, true);
+        }
+
+        function confetti() {
+            const layer = document.getElementById('confettiLayer');
+            const colors = ['#667eea', '#48bb78', '#f6ad55', '#9f7aea', '#f56565', '#ed8936'];
+            for (let i = 0; i < 70; i++) {
+                const d = document.createElement('div');
+                d.className = 'confetti';
+                d.style.left = (Math.random() * 100) + '%';
+                d.style.background = colors[i % colors.length];
+                d.style.animationDelay = (Math.random() * 0.6) + 's';
+                d.style.setProperty('--x', (Math.random() * 160 - 80) + 'px');
+                layer.appendChild(d);
+                setTimeout(() => d.remove(), 3000);
+            }
+        }
+
+        function showLogroToast(logro) {
+            const layer = document.getElementById('toastLayer');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerHTML =
+                '<div class="t-icon">' + (logro.icono || '🏅') + '</div>' +
+                '<div class="t-body">' +
+                '<div class="t-title">🏆 ¡Logro desbloqueado!</div>' +
+                '<div class="t-name">' + logro.nombre + '</div>' +
+                '<div class="t-desc">' + (logro.descripcion || '') + '</div>' +
+                '</div>';
+            layer.appendChild(t);
+            setTimeout(() => t.remove(), 4200);
+        }
+
+        async function saveProgress(minijuego, nivel, estrellas, completado) {
+            try {
+                const data = await apiRequest('/minigames/submit', {
+                    method: 'POST',
+                    body: JSON.stringify({ minijuego, nivel, estrellas, completado })
+                });
+                if (data && data.nuevosLogros && data.nuevosLogros.length) {
+                    data.nuevosLogros.forEach(showLogroToast);
+                }
+            } catch (error) {
+                console.error('Error guardando progreso:', error);
+            }
+        }
+
+        function loadLevel() {
+            document.getElementById('levelNum').textContent = levelNum;
+            shapes = levelData.shapes;
+            mistakes = 0;
+            placed = 0;
+            isCompleted = false;
+            updateStars(0);
+            updateProgress();
+            feedback.textContent = levelData.silhouette
+                ? 'Nivel experto: estas piezas están en gris. Guíate sólo por la forma.'
+                : '';
+            feedback.style.color = '#4a5568';
+            nextBtn.style.display = 'none';
+            buildBoard();
+            buildTray();
+        }
+
+        nextBtn.addEventListener('click', () => { window.location.href = 'puzzle.html'; });
+
+        loadLevel();
+    </script>
+</body>
+</html>

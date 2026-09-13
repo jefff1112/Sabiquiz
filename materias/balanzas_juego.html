@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Balanzas de Ecuaciones - Juego</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        :root { --chip: 66px; }
+        * { box-sizing: border-box; }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 24px;
+            background: radial-gradient(circle at 20% 10%, #eef2ff, #e0e7ff 45%, #dbeafe 100%);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        .game-container {
+            background: #ffffff;
+            padding: 28px 32px 24px;
+            border-radius: 24px;
+            box-shadow: 0 24px 60px rgba(56, 66, 120, 0.22);
+            text-align: center;
+            width: 100%;
+            max-width: 660px;
+            position: relative;
+            overflow: hidden;
+        }
+        .game-container::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 6px;
+            background: linear-gradient(90deg, #667eea, #9f7aea, #48bb78);
+        }
+        .back-btn { display: inline-block; margin-bottom: 6px; color: #667eea; text-decoration: none; font-weight: 600; font-size: 15px; }
+        .back-btn:hover { text-decoration: underline; }
+        .level-title { font-size: 24px; font-weight: 800; color: #2d3748; margin: 4px 0 2px; }
+        .stars { display: flex; justify-content: center; gap: 5px; margin: 4px 0; }
+        .star { font-size: 27px; color: #e2e8f0; transition: color .2s, transform .2s; }
+        .star.filled { color: #f6ad55; animation: pop .35s ease; }
+
+        .equation-card {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin: 12px auto 4px;
+            padding: 12px 20px;
+            background: #f7fafc;
+            border-radius: 16px;
+            font-size: 26px;
+            font-weight: 800;
+            color: #2d3748;
+            max-width: 360px;
+        }
+        .equation-card .unknown { color: #f6ad55; }
+        .clue { font-size: 14px; color: #718096; margin: 1px 0 8px; }
+
+        #scaleSvg { width: 100%; max-width: 520px; height: auto; display: block; margin: 0 auto; }
+        #scaleSvg.shake { animation: shake .5s; }
+
+        .drop-slot {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            margin: 4px auto 16px;
+            padding: 10px 22px;
+            background: #f7fafc;
+            border: 2px solid #cbd5e0;
+            border-radius: 18px;
+            transition: border-color .2s, background .2s, transform .2s;
+        }
+        .drop-slot .lbl { font-size: 22px; font-weight: 800; color: #2d3748; }
+        .drop-slot.drag-over { border-color: #667eea; background: #ebf4ff; transform: scale(1.03); }
+        .drop-slot.drag-over .answer-box { border-color: #667eea; }
+        .drop-slot.shake { animation: shake .5s; }
+        .answer-box {
+            width: var(--chip);
+            height: var(--chip);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border: 2px dashed #a0aec0;
+            border-radius: 50%;
+            font-size: 26px;
+            font-weight: 800;
+            color: #667eea;
+            transition: all .2s;
+        }
+        .answer-box.correct { border-style: solid; border-color: #48bb78; background: #f0fff4; color: #2f855a; animation: pop .4s ease; }
+
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 2px 0 12px;
+            color: #cbd5e0;
+            font-size: 12px;
+        }
+        .divider::before, .divider::after { content: ''; flex: 1; height: 1px; background: #e2e8f0; }
+
+        .tray {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 20px;
+            padding: 18px;
+            background: #f1f5f9;
+            border-radius: 20px;
+        }
+        .chip {
+            width: var(--chip);
+            height: var(--chip);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            font-weight: 800;
+            color: white;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            box-shadow: 0 6px 14px rgba(102, 126, 234, 0.4);
+            cursor: grab;
+            user-select: none;
+            -webkit-user-select: none;
+            touch-action: none;
+            transition: transform .12s ease, box-shadow .2s ease;
+        }
+        .chip:hover { transform: translateY(-3px) scale(1.04); box-shadow: 0 10px 18px rgba(102, 126, 234, 0.5); }
+        .chip.dragging { z-index: 50; cursor: grabbing; transition: none; filter: drop-shadow(0 16px 22px rgba(0,0,0,0.22)); }
+        .chip.animating { transition: transform .22s cubic-bezier(.34,1.56,.64,1), opacity .22s ease; }
+        .chip.placed { opacity: 0; pointer-events: none; }
+
+        .feedback { margin-top: 16px; font-size: 18px; font-weight: 800; min-height: 26px; }
+        .next-btn {
+            margin-top: 10px;
+            padding: 13px 34px;
+            background: linear-gradient(90deg, #667eea, #48bb78);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 10px 20px rgba(102,126,234,0.35);
+        }
+        .next-btn:hover { transform: translateY(-2px); }
+
+        #confettiLayer { position: fixed; inset: 0; pointer-events: none; z-index: 999; overflow: hidden; }
+        #toastLayer { position: fixed; top: 18px; right: 18px; z-index: 1200; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast {
+            display: flex; align-items: center; gap: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff; padding: 14px 18px; border-radius: 16px;
+            box-shadow: 0 16px 34px rgba(30, 30, 60, 0.3);
+            min-width: 260px; max-width: 330px;
+            pointer-events: auto;
+            animation: toastIn 0.45s cubic-bezier(0.34,1.56,0.64,1), toastOut 0.4s ease 3.9s forwards;
+        }
+        .toast .t-icon { font-size: 32px; }
+        .toast .t-body { flex: 1; text-align: left; }
+        .toast .t-title { font-weight: 800; font-size: 12px; opacity: 0.85; letter-spacing: 0.5px; }
+        .toast .t-name { font-weight: 800; font-size: 16px; margin: 1px 0; }
+        .toast .t-desc { font-size: 12px; opacity: 0.92; }
+        @keyframes toastIn { from { transform: translateX(130%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastOut { to { transform: translateX(130%); opacity: 0; } }
+        .confetti { position: absolute; top: -14px; width: 10px; height: 14px; border-radius: 2px; animation: fall 2.4s ease-in forwards; }
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(calc(100vh + 30px)) translateX(var(--x, 0)) rotate(720deg); opacity: .9; }
+        }
+        @keyframes pop {
+            0% { transform: scale(.6); }
+            60% { transform: scale(1.12); }
+            100% { transform: scale(1); }
+        }
+        @keyframes shake {
+            0%,100% { transform: translateX(0); }
+            20% { transform: translateX(-7px); }
+            40% { transform: translateX(7px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+        }
+        @media (max-width: 520px) {
+            :root { --chip: 58px; }
+            .game-container { padding: 20px 16px 18px; }
+            .equation-card { font-size: 22px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <a href="balanzas.html" class="back-btn">← Volver a niveles</a>
+        <div class="level-title">⚖️ Balanzas - Nivel <span id="levelNum">1</span></div>
+        <div class="stars" id="starsContainer">
+            <span class="star" id="star1">☆</span>
+            <span class="star" id="star2">☆</span>
+            <span class="star" id="star3">☆</span>
+        </div>
+
+        <div class="equation-card"><span id="eqExpr"></span>&nbsp;=&nbsp;<span id="eqResult"></span></div>
+        <div class="clue" id="clueLine"></div>
+
+        <svg id="scaleSvg" viewBox="0 0 600 340" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+                <linearGradient id="poleGrad" x1="0" y1="0" x2="1" y2="0">
+                    <stop offset="0" stop-color="#64748b"/><stop offset=".5" stop-color="#94a3b8"/><stop offset="1" stop-color="#475569"/>
+                </linearGradient>
+                <linearGradient id="beamGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#64748b"/><stop offset="1" stop-color="#334155"/>
+                </linearGradient>
+                <linearGradient id="panGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#cbd5e0"/><stop offset="1" stop-color="#94a3b8"/>
+                </linearGradient>
+            </defs>
+
+            <!-- Sombra del suelo -->
+            <ellipse cx="300" cy="318" rx="140" ry="11" fill="rgba(15,23,42,0.07)"/>
+
+            <!-- Soporte -->
+            <rect x="284" y="76" width="32" height="222" rx="12" fill="url(#poleGrad)"/>
+            <rect x="222" y="288" width="156" height="16" rx="8" fill="url(#poleGrad)"/>
+            <circle cx="300" cy="86" r="11" fill="#1e293b"/>
+            <circle cx="300" cy="86" r="4.5" fill="#94a3b8"/>
+
+            <!-- Conjunto giratorio (viga + cuerdas + platillos) -->
+            <g id="beamGroup" style="transform-origin: 300px 86px; transition: transform .8s cubic-bezier(.22,1,.36,1);">
+                <rect x="116" y="80" width="368" height="12" rx="6" fill="url(#beamGrad)"/>
+
+                <line x1="150" y1="90" x2="150" y2="188" stroke="#94a3b8" stroke-width="2.5"/>
+                <line x1="196" y1="90" x2="196" y2="188" stroke="#94a3b8" stroke-width="2.5"/>
+                <path d="M126 188 Q173 218 220 188 Z" fill="url(#panGrad)" stroke="#64748b" stroke-width="2.5"/>
+
+                <line x1="430" y1="90" x2="430" y2="188" stroke="#94a3b8" stroke-width="2.5"/>
+                <line x1="476" y1="90" x2="476" y2="188" stroke="#94a3b8" stroke-width="2.5"/>
+                <path d="M406 188 Q453 218 500 188 Z" fill="url(#panGrad)" stroke="#64748b" stroke-width="2.5"/>
+
+                <text x="173" y="202" text-anchor="middle" font-size="19" font-weight="800" fill="#1f2937" id="leftPanText">x</text>
+                <text x="453" y="202" text-anchor="middle" font-size="19" font-weight="800" fill="#1f2937" id="rightPanText">8</text>
+            </g>
+        </svg>
+
+        <div class="drop-slot" id="dropSlot">
+            <span class="lbl">¿Cuánto vale <b>x</b>?</span>
+            <span class="answer-box" id="answerBox">?</span>
+        </div>
+
+        <div class="divider">arrastra el número correcto</div>
+
+        <div class="tray" id="tray"></div>
+
+        <div class="feedback" id="feedback"></div>
+        <button class="next-btn" id="nextBtn">Siguiente ➜</button>
+    </div>
+    <div id="confettiLayer"></div>
+    <div id="toastLayer"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        function getToken() { return localStorage.getItem('token'); }
+        async function apiRequest(endpoint, options = {}) {
+            const token = getToken();
+            const headers = { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' };
+            const finalOptions = { ...options, headers: { ...headers, ...options.headers } };
+            const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
+            if (!response.ok) throw new Error(await response.text());
+            return await response.json();
+        }
+
+        const beamGroup = document.getElementById('beamGroup');
+        const scaleSvg = document.getElementById('scaleSvg');
+        const leftPanText = document.getElementById('leftPanText');
+        const rightPanText = document.getElementById('rightPanText');
+        const eqExpr = document.getElementById('eqExpr');
+        const eqResult = document.getElementById('eqResult');
+        const clueLine = document.getElementById('clueLine');
+        const dropSlot = document.getElementById('dropSlot');
+        const answerBox = document.getElementById('answerBox');
+        const trayEl = document.getElementById('tray');
+        const feedback = document.getElementById('feedback');
+        const nextBtn = document.getElementById('nextBtn');
+        const levelNumSpan = document.getElementById('levelNum');
+        const star1 = document.getElementById('star1');
+        const star2 = document.getElementById('star2');
+        const star3 = document.getElementById('star3');
+
+        // ============================================
+        // 5 NIVELES (dificultad progresiva)
+        // expr es lo que acompaña a "x" (ej: "+ 3", "- 4", "· 4", ...)
+        // ============================================
+        const levelConfigs = [
+            { expr: '+ 3',  exprLabel: 'x + 3',   result: 8,  answer: 5,  options: [5, 11, 4, 6],    clue: 'Sencillo: ¿qué número sumado a 3 da 8?' },
+            { expr: '- 4',  exprLabel: 'x - 4',   result: 6,  answer: 10, options: [10, 2, 8, 24],   clue: '¿Qué número menos 4 da 6?' },
+            { expr: '· 4',  exprLabel: '4x',      result: 20, answer: 5,  options: [5, 4, 16, 80],   clue: '4 por x es 20. ¿Cuánto vale x?' },
+            { expr: '+ 1',  exprLabel: '2x + 1',  result: 9,  answer: 4,  options: [4, 5, 3, 8],     clue: 'Dos pasos: 2x + 1 = 9.' },
+            { expr: '- 2',  exprLabel: '3x - 2',  result: 13, answer: 5,  options: [5, 3, 4, 45],    clue: 'Nivel experto: 3x - 2 = 13.' }
+        ];
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const levelNum = parseInt(urlParams.get('nivel')) || 1;
+        const levelData = levelConfigs[(levelNum - 1) % levelConfigs.length];
+
+        let mistakes = 0;
+        let isCompleted = false;
+
+        function getStars() {
+            if (mistakes === 0) return 3;
+            if (mistakes === 1) return 2;
+            return 1;
+        }
+        function updateStars(stars) {
+            [star1, star2, star3].forEach((s, i) => {
+                const on = i < stars;
+                s.textContent = on ? '⭐' : '☆';
+                s.classList.toggle('filled', on);
+            });
+        }
+        function setTilt(angle) { beamGroup.style.transform = `rotate(${angle}deg)`; }
+        function shakeScale() {
+            scaleSvg.classList.remove('shake');
+            void scaleSvg.offsetWidth;
+            scaleSvg.classList.add('shake');
+        }
+
+        function buildTray() {
+            trayEl.innerHTML = '';
+            const shuffled = [...levelData.options].sort(() => Math.random() - 0.5);
+            shuffled.forEach(val => {
+                const chip = document.createElement('div');
+                chip.className = 'chip';
+                chip.dataset.value = val;
+                chip.textContent = val;
+                trayEl.appendChild(chip);
+                chip.addEventListener('pointerdown', onDragStart);
+            });
+        }
+
+        // ============================================
+        // ARRASTRE
+        // ============================================
+        let drag = null;
+        const slotEl = document.getElementById('dropSlot');
+
+        function onDragStart(e) {
+            if (isCompleted) return;
+            const chip = e.currentTarget;
+            const rect = chip.getBoundingClientRect();
+            drag = { chip, value: parseInt(chip.dataset.value, 10), centerX: rect.left + rect.width / 2, centerY: rect.top + rect.height / 2 };
+            chip.classList.add('dragging');
+            chip.style.transform = 'scale(1.06)';
+            window.addEventListener('pointermove', onDragMove);
+            window.addEventListener('pointerup', onDragEnd);
+            e.preventDefault();
+        }
+        function onDragMove(e) {
+            if (!drag) return;
+            const dx = e.clientX - drag.centerX;
+            const dy = e.clientY - drag.centerY;
+            drag.chip.style.transform = `translate(${dx}px, ${dy}px) scale(1.06)`;
+
+            const r = slotEl.getBoundingClientRect();
+            const over = e.clientX >= r.left - 10 && e.clientX <= r.right + 10 && e.clientY >= r.top - 10 && e.clientY <= r.bottom + 10;
+            slotEl.classList.toggle('drag-over', over);
+        }
+        function onDragEnd(e) {
+            if (!drag) return;
+            window.removeEventListener('pointermove', onDragMove);
+            window.removeEventListener('pointerup', onDragEnd);
+
+            const chip = drag.chip;
+            slotEl.classList.remove('drag-over');
+
+            const r = slotEl.getBoundingClientRect();
+            const overSlot = e.clientX >= r.left - 10 && e.clientX <= r.right + 10 && e.clientY >= r.top - 10 && e.clientY <= r.bottom + 10;
+
+            if (overSlot && drag.value === levelData.answer) {
+                // Acierto
+                const dx = r.left + r.width / 2 - drag.centerX;
+                const dy = r.top + r.height / 2 - drag.centerY;
+                chip.classList.remove('dragging');
+                chip.classList.add('animating');
+                requestAnimationFrame(() => { chip.style.transform = `translate(${dx}px, ${dy}px) scale(1)`; });
+                setTimeout(() => {
+                    chip.classList.add('placed');
+                    answerBox.textContent = levelData.answer;
+                    answerBox.classList.add('correct');
+                    setTilt(0);
+                    completeLevel();
+                }, 200);
+            } else if (overSlot && drag.value !== levelData.answer) {
+                // Equivocado sobre el slot
+                mistakes++;
+                bounceBack(chip);
+                slotEl.classList.add('shake');
+                setTimeout(() => slotEl.classList.remove('shake'), 520);
+                setTilt(10);
+                setTimeout(() => { if (!isCompleted) setTilt(-6); }, 700);
+                flashFeedback('✗ La balanza no se equilibra con ese valor');
+            } else {
+                bounceBack(chip);
+            }
+            drag = null;
+        }
+
+        function bounceBack(chip) {
+            chip.classList.remove('dragging');
+            chip.classList.add('animating');
+            requestAnimationFrame(() => { chip.style.transform = 'translate(0,0) scale(1)'; });
+            setTimeout(() => chip.classList.remove('animating'), 240);
+        }
+
+        function flashFeedback(msg) {
+            feedback.textContent = msg;
+            feedback.style.color = '#fc8181';
+            setTimeout(() => { if (!isCompleted) feedback.textContent = ''; }, 1000);
+        }
+
+        function completeLevel() {
+            isCompleted = true;
+            const stars = getStars();
+            updateStars(stars);
+            feedback.textContent = `✅ ¡Correcto! La balanza quedó equilibrada. Ganaste ${stars} estrellas.`;
+            feedback.style.color = '#48bb78';
+            nextBtn.style.display = 'block';
+            confetti();
+            saveProgress('balanzas', levelNum, stars, true);
+        }
+
+        function confetti() {
+            const layer = document.getElementById('confettiLayer');
+            const colors = ['#667eea', '#48bb78', '#f6ad55', '#9f7aea', '#f56565', '#ed8936'];
+            for (let i = 0; i < 70; i++) {
+                const d = document.createElement('div');
+                d.className = 'confetti';
+                d.style.left = (Math.random() * 100) + '%';
+                d.style.background = colors[i % colors.length];
+                d.style.animationDelay = (Math.random() * 0.6) + 's';
+                d.style.setProperty('--x', (Math.random() * 160 - 80) + 'px');
+                layer.appendChild(d);
+                setTimeout(() => d.remove(), 3000);
+            }
+        }
+
+        function showLogroToast(logro) {
+            const layer = document.getElementById('toastLayer');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerHTML =
+                '<div class="t-icon">' + (logro.icono || '🏅') + '</div>' +
+                '<div class="t-body">' +
+                '<div class="t-title">🏆 ¡Logro desbloqueado!</div>' +
+                '<div class="t-name">' + logro.nombre + '</div>' +
+                '<div class="t-desc">' + (logro.descripcion || '') + '</div>' +
+                '</div>';
+            layer.appendChild(t);
+            setTimeout(() => t.remove(), 4200);
+        }
+
+        async function saveProgress(minijuego, nivel, estrellas, completado) {
+            try {
+                const data = await apiRequest('/minigames/submit', {
+                    method: 'POST',
+                    body: JSON.stringify({ minijuego, nivel, estrellas, completado })
+                });
+                if (data && data.nuevosLogros && data.nuevosLogros.length) {
+                    data.nuevosLogros.forEach(showLogroToast);
+                }
+            } catch (error) {
+                console.error('Error guardando progreso:', error);
+            }
+        }
+
+        function loadLevel() {
+            levelNumSpan.textContent = levelNum;
+            leftPanText.textContent = levelData.exprLabel;
+            rightPanText.textContent = levelData.result;
+            eqExpr.textContent = levelData.exprLabel;
+            eqResult.textContent = levelData.result;
+
+            clueLine.textContent = levelData.clue;
+            mistakes = 0;
+            isCompleted = false;
+            updateStars(0);
+            answerBox.textContent = '?';
+            answerBox.classList.remove('correct');
+            feedback.textContent = '';
+            feedback.style.color = '#4a5568';
+            nextBtn.style.display = 'none';
+            buildTray();
+            setTilt(-6);
+        }
+
+        nextBtn.addEventListener('click', () => { window.location.href = 'balanzas.html'; });
+
+        loadLevel();
+    </script>
+</body>
+</html>

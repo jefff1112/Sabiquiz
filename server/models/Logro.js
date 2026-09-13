@@ -38,6 +38,15 @@ class Logro {
 
             const userStats = stats[0] || { partidas_jugadas: 0, niveles_completados: 0, total_estrellas: 0 };
 
+            // Estadísticas de minijuegos (niveles completados por minijuego)
+            const [mjRows] = await connection.query(
+                'SELECT minijuego, COUNT(*) AS c FROM progreso_minijuego WHERE usuario_id = ? AND completado = 1 GROUP BY minijuego',
+                [usuarioId]
+            );
+            const minijuegoCompletados = {};
+            mjRows.forEach(r => { minijuegoCompletados[r.minijuego] = r.c; });
+            const minijuegosDistintos = mjRows.length;
+
             // Obtener logros ya desbloqueados
             const [desbloqueados] = await connection.query(
                 'SELECT logro_id FROM usuario_logros WHERE usuario_id = ?',
@@ -62,6 +71,13 @@ class Logro {
                         break;
                     case 'estrellas':
                         cumplido = userStats.total_estrellas >= logro.condicion;
+                        break;
+                    case 'minijuegos':
+                        if (logro.minijuego) {
+                            cumplido = (minijuegoCompletados[logro.minijuego] || 0) >= logro.condicion;
+                        } else {
+                            cumplido = minijuegosDistintos >= logro.condicion;
+                        }
                         break;
                 }
 

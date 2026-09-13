@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Geométrico - Matemáticas</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .level-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 10px;
+            background: #f7fafc;
+            border-radius: 15px;
+            text-decoration: none;
+            color: #2d3748;
+            font-weight: bold;
+            font-size: 16px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border: 2px solid #e2e8f0;
+            min-height: 100px;
+            gap: 8px;
+        }
+        .level-btn:hover:not(.locked) {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            border-color: #667eea;
+        }
+        .level-btn.locked {
+            background: #edf2f7;
+            color: #a0aec0;
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+        .level-btn .lock-icon { width: 30px; height: 30px; }
+        .level-btn .stars-container { display: flex; gap: 4px; margin-top: 5px; }
+        .level-btn .star-icon { width: 22px; height: 22px; }
+        .level-btn .unlock-hint { font-size: 11px; color: #a0aec0; margin-top: 4px; text-align: center; }
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .back-btn:hover { text-decoration: underline; }
+        .container {
+            max-width: 800px;
+            margin: 40px auto;
+            padding: 30px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        h3 { text-align: center; color: #2d3748; font-size: 28px; }
+        .loading-text { text-align: center; color: #a0aec0; padding: 40px; grid-column: 1 / -1; }
+        .error-message {
+            background: #fed7d7; color: #c53030; padding: 15px; border-radius: 10px;
+            margin-bottom: 20px; display: none; text-align: center;
+        }
+        @media (max-width: 600px) {
+            .level-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; }
+            .level-btn { padding: 15px 8px; min-height: 80px; font-size: 14px; }
+            .level-btn .star-icon { width: 18px; height: 18px; }
+            .level-btn .lock-icon { width: 24px; height: 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="matematicas_minijuegos.html" class="back-btn">← Volver a Minijuegos</a>
+        <h3>🧩 Puzzle Geométrico</h3>
+        <div id="errorMessage" class="error-message"></div>
+        <div id="level-grid" class="level-grid">
+            <div class="loading-text">⏳ Cargando niveles...</div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        // Identificador del minijuego usado para guardar/leer progreso
+        const MINIJUEGO = 'puzzle';
+
+        function getToken() { return localStorage.getItem('token'); }
+        function checkAuth() {
+            if (!getToken()) { window.location.href = '../login.html'; return false; }
+            return true;
+        }
+
+        async function apiRequest(endpoint, options = {}) {
+            const token = getToken();
+            const headers = { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' };
+            const finalOptions = { ...options, headers: { ...headers, ...options.headers } };
+            try {
+                const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
+                const data = await response.json();
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        localStorage.removeItem('token'); localStorage.removeItem('user');
+                        window.location.href = '../login.html';
+                    }
+                    throw new Error(data.error || `Error ${response.status}`);
+                }
+                return data;
+            } catch (error) { console.error('❌ Error en apiRequest:', error); throw error; }
+        }
+
+        function normalizarTexto(texto) {
+            return texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function showError(message) {
+            const d = document.getElementById('errorMessage');
+            d.textContent = message; d.style.display = 'block';
+        }
+        function hideError() { document.getElementById('errorMessage').style.display = 'none'; }
+
+        // ============================================
+        // NIVELES DEL PUZZLE (1-5) con requisito cruzado opcional
+        // ============================================
+        const levels = [
+            { numero: 1, titulo: 'Puzzle 1: Básico (2 piezas)',     quizRequerido: null },
+            { numero: 2, titulo: 'Puzzle 2: Tres piezas',           quizRequerido: null },
+            { numero: 3, titulo: 'Puzzle 3: Cuatro piezas',         quizRequerido: 15 }, // requiere nivel 15 de quizzes
+            { numero: 4, titulo: 'Puzzle 4: Todas las piezas',      quizRequerido: null },
+            { numero: 5, titulo: 'Puzzle 5: Solo por forma (gris)',  quizRequerido: null }
+        ];
+
+        // ============================================
+        // DIBUJAR NIVELES
+        // ============================================
+        function drawLevels(minijuegoProgreso, quizCompletados) {
+            const grid = document.getElementById('level-grid');
+            grid.innerHTML = '';
+
+            levels.forEach(nivel => {
+                const btn = document.createElement('a');
+                btn.classList.add('level-btn');
+
+                const n = nivel.numero;
+                let bloqueado = false;
+                let hint = '';
+
+                // Desbloqueo interno: nivel anterior completado
+                if (n === 1) {
+                    // nivel 1 siempre disponible
+                } else {
+                    const prev = minijuegoProgreso[n - 1];
+                    if (!prev || !prev.completado) {
+                        bloqueado = true;
+                        hint = '🔒 Completa el nivel anterior';
+                    }
+                }
+
+                // Desbloqueo cruzado: requiere nivel de quiz
+                if (!bloqueado && nivel.quizRequerido) {
+                    if (!quizCompletados[nivel.quizRequerido]) {
+                        bloqueado = true;
+                        hint = `🔑 Requiere Nivel ${nivel.quizRequerido} de Quizzes`;
+                    }
+                }
+
+                if (bloqueado) {
+                    btn.classList.add('locked');
+                    btn.innerHTML = `
+                        <span>${nivel.titulo}</span>
+                        <img src="../img/lock.png" alt="Bloqueado" class="lock-icon">
+                        <div class="unlock-hint">${hint}</div>
+                    `;
+                } else {
+                    btn.href = `puzzle_juego.html?nivel=${n}`;
+                    const stars = (minijuegoProgreso[n] && minijuegoProgreso[n].estrellas) || 0;
+                    let starsHTML = '<div class="stars-container">';
+                    for (let i = 0; i < 3; i++) {
+                        starsHTML += `<img src="../img/${i < stars ? 'star_filled.png' : 'star_empty.png'}" class="star-icon">`;
+                    }
+                    starsHTML += '</div>';
+                    btn.innerHTML = `<span>${nivel.titulo}</span>${starsHTML}`;
+                }
+                grid.appendChild(btn);
+            });
+        }
+
+        // ============================================
+        // CARGAR PROGRESO
+        // ============================================
+        async function cargarNiveles() {
+            try {
+                if (!checkAuth()) return;
+                hideError();
+                const grid = document.getElementById('level-grid');
+                grid.innerHTML = '<div class="loading-text">⏳ Cargando niveles...</div>';
+
+                // 1) Progreso de este minijuego
+                let minijuegoProgreso = {};
+                try {
+                    const data = await apiRequest('/minigames/progreso');
+                    if (data.success && data.progreso && data.progreso[MINIJUEGO]) {
+                        minijuegoProgreso = data.progreso[MINIJUEGO];
+                    }
+                } catch (e) { console.log('ℹ️ No se pudo cargar progreso de minijuego:', e); }
+
+                // 2) Progreso de quizzes (para desbloqueos cruzados)
+                let quizCompletados = {}; // numero -> true
+                try {
+                    const data = await apiRequest('/progress');
+                    if (data.success && data.progreso) {
+                        for (const [materia, items] of Object.entries(data.progreso)) {
+                            if (normalizarTexto(materia) === 'matematicas') {
+                                items.forEach(it => {
+                                    if (it.completado) quizCompletados[it.nivel] = true;
+                                });
+                                break;
+                            }
+                        }
+                    }
+                } catch (e) { console.log('ℹ️ No se pudo cargar progreso de quizzes:', e); }
+
+                drawLevels(minijuegoProgreso, quizCompletados);
+
+            } catch (error) {
+                console.error('❌ Error cargando niveles:', error);
+                showError('❌ Error al cargar los niveles: ' + error.message);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', cargarNiveles);
+        window.cargarNiveles = cargarNiveles;
+    </script>
+</body>
+</html>

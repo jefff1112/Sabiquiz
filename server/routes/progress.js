@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const { authMiddleware } = require('../middleware/auth');
 const Progreso = require('../models/Progreso');
+const Logro = require('../models/Logro');
 const { pool } = require('../config/database');
 
 // ============================================
@@ -17,6 +18,7 @@ router.get('/', authMiddleware, async (req, res) => {
                 grouped[item.materia_nombre] = [];
             }
             grouped[item.materia_nombre].push({
+                nivel_id: item.nivel_id,
                 nivel: item.numero,
                 titulo: item.titulo,
                 completado: item.completado,
@@ -328,72 +330,22 @@ router.get('/logros', authMiddleware, async (req, res) => {
 // VERIFICAR Y DESBLOQUEAR LOGROS
 router.post('/logros/check', authMiddleware, async (req, res) => {
     try {
-        const connection = await pool.getConnection();
-        await connection.beginTransaction();
+        const nuevosLogros = await Logro.checkAndUnlock(req.usuarioId);
 
-        // Obtener estadísticas del usuario
-        const [stats] = await connection.query(
-            `SELECT 
-                partidas_jugadas,
-                (SELECT COUNT(*) FROM progreso_usuario WHERE usuario_id = ? AND completado = TRUE) as niveles_completados,
-                (SELECT SUM(estrellas) FROM progreso_usuario WHERE usuario_id = ?) as total_estrellas
-             FROM usuarios WHERE id = ?`,
-            [req.usuarioId, req.usuarioId, req.usuarioId]
-        );
-
-        const userStats = stats[0] || { partidas_jugadas: 0, niveles_completados: 0, total_estrellas: 0 };
-
-        // Obtener logros ya desbloqueados
-        const [desbloqueados] = await connection.query(
-            'SELECT logro_id FROM usuario_logros WHERE usuario_id = ?',
-            [req.usuarioId]
-        );
-        const desbloqueadosIds = desbloqueados.map(d => d.logro_id);
-
-        // Obtener todos los logros
-        const [logros] = await connection.query('SELECT * FROM logros');
-        const nuevosLogros = [];
-
-        for (const logro of logros) {
-            if (desbloqueadosIds.includes(logro.id)) continue;
-
-            let cumplido = false;
-            switch (logro.tipo) {
-                case 'partidas':
-                    cumplido = userStats.partidas_jugadas >= logro.condicion;
-                    break;
-                case 'niveles':
-                    cumplido = userStats.niveles_completados >= logro.condicion;
-                    break;
-                case 'estrellas':
-                    cumplido = userStats.total_estrellas >= logro.condicion;
-                    break;
-            }
-
-            if (cumplido) {
-                await connection.query(
-                    'INSERT INTO usuario_logros (usuario_id, logro_id) VALUES (?, ?)',
-                    [req.usuarioId, logro.id]
-                );
-                nuevosLogros.push(logro);
-
-                // Si hay logros nuevos, enviar notificación (opcional)
-                try {
-                    const { sendNotification } = require('../server');
-                    if (sendNotification) {
-                        sendNotification(req.usuarioId, 'new_logro', {
-                            logro: logro,
-                            mensaje: `🏅 ¡Has desbloqueado el logro "${logro.nombre}"!`
-                        });
-                    }
-                } catch (e) {
-                    console.log('ℹ️ No se pudo enviar notificación de logro');
+        // Enviar notificación en tiempo real por cada logro nuevo
+        for (const logro of nuevosLogros) {
+            try {
+                const { sendNotification } = require('../server');
+                if (sendNotification) {
+                    sendNotification(req.usuarioId, 'new_logro', {
+                        logro: logro,
+                        mensaje: `🏅 ¡Has desbloqueado el logro "${logro.nombre}"!`
+                    });
                 }
+            } catch (e) {
+                console.log('ℹ️ No se pudo enviar notificación de logro');
             }
         }
-
-        await connection.commit();
-        connection.release();
 
         res.json({
             success: true,

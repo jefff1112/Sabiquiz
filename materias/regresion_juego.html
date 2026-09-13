@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Regresión y Predicción - Juego</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 24px;
+            background: radial-gradient(circle at 20% 10%, #eef2ff, #e0e7ff 45%, #dbeafe 100%);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+        .game-container {
+            background: #ffffff;
+            padding: 26px 30px 22px;
+            border-radius: 24px;
+            box-shadow: 0 24px 60px rgba(56, 66, 120, 0.22);
+            text-align: center;
+            width: 100%;
+            max-width: 780px;
+            position: relative;
+            overflow: hidden;
+        }
+        .game-container::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 6px;
+            background: linear-gradient(90deg, #667eea, #9f7aea, #48bb78);
+        }
+        .back-btn { display: inline-block; margin-bottom: 6px; color: #667eea; text-decoration: none; font-weight: 600; font-size: 15px; }
+        .back-btn:hover { text-decoration: underline; }
+        .level-title { font-size: 24px; font-weight: 800; color: #2d3748; margin: 4px 0 2px; }
+        .stars { display: flex; justify-content: center; gap: 5px; margin: 4px 0; }
+        .star { font-size: 27px; color: #e2e8f0; transition: color .2s, transform .2s; }
+        .star.filled { color: #f6ad55; animation: pop .35s ease; }
+        .hint { font-size: 14px; color: #718096; margin: 4px 0 10px; }
+
+        #gameCanvas {
+            width: 100%;
+            max-width: 720px;
+            height: auto;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            background: #fdfdfb;
+            display: block;
+            margin: 0 auto;
+            cursor: grab;
+            touch-action: none;
+        }
+        #gameCanvas:active { cursor: grabbing; }
+
+        .fit-meter {
+            margin: 14px auto 4px;
+            max-width: 480px;
+            text-align: left;
+        }
+        .fit-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            font-size: 13px;
+            color: #475569;
+            font-weight: 700;
+        }
+        .fit-row span:last-child { font-size: 16px; color: #667eea; }
+        .bar {
+            height: 12px;
+            border-radius: 999px;
+            background: #e2e8f0;
+            overflow: hidden;
+            margin: 5px 0 4px;
+        }
+        .bar span {
+            display: block;
+            height: 100%;
+            width: 0%;
+            border-radius: 999px;
+            background: #fc8181;
+            transition: width .2s ease, background .2s ease;
+        }
+        .badge {
+            display: inline-block;
+            padding: 3px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            color: white;
+            background: #fc8181;
+            transition: background .2s ease;
+        }
+
+        .eq-line { font-size: 21px; font-weight: 800; color: #2d3748; margin: 8px 0 2px; }
+
+        .finish-btn {
+            margin-top: 8px;
+            padding: 13px 34px;
+            background: linear-gradient(90deg, #667eea, #48bb78);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 10px 20px rgba(102,126,234,0.35);
+            transition: transform .2s;
+        }
+        .finish-btn:hover { transform: translateY(-2px); }
+        .finish-btn:disabled { background: #cbd5e0; box-shadow: none; cursor: not-allowed; transform: none; }
+
+        .feedback { margin-top: 12px; font-size: 18px; font-weight: 800; min-height: 26px; }
+        .formula-note { margin-top: 12px; font-size: 12px; color: #a0aec0; }
+        .next-btn {
+            margin-top: 10px;
+            padding: 13px 34px;
+            background: linear-gradient(90deg, #667eea, #48bb78);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            display: none;
+            box-shadow: 0 10px 20px rgba(102,126,234,0.35);
+        }
+        .next-btn:hover { transform: translateY(-2px); }
+
+        #confettiLayer { position: fixed; inset: 0; pointer-events: none; z-index: 999; overflow: hidden; }
+        #toastLayer { position: fixed; top: 18px; right: 18px; z-index: 1200; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
+        .toast {
+            display: flex; align-items: center; gap: 12px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: #fff; padding: 14px 18px; border-radius: 16px;
+            box-shadow: 0 16px 34px rgba(30, 30, 60, 0.3);
+            min-width: 260px; max-width: 330px;
+            pointer-events: auto;
+            animation: toastIn 0.45s cubic-bezier(0.34,1.56,0.64,1), toastOut 0.4s ease 3.9s forwards;
+        }
+        .toast .t-icon { font-size: 32px; }
+        .toast .t-body { flex: 1; text-align: left; }
+        .toast .t-title { font-weight: 800; font-size: 12px; opacity: 0.85; letter-spacing: 0.5px; }
+        .toast .t-name { font-weight: 800; font-size: 16px; margin: 1px 0; }
+        .toast .t-desc { font-size: 12px; opacity: 0.92; }
+        @keyframes toastIn { from { transform: translateX(130%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        @keyframes toastOut { to { transform: translateX(130%); opacity: 0; } }
+        .confetti { position: absolute; top: -14px; width: 10px; height: 14px; border-radius: 2px; animation: fall 2.4s ease-in forwards; }
+        @keyframes fall {
+            0% { transform: translateY(0) rotate(0); opacity: 1; }
+            100% { transform: translateY(calc(100vh + 30px)) translateX(var(--x, 0)) rotate(720deg); opacity: .9; }
+        }
+        @keyframes pop {
+            0% { transform: scale(.6); }
+            60% { transform: scale(1.12); }
+            100% { transform: scale(1); }
+        }
+        @media (max-width: 520px) {
+            .game-container { padding: 18px 14px 16px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <a href="regresion.html" class="back-btn">← Volver a niveles</a>
+        <div class="level-title">📈 Regresión - Nivel <span id="levelNum">1</span></div>
+        <div class="stars" id="starsContainer">
+            <span class="star" id="star1">☆</span>
+            <span class="star" id="star2">☆</span>
+            <span class="star" id="star3">☆</span>
+        </div>
+        <div class="hint" id="hintLine">Arrastra los puntos verdes para ajustar la línea a los datos.</div>
+
+        <canvas id="gameCanvas" width="720" height="440"></canvas>
+
+        <div class="fit-meter">
+            <div class="fit-row"><span>Calidad del ajuste</span><span id="qualityVal">0%</span></div>
+            <div class="bar"><span id="fitBar"></span></div>
+            <div class="fit-row" style="justify-content:flex-start; gap:10px;">
+                <span class="badge" id="fitBadge">Sigue ajustando</span>
+            </div>
+        </div>
+
+        <div class="eq-line" id="equationLine"></div>
+
+        <button class="finish-btn" id="finishBtn" disabled>✅ Guardar resultado</button>
+
+        <div class="feedback" id="feedback"></div>
+        <button class="next-btn" id="nextBtn">Siguiente ➜</button>
+        <div class="formula-note">Recta de mejor ajuste: m = (n·Σxy − Σx·Σy) / (n·Σx² − (Σx)²) &nbsp;·&nbsp; b = (Σy − m·Σx) / n</div>
+    </div>
+    <div id="confettiLayer"></div>
+    <div id="toastLayer"></div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        function getToken() { return localStorage.getItem('token'); }
+        async function apiRequest(endpoint, options = {}) {
+            const token = getToken();
+            const headers = { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' };
+            const finalOptions = { ...options, headers: { ...headers, ...options.headers } };
+            const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
+            if (!response.ok) throw new Error(await response.text());
+            return await response.json();
+        }
+
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const hintLine = document.getElementById('hintLine');
+        const equationLine = document.getElementById('equationLine');
+        const qualityVal = document.getElementById('qualityVal');
+        const fitBar = document.getElementById('fitBar');
+        const fitBadge = document.getElementById('fitBadge');
+        const finishBtn = document.getElementById('finishBtn');
+        const feedback = document.getElementById('feedback');
+        const nextBtn = document.getElementById('nextBtn');
+        const levelNumSpan = document.getElementById('levelNum');
+        const star1 = document.getElementById('star1');
+        const star2 = document.getElementById('star2');
+        const star3 = document.getElementById('star3');
+
+        // ============================================
+        // DATOS (RNG con semilla) y mínimo cuadrados
+        // ============================================
+        function mulberry32(seed) {
+            return function () {
+                seed |= 0; seed = seed + 0x6D2B79F5 | 0;
+                let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
+                t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+                return ((t ^ t >>> 14) >>> 0) / 4294967296;
+            };
+        }
+
+        const levelConfigs = [
+            { label: 'Fácil',      M: 0.9,  B: 1.2, noise: 0.4, n: 4, seed: 11 },
+            { label: 'Medio',      M: 1.3,  B: 0.4, noise: 0.7, n: 5, seed: 22 },
+            { label: 'Intermedio', M: 0.8,  B: 2.0, noise: 0.9, n: 6, seed: 33 },
+            { label: 'Negativa',   M: -0.7, B: 8.4, noise: 0.7, n: 6, seed: 44 },
+            { label: 'Experto',    M: 1.2,  B: 0.6, noise: 1.1, n: 8, seed: 55 }
+        ];
+
+        function leastSquares(points) {
+            const n = points.length;
+            let sx = 0, sy = 0, sxx = 0, sxy = 0;
+            points.forEach(p => { sx += p.x; sy += p.y; sxx += p.x * p.x; sxy += p.x * p.y; });
+            const m = (n * sxy - sx * sy) / (n * sxx - sx * sx);
+            const b = (sy - m * sx) / n;
+            let sse = 0;
+            points.forEach(p => { const e = p.y - (m * p.x + b); sse += e * e; });
+            return { m, b, sse };
+        }
+
+        function buildLevel(levelNum) {
+            const c = levelConfigs[(levelNum - 1) % levelConfigs.length];
+            const rng = mulberry32(c.seed);
+            const pts = [];
+            for (let i = 0; i < c.n; i++) {
+                const x = 1 + 9 * rng();
+                const y = c.M * x + c.B + (rng() * 2 - 1) * c.noise;
+                pts.push({ x, y });
+            }
+            pts.sort((a, b) => a.x - b.x);
+            return { points: pts, opt: leastSquares(pts) };
+        }
+
+        let levelData = null;
+        let ranges = null;
+        let handleA = {}, handleB = {};
+        let dragging = null;
+        let isCompleted = false;
+        let currentStars = 0;
+
+        const M = { left: 62, right: 22, top: 22, bottom: 48 };
+
+        function px(x) { const w = ranges.xmax - ranges.xmin; return M.left + (x - ranges.xmin) / w * (canvas.width - M.left - M.right); }
+        function py(y) { const h = ranges.ymax - ranges.ymin; return M.top + (ranges.ymax - y) / h * (canvas.height - M.top - M.bottom); }
+        function dataXFromPx(v) { const w = ranges.xmax - ranges.xmin; return ranges.xmin + (v - M.left) / (canvas.width - M.left - M.right) * w; }
+        function dataYFromPy(v) { const h = ranges.ymax - ranges.ymin; return ranges.ymax - (v - M.top) / (canvas.height - M.top - M.bottom) * h; }
+
+        function getLine() {
+            const xa = handleA.dataX, ya = handleA.dataY, xb = handleB.dataX, yb = handleB.dataY;
+            const m = (yb - ya) / (xb - xa);
+            return { m, b: ya - m * xa };
+        }
+        function userSSE(m, b) {
+            let sse = 0;
+            levelData.points.forEach(p => { const e = p.y - (m * p.x + b); sse += e * e; });
+            return sse;
+        }
+        function tierFor(sse) {
+            const opt = levelData.opt.sse;
+            if (sse <= opt * 1.15) return 3;
+            if (sse <= opt * 1.5) return 2;
+            if (sse <= opt * 2.0) return 1;
+            return 0;
+        }
+        function qualityFor(sse) {
+            const opt = levelData.opt.sse;
+            return Math.max(0, Math.min(100, Math.round(100 * (1 - (sse / opt - 1) / 1.2))));
+        }
+        function badgeFor(tier, quality) {
+            if (tier === 3) return { text: 'Excelente ⭐⭐⭐', color: '#48bb78' };
+            if (tier === 2) return { text: 'Bueno ⭐⭐', color: '#f6ad55' };
+            if (tier === 1) return { text: 'Aceptable ⭐', color: '#ed8936' };
+            return { text: 'Sigue ajustando', color: '#fc8181' };
+        }
+
+        function updateStars(stars) {
+            [star1, star2, star3].forEach((s, i) => {
+                const on = i < stars;
+                s.textContent = on ? '⭐' : '☆';
+                s.classList.toggle('filled', on);
+            });
+        }
+
+        // ============================================
+        // DIBUJO
+        // ============================================
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Cuadrícula
+            ctx.strokeStyle = '#eef1f5';
+            ctx.lineWidth = 1;
+            for (let t = Math.ceil(ranges.xmin); t <= Math.floor(ranges.xmax); t++) {
+                ctx.beginPath(); ctx.moveTo(px(t), M.top); ctx.lineTo(px(t), canvas.height - M.bottom); ctx.stroke();
+                ctx.fillStyle = '#94a3b8'; ctx.font = '12px sans-serif'; ctx.textAlign = 'center';
+                ctx.fillText(t, px(t), canvas.height - M.bottom + 18);
+            }
+            for (let t = Math.ceil(ranges.ymin); t <= Math.floor(ranges.ymax); t++) {
+                ctx.beginPath(); ctx.moveTo(M.left, py(t)); ctx.lineTo(canvas.width - M.right, py(t)); ctx.stroke();
+                ctx.fillStyle = '#94a3b8'; ctx.textAlign = 'right';
+                ctx.fillText(t, M.left - 8, py(t) + 4);
+            }
+
+            // Ejes
+            ctx.strokeStyle = '#64748b';
+            ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(M.left, M.top); ctx.lineTo(M.left, canvas.height - M.bottom); ctx.lineTo(canvas.width - M.right, canvas.height - M.bottom); ctx.stroke();
+            ctx.textAlign = 'left';
+
+            const { m, b } = getLine();
+
+            // Residuos
+            levelData.points.forEach(p => {
+                const predY = m * p.x + b;
+                ctx.strokeStyle = 'rgba(237,100,100,0.4)';
+                ctx.lineWidth = 1.5;
+                ctx.setLineDash([3, 3]);
+                ctx.beginPath(); ctx.moveTo(px(p.x), py(p.y)); ctx.lineTo(px(p.x), py(predY)); ctx.stroke();
+                ctx.setLineDash([]);
+            });
+
+            // Puntos
+            levelData.points.forEach(p => {
+                const g = ctx.createRadialGradient(px(p.x), py(p.y), 1, px(p.x), py(p.y), 8);
+                g.addColorStop(0, '#63b3ed');
+                g.addColorStop(1, '#3182ce');
+                ctx.fillStyle = g;
+                ctx.beginPath(); ctx.arc(px(p.x), py(p.y), 6.5, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = '#fff';
+                ctx.lineWidth = 1.5;
+                ctx.stroke();
+            });
+
+            // Línea del usuario
+            ctx.strokeStyle = '#48bb78';
+            ctx.lineWidth = 3.5;
+            ctx.lineCap = 'round';
+            ctx.beginPath(); ctx.moveTo(px(ranges.xmin), py(m * ranges.xmin + b)); ctx.lineTo(px(ranges.xmax), py(m * ranges.xmax + b)); ctx.stroke();
+
+            drawHandle(handleA);
+            drawHandle(handleB);
+        }
+
+        function drawHandle(h) {
+            ctx.shadowColor = 'rgba(72,187,120,0.55)';
+            ctx.shadowBlur = 10;
+            ctx.fillStyle = h === dragging ? '#48bb78' : '#fff';
+            ctx.beginPath(); ctx.arc(px(h.dataX), py(h.dataY), 11, 0, Math.PI * 2); ctx.fill();
+            ctx.shadowBlur = 0;
+            ctx.strokeStyle = '#2f855a';
+            ctx.lineWidth = 3;
+            ctx.stroke();
+            ctx.fillStyle = '#2f855a';
+            ctx.beginPath(); ctx.arc(px(h.dataX), py(h.dataY), 4, 0, Math.PI * 2); ctx.fill();
+        }
+
+        function updateView() {
+            const { m, b } = getLine();
+            const sse = userSSE(m, b);
+            const tier = isCompleted ? currentStars : tierFor(sse);
+            currentStars = tier;
+            const quality = qualityFor(sse);
+            const badge = badgeFor(tier, quality);
+
+            updateStars(tier);
+            qualityVal.textContent = quality + '%';
+            fitBar.style.width = quality + '%';
+            fitBar.style.background = (tier === 3 ? '#48bb78' : tier === 2 ? '#f6ad55' : tier === 1 ? '#ed8936' : '#fc8181');
+            fitBadge.textContent = badge.text;
+            fitBadge.style.background = badge.color;
+            equationLine.textContent = `Tu recta: y = ${m.toFixed(2)}x ${b >= 0 ? '+' : ''}${b.toFixed(2)}`;
+            finishBtn.disabled = isCompleted || tier < 1;
+            draw();
+        }
+
+        // ============================================
+        // ARRASTRAR HANDLES
+        // ============================================
+        function hitTestHandle(mx, my) {
+            const dA = Math.hypot(mx - px(handleA.dataX), my - py(handleA.dataY));
+            const dB = Math.hypot(mx - px(handleB.dataX), my - py(handleB.dataY));
+            if (dA < 22 && dA <= dB) return 'A';
+            if (dB < 22) return 'B';
+            return null;
+        }
+        function eventPos(e) {
+            const rect = canvas.getBoundingClientRect();
+            return { mcx: (e.clientX - rect.left) * (canvas.width / rect.width), mcy: (e.clientY - rect.top) * (canvas.height / rect.height) };
+        }
+
+        canvas.addEventListener('pointerdown', (e) => {
+            if (isCompleted) return;
+            const { mcx, mcy } = eventPos(e);
+            dragging = hitTestHandle(mcx, mcy);
+            if (dragging) { canvas.setPointerCapture(e.pointerId); }
+        });
+        canvas.addEventListener('pointermove', (e) => {
+            if (!dragging) return;
+            const { mcx, mcy } = eventPos(e);
+            const h = dragging === 'A' ? handleA : handleB;
+            h.dataY = Math.max(ranges.ymin, Math.min(ranges.ymax, dataYFromPy(mcy)));
+            updateView();
+        });
+        canvas.addEventListener('pointerup', (e) => {
+            dragging = null;
+            try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
+        });
+
+        finishBtn.addEventListener('click', async () => {
+            if (isCompleted || currentStars < 1) return;
+            isCompleted = true;
+            updateStars(currentStars);
+            const { m, b } = getLine();
+            const xPred = (ranges.xmin + ranges.xmax) / 2;
+            const yPred = m * xPred + b;
+            feedback.innerHTML = `✅ ¡Buen ajuste! Tu recta: <b>y = ${m.toFixed(2)}x ${b >= 0 ? '+' : ''}${b.toFixed(2)}</b><br>Predicción: para x = ${xPred.toFixed(1)}, y ≈ <b>${yPred.toFixed(1)}</b>`;
+            feedback.style.color = '#48bb78';
+            finishBtn.disabled = true;
+            nextBtn.style.display = 'block';
+            confetti();
+            await saveProgress('regresion', levelNum, currentStars, true);
+        });
+
+        function confetti() {
+            const layer = document.getElementById('confettiLayer');
+            const colors = ['#667eea', '#48bb78', '#f6ad55', '#9f7aea', '#f56565', '#ed8936'];
+            for (let i = 0; i < 70; i++) {
+                const d = document.createElement('div');
+                d.className = 'confetti';
+                d.style.left = (Math.random() * 100) + '%';
+                d.style.background = colors[i % colors.length];
+                d.style.animationDelay = (Math.random() * 0.6) + 's';
+                d.style.setProperty('--x', (Math.random() * 160 - 80) + 'px');
+                layer.appendChild(d);
+                setTimeout(() => d.remove(), 3000);
+            }
+        }
+
+        function showLogroToast(logro) {
+            const layer = document.getElementById('toastLayer');
+            const t = document.createElement('div');
+            t.className = 'toast';
+            t.innerHTML =
+                '<div class="t-icon">' + (logro.icono || '🏅') + '</div>' +
+                '<div class="t-body">' +
+                '<div class="t-title">🏆 ¡Logro desbloqueado!</div>' +
+                '<div class="t-name">' + logro.nombre + '</div>' +
+                '<div class="t-desc">' + (logro.descripcion || '') + '</div>' +
+                '</div>';
+            layer.appendChild(t);
+            setTimeout(() => t.remove(), 4200);
+        }
+
+        async function saveProgress(minijuego, nivel, estrellas, completado) {
+            try {
+                const data = await apiRequest('/minigames/submit', {
+                    method: 'POST',
+                    body: JSON.stringify({ minijuego, nivel, estrellas, completado })
+                });
+                if (data && data.nuevosLogros && data.nuevosLogros.length) {
+                    data.nuevosLogros.forEach(showLogroToast);
+                }
+            } catch (error) {
+                console.error('Error guardando progreso:', error);
+            }
+        }
+
+        function loadLevel() {
+            levelNumSpan.textContent = levelNum;
+            hintLine.textContent = 'Arrastra los puntos verdes para ajustar la línea a los datos.';
+            levelData = buildLevel(levelNum);
+
+            const xs = levelData.points.map(p => p.x);
+            const ys = levelData.points.map(p => p.y);
+            const xmin = Math.floor(Math.min(...xs) - 1);
+            const xmax = Math.ceil(Math.max(...xs) + 1);
+            const ymin = Math.floor(Math.min(...ys) - 1);
+            const ymax = Math.ceil(Math.max(...ys) + 1);
+            ranges = { xmin, xmax, ymin, ymax };
+
+            const meanY = ys.reduce((a, b) => a + b, 0) / ys.length;
+            handleA = { dataX: xmin + 0.15 * (xmax - xmin), dataY: meanY };
+            handleB = { dataX: xmax - 0.15 * (xmax - xmin), dataY: meanY };
+
+            isCompleted = false;
+            currentStars = 0;
+            updateStars(0);
+            feedback.textContent = '';
+            finishBtn.disabled = false;
+            nextBtn.style.display = 'none';
+            dragging = null;
+            updateView();
+        }
+
+        nextBtn.addEventListener('click', () => { window.location.href = 'regresion.html'; });
+
+        loadLevel();
+    </script>
+</body>
+</html>

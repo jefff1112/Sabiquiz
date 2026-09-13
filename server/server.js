@@ -15,6 +15,7 @@ const quizRoutes = require('./routes/quiz');
 const progressRoutes = require('./routes/progress');
 const suggestionRoutes = require('./routes/suggestions');
 const matchesRoutes = require('./routes/matches');
+const minigamesRoutes = require('./routes/minigames');
 
 // ============================================
 // CONFIGURACIÓN DE EXPRESS
@@ -48,6 +49,7 @@ app.use('/api/quiz', quizRoutes);
 app.use('/api/progress', progressRoutes);
 app.use('/api/suggestions', suggestionRoutes);
 app.use('/api/matches', matchesRoutes);
+app.use('/api/minigames', minigamesRoutes);
 
 // ============================================
 // RUTA DE PRUEBA (Health Check)

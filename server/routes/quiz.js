@@ -60,24 +60,22 @@ router.post('/submit', authMiddleware, async (req, res) => {
         const connection = await pool.getConnection();
         await connection.beginTransaction();
 
-        // 🔥 Contar respuestas correctas
+        // 🔥 Contar respuestas correctas (según el flag enviado por el cliente)
         let correctas = 0;
         for (const respuesta of respuestas) {
-            const [opcion] = await connection.query(
-                'SELECT es_correcta FROM opciones WHERE pregunta_id = ? AND es_correcta = TRUE',
-                [respuesta.opcionId]
-            );
-            if (opcion.length > 0) {
+            if (respuesta.esCorrecta) {
                 correctas++;
             }
         }
 
-        // Obtener total de preguntas del nivel
+        // Obtener total de preguntas del nivel (o usar las respondidas)
         const [preguntas] = await connection.query(
             'SELECT COUNT(*) as total FROM preguntas WHERE nivel_id = ?',
             [nivelId]
         );
-        const totalPreguntas = preguntas[0].total || 1;
+        const totalPreguntas = (respuestas && respuestas.length > 0)
+            ? respuestas.length
+            : (preguntas[0].total || 1);
 
         const porcentaje = totalPreguntas > 0 ? correctas / totalPreguntas : 0;
         
