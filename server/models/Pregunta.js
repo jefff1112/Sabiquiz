@@ -1,6 +1,28 @@
 const { pool } = require('../config/database');
 
 class Pregunta {
+    static async adjuntarOpciones(preguntas) {
+        if (preguntas.length === 0) return preguntas;
+        const ids = preguntas.map(p => p.id);
+        const [opciones] = await pool.query(
+            `SELECT o.id, o.pregunta_id, JSON_EXTRACT(o.texto, '$.es') as texto, 
+                    o.es_correcta, o.orden
+             FROM opciones o
+             WHERE o.pregunta_id IN (?)
+             ORDER BY o.pregunta_id, o.orden`,
+            [ids]
+        );
+        const mapa = {};
+        for (const o of opciones) {
+            if (!mapa[o.pregunta_id]) mapa[o.pregunta_id] = [];
+            mapa[o.pregunta_id].push(o);
+        }
+        for (const pregunta of preguntas) {
+            pregunta.opciones = mapa[pregunta.id] || [];
+        }
+        return preguntas;
+    }
+
     static async getByNivel(nivelId) {
         const [preguntas] = await pool.query(
             `SELECT p.*, 
@@ -10,20 +32,8 @@ class Pregunta {
              ORDER BY p.orden`,
             [nivelId]
         );
-        
-        for (const pregunta of preguntas) {
-            const [opciones] = await pool.query(
-                `SELECT o.id, JSON_EXTRACT(o.texto, '$.es') as texto, 
-                        o.es_correcta, o.orden
-                 FROM opciones o
-                 WHERE o.pregunta_id = ?
-                 ORDER BY o.orden`,
-                [pregunta.id]
-            );
-            pregunta.opciones = opciones;
-        }
-        
-        return preguntas;
+
+        return await Pregunta.adjuntarOpciones(preguntas);
     }
 
     static async getRandomQuestions(materiaId, cantidad = 10, dificultad = null) {
@@ -44,20 +54,8 @@ class Pregunta {
         params.push(cantidad);
         
         const [preguntas] = await pool.query(query, params);
-        
-        for (const pregunta of preguntas) {
-            const [opciones] = await pool.query(
-                `SELECT o.id, JSON_EXTRACT(o.texto, '$.es') as texto, 
-                        o.es_correcta, o.orden
-                 FROM opciones o
-                 WHERE o.pregunta_id = ?
-                 ORDER BY o.orden`,
-                [pregunta.id]
-            );
-            pregunta.opciones = opciones;
-        }
-        
-        return preguntas;
+
+        return await Pregunta.adjuntarOpciones(preguntas);
     }
 
     static async countByMateria(materiaId) {

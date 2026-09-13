@@ -296,7 +296,7 @@ router.get('/users', authMiddleware, async (req, res) => {
                      WHERE p.usuario_id = u.id AND p.completado = TRUE),
                     0
                 ) as quizXp,
-                0 as pvpXp,
+                u.pvpXp as pvpXp,
                 FLOOR(
                     COALESCE(
                         (SELECT SUM(p.estrellas * 10) 
@@ -355,7 +355,7 @@ router.get('/ranking', authMiddleware, async (req, res) => {
                      WHERE p.usuario_id = u.id AND p.completado = TRUE),
                     0
                 ) as quizXp,
-                0 as pvpXp,
+                u.pvpXp as pvpXp,
                 FLOOR(
                     COALESCE(
                         (SELECT SUM(p.estrellas * 10) 
