@@ -34,7 +34,7 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:3000/api';
+        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000/api' : (window.location.origin + '/api');
         const MINIJUEGO = 'tiro';
         function getToken() { return localStorage.getItem('token'); }
         function checkAuth() { if (!getToken()) { window.location.href = '../login.html'; return false; } return true; }
