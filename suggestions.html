@@ -157,7 +157,7 @@
 <body>
     <div class="suggest-container">
         <a href="main_menu.html" class="btn-back">← Volver al Menú</a>
-        <h1>💡 Sugerir Pregunta</h1>
+        <h1><img src="img/sabi/sabi_pensando.png" class="icon-btn"> Sugerir Pregunta</h1>
         <p class="subtitle">Comparte tu conocimiento con la comunidad Sabiquiz</p>
 
         <div id="messageBox" class="message"></div>
@@ -165,7 +165,7 @@
         <form id="suggestionForm">
             <!-- Materia -->
             <div class="form-group">
-                <label for="materiaId">📚 Materia</label>
+                <label for="materiaId"><img src="img/lenguaje.png" class="icon-btn"> Materia</label>
                 <select id="materiaId" required>
                     <option value="">Selecciona una materia</option>
                 </select>
@@ -173,14 +173,14 @@
 
             <!-- Pregunta -->
             <div class="form-group">
-                <label for="pregunta">❓ Pregunta</label>
+                <label for="pregunta"><img src="img/sabi/sabi_curioso.png" class="icon-btn"> Pregunta</label>
                 <textarea id="pregunta" placeholder="Escribe tu pregunta aquí..." required maxlength="500"></textarea>
                 <div class="char-counter"><span id="charCount">0</span>/500</div>
             </div>
 
             <!-- Opciones -->
             <div class="form-group">
-                <label>🔘 Opciones de respuesta</label>
+                <label><img src="img/control.png" class="icon-btn"> Opciones de respuesta</label>
                 <div class="options-grid-input">
                     <input type="text" id="opcion1" placeholder="Opción A" required>
                     <input type="text" id="opcion2" placeholder="Opción B" required>
@@ -191,7 +191,7 @@
 
             <!-- Respuesta correcta -->
             <div class="form-group">
-                <label for="respuestaCorrecta">✅ Respuesta correcta</label>
+                <label for="respuestaCorrecta"><img src="img/correct.png" class="icon-btn"> Respuesta correcta</label>
                 <select id="respuestaCorrecta" required>
                     <option value="0">Opción A</option>
                     <option value="1">Opción B</option>
@@ -202,7 +202,7 @@
 
             <!-- Dificultad -->
             <div class="form-group">
-                <label for="dificultad">📊 Dificultad</label>
+                <label for="dificultad"><img src="img/grafica.png" class="icon-btn"> Dificultad</label>
                 <select id="dificultad">
                     <option value="easy">Fácil</option>
                     <option value="medium" selected>Media</option>
@@ -210,7 +210,7 @@
                 </select>
             </div>
 
-            <button type="submit" class="btn-submit" id="submitBtn">📤 Enviar Sugerencia</button>
+            <button type="submit" class="btn-submit" id="submitBtn"><img src="img/cohete.png" class="icon-btn"> Enviar Sugerencia</button>
         </form>
     </div>
 
@@ -296,7 +296,7 @@
         function setLoading(loading) {
             const btn = document.getElementById('submitBtn');
             btn.disabled = loading;
-            btn.textContent = loading ? '⏳ Enviando...' : '📤 Enviar Sugerencia';
+            btn.textContent = loading ? '<img src="img/estrellas.png" class="icon-btn"> Enviando...' : '<img src="img/cohete.png" class="icon-btn"> Enviar Sugerencia';
         }
 
         // ============================================
@@ -388,7 +388,7 @@
 
             try {
                 setLoading(true);
-                showMessage('⏳ Enviando tu sugerencia...', 'loading');
+                showMessage('<img src="img/estrellas.png" class="icon-btn"> Enviando tu sugerencia...', 'loading');
 
                 const response = await apiRequest('/suggestions', {
                     method: 'POST',
@@ -396,17 +396,17 @@
                 });
 
                 if (response.success) {
-                    showMessage('✅ ¡Gracias! Tu pregunta ha sido enviada para revisión.', 'success');
+                    showMessage('<img src="img/correct.png" class="icon-btn"> ¡Gracias! Tu pregunta ha sido enviada para revisión.', 'success');
                     document.getElementById('suggestionForm').reset();
                     document.getElementById('charCount').textContent = '0';
                     setLoading(false);
                 } else {
-                    showMessage('❌ Error al enviar: ' + (response.error || 'Error desconocido'), 'error');
+                    showMessage('<img src="img/incorrect.png" class="icon-btn"> Error al enviar: ' + (response.error || 'Error desconocido'), 'error');
                     setLoading(false);
                 }
             } catch (error) {
-                console.error('❌ Error:', error);
-                showMessage('❌ Error al enviar la sugerencia: ' + error.message, 'error');
+                console.error('<img src="img/incorrect.png" class="icon-btn"> Error:', error);
+                showMessage('<img src="img/incorrect.png" class="icon-btn"> Error al enviar la sugerencia: ' + error.message, 'error');
                 setLoading(false);
             }
         });

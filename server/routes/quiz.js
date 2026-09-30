@@ -6,6 +6,38 @@ const Progreso = require('../models/Progreso');
 const { pool } = require('../config/database');
 
 // ============================================
+// RUTA: OBTENER TEORÍA DE UN NIVEL ESPECÍFICO (DEBE IR ANTES DE /nivel/:nivelId)
+// ============================================
+router.get('/nivel/:nivelId/teoria', authMiddleware, async (req, res) => {
+    try {
+        const [nivel] = await pool.query(
+            'SELECT id, numero, titulo, teoria FROM niveles WHERE id = ?',
+            [req.params.nivelId]
+        );
+        
+        if (nivel.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Nivel no encontrado'
+            });
+        }
+        
+        res.json({
+            success: true,
+            teoria: nivel[0].teoria || null,
+            titulo: nivel[0].titulo,
+            numero: nivel[0].numero
+        });
+    } catch (error) {
+        console.error('Error al obtener teoría:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error al cargar teoría' 
+        });
+    }
+});
+
+// ============================================
 // RUTA: OBTENER PREGUNTAS DE UN NIVEL
 // ============================================
 router.get('/nivel/:nivelId', authMiddleware, async (req, res) => {
@@ -56,6 +88,21 @@ router.post('/submit', authMiddleware, async (req, res) => {
 
     console.log('📝 Recibiendo respuestas:', { nivelId, respuestas: respuestas?.length || 0, tiempo, usuarioId });
 
+    // Validación de entrada
+    if (!nivelId) {
+        return res.status(400).json({ 
+            success: false, 
+            error: 'nivelId es requerido' 
+        });
+    }
+
+    if (!Array.isArray(respuestas) || respuestas.length === 0) {
+        return res.status(400).json({ 
+            success: false, 
+            error: 'respuestas debe ser un array no vacío' 
+        });
+    }
+
     try {
         const connection = await pool.getConnection();
         await connection.beginTransaction();
@@ -87,7 +134,20 @@ router.post('/submit', authMiddleware, async (req, res) => {
         const completado = porcentaje >= 0.6;
         const puntaje = Math.round(porcentaje * 100);
 
-        // 🔥 GUARDAR PROGRESO (sobrescribe para permitir bajar estrellas/puntaje)
+        // 🔥 GUARDAR PROGRESO (mantiene estrellas máximas, no baja al repetir)
+        // Primero obtener progreso existente para calcular el máximo
+        let [existing] = await connection.query(
+            'SELECT estrellas, puntaje FROM progreso_usuario WHERE usuario_id = ? AND nivel_id = ?',
+            [usuarioId, nivelId]
+        );
+        
+        const existingEstrellas = existing.length > 0 ? existing[0].estrellas : 0;
+        const existingPuntaje = existing.length > 0 ? existing[0].puntaje : 0;
+        
+        const estrellasFinal = Math.max(estrellas, existingEstrellas);
+        const puntajeFinal = Math.max(puntaje, existingPuntaje);
+        const completadoFinal = completado || (existing.length > 0 && existing[0].completado);
+
         await connection.query(
             `INSERT INTO progreso_usuario 
              (usuario_id, nivel_id, puntaje, estrellas, completado, fecha_completado)
@@ -95,15 +155,15 @@ router.post('/submit', authMiddleware, async (req, res) => {
              ON DUPLICATE KEY UPDATE
              puntaje = VALUES(puntaje),
              estrellas = VALUES(estrellas),
-             completado = (completado OR VALUES(completado)),
+             completado = VALUES(completado),
              fecha_completado = IF(VALUES(completado) = 1, NOW(), fecha_completado)`,
-            [usuarioId, nivelId, puntaje, estrellas, completado]
+            [usuarioId, nivelId, puntajeFinal, estrellasFinal, completadoFinal]
         );
 
         await connection.commit();
         connection.release();
 
-        console.log(`✅ Progreso guardado: usuario=${usuarioId}, nivel=${nivelId}, estrellas=${estrellas}`);
+        console.log(`✅ Progreso guardado: usuario=${usuarioId}, nivel=${nivelId}, estrellas=${estrellasFinal}`);
 
         res.json({
             success: true,
@@ -111,9 +171,9 @@ router.post('/submit', authMiddleware, async (req, res) => {
                 totalCorrectas: correctas,
                 totalPreguntas: totalPreguntas,
                 porcentaje: porcentaje * 100,
-                puntaje,
-                estrellas,
-                completado
+                puntaje: puntajeFinal,
+                estrellas: estrellasFinal,
+                completado: completadoFinal
             }
         });
     } catch (error) {
@@ -147,12 +207,12 @@ router.get('/materias', async (req, res) => {
 });
 
 // ============================================
-// RUTA: OBTENER NIVELES DE UNA MATERIA
+// RUTA: OBTENER NIVELES DE UNA MATERIA (INCLUYE TEORÍA)
 // ============================================
 router.get('/materia/:materiaId/niveles', async (req, res) => {
     try {
         const [niveles] = await pool.query(
-            'SELECT * FROM niveles WHERE materia_id = ? ORDER BY numero',
+            'SELECT id, materia_id, numero, titulo, passing_score, orden, teoria FROM niveles WHERE materia_id = ? ORDER BY numero',
             [req.params.materiaId]
         );
         res.json({

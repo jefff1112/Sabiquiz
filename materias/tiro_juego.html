@@ -176,7 +176,7 @@
 <body>
     <div class="game-container">
         <a href="tiro.html" class="back-btn">← Volver a niveles</a>
-        <div class="level-title">🚀 Tiro Parabólico - Nivel <span id="levelNum">1</span></div>
+        <div class="level-title"><img src="../img/cohete.png" class="icon-btn"> Tiro Parabólico - Nivel <span id="levelNum">1</span></div>
         <div class="stars" id="starsContainer">
             <span class="star" id="star1">☆</span>
             <span class="star" id="star2">☆</span>
@@ -199,7 +199,7 @@
             </div>
         </div>
 
-        <button class="fire-btn" id="fireBtn">🚀 Disparar</button>
+        <button class="fire-btn" id="fireBtn"><img src="../img/cohete.png" class="icon-btn"> Disparar</button>
 
         <div class="feedback" id="feedback"></div>
         <button class="next-btn" id="nextBtn">Siguiente ➜</button>
@@ -209,7 +209,7 @@
     <!-- Sección Teórica Colapsable -->
     <div class="theory-section">
         <button class="theory-toggle" id="theoryToggle">
-            <span>📚 ¿Cómo funciona? (Ver teoría)</span>
+            <span><img src="../img/lenguaje.png" class="icon-btn"> ¿Cómo funciona? (Ver teoría)</span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="theory-content" id="theoryContent">
@@ -294,7 +294,7 @@
         function updateStars(stars) {
             [star1, star2, star3].forEach((s, i) => {
                 const on = i < stars;
-                s.textContent = on ? '⭐' : '☆';
+                s.innerHTML = on ? '<img src="../img/star_filled.png" class="icon-star">' : '<img src="../img/star_empty.png" class="icon-star">';
                 s.classList.toggle('filled', on);
             });
         }
@@ -488,7 +488,7 @@
                     isCompleted = true;
                     const stars = getStars();
                     updateStars(stars);
-                    feedback.textContent = `🎯 ¡Diana! Impactaste en ${shots} disparo(s). Ganaste ${stars} estrellas.`;
+                    feedback.textContent = `<img src="../img/cohete.png" class="icon-btn"> ¡Diana! Impactaste en ${shots} disparo(s). Ganaste ${stars} estrellas.`;
                     feedback.style.color = '#48bb78';
                     nextBtn.style.display = 'block';
                     confetti();
@@ -501,7 +501,7 @@
                     fireBtn.disabled = false;
                     angleSlider.disabled = false;
                     powerSlider.disabled = false;
-                    feedback.textContent = '❌ No alcanzaste el objetivo. Ajusta θ y v e inténtalo de nuevo.';
+                    feedback.textContent = '<img src="../img/incorrect.png" class="icon-btn"> No alcanzaste el objetivo. Ajusta θ y v e inténtalo de nuevo.';
                     feedback.style.color = '#fc8181';
                     return;
                 }
@@ -545,9 +545,9 @@
             const t = document.createElement('div');
             t.className = 'toast';
             t.innerHTML =
-                '<div class="t-icon">' + (logro.icono || '🏅') + '</div>' +
+                '<div class="t-icon"><img src="../img/trofeo.png" class="icon-btn"></div>' +
                 '<div class="t-body">' +
-                '<div class="t-title">🏆 ¡Logro desbloqueado!</div>' +
+                '<div class="t-title"><img src="../img/trofeo.png" class="icon-btn"> ¡Logro desbloqueado!</div>' +
                 '<div class="t-name">' + logro.nombre + '</div>' +
                 '<div class="t-desc">' + (logro.descripcion || '') + '</div>' +
                 '</div>';

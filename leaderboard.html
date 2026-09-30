@@ -534,8 +534,8 @@
 <body>
     <div class="leaderboard-container">
         <!-- TÍTULO -->
-        <h1>🏆 Tabla de Clasificación</h1>
-        <p class="subtitle">¡Los mejores jugadores de SabiQuiz!</p>
+        <h1><img src="img/trofeo.png" class="icon-btn"> Tabla de Clasificación</h1>
+        <p class="subtitle"><img src="img/estrellas.png" class="icon-btn"> ¡Los mejores jugadores de SabiQuiz!</p>
 
         <!-- MENSAJES -->
         <div id="errorMessage" class="error-message"></div>
@@ -543,13 +543,13 @@
 
         <!-- TOP 3 -->
         <div id="leaderboard-top3" class="podium-container">
-            <div class="loading-text">⏳ Cargando ranking...</div>
+            <div class="loading-text"><img src="img/estrellas.png" class="icon-btn"> Cargando ranking...</div>
         </div>
 
         <!-- RANKING 4-10 -->
         <h2 class="others-title">📋 Ranking General <span>(4 - 10)</span></h2>
         <div id="leaderboard-others" class="others-container">
-            <div class="loading-text">⏳ Cargando...</div>
+            <div class="loading-text"><img src="img/estrellas.png" class="icon-btn"> Cargando...</div>
         </div>
 
         <!-- BOTÓN VOLVER -->
@@ -638,15 +638,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!checkAuth()) return;
 
                 document.getElementById('errorMessage').style.display = 'none';
-                top3Container.innerHTML = '<div class="loading-text">⏳ Cargando ranking...</div>';
-                othersContainer.innerHTML = '<div class="loading-text">⏳ Cargando...</div>';
+                top3Container.innerHTML = '<div class="loading-text"><img src="img/estrellas.png" class="icon-btn"> Cargando ranking...</div>';
+                othersContainer.innerHTML = '<div class="loading-text"><img src="img/estrellas.png" class="icon-btn"> Cargando...</div>';
 
-                showDebug('🔍 Solicitando ranking...');
+                showDebug('<img src="img/estrellas.png" class="icon-btn"> Solicitando ranking...');
                 const data = await apiRequest('/auth/ranking');
-                showDebug(`✅ ${data.ranking?.length || 0} jugadores encontrados`);
+                showDebug('<img src="img/correct.png" class="icon-btn"> ${data.ranking?.length || 0} jugadores encontrados');
 
                 if (!data.success || !data.ranking || data.ranking.length === 0) {
-                    top3Container.innerHTML = '<div class="empty-message">😕 Aún no hay jugadores en el ranking</div>';
+                    top3Container.innerHTML = '<div class="empty-message"><img src="img/sabi/sabi_durmiendo.png" class="sabi-mascot-small"> Aún no hay jugadores en el ranking</div>';
                     othersTitle.style.display = 'none';
                     return;
                 }
@@ -658,8 +658,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // ============================================
                 top3Container.innerHTML = '';
                 const top3 = players.slice(0, 3);
-                const medallas = ['🥇', '🥈', '🥉'];
-                const coronas = ['👑', '', ''];
+                const medallas = ['<img src="img/star_filled.png" class="icon-star">', '<img src="img/star_filled.png" class="icon-star">', '<img src="img/star_filled.png" class="icon-star">'];
+                const coronas = ['<img src="img/reina.png" class="icon-btn">', '', ''];
 
                 top3.forEach((player, index) => {
                     const rank = index + 1;
@@ -672,8 +672,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <img src="${player.photoURL || 'img/default-avatar.png'}" class="card-avatar" 
                              onerror="this.src='img/default-avatar.png'">
                         <div class="player-name">${player.displayName || player.username || 'Jugador'}</div>
-                        <div class="player-stats">🎯 Nivel: <strong>${player.level || 1}</strong></div>
-                        <div class="player-stats">⭐ XP: <strong>${player.totalXp || 0}</strong></div>
+                        <div class="player-stats"><img src="img/cohete.png" class="icon-btn"> Nivel: <strong>${player.level || 1}</strong></div>
+                        <div class="player-stats"><img src="img/star_filled.png" class="icon-star"> XP: <strong>${player.totalXp || 0}</strong></div>
                     `;
                     top3Container.appendChild(card);
                 });
@@ -697,8 +697,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                      onerror="this.src='img/default-avatar.png'">
                                 <span class="player-name">${player.displayName || player.username || 'Jugador'}</span>
                             </div>
-                            <div class="row-stat"><strong>${player.level || 1}</strong> Nivel</div>
-                            <div class="row-stat"><strong>${player.totalXp || 0}</strong> XP</div>
+                            <div class="row-stat"><img src="img/cohete.png" class="icon-btn"> <strong>${player.level || 1}</strong> Nivel</div>
+                            <div class="row-stat"><img src="img/star_filled.png" class="icon-star"> <strong>${player.totalXp || 0}</strong> XP</div>
                         `;
                         othersContainer.appendChild(row);
                     });
@@ -706,18 +706,18 @@ document.addEventListener('DOMContentLoaded', () => {
                     othersTitle.style.display = 'none';
                 }
 
-                showDebug(`✅ Ranking mostrado: ${players.length} jugadores`);
+                showDebug(`<img src="img/correct.png" class="icon-btn"> Ranking mostrado: ${players.length} jugadores`);
 
             } catch (error) {
-                console.error('❌ Error:', error);
-                showError('❌ ' + error.message);
+                console.error('<img src="img/incorrect.png" class="icon-btn"> Error:', error);
+                showError('<img src="img/incorrect.png" class="icon-btn"> ' + error.message);
                 top3Container.innerHTML = `
                     <div class="empty-message">
-                        ❌ Error al cargar el ranking<br>
+                        <img src="img/incorrect.png" class="icon-btn"> Error al cargar el ranking<br>
                         <small style="font-size:14px;color:#a0aec0;">${error.message}</small>
                         <br><br>
                         <button onclick="fetchLeaderboard()" style="padding:12px 28px;border:none;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border-radius:10px;cursor:pointer;font-weight:700;font-size:16px;transition:transform 0.2s;">
-                            🔄 Reintentar
+                            <img src="img/estrellas.png" class="icon-btn"> Reintentar
                         </button>
                     </div>
                 `;

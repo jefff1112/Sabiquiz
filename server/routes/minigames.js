@@ -48,11 +48,12 @@ router.post('/submit', authMiddleware, async (req, res) => {
     }
 
     try {
+        // 🔥 Mantener las estrellas máximas (no bajar estrellas al repetir)
         await pool.query(
             `INSERT INTO progreso_minijuego (usuario_id, minijuego, nivel, estrellas, completado, fecha_completado)
              VALUES (?, ?, ?, ?, ?, NOW())
              ON DUPLICATE KEY UPDATE
-             estrellas = VALUES(estrellas),
+             estrellas = GREATEST(estrellas, VALUES(estrellas)),
              completado = (completado OR VALUES(completado)),
              fecha_completado = IF(VALUES(completado) = 1, NOW(), fecha_completado)`,
             [req.usuarioId, minijuego, nivel, estrellas || 0, completado ? 1 : 0]

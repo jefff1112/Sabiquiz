@@ -483,30 +483,30 @@
             <div class="main-menu-header">
                 <h1 id="welcomeMessage">¡Bienvenido!</h1>
                 <div class="header-buttons">
-                    <a href="leaderboard.html" class="btn btn-leaderboard">🏅 Ranking</a>
-                    <a href="profile.html" class="btn btn-profile">👤 Mi Perfil</a>
+                    <a href="leaderboard.html" class="btn btn-leaderboard"><img src="img/trofeo.png" class="icon-btn"> Ranking</a>
+                    <a href="profile.html" class="btn btn-profile"><img src="img/default-avatar.png" class="icon-btn"> Mi Perfil</a>
                     <button id="notificationsBtn" class="btn btn-notifications">
-                        🔔 Notificaciones
+                        <img src="img/estrellas.png" class="icon-btn"> Notificaciones
                         <span id="notifBadge" class="notif-badge">0</span>
                     </button>
-                    <button id="logoutBtn" class="btn btn-logout">🚪 Cerrar Sesión</button>
+                    <button id="logoutBtn" class="btn btn-logout"><img src="img/estrellas.png" class="icon-btn"> Cerrar Sesión</button>
                 </div>
             </div>
 
             <!-- BOTONES DE ACCIONES RÁPIDAS -->
             <div class="menu-actions">
-                <button id="duelBtn" class="btn btn-duel">⚔️ Modo Duelo 1vs1</button>
-                <a href="suggestions.html" class="btn btn-suggest">💡 Sugerir Pregunta</a>
+                <button id="duelBtn" class="btn btn-duel"><img src="img/espadas.png" class="icon-btn"> Modo Duelo 1vs1</button>
+                <a href="suggestions.html" class="btn btn-suggest"><img src="img/sabi/sabi_pensando.png" class="icon-btn"> Sugerir Pregunta</a>
                 <a href="admin_panel.html" id="adminPanelBtn" class="btn btn-admin" style="display:none;">
-                    🛡️ Panel Admin
+                    <img src="img/reina.png" class="icon-btn"> Panel Admin
                 </a>
             </div>
 
             <div class="sabiquiz-logo">
-                <img src="img/celebrando_perro_2.png" alt="SabiQuiz Dog Logo">
+                <img src="img/sabi/sabi_festejando.png" alt="SabiQuiz Logo" class="sabi-mascot sabi-mascot-bounce">
             </div>
 
-            <h2>📖 Elige tu materia para comenzar</h2>
+            <h2><img src="img/lenguaje.png" class="icon-btn"> Elige tu materia para comenzar</h2>
             <div class="subject-grid">
                 <a href="materias/lenguaje.html" class="subject-card language">
                     <img src="img/lenguaje.png" alt="Lenguaje"><h3>Lenguaje</h3>
@@ -537,16 +537,16 @@
         <!-- ============================================ -->
         <div id="multiplayerMenu" class="container multiplayer-menu" style="display: none;">
             <button id="backToMainMenu" class="btn" style="background:#718096;color:white;padding:8px 20px;border:none;border-radius:10px;cursor:pointer;margin-bottom:15px;">← Volver al Menú</button>
-            <h2>⚔️ Modo Duelo 1vs1</h2>
+            <h2><img src="img/espadas.png" class="icon-btn"> Modo Duelo 1vs1</h2>
 
             <div id="matchmakingStatus" class="matchmaking-status" style="display: none;">
-                <p>🔍 Buscando oponente...</p>
+                <p><img src="img/sabi/sabi_curioso.png" class="icon-btn sabi-mascot-small sabi-mascot-bounce-small"> Buscando oponente...</p>
                 <div class="spinner" style="margin:10px auto;width:40px;height:40px;border:4px solid #e2e8f0;border-top-color:#667eea;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
                 <button id="cancelMatchBtn" class="btn" style="background:#fc8181;color:white;padding:8px 20px;border:none;border-radius:10px;cursor:pointer;">Cancelar</button>
             </div>
 
-            <button id="findMatchBtn" class="btn" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:14px 30px;border:none;border-radius:12px;font-weight:bold;font-size:18px;cursor:pointer;width:100%;">🚀 Buscar Partida Rápida</button>
-            <button id="findMathMatchBtn" class="btn" style="background:linear-gradient(135deg,#48bb78,#38a169);color:white;padding:14px 30px;border:none;border-radius:12px;font-weight:bold;font-size:18px;cursor:pointer;width:100%;margin-top:10px;">🧮 Duelo Matemático</button>
+            <button id="findMatchBtn" class="btn" style="background:linear-gradient(135deg,#667eea,#764ba2);color:white;padding:14px 30px;border:none;border-radius:12px;font-weight:bold;font-size:18px;cursor:pointer;width:100%;"><img src="img/cohete.png" class="icon-btn"> Buscar Partida Rápida</button>
+            <button id="findMathMatchBtn" class="btn" style="background:linear-gradient(135deg,#48bb78,#38a169);color:white;padding:14px 30px;border:none;border-radius:12px;font-weight:bold;font-size:18px;cursor:pointer;width:100%;margin-top:10px;"><img src="img/grafica.png" class="icon-btn"> Duelo Matemático</button>
 
             <hr style="margin:20px 0;border:1px solid #e2e8f0;">
 
@@ -571,7 +571,7 @@
     
     <div class="game-info-bar">
         <div class="game-mode-display">Modo: <span id="gameModeDisplay">Normal</span></div>
-        <div class="timer-display" id="timerDisplay">⏱️ 10s</div>
+        <div class="timer-display" id="timerDisplay"><img src="img/estrellas.png" class="icon-star"> 10s</div>
     </div>
     
     <div class="score-display">
@@ -579,7 +579,7 @@
             <span class="player-name" id="player1Name">Jugador 1</span>
             <span class="score-value" id="player1ScoreValue">0</span>
         </div>
-        <span class="vs-divider">⚔️</span>
+        <span class="vs-divider"><img src="img/vs.png" class="icon-btn"></span>
         <div class="player-score player2">
             <span class="player-name" id="player2Name">Jugador 2</span>
             <span class="score-value" id="player2ScoreValue">0</span>
@@ -607,19 +607,18 @@
         <!-- ============================================ -->
         <div id="matchFoundContainer" class="popup-overlay" style="display: none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;z-index:1000;">
             <div class="popup-card" style="background:white;padding:40px;border-radius:20px;max-width:400px;width:90%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:zoomIn 0.3s ease;">
-                <h2 style="color:#2d3748;">🎯 ¡Oponente Encontrado!</h2>
+                <h2 style="color:#2d3748;"><img src="img/cohete.png" class="icon-btn"> ¡Oponente Encontrado!</h2>
                 <div class="opponent-info" style="margin:20px 0;">
                     <img src="img/default-avatar.png" id="opponentAvatar" alt="Avatar" style="width:80px;height:80px;border-radius:50%;border:3px solid #667eea;object-fit:cover;">
                     <h3 id="opponentName" style="margin:10px 0 5px;color:#2d3748;">---</h3>
                     <div style="display:flex;gap:20px;justify-content:center;color:#4a5568;">
-                        <span>🎯 Nivel: <strong id="opponentLevel">--</strong></span>
-                        <span>⭐ XP: <strong id="opponentXp">--</strong></span>
+                        <span><img src="img/cohete.png" class="icon-btn"> Nivel: <strong id="opponentLevel">--</strong></span>
+                        <span><img src="img/star_filled.png" class="icon-star"> XP: <strong id="opponentXp">--</strong></span>
                     </div>
                 </div>
                 <div style="display:flex;gap:15px;justify-content:center;">
-                    <button id="acceptMatchBtn" style="background:#48bb78;color:white;padding:12px 30px;border:none;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;">✅ Aceptar</button>
-                    <button id="rejectMatchBtn" style="background:#fc8181;color:white;padding:12px 30px;border:none;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;">❌ Rechazar</button>
-                </div>
+                    <button id="acceptMatchBtn" style="background:#48bb78;color:white;padding:12px 30px;border:none;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;"><img src="img/correct.png" class="icon-btn"> Aceptar</button>
+                    <button id="rejectMatchBtn" style="background:#fc8181;color:white;padding:12px 30px;border:none;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;"><img src="img/incorrect.png" class="icon-btn"> Rechazar</button>
             </div>
         </div>
 
@@ -627,14 +626,14 @@
         <!-- PANTALLA DE RESULTADOS -->
         <!-- ============================================ -->
         <div id="endGameContainer" class="end-game-container container" style="display: none;text-align:center;">
-            <h2 style="color:#2d3748;">🏆 Resultados</h2>
+            <h2 style="color:#2d3748;"><img src="img/trofeo.png" class="icon-btn"> Resultados</h2>
             <div style="display:flex;justify-content:center;align-items:center;gap:30px;margin:30px 0;flex-wrap:wrap;">
                 <div>
                     <img src="img/default-avatar.png" id="endAvatar1" style="width:80px;height:80px;border-radius:50%;border:3px solid #667eea;object-fit:cover;">
                     <p id="endPlayer1Name" style="font-weight:bold;margin:5px 0;">Jugador 1</p>
                     <p id="endPlayer1Score" style="color:#4a5568;">Puntuación: 0</p>
                 </div>
-                <div style="font-size:40px;font-weight:bold;color:#667eea;">⚔️</div>
+                <div style="font-size:40px;font-weight:bold;color:#667eea;"><img src="img/vs.png" class="icon-btn"></div>
                 <div>
                     <img src="img/default-avatar.png" id="endAvatar2" style="width:80px;height:80px;border-radius:50%;border:3px solid #667eea;object-fit:cover;">
                     <p id="endPlayer2Name" style="font-weight:bold;margin:5px 0;">Jugador 2</p>
@@ -642,7 +641,7 @@
                 </div>
             </div>
             <h3 id="endGameMessage" style="font-size:24px;color:#2d3748;"></h3>
-            <button id="rematchBtn" style="background:#667eea;color:white;padding:14px 40px;border:none;border-radius:12px;font-weight:bold;font-size:18px;cursor:pointer;margin-top:20px;">🔄 Revancha</button>
+            <button id="rematchBtn" style="background:#667eea;color:white;padding:14px 40px;border:none;border-radius:12px;font-weight:bold;font-size:18px;cursor:pointer;margin-top:20px;"><img src="img/estrellas.png" class="icon-btn"> Revancha</button>
         </div>
     </div>
 
@@ -1213,12 +1212,12 @@ const player2ScoreValue = document.getElementById('player2ScoreValue');
             let html = `
                 <div style="display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid #e2e8f0;padding-bottom:10px;margin-bottom:12px;">
                     <div>
-                        <h3 style="margin:0;color:#2d3748;font-size:18px;">🔔 Notificaciones</h3>
+                        <h3 style="margin:0;color:#2d3748;font-size:18px;"><img src="img/estrellas.png" class="icon-btn"> Notificaciones</h3>
                         ${totalNotificaciones > 0 ? `<span style="font-size:12px;color:#718096;">${totalNotificaciones} total (${noLeidas} sin leer)</span>` : ''}
                     </div>
                     <div style="display:flex;gap:5px;align-items:center;">
-                        ${noLeidas > 0 ? `<button onclick="markAllNotifications()" style="background:none;border:none;color:#667eea;cursor:pointer;font-size:12px;padding:4px 8px;border-radius:4px;">✅ Marcar todas</button>` : ''}
-                        ${totalNotificaciones > 0 ? `<button onclick="deleteAllNotifications()" style="background:none;border:none;color:#fc8181;cursor:pointer;font-size:12px;padding:4px 8px;border-radius:4px;">🗑️ Eliminar todas</button>` : ''}
+                        ${noLeidas > 0 ? `<button onclick="markAllNotifications()" style="background:none;border:none;color:#667eea;cursor:pointer;font-size:12px;padding:4px 8px;border-radius:4px;"><img src="img/correct.png" class="icon-btn"> Marcar todas</button>` : ''}
+                        ${totalNotificaciones > 0 ? `<button onclick="deleteAllNotifications()" style="background:none;border:none;color:#fc8181;cursor:pointer;font-size:12px;padding:4px 8px;border-radius:4px;"><img src="img/incorrect.png" class="icon-btn"> Eliminar todas</button>` : ''}
                         <button onclick="closeNotifications()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#a0aec0;padding:0 4px;">×</button>
                     </div>
                 </div>
@@ -1241,9 +1240,9 @@ const player2ScoreValue = document.getElementById('player2ScoreValue');
                     const fechaStr = fecha.toLocaleDateString();
                     const horaStr = fecha.toLocaleTimeString();
                     
-                    const icono = n.tipo === 'suggestion_approved' ? '✅' : 
-                                  n.tipo === 'suggestion_rejected' ? '❌' : 
-                                  n.tipo === 'new_logro' ? '🏅' : '📨';
+                    const icono = n.tipo === 'suggestion_approved' ? '<img src="img/correct.png" class="icon-btn">' : 
+                                  n.tipo === 'suggestion_rejected' ? '<img src="img/incorrect.png" class="icon-btn">' : 
+                                  n.tipo === 'new_logro' ? '<img src="img/reina.png" class="icon-btn">' : '<img src="img/estrellas.png" class="icon-btn">';
                     
                     const esLeida = n.leida;
                     
@@ -1258,8 +1257,8 @@ const player2ScoreValue = document.getElementById('player2ScoreValue');
                                 <div style="font-size:14px;color:#2d3748;word-break:break-word;">${n.mensaje}</div>
                             </div>
                             <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0;">
-                                ${!esLeida ? `<button onclick="markNotification(${n.id})" style="background:none;border:none;color:#667eea;cursor:pointer;font-size:11px;padding:2px 6px;">📖 Leer</button>` : ''}
-                                <button onclick="deleteNotification(${n.id})" style="background:none;border:none;color:#fc8181;cursor:pointer;font-size:11px;padding:2px 6px;">🗑️</button>
+                                ${!esLeida ? `<button onclick="markNotification(${n.id})" style="background:none;border:none;color:#667eea;cursor:pointer;font-size:11px;padding:2px 6px;"><img src="img/estrellas.png" class="icon-btn"> Leer</button>` : ''}
+                                <button onclick="deleteNotification(${n.id})" style="background:none;border:none;color:#fc8181;cursor:pointer;font-size:11px;padding:2px 6px;"><img src="img/incorrect.png" class="icon-btn"> Eliminar</button>
                             </div>
                         </div>
                     `;
@@ -1338,9 +1337,9 @@ const player2ScoreValue = document.getElementById('player2ScoreValue');
 
         function showToastNotification(notification) {
             const toast = document.createElement('div');
-            const icono = notification.type === 'suggestion_approved' ? '✅' : 
-                          notification.type === 'suggestion_rejected' ? '❌' : 
-                          notification.type === 'new_logro' ? '🏅' : '📨';
+            const icono = notification.type === 'suggestion_approved' ? '<img src="../img/correct.png" class="icon-btn">' : 
+                          notification.type === 'suggestion_rejected' ? '<img src="../img/incorrect.png" class="icon-btn">' : 
+                          notification.type === 'new_logro' ? '<img src="img/reina.png" class="icon-btn">' : '<img src="img/estrellas.png" class="icon-btn">';
             
             toast.style.cssText = `
                 position: fixed;
@@ -1394,15 +1393,15 @@ socket.on('notification', (notification) => {
 
 socket.on('roomCreated', (rc) => {
     currentRoomCode = rc;
-    setStatus(`✅ Sala "${rc}" creada. Esperando oponente...`);
+    setStatus(`<img src="img/correct.png" class="icon-btn"> Sala "${rc}" creada. Esperando oponente...`);
 });
 
 socket.on('playerJoined', () => {
-    setStatus('✅ Oponente conectado. ¡Prepárense!');
+    setStatus('<img src="img/correct.png" class="icon-btn"> Oponente conectado. ¡Prepárense!');
 });
 
 socket.on('roomFull', () => {
-    setStatus('❌ La sala está llena.');
+    setStatus('<img src="img/incorrect.png" class="icon-btn"> La sala está llena.');
 });
 
 socket.on('matchFound', (data) => {
@@ -1416,13 +1415,13 @@ socket.on('matchFound', (data) => {
     showMatchFound();
     acceptMatchBtn.disabled = false;
     rejectMatchBtn.disabled = false;
-    acceptMatchBtn.textContent = '✅ Aceptar';
+    acceptMatchBtn.innerHTML = '<img src="img/correct.png" class="icon-btn"> Aceptar';
     isInMatchmaking = false;
 });
 
 socket.on('matchRejected', () => {
     hideMatchFound();
-    setStatus('❌ Tu oponente ha rechazado la partida. Buscando de nuevo...');
+    setStatus('<img src="img/incorrect.png" class="icon-btn"> Tu oponente ha rechazado la partida. Buscando de nuevo...');
     setTimeout(() => {
         findMatchBtn.click();
     }, 1000);
@@ -1616,9 +1615,9 @@ socket.on('endGame', (data) => {
     document.getElementById('endAvatar2').src = otherPd.photoURL || 'img/default-avatar.png';
     
     let msg = '';
-    if (myScore > otherScore) msg = `🎉 ¡Ganaste, ${myPd.name}!`;
-    else if (otherScore > myScore) msg = `😢 ${otherPd.name} ha ganado!`;
-    else msg = '🤝 ¡Es un empate!';
+    if (myScore > otherScore) msg = `<img src="img/sabi/sabi_festejando.png" class="sabi-mascot-small"> ¡Ganaste, ${myPd.name}!`;
+    else if (otherScore > myScore) msg = `<img src="img/sabi/sabi_anima.png" class="sabi-mascot-small"> ${otherPd.name} ha ganado!`;
+    else msg = '<img src="img/sabi/sabi_saludando.png" class="sabi-mascot-small"> ¡Es un empate!';
     
     document.getElementById('endGameMessage').textContent = msg;
 });
@@ -1628,7 +1627,7 @@ socket.on('opponentLeft', (message) => {
     gameContainer.style.display = 'none';
     endGameContainer.style.display = 'none';
     showMultiplayerMenu();
-    setStatus(`❌ ${message}`);
+    setStatus(`<img src="img/incorrect.png" class="icon-btn"> ${message}`);
 });
 
         // ============================================

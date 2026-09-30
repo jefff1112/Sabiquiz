@@ -122,11 +122,11 @@
 <body data-subject-id="lenguaje">
     <div class="container level-selection-container">
         <a href="../main_menu.html" class="back-btn" data-translate="backToMenu">← Volver a materias</a>
-        <h3 data-translate="languageSubject">📚 Lenguaje</h3>
+        <h3 data-translate="languageSubject"><img src="../img/lenguaje.png" class="icon-btn"> Lenguaje</h3>
         
         <div id="errorMessage" class="error-message"></div>
         <div id="level-grid" class="level-grid">
-            <div class="loading-text">⏳ Cargando niveles...</div>
+            <div class="loading-text"><img src="../img/estrellas.png" class="icon-btn"> Cargando niveles...</div>
         </div>
     </div>
 
@@ -190,7 +190,7 @@
                 
                 return data;
             } catch (error) {
-                console.error('❌ Error en apiRequest:', error);
+                console.error('<img src="../img/incorrect.png" class="icon-btn"> Error en apiRequest:', error);
                 throw error;
             }
         }
@@ -204,12 +204,12 @@
                 es: {
                     languageTitle: 'SabiQuiz - Lenguaje',
                     backToMenu: '← Volver a materias',
-                    languageSubject: '📚 Lenguaje'
+                    languageSubject: '<img src="../img/lenguaje.png" class="icon-btn"> Lenguaje'
                 },
                 en: {
                     languageTitle: 'SabiQuiz - Language',
                     backToMenu: '← Back to subjects',
-                    languageSubject: '📚 Language'
+                    languageSubject: '<img src="../img/lenguaje.png" class="icon-btn"> Language'
                 }
             };
 
@@ -253,7 +253,7 @@
             levelGrid.innerHTML = '';
 
             if (!niveles || niveles.length === 0) {
-                levelGrid.innerHTML = '<div class="loading-text">📭 No hay niveles disponibles</div>';
+                levelGrid.innerHTML = '<div class="loading-text"><img src="../img/sabi/sabi_durmiendo.png" class="sabi-mascot-small"> No hay niveles disponibles</div>';
                 return;
             }
 
@@ -322,7 +322,7 @@
                 
                 hideError();
                 const levelGrid = document.getElementById('level-grid');
-                levelGrid.innerHTML = '<div class="loading-text">⏳ Cargando niveles...</div>';
+                levelGrid.innerHTML = '<div class="loading-text"><img src="../img/estrellas.png" class="icon-btn"> Cargando niveles...</div>';
 
                 // 1. Obtener ID de la materia "Lenguaje"
                 const materiasData = await apiRequest('/quiz/materias');
@@ -331,23 +331,23 @@
                 );
                 
                 if (!materia) {
-                    showError('❌ Materia "Lenguaje" no encontrada');
-                    levelGrid.innerHTML = '<div class="loading-text">❌ Error: Materia no encontrada</div>';
+                    showError('<img src="../img/incorrect.png" class="icon-btn"> Materia "Lenguaje" no encontrada');
+                    levelGrid.innerHTML = '<div class="loading-text"><img src="../img/incorrect.png" class="icon-btn"> Error: Materia no encontrada</div>';
                     return;
                 }
 
-                console.log('📚 Materia encontrada:', materia);
+                console.log('<img src="../img/lenguaje.png" class="icon-btn"> Materia encontrada:', materia);
 
                 // 2. Obtener niveles de la materia
                 const nivelesData = await apiRequest(`/quiz/materia/${materia.id}/niveles`);
                 const niveles = nivelesData.niveles || [];
 
                 if (niveles.length === 0) {
-                    levelGrid.innerHTML = '<div class="loading-text">📭 No hay niveles disponibles para esta materia</div>';
+                    levelGrid.innerHTML = '<div class="loading-text"><img src="../img/sabi/sabi_durmiendo.png" class="sabi-mascot-small"> No hay niveles disponibles para esta materia</div>';
                     return;
                 }
 
-                console.log(`📖 ${niveles.length} niveles encontrados`);
+                console.log(`<img src="../img/lenguaje.png" class="icon-btn"> ${niveles.length} niveles encontrados`);
 
                 // ============================================
                 // 3. Obtener progreso del usuario (CORREGIDO)
@@ -368,14 +368,14 @@
                                     const nivelId = n.nivel_id || n.id;
                                     if (nivelId && n.completado) {
                                         progresoData[nivelId] = n.estrellas || 0;
-                                        console.log(`  ✅ Nivel ${nivelId} -> ${n.estrellas} estrellas`);
+                                        console.log(`  <img src="../img/correct.png" class="icon-btn"> Nivel ${nivelId} -> ${n.estrellas} estrellas`);
                                     }
                                 });
                                 break;
                             }
                         }
                     }
-                    console.log('⭐ Progreso de Lenguaje (procesado):', progresoData);
+                    console.log('<img src="../img/star_filled.png" class="icon-star"> Progreso de Lenguaje (procesado):', progresoData);
                 } catch (e) {
                     console.log('ℹ️ No se pudo cargar progreso:', e);
                 }
@@ -390,7 +390,7 @@
                                 progresoData[parseInt(nivelId)] = data.stars || 0;
                             }
                         }
-                        console.log('⭐ Progreso desde localStorage:', progresoData);
+                        console.log('<img src="../img/star_filled.png" class="icon-star"> Progreso desde localStorage:', progresoData);
                     } catch (e) {
                         console.log('ℹ️ No se pudo leer localStorage:', e);
                     }
@@ -403,12 +403,12 @@
                 loadLanguage();
 
             } catch (error) {
-                console.error('❌ Error cargando niveles:', error);
-                showError('❌ Error al cargar los niveles: ' + error.message);
+                console.error('<img src="../img/incorrect.png" class="icon-btn"> Error cargando niveles:', error);
+                showError('<img src="../img/incorrect.png" class="icon-btn"> Error al cargar los niveles: ' + error.message);
                 const levelGrid = document.getElementById('level-grid');
                 levelGrid.innerHTML = `
                     <div class="loading-text" style="grid-column: 1/-1;">
-                        ❌ Error al cargar niveles<br>
+                        <img src="../img/incorrect.png" class="icon-btn"> Error al cargar niveles<br>
                         <small style="font-size:14px;color:#a0aec0;">${error.message}</small>
                         <br><br>
                         <button onclick="cargarNiveles()" style="padding:10px 24px;border:none;background:#667eea;color:#fff;border-radius:8px;cursor:pointer;font-weight:bold;">

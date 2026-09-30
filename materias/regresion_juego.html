@@ -367,7 +367,7 @@
     <!-- Sección Teórica Colapsable -->
     <div class="theory-section">
         <button class="theory-toggle" id="theoryToggle">
-            <span>📚 ¿Cómo funciona? (Ver teoría)</span>
+            <span><img src="../img/lenguaje.png" class="icon-btn"> ¿Cómo funciona? (Ver teoría)</span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
         </button>
         <div class="theory-content" id="theoryContent">
@@ -617,8 +617,8 @@
             drawPoints();
 
             mechanicControls.innerHTML = `
-                <button class="btn btn-choice" id="btnSube">📈 Sube (Positiva)</button>
-                <button class="btn btn-choice" id="btnBaja">📉 Baja (Negativa)</button>
+                <button class="btn btn-choice" id="btnSube"><img src="../img/grafica.png" class="icon-btn"> Sube (Positiva)</button>
+                <button class="btn btn-choice" id="btnBaja"><img src="../img/estrellas.png" class="icon-btn"> Baja (Negativa)</button>
             `;
 
             document.getElementById("btnSube").onclick = function() {
@@ -873,7 +873,7 @@
                 default: loadLevel1(); break;
             }
         } else {
-            hintLine.innerHTML = "❌ Tu navegador no soporta Canvas. Actualízalo por favor.";
+            hintLine.innerHTML = "<img src=\"../img/incorrect.png\" class=\"icon-btn\"> Tu navegador no soporta Canvas. Actualízalo por favor.";
         }
     </script>
 </body>

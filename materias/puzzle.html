@@ -78,10 +78,10 @@
 <body>
     <div class="container">
         <a href="matematicas_minijuegos.html" class="back-btn">← Volver a Minijuegos</a>
-        <h3>🧩 Puzzle Geométrico</h3>
+        <h3><img src="../img/puzzle.png" class="icon-btn"> Puzzle Geométrico</h3>
         <div id="errorMessage" class="error-message"></div>
         <div id="level-grid" class="level-grid">
-            <div class="loading-text">⏳ Cargando niveles...</div>
+            <div class="loading-text"><img src="../img/estrellas.png" class="icon-btn"> Cargando niveles...</div>
         </div>
     </div>
 
@@ -158,7 +158,7 @@
                     const prev = minijuegoProgreso[n - 1];
                     if (!prev || !prev.completado) {
                         bloqueado = true;
-                        hint = '🔒 Completa el nivel anterior';
+                        hint = '<img src="../img/lock.png" class="icon-lock"> Completa el nivel anterior';
                     }
                 }
 
@@ -166,7 +166,7 @@
                 if (!bloqueado && nivel.quizRequerido) {
                     if (!quizCompletados[nivel.quizRequerido]) {
                         bloqueado = true;
-                        hint = `🔑 Requiere Nivel ${nivel.quizRequerido} de Quizzes`;
+                        hint = `<img src="../img/cohete.png" class="icon-btn"> Requiere Nivel ${nivel.quizRequerido} de Quizzes`;
                     }
                 }
 
@@ -199,7 +199,7 @@
                 if (!checkAuth()) return;
                 hideError();
                 const grid = document.getElementById('level-grid');
-                grid.innerHTML = '<div class="loading-text">⏳ Cargando niveles...</div>';
+                grid.innerHTML = '<div class="loading-text"><img src="../img/estrellas.png" class="icon-btn"> Cargando niveles...</div>';
 
                 // 1) Progreso de este minijuego
                 let minijuegoProgreso = {};

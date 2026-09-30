@@ -218,13 +218,13 @@
             ← Volver a Minijuegos
         </a>
 
-        <h3>📈 Regresión y Predicción</h3>
+        <h3><img src="../img/grafica.png" class="icon-btn"> Regresión y Predicción</h3>
         <p class="subtitle">Ajusta líneas de tendencia y predice valores en 5 niveles de dificultad.</p>
 
         <div id="errorMessage" class="error-message"></div>
 
         <div id="level-grid" class="level-grid">
-            <div class="loading-text">⏳ Cargando niveles...</div>
+            <div class="loading-text"><img src="../img/estrellas.png" class="icon-btn"> Cargando niveles...</div>
         </div>
 
         <div class="stats-row" id="statsRow" style="display: none;">
@@ -324,7 +324,7 @@
                         <span class="level-number">${nivel.titulo}</span>
                         <span class="level-sub">${nivel.subtitulo}</span>
                         <img src="../img/lock.png" alt="Bloqueado" class="lock-icon">
-                        <div class="unlock-hint">🔒 Completa el Nivel ${n - 1}</div>
+                        <div class="unlock-hint"><img src="../img/lock.png" class="icon-lock"> Completa el Nivel ${n - 1}</div>
                     `;
                 } else {
                     btn.href = `regresion_juego.html?nivel=${n}`;
@@ -353,7 +353,7 @@
                 if (!checkAuth()) return;
                 hideError();
                 const grid = document.getElementById('level-grid');
-                grid.innerHTML = '<div class="loading-text">⏳ Cargando niveles...</div>';
+                grid.innerHTML = '<div class="loading-text"><img src="../img/estrellas.png" class="icon-btn"> Cargando niveles...</div>';
                 
                 let minijuegoProgreso = {};
                 const data = await apiRequest('/minigames/progreso');
@@ -363,7 +363,7 @@
                 drawLevels(minijuegoProgreso);
             } catch (error) { 
                 console.error(error); 
-                showError('❌ Error al cargar los niveles: ' + error.message); 
+                showError('<img src="../img/incorrect.png" class="icon-btn"> Error al cargar los niveles: ' + error.message); 
             }
         }
 

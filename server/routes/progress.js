@@ -91,7 +91,7 @@ router.get('/desbloqueados', authMiddleware, async (req, res) => {
 });
 
 // ============================================
-// RUTA: OBTENER ESTADÍSTICAS DEL USUARIO
+// RUTA: OBTENER ESTADÍSTICAS DEL USUARIO (INCLUYE MINIJUEGOS)
 // ============================================
 router.get('/stats', authMiddleware, async (req, res) => {
     try {
@@ -101,6 +101,7 @@ router.get('/stats', authMiddleware, async (req, res) => {
             [req.usuarioId]
         );
 
+        // Estadísticas de quizzes regulares
         const [stats] = await pool.query(
             `SELECT 
                 COUNT(DISTINCT p.nivel_id) as niveles_completados,
@@ -110,14 +111,29 @@ router.get('/stats', authMiddleware, async (req, res) => {
              WHERE p.usuario_id = ? AND p.completado = TRUE`,
             [req.usuarioId]
         );
+
+        // Estadísticas de minijuegos
+        const [minijuegosStats] = await pool.query(
+            `SELECT 
+                COUNT(DISTINCT CONCAT(minijuego, '-', nivel)) as minijuegos_completados,
+                SUM(estrellas) as minijuegos_estrellas
+             FROM progreso_minijuego
+             WHERE usuario_id = ? AND completado = TRUE`,
+            [req.usuarioId]
+        );
+
+        const totalEstrellas = (stats[0]?.total_estrellas || 0) + (minijuegosStats[0]?.minijuegos_estrellas || 0);
         
         res.json({
             success: true,
             stats: {
                 niveles_completados: stats[0]?.niveles_completados || 0,
-                total_estrellas: stats[0]?.total_estrellas || 0,
+                total_estrellas: totalEstrellas,
+                quiz_estrellas: stats[0]?.total_estrellas || 0,
+                minijuegos_estrellas: minijuegosStats[0]?.minijuegos_estrellas || 0,
+                minijuegos_completados: minijuegosStats[0]?.minijuegos_completados || 0,
                 promedio_puntaje: stats[0]?.promedio_puntaje || 0,
-                pvpXp: user[0]?.pvpXp || 0  // 🔥 AGREGAR ESTO
+                pvpXp: user[0]?.pvpXp || 0
             }
         });
     } catch (error) {

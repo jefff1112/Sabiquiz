@@ -311,7 +311,7 @@
             <div class="profile-header">
                 <label for="avatarUpload" class="avatar-label">
                     <img src="img/default-avatar.png" alt="Avatar del jugador" id="profile-avatar" class="avatar">
-                    <span class="edit-avatar-icon">✏️</span>
+                    <span class="edit-avatar-icon"><img src="img/sabi/sabi_pensando.png" class="icon-btn"></span>
                 </label>
                 <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
                 
@@ -319,7 +319,7 @@
                     <div class="display-name-container">
                         <h2 id="profile-name">Cargando...</h2>
                         <input type="text" id="edit-name-input" class="edit-name-input" style="display: none;">
-                        <button id="edit-name-btn" class="btn-edit-name">✏️</button>
+                        <button id="edit-name-btn" class="btn-edit-name"><img src="img/sabi/sabi_pensando.png" class="icon-btn"></button>
                     </div>
                     <div class="level-box">
                         <span>NIVEL</span>
@@ -342,17 +342,17 @@
 
             <!-- HISTORIAL DE PARTIDAS -->
             <div class="historial-container">
-                <h3>📊 Historial de Partidas 1vs1</h3>
+                <h3><img src="img/grafica.png" class="icon-btn"> Historial de Partidas 1vs1</h3>
                 <div id="historialPartidas">
-                    <p class="loading-text">Cargando historial...</p>
+                    <p class="loading-text"><img src="img/estrellas.png" class="icon-btn"> Cargando historial...</p>
                 </div>
             </div>
 
             <!-- LOGROS -->
             <div class="logros-container">
-                <h3>🏅 Logros</h3>
+                <h3><img src="img/reina.png" class="icon-btn"> Logros</h3>
                 <div id="logrosContainer">
-                    <p class="loading-text">Cargando logros...</p>
+                    <p class="loading-text"><img src="img/estrellas.png" class="icon-btn"> Cargando logros...</p>
                 </div>
             </div>
             
@@ -524,7 +524,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         profileNameEl.textContent = newName;
                         profileNameEl.style.display = 'block';
                         editNameInput.style.display = 'none';
-                        editNameBtn.textContent = '✏️';
+                        editNameBtn.innerHTML = '<img src="img/sabi/sabi_pensando.png" class="icon-btn">';
                         isEditingName = false;
                         
                         showToast('✅ Nombre actualizado correctamente', 'success');
@@ -539,7 +539,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 editNameInput.style.display = 'block';
                 editNameInput.value = profileNameEl.textContent;
                 editNameInput.focus();
-                editNameBtn.textContent = '✔️';
+                editNameBtn.innerHTML = '<img src="img/correct.png" class="icon-btn">';
                 isEditingName = true;
             }
         }
@@ -622,12 +622,12 @@ async function handleAvatarUpload(event) {
         async function loadHistorialPartidas() {
             try {
                 const container = document.getElementById('historialPartidas');
-                container.innerHTML = '<p class="loading-text">Cargando historial...</p>';
+                container.innerHTML = '<p class="loading-text"><img src="img/estrellas.png" class="icon-btn"> Cargando historial...</p>';
 
                 const data = await apiRequest('/progress/historial-partidas');
 
                 if (!data.success || !data.partidas || data.partidas.length === 0) {
-                    container.innerHTML = '<p style="color:#718096;text-align:center;">📭 Aún no has jugado partidas 1vs1</p>';
+                    container.innerHTML = '<p style="color:#718096;text-align:center;"><img src="img/sabi/sabi_durmiendo.png" class="sabi-mascot-small"> Aún no has jugado partidas 1vs1</p>';
                     return;
                 }
 
@@ -660,7 +660,7 @@ async function handleAvatarUpload(event) {
             } catch (error) {
                 console.error('Error cargando historial:', error);
                 document.getElementById('historialPartidas').innerHTML = 
-                    '<p style="color:#fc8181;text-align:center;">❌ Error al cargar el historial</p>';
+                    '<p style="color:#fc8181;text-align:center;"><img src="img/incorrect.png" class="icon-btn"> Error al cargar el historial</p>';
             }
         }
 
@@ -670,7 +670,7 @@ async function handleAvatarUpload(event) {
         async function loadLogros() {
             try {
                 const container = document.getElementById('logrosContainer');
-                container.innerHTML = '<p class="loading-text">Cargando logros...</p>';
+                container.innerHTML = '<p class="loading-text"><img src="img/estrellas.png" class="icon-btn"> Cargando logros...</p>';
 
                 // Verificar y desbloquear nuevos logros
                 await apiRequest('/progress/logros/check', { method: 'POST' });
@@ -688,10 +688,10 @@ async function handleAvatarUpload(event) {
                     const card = document.createElement('div');
                     card.className = 'logro-card';
                     card.innerHTML = `
-                        <div class="icono">${logro.icono || '🏅'}</div>
+                        <div class="icono"><img src="img/reina.png" class="icon-btn"></div>
                         <div class="nombre">${logro.nombre}</div>
                         <div class="descripcion">${logro.descripcion}</div>
-                        <div class="fecha">✅ ${new Date(logro.fecha_desbloqueo).toLocaleDateString()}</div>
+                        <div class="fecha"><img src="img/correct.png" class="icon-btn"> ${new Date(logro.fecha_desbloqueo).toLocaleDateString()}</div>
                     `;
                     container.appendChild(card);
                 });
@@ -699,7 +699,7 @@ async function handleAvatarUpload(event) {
             } catch (error) {
                 console.error('Error cargando logros:', error);
                 document.getElementById('logrosContainer').innerHTML = 
-                    '<p style="color:#fc8181;text-align:center;">❌ Error al cargar logros</p>';
+                    '<p style="color:#fc8181;text-align:center;"><img src="img/incorrect.png" class="icon-btn"> Error al cargar logros</p>';
             }
         }
 
