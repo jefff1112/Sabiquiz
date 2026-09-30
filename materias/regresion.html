@@ -1,86 +1,351 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Regresión y Predicción - Matemáticas</title>
     <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        .level-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-top: 20px; }
-        .level-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 10px; background: #f7fafc; border-radius: 15px; text-decoration: none; color: #2d3748; font-weight: bold; font-size: 16px; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid #e2e8f0; min-height: 100px; gap: 8px; }
-        .level-btn:hover:not(.locked) { transform: translateY(-5px); box-shadow: 0 10px 25px rgba(0,0,0,0.1); border-color: #667eea; }
-        .level-btn.locked { background: #edf2f7; color: #a0aec0; cursor: not-allowed; opacity: 0.7; }
-        .level-btn .lock-icon { width: 30px; height: 30px; }
-        .level-btn .stars-container { display: flex; gap: 4px; margin-top: 5px; }
-        .level-btn .star-icon { width: 22px; height: 22px; }
-        .level-btn .unlock-hint { font-size: 11px; color: #a0aec0; margin-top: 4px; text-align: center; }
-        .back-btn { display: inline-block; margin-bottom: 20px; color: #667eea; text-decoration: none; font-weight: bold; font-size: 16px; }
-        .back-btn:hover { text-decoration: underline; }
-        .container { max-width: 800px; margin: 40px auto; padding: 30px; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
-        h3 { text-align: center; color: #2d3748; font-size: 28px; }
-        .loading-text { text-align: center; color: #a0aec0; padding: 40px; grid-column: 1 / -1; }
-        .error-message { background: #fed7d7; color: #c53030; padding: 15px; border-radius: 10px; margin-bottom: 20px; display: none; text-align: center; }
-        @media (max-width: 600px) { .level-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 10px; } .level-btn { padding: 15px 8px; min-height: 80px; font-size: 14px; } .level-btn .star-icon { width: 18px; height: 18px; } .level-btn .lock-icon { width: 24px; height: 24px; } }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 24px 16px;
+            font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+            background: radial-gradient(circle at 20% 10%, #eef2ff, #e0e7ff 45%, #dbeafe 100%);
+            color: #2d3748;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 20px auto;
+            padding: 32px 36px;
+            background: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 24px 60px rgba(56, 66, 120, 0.22);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 6px;
+            background: linear-gradient(90deg, #667eea, #9f7aea, #48bb78);
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            margin-bottom: 16px;
+            transition: transform 0.2s ease, color 0.2s ease;
+        }
+
+        .back-btn:hover {
+            transform: translateX(-3px);
+            color: #4c51bf;
+            text-decoration: underline;
+        }
+
+        h3 {
+            text-align: center;
+            color: #2d3748;
+            font-size: 30px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #718096;
+            font-size: 15px;
+            margin-bottom: 24px;
+        }
+
+        .error-message {
+            background: #fed7d7;
+            color: #c53030;
+            padding: 14px 18px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: none;
+            text-align: center;
+            font-weight: 600;
+        }
+
+        .level-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 18px;
+            margin-top: 20px;
+        }
+
+        .level-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 22px 14px;
+            background: #f7fafc;
+            border-radius: 18px;
+            text-decoration: none;
+            color: #2d3748;
+            font-weight: bold;
+            font-size: 16px;
+            transition: all 0.2s ease;
+            border: 2px solid #e2e8f0;
+            min-height: 120px;
+            gap: 8px;
+            position: relative;
+        }
+
+        .level-btn:hover:not(.locked) {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(102, 126, 234, 0.15);
+            border-color: #667eea;
+            background: #ffffff;
+        }
+
+        .level-btn.locked {
+            background: #edf2f7;
+            color: #a0aec0;
+            cursor: not-allowed;
+            opacity: 0.75;
+            border-color: #cbd5e0;
+        }
+
+        .level-btn .level-number {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .level-btn.locked .level-number { color: #a0aec0; }
+
+        .level-btn .level-sub {
+            font-size: 12px;
+            color: #718096;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .level-btn .lock-icon { width: 32px; height: 32px; margin-top: 4px; }
+
+        .level-btn .stars-container {
+            display: flex;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        .level-btn .star-icon {
+            width: 22px;
+            height: 22px;
+            filter: drop-shadow(0 1px 3px rgba(0,0,0,0.1));
+        }
+
+        .level-btn .unlock-hint {
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 4px;
+            text-align: center;
+        }
+
+        .loading-text {
+            text-align: center;
+            color: #718096;
+            padding: 40px;
+            grid-column: 1 / -1;
+            font-size: 16px;
+        }
+
+        .stats-row {
+            display: flex;
+            justify-content: center;
+            gap: 32px;
+            margin-top: 32px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #718096;
+            margin-top: 2px;
+            font-weight: 600;
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 24px 18px; }
+            h3 { font-size: 24px; }
+            .level-grid { grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 12px; }
+            .level-btn { padding: 18px 10px; min-height: 100px; font-size: 14px; }
+            .level-btn .star-icon { width: 18px; height: 18px; }
+            .stats-row { gap: 16px; }
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <a href="matematicas_minijuegos.html" class="back-btn">← Volver a Minijuegos</a>
+        <a href="matematicas_minijuegos.html" class="back-btn">
+            ← Volver a Minijuegos
+        </a>
+
         <h3>📈 Regresión y Predicción</h3>
+        <p class="subtitle">Ajusta líneas de tendencia y predice valores en 5 niveles de dificultad.</p>
+
         <div id="errorMessage" class="error-message"></div>
+
         <div id="level-grid" class="level-grid">
             <div class="loading-text">⏳ Cargando niveles...</div>
+        </div>
+
+        <div class="stats-row" id="statsRow" style="display: none;">
+            <div class="stat-item">
+                <div class="stat-value" id="statTotal">0</div>
+                <div class="stat-label">Niveles Totales</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="statCompleted">0</div>
+                <div class="stat-label">Completados</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value" id="statStars">0</div>
+                <div class="stat-label">Estrellas</div>
+            </div>
         </div>
     </div>
 
     <script>
-        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000/api' : (window.location.origin + '/api');
+        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+            ? 'http://localhost:3000/api' 
+            : (window.location.origin + '/api');
         const MINIJUEGO = 'regresion';
+
         function getToken() { return localStorage.getItem('token'); }
-        function checkAuth() { if (!getToken()) { window.location.href = '../login.html'; return false; } return true; }
+
+        function checkAuth() { 
+            if (!getToken()) { 
+                window.location.href = '../login.html'; 
+                return false; 
+            } 
+            return true; 
+        }
+
         async function apiRequest(endpoint, options = {}) {
             const token = getToken();
-            const headers = { 'Content-Type': 'application/json', 'Authorization': token ? `Bearer ${token}` : '' };
+            const headers = { 
+                'Content-Type': 'application/json', 
+                'Authorization': token ? `Bearer ${token}` : '' 
+            };
             const finalOptions = { ...options, headers: { ...headers, ...options.headers } };
             const response = await fetch(`${API_URL}${endpoint}`, finalOptions);
-            if (!response.ok) { if (response.status === 401) { localStorage.removeItem('token'); localStorage.removeItem('user'); window.location.href = '../login.html'; } throw new Error(await response.text()); }
+            if (!response.ok) { 
+                if (response.status === 401) { 
+                    localStorage.removeItem('token'); 
+                    localStorage.removeItem('user'); 
+                    window.location.href = '../login.html'; 
+                } 
+                throw new Error(await response.text()); 
+            }
             return await response.json();
         }
-        function showError(m) { const d = document.getElementById('errorMessage'); d.textContent = m; d.style.display = 'block'; }
-        function hideError() { document.getElementById('errorMessage').style.display = 'none'; }
+
+        function showError(m) { 
+            const d = document.getElementById('errorMessage'); 
+            d.textContent = m; 
+            d.style.display = 'block'; 
+        }
+
+        function hideError() { 
+            document.getElementById('errorMessage').style.display = 'none'; 
+        }
 
         const levels = [
-            { numero: 1, titulo: 'Regresión 1: Tendencia' },
-            { numero: 2, titulo: 'Regresión 2: Línea recta' },
-            { numero: 3, titulo: 'Regresión 3: Mejor ajuste' },
-            { numero: 4, titulo: 'Regresión 4: Predicción' },
-            { numero: 5, titulo: 'Regresión 5: Datos reales' }
+            { numero: 1, titulo: 'Nivel 1', subtitulo: 'Tendencia lineal' },
+            { numero: 2, titulo: 'Nivel 2', subtitulo: 'Ajuste directo' },
+            { numero: 3, titulo: 'Nivel 3', subtitulo: 'Mejor ajuste' },
+            { numero: 4, titulo: 'Nivel 4', subtitulo: 'Tendencia negativa' },
+            { numero: 5, titulo: 'Nivel 5', subtitulo: 'Experto en datos' }
         ];
 
         function drawLevels(minijuegoProgreso) {
             const grid = document.getElementById('level-grid');
             grid.innerHTML = '';
+            
+            let completed = 0, totalStars = 0;
+            
             levels.forEach(nivel => {
                 const btn = document.createElement('a');
                 btn.classList.add('level-btn');
                 const n = nivel.numero;
                 let bloqueado = false;
-                if (n === 1) { /* disponible */ }
-                else { const prev = minijuegoProgreso[n - 1]; if (!prev || !prev.completado) bloqueado = true; }
+                
+                if (n === 1) { /* Nivel 1 siempre disponible */ }
+                else { 
+                    const prev = minijuegoProgreso[n - 1]; 
+                    if (!prev || !prev.completado) bloqueado = true; 
+                }
+
+                const stars = (minijuegoProgreso[n] && minijuegoProgreso[n].estrellas) || 0;
+                if (minijuegoProgreso[n]?.completado) completed++;
+                totalStars += stars;
 
                 if (bloqueado) {
                     btn.classList.add('locked');
-                    btn.innerHTML = `<span>${nivel.titulo}</span><img src="../img/lock.png" alt="Bloqueado" class="lock-icon"><div class="unlock-hint">🔒 Completa el nivel anterior</div>`;
+                    btn.innerHTML = `
+                        <span class="level-number">${nivel.titulo}</span>
+                        <span class="level-sub">${nivel.subtitulo}</span>
+                        <img src="../img/lock.png" alt="Bloqueado" class="lock-icon">
+                        <div class="unlock-hint">🔒 Completa el Nivel ${n - 1}</div>
+                    `;
                 } else {
                     btn.href = `regresion_juego.html?nivel=${n}`;
-                    const stars = (minijuegoProgreso[n] && minijuegoProgreso[n].estrellas) || 0;
                     let starsHTML = '<div class="stars-container">';
-                    for (let i = 0; i < 3; i++) starsHTML += `<img src="../img/${i < stars ? 'star_filled.png' : 'star_empty.png'}" class="star-icon">`;
+                    for (let i = 0; i < 3; i++) {
+                        starsHTML += `<img src="../img/${i < stars ? 'star_filled.png' : 'star_empty.png'}" class="star-icon" alt="${i < stars ? 'Estrella llena' : 'Estrella vacía'}">`;
+                    }
                     starsHTML += '</div>';
-                    btn.innerHTML = `<span>${nivel.titulo}</span>${starsHTML}`;
+                    btn.innerHTML = `
+                        <span class="level-number">${nivel.titulo}</span>
+                        <span class="level-sub">${nivel.subtitulo}</span>
+                        ${starsHTML}
+                    `;
                 }
                 grid.appendChild(btn);
             });
+
+            document.getElementById('statTotal').textContent = levels.length;
+            document.getElementById('statCompleted').textContent = completed;
+            document.getElementById('statStars').textContent = totalStars;
+            document.getElementById('statsRow').style.display = 'flex';
         }
 
         async function cargarNiveles() {
@@ -89,11 +354,17 @@
                 hideError();
                 const grid = document.getElementById('level-grid');
                 grid.innerHTML = '<div class="loading-text">⏳ Cargando niveles...</div>';
+                
                 let minijuegoProgreso = {};
                 const data = await apiRequest('/minigames/progreso');
-                if (data.success && data.progreso && data.progreso[MINIJUEGO]) minijuegoProgreso = data.progreso[MINIJUEGO];
+                if (data.success && data.progreso && data.progreso[MINIJUEGO]) {
+                    minijuegoProgreso = data.progreso[MINIJUEGO];
+                }
                 drawLevels(minijuegoProgreso);
-            } catch (error) { console.error(error); showError('❌ Error al cargar los niveles: ' + error.message); }
+            } catch (error) { 
+                console.error(error); 
+                showError('❌ Error al cargar los niveles: ' + error.message); 
+            }
         }
 
         document.addEventListener('DOMContentLoaded', cargarNiveles);

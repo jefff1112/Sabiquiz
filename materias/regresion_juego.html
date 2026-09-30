@@ -1,223 +1,507 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Regresión y Predicción - Juego</title>
     <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
-        * { box-sizing: border-box; }
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
+            --accent-green: #48bb78;
+            --accent-purple: #9f7aea;
+            --text-dark: #2d3748;
+            --text-muted: #718096;
+            --bg-card: #ffffff;
+            --border-light: #e2e8f0;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+            --shadow-card: 0 24px 60px rgba(56, 66, 120, 0.22);
+            --shadow-soft: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
+            min-height: 100vh;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            padding: 24px;
+            padding: 24px 16px;
+            font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
             background: radial-gradient(circle at 20% 10%, #eef2ff, #e0e7ff 45%, #dbeafe 100%);
-            font-family: "Segoe UI", system-ui, sans-serif;
+            color: var(--text-dark);
         }
+
         .game-container {
-            background: #ffffff;
-            padding: 26px 30px 22px;
-            border-radius: 24px;
-            box-shadow: 0 24px 60px rgba(56, 66, 120, 0.22);
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px 24px;
+            box-shadow: var(--shadow-card);
             text-align: center;
             width: 100%;
             max-width: 780px;
             position: relative;
             overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.8);
         }
+
         .game-container::before {
-            content: "";
+            content: '';
             position: absolute;
             inset: 0 0 auto 0;
             height: 6px;
             background: linear-gradient(90deg, #667eea, #9f7aea, #48bb78);
         }
-        .back-btn { display: inline-block; margin-bottom: 6px; color: #667eea; text-decoration: none; font-weight: 600; font-size: 15px; }
-        .back-btn:hover { text-decoration: underline; }
-        .level-title { font-size: 24px; font-weight: 800; color: #2d3748; margin: 4px 0 2px; }
-        .stars { display: flex; justify-content: center; gap: 5px; margin: 4px 0; }
-        .star { font-size: 27px; color: #e2e8f0; transition: color .2s, transform .2s; }
-        .star.filled { color: #f6ad55; animation: pop .35s ease; }
-        .hint { font-size: 14px; color: #718096; margin: 4px 0 10px; }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            background: #f1f5f9;
+            border: 1px solid var(--border-light);
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: #e2e8f0;
+            transform: translateX(-3px);
+            color: #4c51bf;
+        }
+
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: #f7fafc;
+            border: 1px solid var(--border-light);
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .level-badge span {
+            color: #667eea;
+        }
+
+        .stars-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 6px 0 14px;
+        }
+
+        .star {
+            font-size: 32px;
+            color: #cbd5e0;
+            transition: color 0.3s, transform 0.3s;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
+        }
+
+        .star.filled {
+            color: #f6ad55;
+            filter: drop-shadow(0 4px 12px rgba(246, 173, 85, 0.4));
+            animation: starPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes starPop {
+            0% { transform: scale(0.5) rotate(-20deg); }
+            60% { transform: scale(1.25) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .hint {
+            font-size: 15px;
+            color: var(--text-muted);
+            margin-bottom: 16px;
+            min-height: 22px;
+            font-weight: 500;
+        }
+
         #gameCanvas {
             width: 100%;
             max-width: 720px;
-            height: auto;
-            border: 2px solid #e2e8f0;
-            border-radius: 16px;
-            background: #fdfdfb;
+            height: 400px;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background: #f8fafc;
             display: block;
-            margin: 0 auto;
+            margin: 0 auto 20px;
             cursor: grab;
             touch-action: none;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.04);
+            transition: border-color 0.2s ease;
         }
+
+        #gameCanvas:hover { border-color: #cbd5e0; }
         #gameCanvas:active { cursor: grabbing; }
-        .fit-meter {
-            margin: 14px auto 4px;
-            max-width: 480px;
-            text-align: left;
+
+        .metrics-panel {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+            max-width: 720px;
+            margin-left: auto;
+            margin-right: auto;
         }
-        .fit-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: baseline;
-            font-size: 13px;
-            color: #475569;
+
+        .metric-card {
+            background: #f8fafc;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 16px 14px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .metric-card:hover {
+            border-color: #cbd5e0;
+            box-shadow: var(--shadow-soft);
+            transform: translateY(-2px);
+        }
+
+        .metric-label {
+            font-size: 12px;
             font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+            font-family: 'Quicksand', sans-serif;
         }
-        .fit-row span:last-child { font-size: 16px; color: #667eea; }
-        .bar {
-            height: 12px;
+
+        .metric-value {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--text-dark);
+            font-family: 'Quicksand', sans-serif;
+            line-height: 1.2;
+        }
+
+        .metric-value.quality { color: #48bb78; }
+        .metric-value.equation { font-size: 16px; color: #667eea; }
+
+        .progress-bar {
+            height: 8px;
             border-radius: 999px;
             background: #e2e8f0;
             overflow: hidden;
-            margin: 5px 0 4px;
+            margin-top: 8px;
         }
-        .bar span {
-            display: block;
+
+        .progress-bar .fill {
             height: 100%;
             width: 0%;
             border-radius: 999px;
-            background: #fc8181;
-            transition: width .2s ease, background .2s ease;
+            background: linear-gradient(90deg, #667eea, #48bb78);
+            transition: width 0.4s ease, background 0.3s ease;
         }
-        .badge {
-            display: inline-block;
-            padding: 3px 12px;
+
+        .tier-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
             border-radius: 999px;
-            font-size: 12px;
-            font-weight: 800;
-            color: white;
-            background: #fc8181;
-            transition: background .2s ease;
-        }
-        .eq-line { font-size: 21px; font-weight: 800; color: #2d3748; margin: 8px 0 2px; }
-        .finish-btn {
-            margin-top: 8px;
-            padding: 13px 34px;
-            background: linear-gradient(90deg, #667eea, #48bb78);
-            color: white;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
+            font-size: 13px;
             font-weight: 700;
-            cursor: pointer;
-            box-shadow: 0 10px 20px rgba(102,126,234,0.35);
-            transition: transform .2s;
+            margin-top: 6px;
+            transition: all 0.3s ease;
         }
-        .finish-btn:hover { transform: translateY(-2px); }
-        .finish-btn:disabled { background: #cbd5e0; box-shadow: none; cursor: not-allowed; transform: none; }
-        .feedback { margin-top: 12px; font-size: 18px; font-weight: 800; min-height: 26px; }
-        .formula-note { margin-top: 12px; font-size: 12px; color: #a0aec0; }
-        .next-btn {
+
+        .tier-badge.tier-0 { background: #fed7d7; color: #e53e3e; border: 1px solid #feb2b2; }
+        .tier-badge.tier-1 { background: #fefcbf; color: #d69e2e; border: 1px solid #faf089; }
+        .tier-badge.tier-2 { background: #c6f6d5; color: #2f855a; border: 1px solid #9ae6b4; }
+        .tier-badge.tier-3 { background: #e9d8fd; color: #6b46c1; border: 1px solid #d6bcfa; box-shadow: 0 0 16px rgba(159, 122, 234, 0.3); }
+
+        .equation-display {
+            margin: 16px 0;
+            padding: 14px 20px;
+            background: #f7fafc;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            font-family: 'Quicksand', monospace;
+            font-size: 20px;
+            font-weight: 700;
+            color: #667eea;
+            min-height: 32px;
+        }
+
+        .action-buttons {
+            display: flex;
+            justify-content: center;
+            gap: 14px;
             margin-top: 10px;
-            padding: 13px 34px;
-            background: linear-gradient(90deg, #667eea, #48bb78);
-            color: white;
+        }
+
+        .btn {
+            padding: 14px 32px;
             border: none;
-            border-radius: 12px;
+            border-radius: var(--radius-md);
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            display: none;
-            box-shadow: 0 10px 20px rgba(102,126,234,0.35);
+            transition: all 0.2s ease;
+            font-family: 'Quicksand', sans-serif;
         }
-        .next-btn:hover { transform: translateY(-2px); }
-        #confettiLayer { position: fixed; inset: 0; pointer-events: none; z-index: 999; overflow: hidden; }
-        #toastLayer { position: fixed; top: 18px; right: 18px; z-index: 1200; display: flex; flex-direction: column; gap: 10px; pointer-events: none; }
-        .toast {
-            display: flex; align-items: center; gap: 12px;
+
+        .btn-primary {
             background: linear-gradient(135deg, #667eea, #764ba2);
-            color: #fff; padding: 14px 18px; border-radius: 16px;
-            box-shadow: 0 16px 34px rgba(30, 30, 60, 0.3);
-            min-width: 260px; max-width: 330px;
+            color: white;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.35);
+        }
+
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(102, 126, 234, 0.45); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.35);
+            display: none;
+        }
+
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(72, 187, 120, 0.45); }
+
+        .feedback {
+            margin-top: 16px;
+            min-height: 60px;
+            font-size: 15px;
+            line-height: 1.6;
+            padding: 16px;
+            border-radius: var(--radius-md);
+            background: #f8fafc;
+            border: 1px solid transparent;
+            transition: all 0.3s ease;
+        }
+
+        .feedback.success { border-color: #9ae6b4; background: #c6f6d5; color: #22543d; }
+        .feedback.error { border-color: #feb2b2; background: #fed7d7; color: #742a2a; }
+
+        .formula-hint {
+            margin-top: 18px;
+            padding: 14px 18px;
+            background: #f7fafc;
+            border: 1px dashed #cbd5e0;
+            border-radius: var(--radius-sm);
+            font-size: 13px;
+            color: var(--text-muted);
+            font-family: 'Quicksand', monospace;
+            text-align: center;
+        }
+
+        .formula-hint strong { color: #667eea; }
+
+        /* Toast notifications */
+        #toastLayer {
+            position: fixed;
+            top: 24px;
+            right: 24px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            pointer-events: none;
+        }
+
+        .toast {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            color: var(--text-dark);
+            padding: 16px 20px;
+            border-radius: var(--radius-md);
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
+            min-width: 280px;
+            max-width: 360px;
             pointer-events: auto;
-            animation: toastIn 0.45s cubic-bezier(0.34,1.56,0.64,1), toastOut 0.4s ease 3.9s forwards;
+            animation: toastIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
         }
-        .toast .t-icon { font-size: 32px; }
+
+        .toast.achievement { border-left: 4px solid #f6ad55; }
+        .toast .t-icon { font-size: 36px; flex-shrink: 0; }
         .toast .t-body { flex: 1; text-align: left; }
-        .toast .t-title { font-weight: 800; font-size: 12px; opacity: 0.85; letter-spacing: 0.5px; }
-        .toast .t-name { font-weight: 800; font-size: 16px; margin: 1px 0; }
-        .toast .t-desc { font-size: 12px; opacity: 0.92; }
-        @keyframes toastIn { from { transform: translateX(130%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-        @keyframes toastOut { to { transform: translateX(130%); opacity: 0; } }
-        .confetti { position: absolute; top: -14px; width: 10px; height: 14px; border-radius: 2px; animation: fall 2.4s ease-in forwards; }
-        @keyframes fall {
-            0% { transform: translateY(0) rotate(0); opacity: 1; }
-            100% { transform: translateY(calc(100vh + 30px)) translateX(var(--x, 0)) rotate(720deg); opacity: .9; }
+        .toast .t-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #d69e2e; margin-bottom: 2px; font-family: 'Quicksand', sans-serif; }
+        .toast .t-name { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 2px; }
+        .toast .t-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
+
+        @keyframes toastIn {
+            from { transform: translateX(120%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
         }
-        @keyframes pop {
-            0% { transform: scale(.6); }
-            60% { transform: scale(1.12); }
-            100% { transform: scale(1); }
+
+        /* Confetti */
+        #confettiLayer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
         }
-        @media (max-width: 520px) {
-            .game-container { padding: 18px 14px 16px; }
+
+        .confetti {
+            position: absolute;
+            top: -20px;
+            width: 10px;
+            height: 14px;
+            border-radius: 3px;
+            animation: confettiFall 3s cubic-bezier(0.4, 0, 1, 1) forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(calc(100vh + 50px)) translateX(var(--drift, 0)) rotate(720deg) scale(0.5); opacity: 0; }
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .game-container { padding: 22px 18px; }
+            .metrics-panel { grid-template-columns: 1fr; gap: 10px; }
+            .metric-value { font-size: 22px; }
+            .metric-value.equation { font-size: 14px; }
+            .equation-display { font-size: 16px; padding: 12px; }
+            .star { font-size: 26px; }
+            #gameCanvas { height: 320px; }
+            .action-buttons { flex-direction: column; }
+            .btn { width: 100%; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
     </style>
 </head>
 <body>
     <div class="game-container">
-        <a href="regresion.html" class="back-btn">← Volver a niveles</a>
-        <div class="level-title">📈 Regresión - Nivel <span id="levelNum">1</span></div>
-        <div class="stars" id="starsContainer">
-            <span class="star" id="star1">☆</span>
-            <span class="star" id="star2">☆</span>
-            <span class="star" id="star3">☆</span>
-        </div>
-        <div class="hint" id="hintLine">Arrastra los puntos verdes para ajustar la línea a los datos.</div>
-        <canvas id="gameCanvas" width="720" height="440"></canvas>
-        <div class="fit-meter">
-            <div class="fit-row"><span>Calidad del ajuste</span><span id="qualityVal">0%</span></div>
-            <div class="bar"><span id="fitBar"></span></div>
-            <div class="fit-row" style="justify-content:flex-start; gap:10px;">
-                <span class="badge" id="fitBadge">Sigue ajustando</span>
+        <div class="header-row">
+            <a href="regresion.html" class="back-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Volver
+            </a>
+            <div class="level-badge">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                Nivel <span id="levelNum">1</span>
             </div>
         </div>
-        <div class="eq-line" id="equationLine"></div>
-        <button class="finish-btn" id="finishBtn" disabled>✅ Guardar resultado</button>
+
+        <div class="stars-row" id="starsContainer">
+            <span class="star" id="star1" data-index="0">☆</span>
+            <span class="star" id="star2" data-index="1">☆</span>
+            <span class="star" id="star3" data-index="2">☆</span>
+        </div>
+
+        <div class="hint" id="hintLine">Arrastra los puntos morados para ajustar la línea a los datos.</div>
+
+        <canvas id="gameCanvas" width="720" height="400"></canvas>
+
+        <div class="metrics-panel">
+            <div class="metric-card">
+                <div class="metric-label">Calidad del Ajuste</div>
+                <div class="metric-value quality" id="qualityVal">0%</div>
+                <div class="progress-bar"><span class="fill" id="fitBar"></span></div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Clasificación</div>
+                <div class="tier-badge tier-0" id="fitBadge">Sigue ajustando</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Tu Ecuación</div>
+                <div class="metric-value equation" id="equationVal">y = 0.00x + 0.00</div>
+            </div>
+        </div>
+
+        <div class="equation-display" id="equationLine">Tu recta: y = 0.00x + 0.00</div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" id="finishBtn" disabled>✅ Guardar resultado</button>
+            <button class="btn btn-success" id="nextBtn">Siguiente nivel ➜</button>
+        </div>
+
         <div class="feedback" id="feedback"></div>
-        <button class="next-btn" id="nextBtn">Siguiente ➜</button>
-        <div class="formula-note">Recta de mejor ajuste: m = (n·Σxy − Σx·Σy) / (n·Σx² − (Σx)²) · b = (Σy − m·Σx) / n</div>
+
+        <div class="formula-hint">
+            <strong>Fórmula de Mínimos Cuadrados:</strong> 
+            m = (n·Σxy − Σx·Σy) / (n·Σx² − (Σx)²) &nbsp;|&nbsp; 
+            b = (Σy − m·Σx) / n
+        </div>
     </div>
+
     <div id="confettiLayer"></div>
     <div id="toastLayer"></div>
+
     <script>
-        const API_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") ? "http://localhost:3000/api" : (window.location.origin + "/api");
+        // ============================================
+        // CONFIG & UTILS
+        // ============================================
+        const API_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+            ? "http://localhost:3000/api" 
+            : (window.location.origin + "/api");
+
         function getToken() { return localStorage.getItem("token"); }
+
         async function apiRequest(endpoint, options = {}) {
             const token = getToken();
-            const headers = { "Content-Type": "application/json", "Authorization": token ? "Bearer " + token : "" };
+            const headers = { 
+                "Content-Type": "application/json", 
+                "Authorization": token ? "Bearer " + token : "" 
+            };
             const finalOptions = { ...options, headers: { ...headers, ...options.headers } };
             const response = await fetch(API_URL + endpoint, finalOptions);
-            if (!response.ok) throw new Error(await response.text());
+            if (!response.ok) {
+                if (response.status === 401) { 
+                    localStorage.removeItem("token"); 
+                    localStorage.removeItem("user"); 
+                    window.location.href = "../login.html"; 
+                }
+                throw new Error(await response.text());
+            }
             return await response.json();
         }
+
+        // ============================================
+        // DOM ELEMENTS
+        // ============================================
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
         const hintLine = document.getElementById("hintLine");
-        const equationLine = document.getElementById("equationLine");
         const qualityVal = document.getElementById("qualityVal");
         const fitBar = document.getElementById("fitBar");
         const fitBadge = document.getElementById("fitBadge");
+        const equationVal = document.getElementById("equationVal");
+        const equationLine = document.getElementById("equationLine");
         const finishBtn = document.getElementById("finishBtn");
-        const feedback = document.getElementById("feedback");
         const nextBtn = document.getElementById("nextBtn");
+        const feedback = document.getElementById("feedback");
         const levelNumSpan = document.getElementById("levelNum");
-        const star1 = document.getElementById("star1");
-        const star2 = document.getElementById("star2");
-        const star3 = document.getElementById("star3");
-        function mulberry32(seed) {
-            return function () {
-                seed |= 0; seed = seed + 0x6D2B79F5 | 0;
-                let t = Math.imul(seed ^ seed >>> 15, 1 | seed);
-                t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
-                return ((t ^ t >>> 14) >>> 0) / 4294967296;
-            };
-        }
+        const starElements = [document.getElementById("star1"), document.getElementById("star2"), document.getElementById("star3")];
+
+        // ============================================
+        // LEVEL CONFIGURATIONS
+        // ============================================
         const levelConfigs = [
             { label: "Fácil",      M: 0.9,  B: 1.2, noise: 0.4, n: 4, seed: 11 },
             { label: "Medio",      M: 1.3,  B: 0.4, noise: 0.7, n: 5, seed: 22 },
@@ -225,6 +509,19 @@
             { label: "Negativa",   M: -0.7, B: 8.4, noise: 0.7, n: 6, seed: 44 },
             { label: "Experto",    M: 1.2,  B: 0.6, noise: 1.1, n: 8, seed: 55 }
         ];
+
+        // ============================================
+        // MATH UTILS
+        // ============================================
+        function mulberry32(seed) {
+            return function() {
+                seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
+                let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+                t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+                return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+            };
+        }
+
         function leastSquares(points) {
             const n = points.length;
             let sx = 0, sy = 0, sxx = 0, sxy = 0;
@@ -235,6 +532,7 @@
             points.forEach(p => { const e = p.y - (m * p.x + b); sse += e * e; });
             return { m, b, sse };
         }
+
         function buildLevel(levelNum) {
             const c = levelConfigs[(levelNum - 1) % levelConfigs.length];
             const rng = mulberry32(c.seed);
@@ -245,154 +543,343 @@
                 pts.push({ x, y });
             }
             pts.sort((a, b) => a.x - b.x);
-            return { points: pts, opt: leastSquares(pts) };
+            return { points: pts, opt: leastSquares(pts), config: c };
         }
+
+        // ============================================
+        // GAME STATE
+        // ============================================
         let levelData = null;
         let ranges = null;
         let handleA = {}, handleB = {};
         let dragging = null;
         let isCompleted = false;
         let currentStars = 0;
-        const M = { left: 62, right: 22, top: 22, bottom: 48 };
-        function px(x) { const w = ranges.xmax - ranges.xmin; return M.left + (x - ranges.xmin) / w * (canvas.width - M.left - M.right); }
-        function py(y) { const h = ranges.ymax - ranges.ymin; return M.top + (ranges.ymax - y) / h * (canvas.height - M.top - M.bottom); }
-        function dataXFromPx(v) { const w = ranges.xmax - ranges.xmin; return ranges.xmin + (v - M.left) / (canvas.width - M.left - M.right) * w; }
-        function dataYFromPy(v) { const h = ranges.ymax - ranges.ymin; return ranges.ymax - (v - M.top) / (canvas.height - M.top - M.bottom) * h; }
+        const urlParams = new URLSearchParams(window.location.search);
+        const levelNum = parseInt(urlParams.get("nivel")) || 1;
+
+        // Canvas margins
+        const M = { left: 60, right: 30, top: 30, bottom: 50 };
+
+        function px(x) { 
+            const w = ranges.xmax - ranges.xmin; 
+            return M.left + (x - ranges.xmin) / w * (canvas.width - M.left - M.right); 
+        }
+        function py(y) { 
+            const h = ranges.ymax - ranges.ymin; 
+            return M.top + (ranges.ymax - y) / h * (canvas.height - M.top - M.bottom); 
+        }
+        function dataXFromPx(v) { 
+            const w = ranges.xmax - ranges.xmin; 
+            return ranges.xmin + (v - M.left) / (canvas.width - M.left - M.right) * w; 
+        }
+        function dataYFromPy(v) { 
+            const h = ranges.ymax - ranges.ymin; 
+            return ranges.ymax - (v - M.top) / (canvas.height - M.top - M.bottom) * h; 
+        }
+
         function getLine() {
             const xa = handleA.dataX, ya = handleA.dataY, xb = handleB.dataX, yb = handleB.dataY;
             const m = (yb - ya) / (xb - xa);
             return { m, b: ya - m * xa };
         }
+
         function userSSE(m, b) {
             let sse = 0;
             levelData.points.forEach(p => { const e = p.y - (m * p.x + b); sse += e * e; });
             return sse;
         }
+
         function tierFor(sse) {
             const opt = levelData.opt.sse;
-            if (sse <= opt * 1.15) return 3;
-            if (sse <= opt * 1.5) return 2;
-            if (sse <= opt * 2.0) return 1;
+            if (sse <= opt * 1.18) return 3;
+            if (sse <= opt * 1.55) return 2;
+            if (sse <= opt * 2.1) return 1;
             return 0;
         }
+
         function qualityFor(sse) {
             const opt = levelData.opt.sse;
             return Math.max(0, Math.min(100, Math.round(100 * (1 - (sse / opt - 1) / 1.2))));
         }
-        function badgeFor(tier, quality) {
-            if (tier === 3) return { text: "Excelente ⭐⭐⭐", color: "#48bb78" };
-            if (tier === 2) return { text: "Bueno ⭐⭐", color: "#f6ad55" };
-            if (tier === 1) return { text: "Aceptable ⭐", color: "#ed8936" };
-            return { text: "Sigue ajustando", color: "#fc8181" };
+
+        function badgeFor(tier) {
+            const badges = [
+                { text: "Sigue ajustando", cls: "tier-0" },
+                { text: "Aceptable ⭐", cls: "tier-1" },
+                { text: "Bueno ⭐⭐", cls: "tier-2" },
+                { text: "¡Excelente! ⭐⭐⭐", cls: "tier-3" }
+            ];
+            return badges[tier];
         }
-        function updateStars(stars) {
-            [star1, star2, star3].forEach((s, i) => {
-                const on = i < stars;
-                s.textContent = on ? "⭐" : "☆";
+
+        // CORREGIDO: Usar argumento count para evitar shadowing de la variable global starElements
+        function updateStars(count) {
+            starElements.forEach((s, i) => {
+                const on = i < count;
+                s.textContent = on ? "★" : "☆";
                 s.classList.toggle("filled", on);
+                s.style.animationDelay = (i * 0.1) + "s";
             });
         }
+
+        // ============================================
+        // RENDERING - SABIQUIZ THEMED CANVAS
+        // ============================================
         function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.strokeStyle = "#eef1f5";
+            if (!ctx || !levelData || !ranges) return;
+            
+            // Clear canvas
+            ctx.fillStyle = "#f8fafc";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const { m, b } = getLine();
+
+            // Grid lines
+            ctx.strokeStyle = "#e2e8f0";
             ctx.lineWidth = 1;
             for (let t = Math.ceil(ranges.xmin); t <= Math.floor(ranges.xmax); t++) {
-                ctx.beginPath(); ctx.moveTo(px(t), M.top); ctx.lineTo(px(t), canvas.height - M.bottom); ctx.stroke();
-                ctx.fillStyle = "#94a3b8"; ctx.font = "12px sans-serif"; ctx.textAlign = "center";
-                ctx.fillText(t, px(t), canvas.height - M.bottom + 18);
-            }
-            for (let t = Math.ceil(ranges.ymin); t <= Math.floor(ranges.ymax); t++) {
-                ctx.beginPath(); ctx.moveTo(M.left, py(t)); ctx.lineTo(canvas.width - M.right, py(t)); ctx.stroke();
-                ctx.fillStyle = "#94a3b8"; ctx.textAlign = "right";
-                ctx.fillText(t, M.left - 8, py(t) + 4);
-            }
-            ctx.strokeStyle = "#64748b";
-            ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.moveTo(M.left, M.top); ctx.lineTo(M.left, canvas.height - M.bottom); ctx.lineTo(canvas.width - M.right, canvas.height - M.bottom); ctx.stroke();
-            ctx.textAlign = "left";
-            const { m, b } = getLine();
-            levelData.points.forEach(p => {
-                const predY = m * p.x + b;
-                ctx.strokeStyle = "rgba(237,100,100,0.4)";
-                ctx.lineWidth = 1.5;
-                ctx.setLineDash([3, 3]);
-                ctx.beginPath(); ctx.moveTo(px(p.x), py(p.y)); ctx.lineTo(px(p.x), py(predY)); ctx.stroke();
-                ctx.setLineDash([]);
-            }
-            levelData.points.forEach(p => {
-                const g = ctx.createRadialGradient(px(p.x), py(p.y), 1, px(p.x), py(p.y), 8);
-                g.addColorStop(0, "#63b3ed");
-                g.addColorStop(1, "#3182ce");
-                ctx.fillStyle = g;
-                ctx.beginPath(); ctx.arc(px(p.x), py(p.y), 6.5, 0, Math.PI * 2); ctx.fill();
-                ctx.strokeStyle = "#fff";
-                ctx.lineWidth = 1.5;
+                ctx.beginPath(); 
+                ctx.moveTo(px(t), M.top); 
+                ctx.lineTo(px(t), canvas.height - M.bottom); 
                 ctx.stroke();
             }
-            ctx.strokeStyle = "#48bb78";
-            ctx.lineWidth = 3.5;
+            for (let t = Math.ceil(ranges.ymin); t <= Math.floor(ranges.ymax); t++) {
+                ctx.beginPath(); 
+                ctx.moveTo(M.left, py(t)); 
+                ctx.lineTo(canvas.width - M.right, py(t)); 
+                ctx.stroke();
+            }
+
+            // Axis labels
+            ctx.fillStyle = "#718096";
+            ctx.font = "600 12px 'DM Sans', sans-serif";
+            ctx.textAlign = "center";
+            for (let t = Math.ceil(ranges.xmin); t <= Math.floor(ranges.xmax); t++) {
+                ctx.fillText(t, px(t), canvas.height - M.bottom + 20);
+            }
+            ctx.textAlign = "right";
+            for (let t = Math.ceil(ranges.ymin); t <= Math.floor(ranges.ymax); t++) {
+                ctx.fillText(t, M.left - 10, py(t) + 4);
+            }
+
+            // Axes
+            ctx.strokeStyle = "#cbd5e0";
+            ctx.lineWidth = 2;
+            ctx.beginPath(); 
+            ctx.moveTo(M.left, M.top); 
+            ctx.lineTo(M.left, canvas.height - M.bottom); 
+            ctx.lineTo(canvas.width - M.right, canvas.height - M.bottom); 
+            ctx.stroke();
+
+            // Residual lines (dashed red)
+            ctx.strokeStyle = "rgba(229, 62, 62, 0.45)";
+            ctx.lineWidth = 1.5;
+            ctx.setLineDash([4, 4]);
+            levelData.points.forEach(p => {
+                const predY = m * p.x + b;
+                ctx.beginPath(); 
+                ctx.moveTo(px(p.x), py(p.y)); 
+                ctx.lineTo(px(p.x), py(predY)); 
+                ctx.stroke();
+            });
+            ctx.setLineDash([]);
+
+            // Data points (Sabiquiz vibrant violet/purple gradient circles)
+            levelData.points.forEach(p => {
+                const g = ctx.createRadialGradient(px(p.x), py(p.y), 1, px(p.x), py(p.y), 10);
+                g.addColorStop(0, "#9f7aea");
+                g.addColorStop(1, "#667eea");
+                ctx.fillStyle = g;
+                ctx.beginPath(); 
+                ctx.arc(px(p.x), py(p.y), 8, 0, Math.PI * 2); 
+                ctx.fill();
+                // Outer ring
+                ctx.strokeStyle = "#ffffff";
+                ctx.lineWidth = 2.5;
+                ctx.stroke();
+            });
+
+            // User Line (vibrant green)
+            ctx.strokeStyle = "#38a169";
+            ctx.lineWidth = 4;
             ctx.lineCap = "round";
-            ctx.beginPath(); ctx.moveTo(px(ranges.xmin), py(m * ranges.xmin + b)); ctx.lineTo(px(ranges.xmax), py(m * ranges.xmax + b)); ctx.stroke();
+            ctx.lineJoin = "round";
+            ctx.shadowColor = "rgba(72, 187, 120, 0.4)";
+            ctx.shadowBlur = 12;
+            ctx.beginPath(); 
+            ctx.moveTo(px(ranges.xmin), py(m * ranges.xmin + b)); 
+            ctx.lineTo(px(ranges.xmax), py(m * ranges.xmax + b)); 
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // Interactive Handles
             drawHandle(handleA);
             drawHandle(handleB);
         }
+
         function drawHandle(h) {
-            ctx.shadowColor = "rgba(72,187,120,0.55)";
-            ctx.shadowBlur = 10;
-            ctx.fillStyle = h === dragging ? "#48bb78" : "#fff";
-            ctx.beginPath(); ctx.arc(px(h.dataX), py(h.dataY), 11, 0, Math.PI * 2); ctx.fill();
+            const isActive = h === dragging;
+            ctx.shadowColor = isActive ? "rgba(102, 126, 234, 0.6)" : "rgba(102, 126, 234, 0.3)";
+            ctx.shadowBlur = isActive ? 16 : 8;
+            ctx.fillStyle = isActive ? "#667eea" : "#ffffff";
+            ctx.beginPath(); 
+            ctx.arc(px(h.dataX), py(h.dataY), isActive ? 14 : 12, 0, Math.PI * 2); 
+            ctx.fill();
             ctx.shadowBlur = 0;
-            ctx.strokeStyle = "#2f855a";
-            ctx.lineWidth = 3;
+            ctx.strokeStyle = "#667eea";
+            ctx.lineWidth = isActive ? 3.5 : 2.5;
             ctx.stroke();
-            ctx.fillStyle = "#2f855a";
-            ctx.beginPath(); ctx.arc(px(h.dataX), py(h.dataY), 4, 0, Math.PI * 2); ctx.fill();
+            // Center dot
+            ctx.fillStyle = isActive ? "#ffffff" : "#667eea";
+            ctx.beginPath(); 
+            ctx.arc(px(h.dataX), py(h.dataY), 4, 0, Math.PI * 2); 
+            ctx.fill();
         }
+
         function updateView() {
             const { m, b } = getLine();
             const sse = userSSE(m, b);
             const tier = isCompleted ? currentStars : tierFor(sse);
             currentStars = tier;
             const quality = qualityFor(sse);
-            const badge = badgeFor(tier, quality);
+            const badge = badgeFor(tier);
+
             updateStars(tier);
+
             qualityVal.textContent = quality + "%";
             fitBar.style.width = quality + "%";
-            fitBar.style.background = (tier === 3 ? "#48bb78" : tier === 2 ? "#f6ad55" : tier === 1 ? "#ed8936" : "#fc8181");
+            fitBar.style.background = tier === 3 
+                ? "linear-gradient(90deg, #667eea, #9f7aea)" 
+                : tier === 2 
+                    ? "linear-gradient(90deg, #48bb78, #38a169)" 
+                    : tier === 1 
+                        ? "linear-gradient(90deg, #ecc94b, #d69e2e)" 
+                        : "linear-gradient(90deg, #f56565, #e53e3e)";
+
             fitBadge.textContent = badge.text;
-            fitBadge.style.background = badge.color;
+            fitBadge.className = "tier-badge " + badge.cls;
+
             equationLine.textContent = "Tu recta: y = " + m.toFixed(2) + "x " + (b >= 0 ? "+" : "") + b.toFixed(2);
+            equationVal.textContent = "y = " + m.toFixed(2) + "x " + (b >= 0 ? "+" : "") + b.toFixed(2);
+
             finishBtn.disabled = isCompleted || tier < 1;
             draw();
         }
+
+        // ============================================
+        // INTERACTION HANDLERS
+        // ============================================
         function hitTestHandle(mx, my) {
             const dA = Math.hypot(mx - px(handleA.dataX), my - py(handleA.dataY));
             const dB = Math.hypot(mx - px(handleB.dataX), my - py(handleB.dataY));
-            if (dA < 22 && dA <= dB) return "A";
-            if (dB < 22) return "B";
+            if (dA < 28 && dA <= dB) return "A";
+            if (dB < 28) return "B";
             return null;
         }
+
         function eventPos(e) {
             const rect = canvas.getBoundingClientRect();
-            return { mcx: (e.clientX - rect.left) * (canvas.width / rect.width), mcy: (e.clientY - rect.top) * (canvas.height / rect.height) };
+            const scaleX = canvas.width / rect.width;
+            const scaleY = canvas.height / rect.height;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            return { 
+                mcx: (clientX - rect.left) * scaleX, 
+                mcy: (clientY - rect.top) * scaleY 
+            };
         }
+
         canvas.addEventListener("pointerdown", (e) => {
             if (isCompleted) return;
             const { mcx, mcy } = eventPos(e);
             dragging = hitTestHandle(mcx, mcy);
-            if (dragging) { canvas.setPointerCapture(e.pointerId); }
+            if (dragging) { 
+                canvas.setPointerCapture(e.pointerId); 
+                canvas.style.cursor = "grabbing";
+            }
         });
+
         canvas.addEventListener("pointermove", (e) => {
             if (!dragging) return;
             const { mcx, mcy } = eventPos(e);
             const h = dragging === "A" ? handleA : handleB;
             h.dataY = Math.max(ranges.ymin, Math.min(ranges.ymax, dataYFromPy(mcy)));
+            h.dataX = Math.max(ranges.xmin, Math.min(ranges.xmax, dataXFromPx(mcx)));
             updateView();
         });
+
         canvas.addEventListener("pointerup", (e) => {
             dragging = null;
+            canvas.style.cursor = "grab";
             try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
         });
+
+        // Touch support fallback
+        canvas.addEventListener("touchstart", (e) => { e.preventDefault(); canvas.dispatchEvent(new PointerEvent("pointerdown", { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY })); }, { passive: false });
+        canvas.addEventListener("touchmove", (e) => { e.preventDefault(); canvas.dispatchEvent(new PointerEvent("pointermove", { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY })); }, { passive: false });
+        canvas.addEventListener("touchend", (e) => { canvas.dispatchEvent(new PointerEvent("pointerup")); });
+
+        // ============================================
+        // SAVE PROGRESS & TOASTS
+        // ============================================
+        async function saveProgress(minijuego, nivel, estrellas, completado) {
+            try {
+                const data = await apiRequest("/minigames/submit", {
+                    method: "POST",
+                    body: JSON.stringify({ minijuego, nivel, estrellas, completado })
+                });
+                if (data && data.nuevosLogros && data.nuevosLogros.length) {
+                    data.nuevosLogros.forEach(showLogroToast);
+                }
+            } catch (error) {
+                console.error("Error guardando progreso:", error);
+                showFeedback("Error al guardar el progreso. Intenta de nuevo.", "error");
+            }
+        }
+
+        function showFeedback(msg, type = "success") {
+            feedback.innerHTML = msg;
+            feedback.className = "feedback " + type;
+        }
+
+        function showLogroToast(logro) {
+            const layer = document.getElementById("toastLayer");
+            const t = document.createElement("div");
+            t.className = "toast achievement";
+            t.innerHTML =
+                "<div class=\"t-icon\">" + (logro.icono || "🏆") + "</div>" +
+                "<div class=\"t-body\">" +
+                "<div class=\"t-title\">Logro desbloqueado</div>" +
+                "<div class=\"t-name\">" + logro.nombre + "</div>" +
+                "<div class=\"t-desc\">" + (logro.descripcion || "") + "</div>" +
+                "</div>";
+            layer.appendChild(t);
+            setTimeout(() => { t.style.animation = "toastIn 0.3s ease reverse forwards"; setTimeout(() => t.remove(), 300); }, 4500);
+        }
+
+        function confetti() {
+            const layer = document.getElementById("confettiLayer");
+            const colors = ["#667eea", "#48bb78", "#9f7aea", "#f6ad55", "#ecc94b", "#4299e1"];
+            for (let i = 0; i < 90; i++) {
+                const d = document.createElement("div");
+                d.className = "confetti";
+                d.style.left = (Math.random() * 100) + "%";
+                d.style.background = colors[i % colors.length];
+                d.style.animationDelay = (Math.random() * 1) + "s";
+                d.style.setProperty("--drift", (Math.random() * 250 - 125) + "px");
+                const shape = Math.random();
+                if (shape < 0.25) d.style.borderRadius = "50%";
+                else if (shape < 0.5) d.style.clipPath = "polygon(50% 0%, 0% 100%, 100% 100%)";
+                else if (shape < 0.75) { d.style.width = "12px"; d.style.height = "14px"; d.style.transform = "rotate(45deg)"; }
+                layer.appendChild(d);
+                setTimeout(() => d.remove(), 3000);
+            }
+        }
+
+        // ============================================
+        // EVENT HANDLERS
+        // ============================================
         finishBtn.addEventListener("click", async () => {
             if (isCompleted || currentStars < 1) return;
             isCompleted = true;
@@ -400,118 +887,70 @@
             const { m, b } = getLine();
             const xPred = (ranges.xmin + ranges.xmax) / 2;
             const yPred = m * xPred + b;
-            feedback.innerHTML = "✅ ¡Buen ajuste! Tu recta: <b>y = " + m.toFixed(2) + "x " + (b >= 0 ? "+" : "") + b.toFixed(2) + "</b><br>Predicción: para x = " + xPred.toFixed(1) + ", y ≈ <b>" + yPred.toFixed(1) + "</b>";
-            feedback.style.color = "#48bb78";
+            
+            showFeedback(
+                "✅ <strong>¡Ajuste guardado con éxito!</strong><br>" +
+                "Ecuación obtenida: <strong>y = " + m.toFixed(2) + "x " + (b >= 0 ? "+" : "") + b.toFixed(2) + "</strong><br>" +
+                "Predicción para x = " + xPred.toFixed(1) + ": <strong>y ≈ " + yPred.toFixed(2) + "</strong>",
+                "success"
+            );
+            
             finishBtn.disabled = true;
-            nextBtn.style.display = "block";
+            nextBtn.style.display = "inline-flex";
+            nextBtn.style.alignItems = "center";
+            nextBtn.style.justifyContent = "center";
             confetti();
             await saveProgress("regresion", levelNum, currentStars, true);
         });
-        function confetti() {
-            const layer = document.getElementById("confettiLayer");
-            const colors = ["#667eea", "#48bb78", "#f6ad55", "#9f7aea", "#f56565", "#ed8936"];
-            for (let i = 0; i < 70; i++) {
-                const d = document.createElement("div");
-                d.className = "confetti";
-                d.style.left = (Math.random() * 100) + "%";
-                d.style.background = colors[i % colors.length];
-                d.style.animationDelay = (Math.random() * 0.6) + "s";
-                d.style.setProperty("--x", (Math.random() * 160 - 80) + "px");
-                layer.appendChild(d);
-                setTimeout(() => d.remove(), 3000);
+
+        nextBtn.addEventListener("click", () => { 
+            if (levelNum < 5) {
+                window.location.href = `regresion_juego.html?nivel=${levelNum + 1}`;
+            } else {
+                window.location.href = "regresion.html"; 
             }
-        }
-        function showLogroToast(logro) {
-            const layer = document.getElementById("toastLayer");
-            const t = document.createElement("div");
-            t.className = "toast";
-            t.innerHTML =
-                "<div class=\"t-icon\">" + (logro.icono || "🏅") + "</div>" +
-                "<div class=\"t-body\">" +
-                "<div class=\"t-title\">🏆 ¡Logro desbloqueado!</div>" +
-                "<div class=\"t-name\">" + logro.nombre + "</div>" +
-                "<div class=\"t-desc\">" + (logro.descripcion || "") + "</div>" +
-                "</div>";
-            layer.appendChild(t);
-            setTimeout(() => t.remove(), 4200);
-        }
-        async function saveProgress(minijuego, nivel, estrellas, completado) {
-            try {
-                const data = await apiRequest("/minigames/submit", {
-                    method: "POST",
-                    body: JSON.stringify({ minijuego, nivel, estrellas, completado })
-                });
-                if (data && data.nuevosLogros && data.nuevosLogros.length) {
-                    data.nuevosLogros.forEach(showLogroToast);
-                }
-            } catch (error) {
-                console.error("Error guardando progreso:", error);
-            }
-        }
+        });
+
+        // ============================================
+        // INIT LEVEL
+        // ============================================
         function loadLevel() {
             levelNumSpan.textContent = levelNum;
-            hintLine.textContent = "Arrastra los puntos verdes para ajustar la línea a los datos.";
+            hintLine.textContent = "Arrastra los puntos morados para ajustar la línea a los datos.";
+            
             levelData = buildLevel(levelNum);
             const xs = levelData.points.map(p => p.x);
             const ys = levelData.points.map(p => p.y);
             const xmin = Math.floor(Math.min(...xs) - 1);
             const xmax = Math.ceil(Math.max(...xs) + 1);
-            const ymin = Math.floor(Math.min(...ys) - 1);
-            const ymax = Math.ceil(Math.max(...ys) + 1);
+            const ymin = Math.floor(Math.min(...ys) - 1.5);
+            const ymax = Math.ceil(Math.max(...ys) + 1.5);
             ranges = { xmin, xmax, ymin, ymax };
+
             const meanY = ys.reduce((a, b) => a + b, 0) / ys.length;
             handleA = { dataX: xmin + 0.15 * (xmax - xmin), dataY: meanY };
             handleB = { dataX: xmax - 0.15 * (xmax - xmin), dataY: meanY };
+
             isCompleted = false;
             currentStars = 0;
             updateStars(0);
             feedback.textContent = "";
+            feedback.className = "feedback";
             finishBtn.disabled = false;
             nextBtn.style.display = "none";
             dragging = null;
+            
+            draw();
             updateView();
         }
-        nextBtn.addEventListener("click", () => { window.location.href = "regresion.html"; });
-        const urlParams = new URLSearchParams(window.location.search);
-        const levelNum = parseInt(urlParams.get("nivel")) || 1;
-        const currentLevelData = levelConfigs[(levelNum - 1) % levelConfigs.length];
-        function getToken() { return localStorage.getItem("token"); }
-        async function apiRequest(endpoint, options = {}) {
-            const token = getToken();
-            const headers = { "Content-Type": "application/json", "Authorization": token ? "Bearer " + token : "" };
-            const finalOptions = { ...options, headers: { ...headers, ...options.headers } };
-            const response = await fetch(API_URL + endpoint, finalOptions);
-            if (!response.ok) throw new Error(await response.text());
-            return await response.json();
+
+        // Run when context ready
+        if (canvas.getContext) {
+            loadLevel();
+        } else {
+            feedback.innerHTML = "❌ Tu navegador no soporta Canvas. Actualízalo por favor.";
+            feedback.className = "feedback error";
         }
-        function showLogroToast(logro) {
-            const layer = document.getElementById("toastLayer");
-            const t = document.createElement("div");
-            t.className = "toast";
-            t.innerHTML =
-                "<div class=\"t-icon\">" + (logro.icono || "🏅") + "</div>" +
-                "<div class=\"t-body\">" +
-                "<div class=\"t-title\">🏆 ¡Logro desbloqueado!</div>" +
-                "<div class=\"t-name\">" + logro.nombre + "</div>" +
-                "<div class=\"t-desc\">" + (logro.descripcion || "") + "</div>" +
-                "</div>";
-            layer.appendChild(t);
-            setTimeout(() => t.remove(), 4200);
-        }
-        async function saveProgress(minijuego, nivel, estrellas, completado) {
-            try {
-                const data = await apiRequest("/minigames/submit", {
-                    method: "POST",
-                    body: JSON.stringify({ minijuego, nivel, estrellas, completado })
-                });
-                if (data && data.nuevosLogros && data.nuevosLogros.length) {
-                    data.nuevosLogros.forEach(showLogroToast);
-                }
-            } catch (error) {
-                console.error("Error guardando progreso:", error);
-            }
-        }
-        loadLevel();
     </script>
 </body>
 </html>
