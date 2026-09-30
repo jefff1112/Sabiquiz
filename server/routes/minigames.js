@@ -52,7 +52,7 @@ router.post('/submit', authMiddleware, async (req, res) => {
             `INSERT INTO progreso_minijuego (usuario_id, minijuego, nivel, estrellas, completado, fecha_completado)
              VALUES (?, ?, ?, ?, ?, NOW())
              ON DUPLICATE KEY UPDATE
-             estrellas = GREATEST(estrellas, VALUES(estrellas)),
+             estrellas = VALUES(estrellas),
              completado = (completado OR VALUES(completado)),
              fecha_completado = IF(VALUES(completado) = 1, NOW(), fecha_completado)`,
             [req.usuarioId, minijuego, nivel, estrellas || 0, completado ? 1 : 0]
