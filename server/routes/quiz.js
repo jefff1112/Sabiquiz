@@ -87,16 +87,16 @@ router.post('/submit', authMiddleware, async (req, res) => {
         const completado = porcentaje >= 0.6;
         const puntaje = Math.round(porcentaje * 100);
 
-        // 🔥 GUARDAR PROGRESO
+        // 🔥 GUARDAR PROGRESO (sin bajar estrellas al repetir nivel)
         await connection.query(
             `INSERT INTO progreso_usuario 
              (usuario_id, nivel_id, puntaje, estrellas, completado, fecha_completado)
              VALUES (?, ?, ?, ?, ?, NOW())
              ON DUPLICATE KEY UPDATE
-             puntaje = VALUES(puntaje),
-             estrellas = VALUES(estrellas),
-             completado = VALUES(completado),
-             fecha_completado = NOW()`,
+             puntaje = GREATEST(puntaje, VALUES(puntaje)),
+             estrellas = GREATEST(estrellas, VALUES(estrellas)),
+             completado = (completado OR VALUES(completado)),
+             fecha_completado = IF(VALUES(completado) = 1, NOW(), fecha_completado)`,
             [usuarioId, nivelId, puntaje, estrellas, completado]
         );
 

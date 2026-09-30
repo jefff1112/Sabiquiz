@@ -611,8 +611,14 @@ if (completado) {
                 console.log('✅ nivelId real:', nivelId);
                 console.log('✅ numero real:', nivelNumero);
 
-                backBtn.href = `materias/${subjectId}.html`;
+                // Matemáticas tiene un hub (matematicas.html) que separa quizzes y minijuegos;
+                // el "Volver" del quiz debe ir a la pantalla de niveles de quizzes, no al hub.
+                const quizBackUrl = subjectId === 'matematicas'
+                    ? `materias/matematicas_quizzes.html`
+                    : `materias/${subjectId}.html`;
+                backBtn.href = quizBackUrl;
                 subjectTitle.textContent = `${materiaNombre}`;
+
                 document.getElementById('levelDisplay').textContent = `Nivel ${nivelNumero}`;
 
                 // 3. Cargar preguntas

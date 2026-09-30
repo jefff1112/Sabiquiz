@@ -499,19 +499,21 @@
                 const rect = target.getBoundingClientRect();
                 const dx = rect.left + rect.width / 2 - drag.centerX;
                 const dy = rect.top + rect.height / 2 - drag.centerY;
+                const placedShape = drag.shape; // ← capturar ANTES de que drag se vuelva null
                 piece.classList.remove('dragging');
                 piece.classList.add('animating');
                 requestAnimationFrame(() => {
                     piece.style.transform = `translate(${dx}px, ${dy}px) scale(1)`;
                 });
                 setTimeout(() => {
-                    target.innerHTML = pieceSvg(drag.shape, levelData.silhouette);
+                    target.innerHTML = pieceSvg(placedShape, levelData.silhouette);
                     target.classList.add('filled');
                     piece.classList.add('placed');
                     placed++;
                     updateProgress();
                     if (placed === shapes.length) completeLevel();
                 }, 200);
+
             } else {
                 // Error: rebota de vuelta
                 piece.classList.remove('dragging');
