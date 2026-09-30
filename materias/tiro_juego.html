@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -16,6 +16,7 @@
             padding: 24px;
             background: radial-gradient(circle at 20% 10%, #eef2ff, #e0e7ff 45%, #dbeafe 100%);
             font-family: 'Segoe UI', system-ui, sans-serif;
+            flex-direction: column;
         }
         .game-container {
             background: #ffffff;
@@ -158,6 +159,18 @@
             .game-container { padding: 18px 14px 16px; }
             input[type="range"] { width: 140px; }
         }
+
+        /* Theory Section */
+        .theory-section { width: 100%; max-width: 740px; background: #ffffff; border-radius: 24px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; overflow: hidden; margin-top: 20px; margin-bottom: 20px; }
+        .theory-toggle { width: 100%; padding: 18px 24px; background: #f8fafc; border: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; font-weight: 700; color: #4a5568; transition: background 0.2s; }
+        .theory-toggle:hover { background: #edf2f7; }
+        .theory-toggle svg { transition: transform 0.3s; }
+        .theory-toggle.active svg { transform: rotate(180deg); }
+        .theory-content { padding: 0; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease-out; text-align: left; color: #4a5568; line-height: 1.6; }
+        .theory-content.open { padding: 24px; max-height: 1500px; }
+        .theory-content h4 { color: #2d3748; margin-top: 16px; margin-bottom: 8px; font-size: 18px; }
+        .theory-content h4:first-child { margin-top: 0; }
+        .theory-content p { margin-bottom: 12px; font-size: 15px; }
     </style>
 </head>
 <body>
@@ -192,6 +205,28 @@
         <button class="next-btn" id="nextBtn">Siguiente ➜</button>
         <div class="formula-note">Alcance = (v² · sen 2θ) / g &nbsp;·&nbsp; Altura máx = (v² · sen² θ) / 2g</div>
     </div>
+
+    <!-- Sección Teórica Colapsable -->
+    <div class="theory-section">
+        <button class="theory-toggle" id="theoryToggle">
+            <span>📚 ¿Cómo funciona? (Ver teoría)</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="theory-content" id="theoryContent">
+            <h4>El Tiro Parabólico</h4>
+            <p>El tiro parabólico es el movimiento que realiza cualquier objeto que se lanza al aire con una velocidad inicial y un ángulo determinado, estando sujeto únicamente a la fuerza de la gravedad. La trayectoria que dibuja en el aire se llama parábola.</p>
+            
+            <h4>Los dos componentes del movimiento</h4>
+            <p>Este movimiento es fascinante porque combina dos cosas al mismo tiempo: <strong>1. Movimiento horizontal:</strong> El objeto avanza hacia adelante a una velocidad constante (si ignoramos el viento). <strong>2. Movimiento vertical:</strong> El objeto sube cada vez más lento hasta detenerse en su punto más alto, y luego cae cada vez más rápido debido a la gravedad terrestre.</p>
+            
+            <h4>La fórmula mágica</h4>
+            <p>La distancia máxima horizontal (el alcance) que logrará el objeto depende directamente de dos cosas que tú controlas en este juego: la <strong>Velocidad inicial (v)</strong> y el <strong>Ángulo (θ)</strong>. Matemáticamente, el mayor alcance siempre se logra lanzando el objeto a exactamente 45 grados.</p>
+
+            <h4>Aplicación en la Vida Real</h4>
+            <p>Conocer cómo funciona el tiro parabólico es indispensable en deportes (baloncesto, fútbol, golf), en ingeniería aeroespacial para el lanzamiento de cohetes, y en el diseño de fuentes de agua para que los chorros caigan exactamente donde se desea.</p>
+        </div>
+    </div>
+
     <div id="confettiLayer"></div>
     <div id="toastLayer"></div>
 
@@ -553,6 +588,12 @@
         }
 
         nextBtn.addEventListener('click', () => { window.location.href = 'tiro.html'; });
+
+        // Theory toggle
+        document.getElementById('theoryToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.getElementById('theoryContent').classList.toggle('open');
+        });
 
         loadLevel();
     </script>
