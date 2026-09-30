@@ -28,7 +28,6 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            justify-content: center;
             align-items: center;
             padding: 24px 16px;
             font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
@@ -47,6 +46,7 @@
             position: relative;
             overflow: hidden;
             border: 1px solid rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
         }
 
         .game-container::before {
@@ -101,9 +101,7 @@
             font-family: 'Quicksand', sans-serif;
         }
 
-        .level-badge span {
-            color: #667eea;
-        }
+        .level-badge span { color: #667eea; }
 
         .stars-row {
             display: flex;
@@ -132,132 +130,43 @@
         }
 
         .hint {
-            font-size: 15px;
-            color: var(--text-muted);
+            font-size: 16px;
+            color: var(--text-dark);
+            font-weight: 600;
             margin-bottom: 16px;
             min-height: 22px;
-            font-weight: 500;
         }
 
         #gameCanvas {
             width: 100%;
             max-width: 720px;
-            height: 400px;
+            height: 360px;
             border: 2px solid var(--border-light);
             border-radius: var(--radius-md);
             background: #f8fafc;
             display: block;
             margin: 0 auto 20px;
-            cursor: grab;
+            cursor: default;
             touch-action: none;
             box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.04);
             transition: border-color 0.2s ease;
         }
 
         #gameCanvas:hover { border-color: #cbd5e0; }
-        #gameCanvas:active { cursor: grabbing; }
+        #gameCanvas.draggable { cursor: grab; }
+        #gameCanvas.draggable:active { cursor: grabbing; }
+        #gameCanvas.clickable { cursor: pointer; }
 
-        .metrics-panel {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-            margin-bottom: 20px;
-            max-width: 720px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .metric-card {
-            background: #f8fafc;
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-md);
-            padding: 16px 14px;
-            text-align: center;
-            transition: all 0.2s ease;
-        }
-
-        .metric-card:hover {
-            border-color: #cbd5e0;
-            box-shadow: var(--shadow-soft);
-            transform: translateY(-2px);
-        }
-
-        .metric-label {
-            font-size: 12px;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text-muted);
-            margin-bottom: 6px;
-            font-family: 'Quicksand', sans-serif;
-        }
-
-        .metric-value {
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--text-dark);
-            font-family: 'Quicksand', sans-serif;
-            line-height: 1.2;
-        }
-
-        .metric-value.quality { color: #48bb78; }
-        .metric-value.equation { font-size: 16px; color: #667eea; }
-
-        .progress-bar {
-            height: 8px;
-            border-radius: 999px;
-            background: #e2e8f0;
-            overflow: hidden;
-            margin-top: 8px;
-        }
-
-        .progress-bar .fill {
-            height: 100%;
-            width: 0%;
-            border-radius: 999px;
-            background: linear-gradient(90deg, #667eea, #48bb78);
-            transition: width 0.4s ease, background 0.3s ease;
-        }
-
-        .tier-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 14px;
-            border-radius: 999px;
-            font-size: 13px;
-            font-weight: 700;
-            margin-top: 6px;
-            transition: all 0.3s ease;
-        }
-
-        .tier-badge.tier-0 { background: #fed7d7; color: #e53e3e; border: 1px solid #feb2b2; }
-        .tier-badge.tier-1 { background: #fefcbf; color: #d69e2e; border: 1px solid #faf089; }
-        .tier-badge.tier-2 { background: #c6f6d5; color: #2f855a; border: 1px solid #9ae6b4; }
-        .tier-badge.tier-3 { background: #e9d8fd; color: #6b46c1; border: 1px solid #d6bcfa; box-shadow: 0 0 16px rgba(159, 122, 234, 0.3); }
-
-        .equation-display {
-            margin: 16px 0;
-            padding: 14px 20px;
-            background: #f7fafc;
-            border: 1px solid var(--border-light);
-            border-radius: var(--radius-md);
-            font-family: 'Quicksand', monospace;
-            font-size: 20px;
-            font-weight: 700;
-            color: #667eea;
-            min-height: 32px;
-        }
-
-        .action-buttons {
+        .mechanic-controls {
             display: flex;
             justify-content: center;
             gap: 14px;
-            margin-top: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
         }
 
         .btn {
-            padding: 14px 32px;
+            padding: 14px 28px;
             border: none;
             border-radius: var(--radius-md);
             font-size: 16px;
@@ -265,6 +174,30 @@
             cursor: pointer;
             transition: all 0.2s ease;
             font-family: 'Quicksand', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-choice {
+            background: #edf2f7;
+            color: #4a5568;
+            border: 2px solid #cbd5e0;
+        }
+        .btn-choice:hover:not(:disabled) {
+            background: #e2e8f0;
+            transform: translateY(-2px);
+        }
+        .btn-choice.correct {
+            background: #c6f6d5;
+            color: #22543d;
+            border-color: #48bb78;
+        }
+        .btn-choice.incorrect {
+            background: #fed7d7;
+            color: #742a2a;
+            border-color: #f56565;
         }
 
         .btn-primary {
@@ -286,75 +219,92 @@
         .btn-success:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(72, 187, 120, 0.45); }
 
         .feedback {
-            margin-top: 16px;
-            min-height: 60px;
+            margin-top: 10px;
+            min-height: 40px;
             font-size: 15px;
-            line-height: 1.6;
-            padding: 16px;
+            line-height: 1.5;
+            padding: 12px 16px;
             border-radius: var(--radius-md);
-            background: #f8fafc;
-            border: 1px solid transparent;
-            transition: all 0.3s ease;
+            font-weight: 600;
+            display: none;
         }
 
-        .feedback.success { border-color: #9ae6b4; background: #c6f6d5; color: #22543d; }
-        .feedback.error { border-color: #feb2b2; background: #fed7d7; color: #742a2a; }
+        .feedback.success { display: block; background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .feedback.error { display: block; background: #fed7d7; color: #742a2a; border: 1px solid #feb2b2; }
+        .feedback.info { display: block; background: #eebefa; color: #6b46c1; border: 1px solid #d6bcfa; }
 
-        .formula-hint {
-            margin-top: 18px;
-            padding: 14px 18px;
-            background: #f7fafc;
-            border: 1px dashed #cbd5e0;
-            border-radius: var(--radius-sm);
-            font-size: 13px;
-            color: var(--text-muted);
-            font-family: 'Quicksand', monospace;
-            text-align: center;
-        }
-
-        .formula-hint strong { color: #667eea; }
-
-        /* Toast notifications */
-        #toastLayer {
-            position: fixed;
-            top: 24px;
-            right: 24px;
-            z-index: 10000;
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            pointer-events: none;
-        }
-
-        .toast {
-            display: flex;
-            align-items: flex-start;
-            gap: 14px;
+        /* Theory Section */
+        .theory-section {
+            width: 100%;
+            max-width: 780px;
             background: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
             border: 1px solid var(--border-light);
-            color: var(--text-dark);
-            padding: 16px 20px;
-            border-radius: var(--radius-md);
-            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.15);
-            min-width: 280px;
-            max-width: 360px;
-            pointer-events: auto;
-            animation: toastIn 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            overflow: hidden;
         }
 
-        .toast.achievement { border-left: 4px solid #f6ad55; }
-        .toast .t-icon { font-size: 36px; flex-shrink: 0; }
-        .toast .t-body { flex: 1; text-align: left; }
-        .toast .t-title { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #d69e2e; margin-bottom: 2px; font-family: 'Quicksand', sans-serif; }
-        .toast .t-name { font-size: 16px; font-weight: 700; color: var(--text-dark); margin-bottom: 2px; }
-        .toast .t-desc { font-size: 13px; color: var(--text-muted); line-height: 1.4; }
-
-        @keyframes toastIn {
-            from { transform: translateX(120%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
+        .theory-toggle {
+            width: 100%;
+            padding: 18px 24px;
+            background: #f8fafc;
+            border: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #4a5568;
+            transition: background 0.2s;
         }
 
-        /* Confetti */
+        .theory-toggle:hover { background: #edf2f7; }
+        .theory-toggle svg { transition: transform 0.3s; }
+        .theory-toggle.active svg { transform: rotate(180deg); }
+
+        .theory-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+            text-align: left;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .theory-content.open {
+            padding: 24px;
+            max-height: 1500px;
+        }
+
+        .theory-content h4 {
+            color: #2d3748;
+            font-family: 'Quicksand', sans-serif;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        .theory-content h4:first-child { margin-top: 0; }
+        .theory-content p { margin-bottom: 12px; font-size: 15px; }
+        
+        .formula-box {
+            background: #f1f5f9;
+            border-left: 4px solid #667eea;
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            font-family: monospace;
+            font-size: 15px;
+            margin: 16px 0;
+            color: #2d3748;
+        }
+
+        .formula-box div { margin-bottom: 8px; }
+        .formula-box div:last-child { margin-bottom: 0; }
+        .highlight { color: #667eea; font-weight: bold; }
+
+        /* Confetti Layer */
         #confettiLayer {
             position: fixed;
             inset: 0;
@@ -377,21 +327,10 @@
             100% { transform: translateY(calc(100vh + 50px)) translateX(var(--drift, 0)) rotate(720deg) scale(0.5); opacity: 0; }
         }
 
-        /* Responsive */
         @media (max-width: 640px) {
             .game-container { padding: 22px 18px; }
-            .metrics-panel { grid-template-columns: 1fr; gap: 10px; }
-            .metric-value { font-size: 22px; }
-            .metric-value.equation { font-size: 14px; }
-            .equation-display { font-size: 16px; padding: 12px; }
-            .star { font-size: 26px; }
-            #gameCanvas { height: 320px; }
-            .action-buttons { flex-direction: column; }
+            #gameCanvas { height: 280px; }
             .btn { width: 100%; }
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
         }
     </style>
 </head>
@@ -409,54 +348,60 @@
         </div>
 
         <div class="stars-row" id="starsContainer">
-            <span class="star" id="star1" data-index="0">☆</span>
-            <span class="star" id="star2" data-index="1">☆</span>
-            <span class="star" id="star3" data-index="2">☆</span>
+            <span class="star" id="star1">☆</span>
+            <span class="star" id="star2">☆</span>
+            <span class="star" id="star3">☆</span>
         </div>
 
-        <div class="hint" id="hintLine">Arrastra los puntos morados para ajustar la línea a los datos.</div>
+        <div class="hint" id="hintLine">Instrucciones aquí...</div>
 
-        <canvas id="gameCanvas" width="720" height="400"></canvas>
+        <canvas id="gameCanvas" width="720" height="360"></canvas>
 
-        <div class="metrics-panel">
-            <div class="metric-card">
-                <div class="metric-label">Calidad del Ajuste</div>
-                <div class="metric-value quality" id="qualityVal">0%</div>
-                <div class="progress-bar"><span class="fill" id="fitBar"></span></div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Clasificación</div>
-                <div class="tier-badge tier-0" id="fitBadge">Sigue ajustando</div>
-            </div>
-            <div class="metric-card">
-                <div class="metric-label">Tu Ecuación</div>
-                <div class="metric-value equation" id="equationVal">y = 0.00x + 0.00</div>
-            </div>
-        </div>
-
-        <div class="equation-display" id="equationLine">Tu recta: y = 0.00x + 0.00</div>
-
-        <div class="action-buttons">
-            <button class="btn btn-primary" id="finishBtn" disabled>✅ Guardar resultado</button>
-            <button class="btn btn-success" id="nextBtn">Siguiente nivel ➜</button>
+        <div class="mechanic-controls" id="mechanicControls">
+            <!-- Botones dinámicos según el nivel -->
         </div>
 
         <div class="feedback" id="feedback"></div>
+    </div>
 
-        <div class="formula-hint">
-            <strong>Fórmula de Mínimos Cuadrados:</strong> 
-            m = (n·Σxy − Σx·Σy) / (n·Σx² − (Σx)²) &nbsp;|&nbsp; 
-            b = (Σy − m·Σx) / n
+    <!-- Sección Teórica Colapsable -->
+    <div class="theory-section">
+        <button class="theory-toggle" id="theoryToggle">
+            <span>📚 ¿Cómo funciona? (Ver teoría)</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="theory-content" id="theoryContent">
+            <h4>¿Qué es una Tendencia y una Línea de Ajuste?</h4>
+            <p>Imagina que tienes puntos dispersos en un gráfico. Una <strong>línea de mejor ajuste</strong> o línea de regresión es una recta que atraviesa el centro geométrico de esos puntos, intentando estar lo más cerca posible de todos ellos a la vez. Nos ayuda a ver si hay una relación matemática entre dos cosas (por ejemplo, si más horas de estudio equivalen a mejores notas).</p>
+            
+            <h4>Fórmula de Mínimos Cuadrados</h4>
+            <p>Para dibujar esta línea exacta, los matemáticos usan una técnica llamada "Mínimos Cuadrados", la cual busca reducir al mínimo la distancia entre los puntos y la recta. La ecuación de una recta es <span class="highlight">y = mx + b</span>.</p>
+            <div class="formula-box">
+                <div>Pendiente (inclinación):<br> <span class="highlight">m = (n·Σxy − Σx·Σy) / (n·Σx² − (Σx)²)</span></div>
+                <div>Corte en el eje Y (altura):<br> <span class="highlight">b = (Σy − m·Σx) / n</span></div>
+            </div>
+            
+            <h4>¿Qué significa cada variable?</h4>
+            <p>
+                • <strong>n</strong>: El número total de puntos que tienes.<br>
+                • <strong>Σ (Sigma)</strong>: Significa "suma de".<br>
+                • <strong>x, y</strong>: Las coordenadas de cada punto.<br>
+                • <strong>Σxy</strong>: Multiplicar "x" por "y" en cada punto y sumar todos los resultados.<br>
+                • <strong>m</strong>: La pendiente (si es positiva sube, si es negativa baja).<br>
+                • <strong>b</strong>: En qué lugar la línea cruza el eje vertical (Y).
+            </p>
+            
+            <h4>Ejemplo Simple</h4>
+            <p>Si tienes 3 puntos: (1, 2), (2, 4) y (3, 5). Al aplicar la fórmula, encontraríamos que la mejor línea tiene una pendiente `m ≈ 1.5` y un cruce `b ≈ 0.6`. La línea sería `y = 1.5x + 0.6`. Si queremos adivinar qué pasará en X=4, solo sustituimos: `y = 1.5(4) + 0.6 = 6.6`.</p>
+
+            <h4>Aplicación en la Vida Real</h4>
+            <p>La regresión lineal se usa en la vida real para <strong>predecir el futuro</strong> a corto plazo. Por ejemplo: predecir cuántos helados venderá una tienda dependiendo de la temperatura de la ciudad, predecir el crecimiento de una población, o calcular los futuros ingresos de una empresa basándose en meses anteriores.</p>
         </div>
     </div>
 
     <div id="confettiLayer"></div>
-    <div id="toastLayer"></div>
 
     <script>
-        // ============================================
-        // CONFIG & UTILS
-        // ============================================
         const API_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
             ? "http://localhost:3000/api" 
             : (window.location.origin + "/api");
@@ -473,9 +418,7 @@
             const response = await fetch(API_URL + endpoint, finalOptions);
             if (!response.ok) {
                 if (response.status === 401) { 
-                    localStorage.removeItem("token"); 
-                    localStorage.removeItem("user"); 
-                    window.location.href = "../login.html"; 
+                    localStorage.removeItem("token"); window.location.href = "../login.html"; 
                 }
                 throw new Error(await response.text());
             }
@@ -483,36 +426,39 @@
         }
 
         // ============================================
-        // DOM ELEMENTS
+        // ELEMENTOS DOM
         // ============================================
         const canvas = document.getElementById("gameCanvas");
         const ctx = canvas.getContext("2d");
         const hintLine = document.getElementById("hintLine");
-        const qualityVal = document.getElementById("qualityVal");
-        const fitBar = document.getElementById("fitBar");
-        const fitBadge = document.getElementById("fitBadge");
-        const equationVal = document.getElementById("equationVal");
-        const equationLine = document.getElementById("equationLine");
-        const finishBtn = document.getElementById("finishBtn");
-        const nextBtn = document.getElementById("nextBtn");
+        const mechanicControls = document.getElementById("mechanicControls");
         const feedback = document.getElementById("feedback");
         const levelNumSpan = document.getElementById("levelNum");
         const starElements = [document.getElementById("star1"), document.getElementById("star2"), document.getElementById("star3")];
 
-        // ============================================
-        // LEVEL CONFIGURATIONS
-        // ============================================
-        const levelConfigs = [
-            { label: "Fácil",      M: 0.9,  B: 1.2, noise: 0.4, n: 4, seed: 11 },
-            { label: "Medio",      M: 1.3,  B: 0.4, noise: 0.7, n: 5, seed: 22 },
-            { label: "Intermedio", M: 0.8,  B: 2.0, noise: 0.9, n: 6, seed: 33 },
-            { label: "Negativa",   M: -0.7, B: 8.4, noise: 0.7, n: 6, seed: 44 },
-            { label: "Experto",    M: 1.2,  B: 0.6, noise: 1.1, n: 8, seed: 55 }
-        ];
+        // Theory toggle
+        document.getElementById("theoryToggle").addEventListener("click", function() {
+            this.classList.toggle("active");
+            document.getElementById("theoryContent").classList.toggle("open");
+        });
 
         // ============================================
-        // MATH UTILS
+        // ESTADO GLOBAL DEL JUEGO
         // ============================================
+        let currentLevel = parseInt(new URLSearchParams(window.location.search).get("nivel")) || 1;
+        let points = [];
+        let optimal = { m: 0, b: 0 };
+        let ranges = { xmin: 0, xmax: 10, ymin: 0, ymax: 10 };
+        let state = {}; 
+        let isCompleted = false;
+
+        const M = { left: 50, right: 30, top: 30, bottom: 40 };
+
+        function px(x) { return M.left + ((x - ranges.xmin) / (ranges.xmax - ranges.xmin)) * (canvas.width - M.left - M.right); }
+        function py(y) { return M.top + ((ranges.ymax - y) / (ranges.ymax - ranges.ymin)) * (canvas.height - M.top - M.bottom); }
+        function dataXFromPx(vx) { return ranges.xmin + ((vx - M.left) / (canvas.width - M.left - M.right)) * (ranges.xmax - ranges.xmin); }
+        function dataYFromPy(vy) { return ranges.ymax - ((vy - M.top) / (canvas.height - M.top - M.bottom)) * (ranges.ymax - ranges.ymin); }
+
         function mulberry32(seed) {
             return function() {
                 seed |= 0; seed = (seed + 0x6D2B79F5) | 0;
@@ -522,320 +468,46 @@
             };
         }
 
-        function leastSquares(points) {
-            const n = points.length;
+        function leastSquares(pts) {
+            const n = pts.length;
             let sx = 0, sy = 0, sxx = 0, sxy = 0;
-            points.forEach(p => { sx += p.x; sy += p.y; sxx += p.x * p.x; sxy += p.x * p.y; });
+            pts.forEach(p => { sx += p.x; sy += p.y; sxx += p.x * p.x; sxy += p.x * p.y; });
             const m = (n * sxy - sx * sy) / (n * sxx - sx * sx);
             const b = (sy - m * sx) / n;
-            let sse = 0;
-            points.forEach(p => { const e = p.y - (m * p.x + b); sse += e * e; });
-            return { m, b, sse };
+            return { m, b };
         }
 
-        function buildLevel(levelNum) {
-            const c = levelConfigs[(levelNum - 1) % levelConfigs.length];
-            const rng = mulberry32(c.seed);
+        function generatePoints(n, M_slope, B_int, noise, seed) {
+            const rng = mulberry32(seed);
             const pts = [];
-            for (let i = 0; i < c.n; i++) {
-                const x = 1 + 9 * rng();
-                const y = c.M * x + c.B + (rng() * 2 - 1) * c.noise;
+            for (let i = 0; i < n; i++) {
+                const x = 1 + 8 * rng();
+                const y = M_slope * x + B_int + (rng() * 2 - 1) * noise;
                 pts.push({ x, y });
             }
             pts.sort((a, b) => a.x - b.x);
-            return { points: pts, opt: leastSquares(pts), config: c };
+            return pts;
         }
 
-        // ============================================
-        // GAME STATE
-        // ============================================
-        let levelData = null;
-        let ranges = null;
-        let handleA = {}, handleB = {};
-        let dragging = null;
-        let isCompleted = false;
-        let currentStars = 0;
-        const urlParams = new URLSearchParams(window.location.search);
-        const levelNum = parseInt(urlParams.get("nivel")) || 1;
-
-        // Canvas margins
-        const M = { left: 60, right: 30, top: 30, bottom: 50 };
-
-        function px(x) { 
-            const w = ranges.xmax - ranges.xmin; 
-            return M.left + (x - ranges.xmin) / w * (canvas.width - M.left - M.right); 
-        }
-        function py(y) { 
-            const h = ranges.ymax - ranges.ymin; 
-            return M.top + (ranges.ymax - y) / h * (canvas.height - M.top - M.bottom); 
-        }
-        function dataXFromPx(v) { 
-            const w = ranges.xmax - ranges.xmin; 
-            return ranges.xmin + (v - M.left) / (canvas.width - M.left - M.right) * w; 
-        }
-        function dataYFromPy(v) { 
-            const h = ranges.ymax - ranges.ymin; 
-            return ranges.ymax - (v - M.top) / (canvas.height - M.top - M.bottom) * h; 
+        function calculateRanges(pts, extraX = 1) {
+            const xs = pts.map(p => p.x);
+            const ys = pts.map(p => p.y);
+            return {
+                xmin: Math.floor(Math.min(...xs)) - 1,
+                xmax: Math.ceil(Math.max(...xs)) + extraX,
+                ymin: Math.floor(Math.min(...ys)) - 2,
+                ymax: Math.ceil(Math.max(...ys)) + 2
+            };
         }
 
-        function getLine() {
-            const xa = handleA.dataX, ya = handleA.dataY, xb = handleB.dataX, yb = handleB.dataY;
-            const m = (yb - ya) / (xb - xa);
-            return { m, b: ya - m * xa };
-        }
-
-        function userSSE(m, b) {
-            let sse = 0;
-            levelData.points.forEach(p => { const e = p.y - (m * p.x + b); sse += e * e; });
-            return sse;
-        }
-
-        function tierFor(sse) {
-            const opt = levelData.opt.sse;
-            if (sse <= opt * 1.18) return 3;
-            if (sse <= opt * 1.55) return 2;
-            if (sse <= opt * 2.1) return 1;
-            return 0;
-        }
-
-        function qualityFor(sse) {
-            const opt = levelData.opt.sse;
-            return Math.max(0, Math.min(100, Math.round(100 * (1 - (sse / opt - 1) / 1.2))));
-        }
-
-        function badgeFor(tier) {
-            const badges = [
-                { text: "Sigue ajustando", cls: "tier-0" },
-                { text: "Aceptable ⭐", cls: "tier-1" },
-                { text: "Bueno ⭐⭐", cls: "tier-2" },
-                { text: "¡Excelente! ⭐⭐⭐", cls: "tier-3" }
-            ];
-            return badges[tier];
-        }
-
-        // CORREGIDO: Usar argumento count para evitar shadowing de la variable global starElements
         function updateStars(count) {
             starElements.forEach((s, i) => {
                 const on = i < count;
                 s.textContent = on ? "★" : "☆";
                 s.classList.toggle("filled", on);
-                s.style.animationDelay = (i * 0.1) + "s";
+                if (on) s.style.animationDelay = (i * 0.1) + "s";
+                else s.style.animationDelay = "0s";
             });
-        }
-
-        // ============================================
-        // RENDERING - SABIQUIZ THEMED CANVAS
-        // ============================================
-        function draw() {
-            if (!ctx || !levelData || !ranges) return;
-            
-            // Clear canvas
-            ctx.fillStyle = "#f8fafc";
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            const { m, b } = getLine();
-
-            // Grid lines
-            ctx.strokeStyle = "#e2e8f0";
-            ctx.lineWidth = 1;
-            for (let t = Math.ceil(ranges.xmin); t <= Math.floor(ranges.xmax); t++) {
-                ctx.beginPath(); 
-                ctx.moveTo(px(t), M.top); 
-                ctx.lineTo(px(t), canvas.height - M.bottom); 
-                ctx.stroke();
-            }
-            for (let t = Math.ceil(ranges.ymin); t <= Math.floor(ranges.ymax); t++) {
-                ctx.beginPath(); 
-                ctx.moveTo(M.left, py(t)); 
-                ctx.lineTo(canvas.width - M.right, py(t)); 
-                ctx.stroke();
-            }
-
-            // Axis labels
-            ctx.fillStyle = "#718096";
-            ctx.font = "600 12px 'DM Sans', sans-serif";
-            ctx.textAlign = "center";
-            for (let t = Math.ceil(ranges.xmin); t <= Math.floor(ranges.xmax); t++) {
-                ctx.fillText(t, px(t), canvas.height - M.bottom + 20);
-            }
-            ctx.textAlign = "right";
-            for (let t = Math.ceil(ranges.ymin); t <= Math.floor(ranges.ymax); t++) {
-                ctx.fillText(t, M.left - 10, py(t) + 4);
-            }
-
-            // Axes
-            ctx.strokeStyle = "#cbd5e0";
-            ctx.lineWidth = 2;
-            ctx.beginPath(); 
-            ctx.moveTo(M.left, M.top); 
-            ctx.lineTo(M.left, canvas.height - M.bottom); 
-            ctx.lineTo(canvas.width - M.right, canvas.height - M.bottom); 
-            ctx.stroke();
-
-            // Residual lines (dashed red)
-            ctx.strokeStyle = "rgba(229, 62, 62, 0.45)";
-            ctx.lineWidth = 1.5;
-            ctx.setLineDash([4, 4]);
-            levelData.points.forEach(p => {
-                const predY = m * p.x + b;
-                ctx.beginPath(); 
-                ctx.moveTo(px(p.x), py(p.y)); 
-                ctx.lineTo(px(p.x), py(predY)); 
-                ctx.stroke();
-            });
-            ctx.setLineDash([]);
-
-            // Data points (Sabiquiz vibrant violet/purple gradient circles)
-            levelData.points.forEach(p => {
-                const g = ctx.createRadialGradient(px(p.x), py(p.y), 1, px(p.x), py(p.y), 10);
-                g.addColorStop(0, "#9f7aea");
-                g.addColorStop(1, "#667eea");
-                ctx.fillStyle = g;
-                ctx.beginPath(); 
-                ctx.arc(px(p.x), py(p.y), 8, 0, Math.PI * 2); 
-                ctx.fill();
-                // Outer ring
-                ctx.strokeStyle = "#ffffff";
-                ctx.lineWidth = 2.5;
-                ctx.stroke();
-            });
-
-            // User Line (vibrant green)
-            ctx.strokeStyle = "#38a169";
-            ctx.lineWidth = 4;
-            ctx.lineCap = "round";
-            ctx.lineJoin = "round";
-            ctx.shadowColor = "rgba(72, 187, 120, 0.4)";
-            ctx.shadowBlur = 12;
-            ctx.beginPath(); 
-            ctx.moveTo(px(ranges.xmin), py(m * ranges.xmin + b)); 
-            ctx.lineTo(px(ranges.xmax), py(m * ranges.xmax + b)); 
-            ctx.stroke();
-            ctx.shadowBlur = 0;
-
-            // Interactive Handles
-            drawHandle(handleA);
-            drawHandle(handleB);
-        }
-
-        function drawHandle(h) {
-            const isActive = h === dragging;
-            ctx.shadowColor = isActive ? "rgba(102, 126, 234, 0.6)" : "rgba(102, 126, 234, 0.3)";
-            ctx.shadowBlur = isActive ? 16 : 8;
-            ctx.fillStyle = isActive ? "#667eea" : "#ffffff";
-            ctx.beginPath(); 
-            ctx.arc(px(h.dataX), py(h.dataY), isActive ? 14 : 12, 0, Math.PI * 2); 
-            ctx.fill();
-            ctx.shadowBlur = 0;
-            ctx.strokeStyle = "#667eea";
-            ctx.lineWidth = isActive ? 3.5 : 2.5;
-            ctx.stroke();
-            // Center dot
-            ctx.fillStyle = isActive ? "#ffffff" : "#667eea";
-            ctx.beginPath(); 
-            ctx.arc(px(h.dataX), py(h.dataY), 4, 0, Math.PI * 2); 
-            ctx.fill();
-        }
-
-        function updateView() {
-            const { m, b } = getLine();
-            const sse = userSSE(m, b);
-            const tier = isCompleted ? currentStars : tierFor(sse);
-            currentStars = tier;
-            const quality = qualityFor(sse);
-            const badge = badgeFor(tier);
-
-            updateStars(tier);
-
-            qualityVal.textContent = quality + "%";
-            fitBar.style.width = quality + "%";
-            fitBar.style.background = tier === 3 
-                ? "linear-gradient(90deg, #667eea, #9f7aea)" 
-                : tier === 2 
-                    ? "linear-gradient(90deg, #48bb78, #38a169)" 
-                    : tier === 1 
-                        ? "linear-gradient(90deg, #ecc94b, #d69e2e)" 
-                        : "linear-gradient(90deg, #f56565, #e53e3e)";
-
-            fitBadge.textContent = badge.text;
-            fitBadge.className = "tier-badge " + badge.cls;
-
-            equationLine.textContent = "Tu recta: y = " + m.toFixed(2) + "x " + (b >= 0 ? "+" : "") + b.toFixed(2);
-            equationVal.textContent = "y = " + m.toFixed(2) + "x " + (b >= 0 ? "+" : "") + b.toFixed(2);
-
-            finishBtn.disabled = isCompleted || tier < 1;
-            draw();
-        }
-
-        // ============================================
-        // INTERACTION HANDLERS
-        // ============================================
-        function hitTestHandle(mx, my) {
-            const dA = Math.hypot(mx - px(handleA.dataX), my - py(handleA.dataY));
-            const dB = Math.hypot(mx - px(handleB.dataX), my - py(handleB.dataY));
-            if (dA < 28 && dA <= dB) return "A";
-            if (dB < 28) return "B";
-            return null;
-        }
-
-        function eventPos(e) {
-            const rect = canvas.getBoundingClientRect();
-            const scaleX = canvas.width / rect.width;
-            const scaleY = canvas.height / rect.height;
-            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-            return { 
-                mcx: (clientX - rect.left) * scaleX, 
-                mcy: (clientY - rect.top) * scaleY 
-            };
-        }
-
-        canvas.addEventListener("pointerdown", (e) => {
-            if (isCompleted) return;
-            const { mcx, mcy } = eventPos(e);
-            dragging = hitTestHandle(mcx, mcy);
-            if (dragging) { 
-                canvas.setPointerCapture(e.pointerId); 
-                canvas.style.cursor = "grabbing";
-            }
-        });
-
-        canvas.addEventListener("pointermove", (e) => {
-            if (!dragging) return;
-            const { mcx, mcy } = eventPos(e);
-            const h = dragging === "A" ? handleA : handleB;
-            h.dataY = Math.max(ranges.ymin, Math.min(ranges.ymax, dataYFromPy(mcy)));
-            h.dataX = Math.max(ranges.xmin, Math.min(ranges.xmax, dataXFromPx(mcx)));
-            updateView();
-        });
-
-        canvas.addEventListener("pointerup", (e) => {
-            dragging = null;
-            canvas.style.cursor = "grab";
-            try { canvas.releasePointerCapture(e.pointerId); } catch (err) {}
-        });
-
-        // Touch support fallback
-        canvas.addEventListener("touchstart", (e) => { e.preventDefault(); canvas.dispatchEvent(new PointerEvent("pointerdown", { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY })); }, { passive: false });
-        canvas.addEventListener("touchmove", (e) => { e.preventDefault(); canvas.dispatchEvent(new PointerEvent("pointermove", { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY })); }, { passive: false });
-        canvas.addEventListener("touchend", (e) => { canvas.dispatchEvent(new PointerEvent("pointerup")); });
-
-        // ============================================
-        // SAVE PROGRESS & TOASTS
-        // ============================================
-        async function saveProgress(minijuego, nivel, estrellas, completado) {
-            try {
-                const data = await apiRequest("/minigames/submit", {
-                    method: "POST",
-                    body: JSON.stringify({ minijuego, nivel, estrellas, completado })
-                });
-                if (data && data.nuevosLogros && data.nuevosLogros.length) {
-                    data.nuevosLogros.forEach(showLogroToast);
-                }
-            } catch (error) {
-                console.error("Error guardando progreso:", error);
-                showFeedback("Error al guardar el progreso. Intenta de nuevo.", "error");
-            }
         }
 
         function showFeedback(msg, type = "success") {
@@ -843,113 +515,365 @@
             feedback.className = "feedback " + type;
         }
 
-        function showLogroToast(logro) {
-            const layer = document.getElementById("toastLayer");
-            const t = document.createElement("div");
-            t.className = "toast achievement";
-            t.innerHTML =
-                "<div class=\"t-icon\">" + (logro.icono || "🏆") + "</div>" +
-                "<div class=\"t-body\">" +
-                "<div class=\"t-title\">Logro desbloqueado</div>" +
-                "<div class=\"t-name\">" + logro.nombre + "</div>" +
-                "<div class=\"t-desc\">" + (logro.descripcion || "") + "</div>" +
-                "</div>";
-            layer.appendChild(t);
-            setTimeout(() => { t.style.animation = "toastIn 0.3s ease reverse forwards"; setTimeout(() => t.remove(), 300); }, 4500);
-        }
-
         function confetti() {
             const layer = document.getElementById("confettiLayer");
             const colors = ["#667eea", "#48bb78", "#9f7aea", "#f6ad55", "#ecc94b", "#4299e1"];
-            for (let i = 0; i < 90; i++) {
+            for (let i = 0; i < 60; i++) {
                 const d = document.createElement("div");
                 d.className = "confetti";
                 d.style.left = (Math.random() * 100) + "%";
                 d.style.background = colors[i % colors.length];
-                d.style.animationDelay = (Math.random() * 1) + "s";
+                d.style.animationDelay = (Math.random() * 0.5) + "s";
                 d.style.setProperty("--drift", (Math.random() * 250 - 125) + "px");
-                const shape = Math.random();
-                if (shape < 0.25) d.style.borderRadius = "50%";
-                else if (shape < 0.5) d.style.clipPath = "polygon(50% 0%, 0% 100%, 100% 100%)";
-                else if (shape < 0.75) { d.style.width = "12px"; d.style.height = "14px"; d.style.transform = "rotate(45deg)"; }
                 layer.appendChild(d);
                 setTimeout(() => d.remove(), 3000);
             }
         }
 
-        // ============================================
-        // EVENT HANDLERS
-        // ============================================
-        finishBtn.addEventListener("click", async () => {
-            if (isCompleted || currentStars < 1) return;
+        async function completeLevel(stars) {
+            if (isCompleted) return;
             isCompleted = true;
-            updateStars(currentStars);
-            const { m, b } = getLine();
-            const xPred = (ranges.xmin + ranges.xmax) / 2;
-            const yPred = m * xPred + b;
-            
-            showFeedback(
-                "✅ <strong>¡Ajuste guardado con éxito!</strong><br>" +
-                "Ecuación obtenida: <strong>y = " + m.toFixed(2) + "x " + (b >= 0 ? "+" : "") + b.toFixed(2) + "</strong><br>" +
-                "Predicción para x = " + xPred.toFixed(1) + ": <strong>y ≈ " + yPred.toFixed(2) + "</strong>",
-                "success"
-            );
-            
-            finishBtn.disabled = true;
+            updateStars(stars);
+            if (stars > 0) confetti();
+
+            const nextBtn = document.createElement("button");
+            nextBtn.className = "btn btn-success";
+            nextBtn.innerHTML = currentLevel < 5 ? "Siguiente nivel ➜" : "Volver al menú";
             nextBtn.style.display = "inline-flex";
-            nextBtn.style.alignItems = "center";
-            nextBtn.style.justifyContent = "center";
-            confetti();
-            await saveProgress("regresion", levelNum, currentStars, true);
-        });
+            nextBtn.onclick = () => {
+                if (currentLevel < 5) window.location.href = `regresion_juego.html?nivel=${currentLevel + 1}`;
+                else window.location.href = "regresion.html";
+            };
+            mechanicControls.appendChild(nextBtn);
 
-        nextBtn.addEventListener("click", () => { 
-            if (levelNum < 5) {
-                window.location.href = `regresion_juego.html?nivel=${levelNum + 1}`;
-            } else {
-                window.location.href = "regresion.html"; 
-            }
-        });
-
-        // ============================================
-        // INIT LEVEL
-        // ============================================
-        function loadLevel() {
-            levelNumSpan.textContent = levelNum;
-            hintLine.textContent = "Arrastra los puntos morados para ajustar la línea a los datos.";
-            
-            levelData = buildLevel(levelNum);
-            const xs = levelData.points.map(p => p.x);
-            const ys = levelData.points.map(p => p.y);
-            const xmin = Math.floor(Math.min(...xs) - 1);
-            const xmax = Math.ceil(Math.max(...xs) + 1);
-            const ymin = Math.floor(Math.min(...ys) - 1.5);
-            const ymax = Math.ceil(Math.max(...ys) + 1.5);
-            ranges = { xmin, xmax, ymin, ymax };
-
-            const meanY = ys.reduce((a, b) => a + b, 0) / ys.length;
-            handleA = { dataX: xmin + 0.15 * (xmax - xmin), dataY: meanY };
-            handleB = { dataX: xmax - 0.15 * (xmax - xmin), dataY: meanY };
-
-            isCompleted = false;
-            currentStars = 0;
-            updateStars(0);
-            feedback.textContent = "";
-            feedback.className = "feedback";
-            finishBtn.disabled = false;
-            nextBtn.style.display = "none";
-            dragging = null;
-            
-            draw();
-            updateView();
+            try {
+                await apiRequest("/minigames/submit", {
+                    method: "POST",
+                    body: JSON.stringify({ minijuego: "regresion", nivel: currentLevel, estrellas: stars, completado: true })
+                });
+            } catch (err) { console.error("Error saving:", err); }
         }
 
-        // Run when context ready
+        function clearCanvas() {
+            ctx.fillStyle = "#f8fafc";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Grid
+            ctx.strokeStyle = "#e2e8f0"; ctx.lineWidth = 1;
+            for (let t = Math.ceil(ranges.xmin); t <= Math.floor(ranges.xmax); t++) {
+                ctx.beginPath(); ctx.moveTo(px(t), M.top); ctx.lineTo(px(t), canvas.height - M.bottom); ctx.stroke();
+            }
+            for (let t = Math.ceil(ranges.ymin); t <= Math.floor(ranges.ymax); t++) {
+                ctx.beginPath(); ctx.moveTo(M.left, py(t)); ctx.lineTo(canvas.width - M.right, py(t)); ctx.stroke();
+            }
+
+            // Labels
+            ctx.fillStyle = "#718096"; ctx.font = "600 12px 'DM Sans', sans-serif";
+            ctx.textAlign = "center";
+            for (let t = Math.ceil(ranges.xmin); t <= Math.floor(ranges.xmax); t++) ctx.fillText(t, px(t), canvas.height - M.bottom + 20);
+            ctx.textAlign = "right";
+            for (let t = Math.ceil(ranges.ymin); t <= Math.floor(ranges.ymax); t++) ctx.fillText(t, M.left - 10, py(t) + 4);
+
+            // Axes
+            ctx.strokeStyle = "#cbd5e0"; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(M.left, M.top); ctx.lineTo(M.left, canvas.height - M.bottom); ctx.lineTo(canvas.width - M.right, canvas.height - M.bottom); ctx.stroke();
+        }
+
+        function drawPoints() {
+            points.forEach(p => {
+                const g = ctx.createRadialGradient(px(p.x), py(p.y), 1, px(p.x), py(p.y), 10);
+                g.addColorStop(0, "#9f7aea"); g.addColorStop(1, "#667eea");
+                ctx.fillStyle = g;
+                ctx.beginPath(); ctx.arc(px(p.x), py(p.y), 8, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2.5; ctx.stroke();
+            });
+        }
+
+        function drawLine(m, b, color = "#38a169", dash = []) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = 4;
+            ctx.lineCap = "round";
+            ctx.setLineDash(dash);
+            ctx.beginPath(); 
+            ctx.moveTo(px(ranges.xmin), py(m * ranges.xmin + b)); 
+            ctx.lineTo(px(ranges.xmax), py(m * ranges.xmax + b)); 
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        // ============================================
+        // LÓGICA POR NIVELES
+        // ============================================
+
+        // Nivel 1: Sube o Baja
+        function loadLevel1() {
+            hintLine.innerHTML = "Analiza los puntos. ¿Cuál crees que es la tendencia general?";
+            points = generatePoints(6, 1.5, 2, 1.2, 101); // Positive slope
+            ranges = calculateRanges(points);
+            optimal = leastSquares(points);
+            
+            canvas.className = "";
+            clearCanvas();
+            drawPoints();
+
+            mechanicControls.innerHTML = `
+                <button class="btn btn-choice" id="btnSube">📈 Sube (Positiva)</button>
+                <button class="btn btn-choice" id="btnBaja">📉 Baja (Negativa)</button>
+            `;
+
+            document.getElementById("btnSube").onclick = function() {
+                this.classList.add("correct");
+                document.getElementById("btnBaja").disabled = true;
+                drawLine(optimal.m, optimal.b, "#48bb78"); // Show correct line
+                showFeedback("¡Correcto! La tendencia va hacia arriba. A esto se le llama correlación positiva.");
+                completeLevel(3);
+            };
+            document.getElementById("btnBaja").onclick = function() {
+                this.classList.add("incorrect");
+                document.getElementById("btnSube").disabled = true;
+                drawLine(optimal.m, optimal.b, "#48bb78");
+                showFeedback("Incorrecto. Si observas los puntos, en general van subiendo de izquierda a derecha.", "error");
+                completeLevel(1);
+            };
+        }
+
+        // Nivel 2: Arrastrar Línea
+        function loadLevel2() {
+            hintLine.innerHTML = "Arrastra los círculos morados para crear una línea que pase por el medio de los puntos.";
+            points = generatePoints(6, 0.8, 3, 1.5, 202);
+            ranges = calculateRanges(points);
+            optimal = leastSquares(points);
+            
+            canvas.className = "draggable";
+            
+            state.hA = { dataX: ranges.xmin + 1, dataY: ranges.ymin + 1 };
+            state.hB = { dataX: ranges.xmax - 1, dataY: ranges.ymin + 1 };
+            state.dragging = null;
+
+            mechanicControls.innerHTML = `<button class="btn btn-primary" id="btnValidar2">Validar mi ajuste</button>`;
+
+            function drawL2() {
+                clearCanvas();
+                const m = (state.hB.dataY - state.hA.dataY) / (state.hB.dataX - state.hA.dataX);
+                const b = state.hA.dataY - m * state.hA.dataX;
+                drawLine(m, b, "#38a169");
+                drawPoints();
+                
+                [state.hA, state.hB].forEach(h => {
+                    const isActive = h === state.dragging;
+                    ctx.fillStyle = isActive ? "#667eea" : "#ffffff";
+                    ctx.beginPath(); ctx.arc(px(h.dataX), py(h.dataY), 12, 0, Math.PI * 2); ctx.fill();
+                    ctx.strokeStyle = "#667eea"; ctx.lineWidth = 3; ctx.stroke();
+                });
+            }
+
+            function getMouse(e) {
+                const rect = canvas.getBoundingClientRect();
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                return { mcx: (clientX - rect.left) * (canvas.width / rect.width), mcy: (clientY - rect.top) * (canvas.height / rect.height) };
+            }
+
+            canvas.onpointerdown = e => {
+                if (isCompleted) return;
+                const { mcx, mcy } = getMouse(e);
+                const dA = Math.hypot(mcx - px(state.hA.dataX), mcy - py(state.hA.dataY));
+                const dB = Math.hypot(mcx - px(state.hB.dataX), mcy - py(state.hB.dataY));
+                if (dA < 30) state.dragging = state.hA;
+                else if (dB < 30) state.dragging = state.hB;
+                if (state.dragging) canvas.setPointerCapture(e.pointerId);
+            };
+            canvas.onpointermove = e => {
+                if (!state.dragging) return;
+                const { mcx, mcy } = getMouse(e);
+                state.dragging.dataX = Math.max(ranges.xmin, Math.min(ranges.xmax, dataXFromPx(mcx)));
+                state.dragging.dataY = Math.max(ranges.ymin, Math.min(ranges.ymax, dataYFromPy(mcy)));
+                drawL2();
+            };
+            canvas.onpointerup = e => { state.dragging = null; };
+
+            document.getElementById("btnValidar2").onclick = () => {
+                const m = (state.hB.dataY - state.hA.dataY) / (state.hB.dataX - state.hA.dataX);
+                const b = state.hA.dataY - m * state.hA.dataX;
+                
+                // Calcular error
+                let userSSE = 0, optSSE = 0;
+                points.forEach(p => { 
+                    userSSE += Math.pow(p.y - (m * p.x + b), 2); 
+                    optSSE += Math.pow(p.y - (optimal.m * p.x + optimal.b), 2);
+                });
+                
+                let stars = 1;
+                if (userSSE <= optSSE * 1.2) stars = 3;
+                else if (userSSE <= optSSE * 1.6) stars = 2;
+
+                document.getElementById("btnValidar2").style.display = "none";
+                drawLine(optimal.m, optimal.b, "rgba(102, 126, 234, 0.5)", [8, 8]); // Show optimal
+                showFeedback(`Obtuviste ${stars} estrella(s). La línea punteada azul es el ajuste matemático perfecto.`);
+                completeLevel(stars);
+            };
+            
+            drawL2();
+        }
+
+        // Nivel 3: Elegir el mejor ajuste
+        function loadLevel3() {
+            hintLine.innerHTML = "A simple vista, ¿cuál de estas dos líneas representa mejor la tendencia central?";
+            points = generatePoints(8, -1.2, 10, 1.5, 303);
+            ranges = calculateRanges(points);
+            optimal = leastSquares(points);
+            
+            canvas.className = "";
+            
+            // Generate a bad line
+            const badM = optimal.m * -0.5;
+            const badB = optimal.b * 0.8;
+
+            clearCanvas();
+            drawLine(optimal.m, optimal.b, "#48bb78"); // Line A
+            drawLine(badM, badB, "#f6ad55"); // Line B
+            drawPoints();
+            
+            // Labels for lines
+            ctx.fillStyle = "#48bb78"; ctx.font = "bold 16px sans-serif"; ctx.fillText("Línea A", px(ranges.xmin + 1), py(optimal.m * (ranges.xmin + 1) + optimal.b) - 10);
+            ctx.fillStyle = "#f6ad55"; ctx.font = "bold 16px sans-serif"; ctx.fillText("Línea B", px(ranges.xmin + 1), py(badM * (ranges.xmin + 1) + badB) - 10);
+
+            mechanicControls.innerHTML = `
+                <button class="btn btn-choice" id="btnA">Línea A (Verde)</button>
+                <button class="btn btn-choice" id="btnB">Línea B (Naranja)</button>
+            `;
+
+            document.getElementById("btnA").onclick = function() {
+                this.classList.add("correct");
+                document.getElementById("btnB").disabled = true;
+                clearCanvas(); drawLine(optimal.m, optimal.b, "#48bb78"); drawPoints();
+                showFeedback("¡Excelente! La Línea A minimiza la distancia con todos los puntos.");
+                completeLevel(3);
+            };
+            document.getElementById("btnB").onclick = function() {
+                this.classList.add("incorrect");
+                document.getElementById("btnA").disabled = true;
+                clearCanvas(); drawLine(optimal.m, optimal.b, "#48bb78"); drawPoints();
+                showFeedback("Incorrecto. La Línea A (Verde) se ajustaba mucho mejor al centro de los datos.", "error");
+                completeLevel(1);
+            };
+        }
+
+        // Nivel 4: Predecir
+        function loadLevel4() {
+            hintLine.innerHTML = "Basándote en la línea de tendencia, haz CLIC en el gráfico donde crees que estará el punto cuando X = 8.";
+            points = generatePoints(5, 1.1, 2, 0.5, 404);
+            // Limit points to x < 7
+            points = points.filter(p => p.x < 7);
+            ranges = calculateRanges(points, 3); // Extra space on right
+            optimal = leastSquares(points);
+            
+            canvas.className = "clickable";
+            
+            function drawL4() {
+                clearCanvas();
+                drawLine(optimal.m, optimal.b, "#48bb78");
+                drawPoints();
+                // Draw vertical indicator for X=8
+                ctx.strokeStyle = "rgba(102, 126, 234, 0.3)"; ctx.setLineDash([5, 5]);
+                ctx.beginPath(); ctx.moveTo(px(8), M.top); ctx.lineTo(px(8), canvas.height - M.bottom); ctx.stroke(); ctx.setLineDash([]);
+                ctx.fillStyle = "#667eea"; ctx.fillText("X = 8", px(8), M.top - 10);
+            }
+
+            drawL4();
+
+            canvas.onpointerdown = e => {
+                if (isCompleted) return;
+                const rect = canvas.getBoundingClientRect();
+                const mcy = (e.clientY - rect.top) * (canvas.height / rect.height);
+                const clickY = dataYFromPy(mcy);
+                const predictedY = optimal.m * 8 + optimal.b;
+                
+                const diff = Math.abs(clickY - predictedY);
+                let stars = 1;
+                if (diff < 1.0) stars = 3;
+                else if (diff < 2.5) stars = 2;
+
+                drawL4();
+                // Draw user click
+                ctx.fillStyle = "#f6ad55"; ctx.beginPath(); ctx.arc(px(8), py(clickY), 8, 0, Math.PI * 2); ctx.fill();
+                // Draw correct point
+                ctx.fillStyle = "#48bb78"; ctx.beginPath(); ctx.arc(px(8), py(predictedY), 8, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = "#fff"; ctx.lineWidth=2; ctx.stroke();
+
+                showFeedback(`¡Predicción hecha! Y real: ${predictedY.toFixed(1)}. Tu clic: ${clickY.toFixed(1)}. Obtuviste ${stars} estrellas.`);
+                canvas.className = "";
+                completeLevel(stars);
+            };
+        }
+
+        // Nivel 5: Datos reales
+        function loadLevel5() {
+            hintLine.innerHTML = "Caso Real: Temperatura vs Helados vendidos. Si la temperatura es 30°C, ¿cuántos helados estimas que se venderán? (Haz clic en el gráfico en X=30)";
+            
+            // X = Temp, Y = Helados
+            points = [
+                {x: 15, y: 20}, {x: 18, y: 35}, {x: 22, y: 45}, {x: 25, y: 60}, {x: 28, y: 70}
+            ];
+            ranges = { xmin: 10, xmax: 35, ymin: 0, ymax: 100 };
+            optimal = leastSquares(points);
+            
+            canvas.className = "clickable";
+            
+            function drawL5() {
+                clearCanvas();
+                drawLine(optimal.m, optimal.b, "#667eea");
+                drawPoints();
+                
+                // Draw line for X=30
+                ctx.strokeStyle = "rgba(72, 187, 120, 0.4)"; ctx.setLineDash([5, 5]);
+                ctx.beginPath(); ctx.moveTo(px(30), M.top); ctx.lineTo(px(30), canvas.height - M.bottom); ctx.stroke(); ctx.setLineDash([]);
+                ctx.fillStyle = "#48bb78"; ctx.font = "bold 14px sans-serif"; ctx.fillText("30°C", px(30), M.top - 10);
+            }
+
+            drawL5();
+
+            canvas.onpointerdown = e => {
+                if (isCompleted) return;
+                const rect = canvas.getBoundingClientRect();
+                const mcy = (e.clientY - rect.top) * (canvas.height / rect.height);
+                const clickY = dataYFromPy(mcy);
+                const predictedY = optimal.m * 30 + optimal.b;
+                
+                const diff = Math.abs(clickY - predictedY);
+                let stars = 1;
+                if (diff < 8) stars = 3;
+                else if (diff < 15) stars = 2;
+
+                drawL5();
+                // Draw user click
+                ctx.fillStyle = "#f6ad55"; ctx.beginPath(); ctx.arc(px(30), py(clickY), 10, 0, Math.PI * 2); ctx.fill();
+                // Draw correct point
+                ctx.fillStyle = "#48bb78"; ctx.beginPath(); ctx.arc(px(30), py(predictedY), 10, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = "#fff"; ctx.lineWidth=2; ctx.stroke();
+
+                showFeedback(`Se estima vender ${Math.round(predictedY)} helados. Tu predicción fue ${Math.round(clickY)}. ¡Ganaste ${stars} estrellas!`);
+                canvas.className = "";
+                completeLevel(stars);
+            };
+        }
+
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+        levelNumSpan.textContent = currentLevel;
+
         if (canvas.getContext) {
-            loadLevel();
+            switch(currentLevel) {
+                case 1: loadLevel1(); break;
+                case 2: loadLevel2(); break;
+                case 3: loadLevel3(); break;
+                case 4: loadLevel4(); break;
+                case 5: loadLevel5(); break;
+                default: loadLevel1(); break;
+            }
         } else {
-            feedback.innerHTML = "❌ Tu navegador no soporta Canvas. Actualízalo por favor.";
-            feedback.className = "feedback error";
+            hintLine.innerHTML = "❌ Tu navegador no soporta Canvas. Actualízalo por favor.";
         }
     </script>
 </body>
