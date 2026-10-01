@@ -460,7 +460,7 @@
         }
 
         function onDragMove(e) {
-            if (!drag) return;
+            if (!drag || !drag.shape) return;
             const dx = e.clientX - drag.centerX;
             const dy = e.clientY - drag.centerY;
             drag.piece.style.transform = `translate(${dx}px, ${dy}px) scale(1.06)`;
@@ -470,7 +470,7 @@
             document.querySelectorAll('.hole').forEach(h => {
                 h.classList.remove('hover-ok', 'hover-no');
             });
-            if (target && !target.classList.contains('filled')) {
+            if (target && !target.classList.contains('filled') && target.dataset.shape) {
                 target.classList.add(target.dataset.shape === drag.shape ? 'hover-ok' : 'hover-no');
             }
         }
@@ -494,7 +494,7 @@
 
             document.querySelectorAll('.hole').forEach(h => h.classList.remove('hover-ok', 'hover-no'));
 
-            if (target && !target.classList.contains('filled') && target.dataset.shape === drag.shape) {
+            if (target && !target.classList.contains('filled') && target.dataset.shape && target.dataset.shape === drag.shape) {
                 // Acierto: snap al hueco
                 const rect = target.getBoundingClientRect();
                 const dx = rect.left + rect.width / 2 - drag.centerX;
@@ -522,7 +522,7 @@
                     piece.style.transform = 'translate(0,0) scale(1)';
                 });
                 setTimeout(() => piece.classList.remove('animating'), 240);
-                if (target && !target.classList.contains('filled') && target.dataset.shape !== drag.shape) {
+                if (target && !target.classList.contains('filled') && target.dataset.shape && target.dataset.shape !== drag.shape) {
                     mistakes++;
                     flashFeedback('✗ Esa pieza no encaja ahí');
                 }
