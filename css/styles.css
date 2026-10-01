@@ -2731,6 +2731,16 @@ h1, h2, h3 {
     vertical-align: middle;
 }
 
+.logro-icon {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+    margin-bottom: 8px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+
 /* ============================================
    MASCOTA SABI - ESTILOS Y ANIMACIONES
    ============================================ */

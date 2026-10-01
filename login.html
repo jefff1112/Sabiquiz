@@ -534,7 +534,7 @@ loginEmail.addEventListener('blur', () => {
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
 
-                    let mensaje = '🎉 ¡Inicio de sesión exitoso!';
+                    let mensaje = '<img src="img/sabi/sabi_festejando.png" class="sabi-mascot-small"> ¡Inicio de sesión exitoso!';
                     if (data.user.ultimoLogin) {
                         const fecha = new Date(data.user.ultimoLogin);
                         mensaje += ` Último acceso: ${fecha.toLocaleDateString()} ${fecha.toLocaleTimeString()}`;

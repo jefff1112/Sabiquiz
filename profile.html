@@ -209,7 +209,7 @@
         }
         .partida-item .fecha {
             font-size: 12px;
-            color: #718096;
+            color: #4a5568;
             opacity: 1;
         }
         .partida-item .resultado {
@@ -729,15 +729,22 @@ async function handleAvatarUpload(event) {
                 data.logros.forEach(logro => {
                     const card = document.createElement('div');
                     card.className = 'logro-card';
-                    card.innerHTML = `
-                        <div class="icono"><img src="img/reina.png" class="icon-btn"></div>
-                        <div class="nombre">${logro.nombre}</div>
-                        <div class="descripcion">${logro.descripcion}</div>
-                        <div class="fecha">✅ ${new Date(logro.fecha_desbloqueo).toLocaleDateString()}</div>
-                    `;
+                    // Usar el icono de la BD si existe, sino usar emoji por defecto
+                    let iconoHTML = '';
+                    if (logro.icono && logro.icono.startsWith('img/')) {
+                        iconoHTML = '<img src="' + logro.icono + '" class="logro-icon" alt="' + logro.nombre + '" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><span class="icono-fallback" style="display:none;">🏆</span>';
+                    } else if (logro.icono) {
+                        iconoHTML = '<span class="icono">' + logro.icono + '</span>';
+                    } else {
+                        iconoHTML = '<span class="icono">🏆</span>';
+                    }
+                    card.innerHTML = 
+                        '<div class="icono">' + iconoHTML + '</div>' +
+                        '<div class="nombre">' + logro.nombre + '</div>' +
+                        '<div class="descripcion">' + logro.descripcion + '</div>' +
+                        '<div class="fecha">✅ ' + new Date(logro.fecha_desbloqueo).toLocaleDateString() + '</div>';
                     container.appendChild(card);
                 });
-
             } catch (error) {
                 console.error('Error cargando logros:', error);
                 document.getElementById('logrosContainer').innerHTML = 
