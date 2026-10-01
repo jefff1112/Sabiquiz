@@ -271,7 +271,7 @@
         <div id="registerForm">
             <h2 style="text-align:center; color:#2d3748; margin-bottom:20px; font-size:24px;">Crear Cuenta</h2>
             <div class="form-group">
-                <label for="registerUsername"><img src="img/default-avatar.png" class="icon-btn"> Nombre de Usuario</label>
+                <label for="registerUsername">👤 Nombre de Usuario</label>
                 <input type="text" id="registerUsername" placeholder="Tu nombre" required>
             </div>
             <div class="form-group">
@@ -441,7 +441,7 @@ loginEmail.addEventListener('blur', () => {
         // FUNCIONES DE UI
         // ============================================
         function showMessage(message, type = 'info') {
-            messageBox.textContent = message;
+            messageBox.innerHTML = message;
             messageBox.className = `message ${type}`;
             messageBox.style.display = 'block';
         }
@@ -453,12 +453,12 @@ loginEmail.addEventListener('blur', () => {
 
         function setLoading(loading) {
             loginBtn.disabled = loading;
-            loginBtn.innerHTML = loading ? '<img src="img/estrellas.png" class="icon-btn"> Verificando...' : 'Iniciar Sesión';
+            loginBtn.innerHTML = loading ? '⏳ Verificando...' : 'Iniciar Sesión';
         }
 
         function setRegisterLoading(loading) {
             registerBtn.disabled = loading;
-            registerBtn.innerHTML = loading ? '<img src="img/estrellas.png" class="icon-btn"> Creando...' : 'Crear Cuenta';
+            registerBtn.innerHTML = loading ? '⏳ Creando...' : 'Crear Cuenta';
         }
 
         function updateIntentosInfo(intentos, maxIntentos = 5) {
@@ -476,7 +476,7 @@ loginEmail.addEventListener('blur', () => {
                 intentosInfo.textContent = `⚠️ Te quedan ${restantes} intentos antes de ser bloqueado.`;
                 intentosInfo.className = 'intentos-info warning';
             } else {
-                intentosInfo.textContent = `<img src="img/estrellas.png" class="icon-btn"> ${restantes} intentos restantes`;
+                intentosInfo.textContent = `⭐ ${restantes} intentos restantes`;
                 intentosInfo.className = 'intentos-info';
             }
         }
@@ -534,7 +534,7 @@ loginEmail.addEventListener('blur', () => {
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
 
-                    let mensaje = '<img src="img/sabi/sabi_festejando.png" class="sabi-mascot-small"> ¡Inicio de sesión exitoso!';
+                    let mensaje = '🎉 ¡Inicio de sesión exitoso!';
                     if (data.user.ultimoLogin) {
                         const fecha = new Date(data.user.ultimoLogin);
                         mensaje += ` Último acceso: ${fecha.toLocaleDateString()} ${fecha.toLocaleTimeString()}`;

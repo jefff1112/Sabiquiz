@@ -122,7 +122,7 @@
         }
 
         .card .medal {
-            font-size: 48px;
+            font-size: 40px;
             display: block;
             margin-bottom: 2px;
         }
@@ -135,8 +135,8 @@
         }
 
         .card .card-avatar {
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
             border: 3px solid #667eea;
             object-fit: cover;
@@ -167,7 +167,7 @@
         }
 
         .card .crown {
-            font-size: 32px;
+            font-size: 40px;
             display: block;
             margin-bottom: -8px;
         }
@@ -228,8 +228,8 @@
         }
 
         .leaderboard-row .avatar-small {
-            width: 42px;
-            height: 42px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             border: 2px solid #667eea;
             object-fit: cover;
@@ -538,8 +538,8 @@
 <body>
     <div class="leaderboard-container">
         <!-- TÍTULO -->
-        <h1><img src="img/trofeo.png" class="icon-btn"> Tabla de Clasificación</h1>
-        <p class="subtitle"><img src="img/estrellas.png" class="icon-btn"> ¡Los mejores jugadores de SabiQuiz!</p>
+        <h1>🏆 Tabla de Clasificación</h1>
+        <p class="subtitle">⭐ ¡Los mejores jugadores de SabiQuiz!</p>
 
         <!-- MENSAJES -->
         <div id="errorMessage" class="error-message"></div>
@@ -676,8 +676,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!checkAuth()) return;
 
                 document.getElementById('errorMessage').style.display = 'none';
-                top3Container.innerHTML = '<div class="loading-text"><img src="img/estrellas.png" class="icon-btn"> Cargando ranking...</div>';
-                othersContainer.innerHTML = '<div class="loading-text"><img src="img/estrellas.png" class="icon-btn"> Cargando...</div>';
+                top3Container.innerHTML = '<div class="loading-text">⏳ Cargando ranking...</div>';
+                othersContainer.innerHTML = '<div class="loading-text">⏳ Cargando...</div>';
 
                 showDebug('📡 Solicitando ranking...');
                 const data = await apiRequest('/auth/ranking');
@@ -696,8 +696,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // ============================================
                 top3Container.innerHTML = '';
                 const top3 = players.slice(0, 3);
-                const medallas = ['<img src="img/star_filled.png" class="icon-star">', '<img src="img/star_filled.png" class="icon-star">', '<img src="img/star_filled.png" class="icon-star">'];
-                const coronas = ['<img src="img/reina.png" class="icon-btn">', '', ''];
+                const medallas = ['<img src="img/star_filled.png" class="icon-star" style="width:22px;height:22px;">', '<img src="img/star_filled.png" class="icon-star" style="width:22px;height:22px;">', '<img src="img/star_filled.png" class="icon-star" style="width:22px;height:22px;">'];
+                const coronas = ['<img src="img/reina.png" class="icon-btn" style="width:22px;height:22px;">', '', ''];
 
                 top3.forEach((player, index) => {
                     const rank = index + 1;
@@ -735,8 +735,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                      onerror="this.src='img/default-avatar.png'">
                                 <span class="player-name">${player.displayName || player.username || 'Jugador'}</span>
                             </div>
-                            <div class="row-stat"><img src="img/cohete.png" class="icon-btn"> <strong>${player.level || 1}</strong> Nivel</div>
-                            <div class="row-stat"><img src="img/star_filled.png" class="icon-star"> <strong>${player.totalXp || 0}</strong> XP</div>
+                            <div class="row-stat"><img src="img/cohete.png" class="icon-btn" style="width:22px;height:22px;"> <strong>${player.level || 1}</strong> Nivel</div>
+                            <div class="row-stat"><img src="img/star_filled.png" class="icon-star" style="width:22px;height:22px;"> <strong>${player.totalXp || 0}</strong> XP</div>
                         `;
                         othersContainer.appendChild(row);
                     });
