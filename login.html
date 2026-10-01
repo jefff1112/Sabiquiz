@@ -240,14 +240,14 @@
         <!-- FORMULARIO DE LOGIN -->
         <div id="loginForm">
             <div class="form-group">
-                <label for="loginEmail"><img src="img/correct.png" class="icon-btn"> Correo Electrónico</label>
+                <label for="loginEmail">📧 Correo Electrónico</label>
                 <input type="email" id="loginEmail" placeholder="ejemplo@correo.com" required>
                 <div id="emailValidation" class="field-validation"></div>
             </div>
             <div class="form-group">
-                <label for="loginPassword"><img src="img/lock.png" class="icon-lock"> Contraseña</label>
+                <label for="loginPassword">🔒 Contraseña</label>
                 <input type="password" id="loginPassword" placeholder="Ingresa tu contraseña" required>
-                <button type="button" class="password-toggle" id="togglePassword" aria-label="Mostrar contraseña"><img src="img/correct.png" class="icon-btn"></button>
+                <button type="button" class="password-toggle" id="togglePassword" aria-label="Mostrar contraseña">👁️</button>
                 <div id="passwordValidation" class="field-validation"></div>
             </div>
             <div id="lastLoginInfo" class="last-login-info" style="display:none;"></div>
@@ -270,13 +270,13 @@
                 <input type="text" id="registerUsername" placeholder="Tu nombre" required>
             </div>
             <div class="form-group">
-                <label for="registerEmail"><img src="img/correct.png" class="icon-btn"> Correo Electrónico</label>
+                <label for="registerEmail">📧 Correo Electrónico</label>
                 <input type="email" id="registerEmail" placeholder="ejemplo@correo.com" required>
             </div>
             <div class="form-group">
-                <label for="registerPassword"><img src="img/lock.png" class="icon-lock"> Contraseña</label>
+                <label for="registerPassword">🔒 Contraseña</label>
                 <input type="password" id="registerPassword" placeholder="Mínimo 6 caracteres" required>
-                <button type="button" class="password-toggle" id="toggleRegisterPassword" aria-label="Mostrar contraseña"><img src="img/correct.png" class="icon-btn"></button>
+                <button type="button" class="password-toggle" id="toggleRegisterPassword" aria-label="Mostrar contraseña">👁️</button>
                 <div class="password-strength-bar">
                     <div class="fill" id="registerPasswordBar"></div>
                 </div>
@@ -287,7 +287,7 @@
                 </div>
             </div>
             <div class="form-group">
-                <label for="registerConfirmPassword"><img src="img/lock.png" class="icon-lock"> Confirmar Contraseña</label>
+                <label for="registerConfirmPassword">🔒 Confirmar Contraseña</label>
                 <input type="password" id="registerConfirmPassword" placeholder="Repite tu contraseña" required>
             </div>
             <button class="btn btn-secondary" id="registerBtn">Crear Cuenta</button>
@@ -353,13 +353,13 @@
         togglePassword.addEventListener('click', () => {
             const type = loginPassword.type === 'password' ? 'text' : 'password';
             loginPassword.type = type;
-            togglePassword.innerHTML = type === 'password' ? '<img src="img/correct.png" class="icon-btn">' : '<img src="img/incorrect.png" class="icon-btn">';
+            togglePassword.innerHTML = type === 'password' ? '👁️' : '🙈';
         });
 
         toggleRegisterPassword.addEventListener('click', () => {
             const type = registerPassword.type === 'password' ? 'text' : 'password';
             registerPassword.type = type;
-            toggleRegisterPassword.innerHTML = type === 'password' ? '<img src="img/correct.png" class="icon-btn">' : '<img src="img/incorrect.png" class="icon-btn">';
+            toggleRegisterPassword.innerHTML = type === 'password' ? '👁️' : '🙈';
         });
 
         // ============================================
@@ -372,12 +372,12 @@ loginEmail.addEventListener('blur', () => {
     if (email && !isValidFormat) {
         loginEmail.classList.add('error');
         loginEmail.classList.remove('success');
-        emailValidation.textContent = '<img src="img/incorrect.png" class="icon-btn"> Formato de correo inválido';
+        emailValidation.innerHTML = '❌ Formato de correo inválido';
         emailValidation.className = 'field-validation visible error';
     } else if (email && isValidFormat) {
         loginEmail.classList.remove('error');
         loginEmail.classList.add('success');
-        emailValidation.textContent = '<img src="img/correct.png" class="icon-btn"> Formato de correo válido';
+        emailValidation.innerHTML = '✅ Formato de correo válido';
         emailValidation.className = 'field-validation visible success';
     } else {
         loginEmail.classList.remove('error', 'success');
@@ -393,12 +393,12 @@ loginEmail.addEventListener('blur', () => {
             if (pwd && pwd.length < 6) {
                 loginPassword.classList.add('error');
                 loginPassword.classList.remove('success');
-                passwordValidation.textContent = '<img src="img/incorrect.png" class="icon-btn"> Mínimo 6 caracteres';
+                passwordValidation.innerHTML = '❌ Mínimo 6 caracteres';
                 passwordValidation.className = 'field-validation visible error';
             } else if (pwd && pwd.length >= 6) {
                 loginPassword.classList.remove('error');
                 loginPassword.classList.add('success');
-                passwordValidation.textContent = '<img src="img/correct.png" class="icon-btn"> Longitud correcta';
+                passwordValidation.innerHTML = '✅ Longitud correcta';
                 passwordValidation.className = 'field-validation visible success';
             } else {
                 loginPassword.classList.remove('error', 'success');
@@ -500,13 +500,13 @@ loginEmail.addEventListener('blur', () => {
             }
 
             if (!password) {
-                showMessage('<img src="img/lock.png" class="icon-lock"> Por favor, ingresa tu contraseña', 'error');
+                showMessage('🔒 Por favor, ingresa tu contraseña', 'error');
                 loginPassword.focus();
                 return;
             }
 
             if (password.length < 6) {
-                showMessage('<img src="img/lock.png" class="icon-lock"> La contraseña debe tener al menos 6 caracteres', 'error');
+                showMessage('🔒 La contraseña debe tener al menos 6 caracteres', 'error');
                 loginPassword.focus();
                 return;
             }
@@ -554,13 +554,13 @@ loginEmail.addEventListener('blur', () => {
                             // Ya está incluido en el mensaje de error
                         }
                     } else {
-                        showMessage('<img src="img/incorrect.png" class="icon-btn"> ' + (data.error || 'Credenciales inválidas'), 'error');
+                        showMessage('❌ ' + (data.error || 'Credenciales inválidas'), 'error');
                     }
                     setLoading(false);
                 }
             } catch (error) {
                 console.error('❌ Error en login:', error);
-                showMessage('<img src="img/incorrect.png" class="icon-btn"> Error al conectar con el servidor', 'error');
+                showMessage('❌ Error al conectar con el servidor', 'error');
                 setLoading(false);
             }
         }
@@ -575,7 +575,7 @@ loginEmail.addEventListener('blur', () => {
             const confirmPassword = registerConfirmPassword.value.trim();
 
             if (!username || username.length < 3) {
-                showMessage('<img src="img/sabi/sabi_curioso.png" class="icon-btn"> El nombre debe tener al menos 3 caracteres', 'error');
+                showMessage('🤔 El nombre debe tener al menos 3 caracteres', 'error');
                 registerUsername.focus();
                 return;
             }
@@ -587,13 +587,13 @@ loginEmail.addEventListener('blur', () => {
             }
 
             if (!password || password.length < 6) {
-                showMessage('<img src="img/lock.png" class="icon-lock"> La contraseña debe tener al menos 6 caracteres', 'error');
+                showMessage('🔒 La contraseña debe tener al menos 6 caracteres', 'error');
                 registerPassword.focus();
                 return;
             }
 
             if (password !== confirmPassword) {
-                showMessage('<img src="img/incorrect.png" class="icon-btn"> Las contraseñas no coinciden', 'error');
+                showMessage('❌ Las contraseñas no coinciden', 'error');
                 registerConfirmPassword.focus();
                 return;
             }
@@ -611,7 +611,7 @@ loginEmail.addEventListener('blur', () => {
                 const data = await response.json();
 
                 if (data.success) {
-                    showMessage('<img src="img/correct.png" class="icon-btn"> ¡Registro exitoso! Ahora inicia sesión.', 'success');
+                    showMessage('✅ ¡Registro exitoso! Ahora inicia sesión.', 'success');
                     setTimeout(() => {
                         registerUsername.value = '';
                         registerEmail.value = '';
@@ -622,12 +622,12 @@ loginEmail.addEventListener('blur', () => {
                         showLogin();
                     }, 2000);
                 } else {
-                    showMessage('<img src="img/incorrect.png" class="icon-btn"> ' + (data.error || 'Error al registrar usuario'), 'error');
+                    showMessage('❌ ' + (data.error || 'Error al registrar usuario'), 'error');
                     setRegisterLoading(false);
                 }
             } catch (error) {
                 console.error('❌ Error en registro:', error);
-                showMessage('<img src="img/incorrect.png" class="icon-btn"> Error al conectar con el servidor', 'error');
+                showMessage('❌ Error al conectar con el servidor', 'error');
                 setRegisterLoading(false);
             }
         }

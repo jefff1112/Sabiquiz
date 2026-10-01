@@ -109,8 +109,8 @@
         .next-btn:hover { background: #5a67d8; }
         .quiz-mascot-block { flex-shrink: 0; }
         .quiz-mascot-img {
-            width: 150px;
-            height: 150px;
+            width: 160px;
+            height: 160px;
             object-fit: contain;
         }
         .results-container {
@@ -236,6 +236,9 @@
             .options-grid { grid-template-columns: 1fr; }
             .quiz-top-bar { font-size: 14px; padding: 10px 15px; }
             .question-card #questionText { font-size: 18px; }
+        }
+        @media (max-width: 480px) {
+            .quiz-mascot-img { width: 80px; height: 80px; }
         }
         @media (max-width: 480px) {
             .quiz-main-container { padding: 15px; margin: 10px; }
@@ -442,20 +445,20 @@
             });
 
             if (!button) {
-                feedbackDiv.innerHTML = `<img src="img/estrellas.png" class="icon-btn"> ¡Se acabó el tiempo! La respuesta correcta era: <b>${respuestaCorrecta}</b>`;
+                feedbackDiv.innerHTML = '⏱️ ¡Se acabó el tiempo! La respuesta correcta era: <b>${respuestaCorrecta}</b>';
                 feedbackDiv.style.color = '#c53030';
                 incorrectSound.play();
                 quizMascot.src = mascotImages.incorrect;
             } else if (isCorrect) {
                 score++;
                 button.classList.add('correct');
-                feedbackDiv.innerHTML = '<img src="img/correct.png" class="icon-btn"> ¡Correcto! <img src="img/sabi/sabi_celebrando.png" class="sabi-mascot-small sabi-mascot-bounce">';
+                feedbackDiv.innerHTML = '✅ ¡Correcto!';
                 feedbackDiv.style.color = '#276749';
                 correctSound.play();
                 quizMascot.src = mascotImages.correct;
             } else {
                 button.classList.add('incorrect');
-                feedbackDiv.innerHTML = `<img src="img/incorrect.png" class="icon-btn"> Incorrecto. La respuesta correcta era: <b>${respuestaCorrecta}</b>`;
+                feedbackDiv.innerHTML = `❌ Incorrecto. La respuesta correcta era: <b>${respuestaCorrecta}</b>`;
                 feedbackDiv.style.color = '#c53030';
                 incorrectSound.play();
                 quizMascot.src = mascotImages.incorrect;
@@ -774,11 +777,11 @@ if (completado) {
                 showError('❌ Error al cargar el quiz: ' + error.message);
                 quizGameEl.innerHTML = `
                     <div class="loading-text">
-                        <img src="img/incorrect.png" class="icon-btn"> Error al cargar el quiz<br>
+                        ❌ Error al cargar el quiz<br>
                         <small style="font-size:14px;color:#a0aec0;">${error.message}</small>
                         <br><br>
                         <button onclick="iniciarQuiz()" style="padding:10px 24px;border:none;background:#667eea;color:#fff;border-radius:8px;cursor:pointer;font-weight:bold;">
-                            <img src="img/estrellas.png" class="icon-btn"> Reintentar
+                            🔄 Reintentar
                         </button>
                     </div>
                 `;
