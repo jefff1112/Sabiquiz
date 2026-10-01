@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sabiquiz - Login</title>
     <link rel="stylesheet" href="css/styles.css">
+    <!-- Librerías para animaciones y efectos -->
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js"></script>
     <style>
         /* ============================================
            ESTILOS COMPLETOS DEL LOGIN
@@ -230,10 +234,11 @@
 <body>
     <div class="login-container">
         <div class="login-mascot">
-            <img src="img/sabi/sabi_saludando.png" alt="Sabi" class="sabi-mascot sabi-mascot-bounce">
+            <img src="img/sabi/sabi_saludando.png" alt="Sabi" class="sabi-mascot-login sabi-mascot-bounce sabi-fade-in" id="loginMascot">
         </div>
         <h1><span>Sabiquiz</span></h1>
         <p class="subtitle">Aprende jugando</p>
+        <p class="mascot-welcome" id="mascotWelcome" style="color: #667eea; font-weight: 600; margin-bottom: 20px; font-size: 15px; opacity: 0; transform: translateY(10px);">¡Hola! Soy Sabi, tu guía 👋</p>
 
         <div id="messageBox" class="message"></div>
 
@@ -664,6 +669,62 @@ loginEmail.addEventListener('blur', () => {
         window.handleRegister = handleRegister;
         window.showLogin = showLogin;
         window.showRegister = showRegister;
+
+        // ============================================
+        // ANIMACIONES CON ANIME.JS
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Animación de entrada de la mascota
+            anime({
+                targets: '#loginMascot',
+                scale: [0.5, 1],
+                opacity: [0, 1],
+                duration: 800,
+                easing: 'easeOutElastic(1, .8)',
+                delay: 200
+            });
+
+            // Animación del texto de bienvenida
+            anime({
+                targets: '#mascotWelcome',
+                translateY: [20, 0],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutQuad',
+                delay: 600
+            });
+
+            // Animación escalonada de los campos del formulario
+            anime({
+                targets: '.form-group',
+                translateX: [-30, 0],
+                opacity: [0, 1],
+                duration: 500,
+                easing: 'easeOutQuad',
+                delay: anime.stagger(100, {start: 800})
+            });
+
+            // Animación de los botones
+            anime({
+                targets: '.btn',
+                scale: [0.9, 1],
+                opacity: [0, 1],
+                duration: 500,
+                easing: 'easeOutElastic(1, .8)',
+                delay: anime.stagger(100, {start: 1200})
+            });
+
+            // Animación idle de rebote suave para la mascota
+            anime({
+                targets: '#loginMascot',
+                translateY: [0, -8, 0],
+                duration: 3000,
+                easing: 'easeInOutSine',
+                direction: 'alternate',
+                loop: true,
+                delay: 2000
+            });
+        });
     </script>
 </body>
 </html>

@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-translate="profileTitle">SabiQuiz - Mi Perfil</title>
     <link rel="stylesheet" href="css/styles.css">
+    <!-- Librerías para animaciones y efectos -->
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js"></script>
     <style>
         .language-switcher {
             position: fixed;
@@ -310,16 +314,14 @@
             
             <div class="profile-header">
                 <label for="avatarUpload" class="avatar-label">
-                    <img src="img/default-avatar.png" alt="Avatar del jugador" id="profile-avatar" class="avatar">
-                    <span class="edit-avatar-icon"><img src="img/sabi/sabi_pensando.png" class="icon-btn"></span>
+                    <img src="img/sabi/sabi_saludando.png" alt="Sabi" class="sabi-mascot-login sabi-mascot-bounce sabi-fade-in" id="profileMascot">
                 </label>
                 <input type="file" id="avatarUpload" accept="image/*" style="display: none;">
-                
                 <div class="player-info">
                     <div class="display-name-container">
                         <h2 id="profile-name">Cargando...</h2>
                         <input type="text" id="edit-name-input" class="edit-name-input" style="display: none;">
-                        <button id="edit-name-btn" class="btn-edit-name"><img src="img/sabi/sabi_pensando.png" class="icon-btn"></button>
+                        <button id="edit-name-btn" class="btn-edit-name">✏️</button>
                     </div>
                     <div class="level-box">
                         <span>NIVEL</span>
@@ -342,17 +344,45 @@
 
             <!-- HISTORIAL DE PARTIDAS -->
             <div class="historial-container">
-                <h3><img src="img/grafica.png" class="icon-btn"> Historial de Partidas 1vs1</h3>
+                <h3>📊 Historial de Partidas 1vs1</h3>
                 <div id="historialPartidas">
-                    <p class="loading-text"><img src="img/estrellas.png" class="icon-btn"> Cargando historial...</p>
+                    <div class="skeleton skeleton-card">
+                        <div class="skeleton-avatar"></div>
+                        <div class="skeleton skeleton-title"></div>
+                        <div class="skeleton skeleton-text"></div>
+                    </div>
+                    <div class="skeleton skeleton-card">
+                        <div class="skeleton-avatar"></div>
+                        <div class="skeleton skeleton-title"></div>
+                        <div class="skeleton skeleton-text"></div>
+                    </div>
+                    <div class="skeleton skeleton-card">
+                        <div class="skeleton-avatar"></div>
+                        <div class="skeleton skeleton-title"></div>
+                        <div class="skeleton skeleton-text"></div>
+                    </div>
                 </div>
             </div>
 
             <!-- LOGROS -->
             <div class="logros-container">
-                <h3><img src="img/reina.png" class="icon-btn"> Logros</h3>
+                <h3>🏆 Logros</h3>
                 <div id="logrosContainer">
-                    <p class="loading-text"><img src="img/estrellas.png" class="icon-btn"> Cargando logros...</p>
+                    <div class="skeleton skeleton-card" style="width: 150px; height: 150px; display: inline-block; margin: 10px; vertical-align: top;">
+                        <div class="skeleton skeleton-title" style="width: 100%; height: 40px; margin: 10px auto 5px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 80%; height: 20px; margin: 0 auto 5px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 60%; height: 15px; margin: 0 auto;"></div>
+                    </div>
+                    <div class="skeleton skeleton-card" style="width: 150px; height: 150px; display: inline-block; margin: 10px; vertical-align: top;">
+                        <div class="skeleton skeleton-title" style="width: 100%; height: 40px; margin: 10px auto 5px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 80%; height: 20px; margin: 0 auto 5px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 60%; height: 15px; margin: 0 auto;"></div>
+                    </div>
+                    <div class="skeleton skeleton-card" style="width: 150px; height: 150px; display: inline-block; margin: 10px; vertical-align: top;">
+                        <div class="skeleton skeleton-title" style="width: 100%; height: 40px; margin: 10px auto 5px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 80%; height: 20px; margin: 0 auto 5px;"></div>
+                        <div class="skeleton skeleton-text" style="width: 60%; height: 15px; margin: 0 auto;"></div>
+                    </div>
                 </div>
             </div>
             
@@ -539,7 +569,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 editNameInput.style.display = 'block';
                 editNameInput.value = profileNameEl.textContent;
                 editNameInput.focus();
-                editNameBtn.innerHTML = '<img src="img/correct.png" class="icon-btn">';
+                editNameBtn.innerHTML = '✅';
                 isEditingName = true;
             }
         }
@@ -660,7 +690,7 @@ async function handleAvatarUpload(event) {
             } catch (error) {
                 console.error('Error cargando historial:', error);
                 document.getElementById('historialPartidas').innerHTML = 
-                    '<p style="color:#fc8181;text-align:center;"><img src="img/incorrect.png" class="icon-btn"> Error al cargar el historial</p>';
+                    '<p style="color:#fc8181;text-align:center;">❌ Error al cargar el historial</p>';
             }
         }
 
@@ -691,7 +721,7 @@ async function handleAvatarUpload(event) {
                         <div class="icono"><img src="img/reina.png" class="icon-btn"></div>
                         <div class="nombre">${logro.nombre}</div>
                         <div class="descripcion">${logro.descripcion}</div>
-                        <div class="fecha"><img src="img/correct.png" class="icon-btn"> ${new Date(logro.fecha_desbloqueo).toLocaleDateString()}</div>
+                        <div class="fecha">✅ ${new Date(logro.fecha_desbloqueo).toLocaleDateString()}</div>
                     `;
                     container.appendChild(card);
                 });
@@ -699,7 +729,7 @@ async function handleAvatarUpload(event) {
             } catch (error) {
                 console.error('Error cargando logros:', error);
                 document.getElementById('logrosContainer').innerHTML = 
-                    '<p style="color:#fc8181;text-align:center;"><img src="img/incorrect.png" class="icon-btn"> Error al cargar logros</p>';
+                    '<p style="color:#fc8181;text-align:center;">❌ Error al cargar logros</p>';
             }
         }
 
@@ -805,6 +835,103 @@ async function loadProfile() {
             document.getElementById('edit-name-input').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') {
                     handleEditName();
+                }
+            });
+
+            // ============================================
+            // ANIMACIONES DE ENTRADA CON ANIME.JS
+            // ============================================
+            // Mascota del perfil
+            anime({
+                targets: '#profileMascot',
+                scale: [0.5, 1],
+                opacity: [0, 1],
+                duration: 800,
+                easing: 'easeOutElastic(1, .8)',
+                delay: 200
+            });
+
+            // Header del perfil - entrada
+            anime({
+                targets: '.profile-header',
+                translateY: [30, 0],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutQuad',
+                delay: 400
+            });
+
+            // Barra XP - animación de ancho
+            anime({
+                targets: '#xp-bar-fill',
+                width: ['0%', '100%'], // Se actualizará con el valor real en loadProfile
+                duration: 1000,
+                easing: 'easeOutQuad',
+                delay: 800
+            });
+
+            // Estadísticas - entrada escalonada
+            anime({
+                targets: '.stat-item',
+                translateY: [30, 0],
+                opacity: [0, 1],
+                duration: 500,
+                easing: 'easeOutQuad',
+                delay: anime.stagger(100, {start: 1000})
+            });
+
+            // Contenedores de historial y logros - entrada
+            anime({
+                targets: '.historial-container, .logros-container',
+                translateY: [30, 0],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutQuad',
+                delay: anime.stagger(200, {start: 1200})
+            });
+
+            // Animación idle de rebote suave para la mascota del perfil
+            anime({
+                targets: '#profileMascot',
+                translateY: [0, -8, 0],
+                duration: 3000,
+                easing: 'easeInOutSine',
+                direction: 'alternate',
+                loop: true,
+                delay: 2000
+            });
+
+            // Hover animations para stat-items
+            document.querySelectorAll('.stat-item').forEach(item => {
+                item.addEventListener('mouseenter', () => {
+                    anime({
+                        targets: item,
+                        scale: 1.05,
+                        boxShadow: '0 8px 25px rgba(102, 126, 234, 0.2)',
+                        duration: 300,
+                        easing: 'easeOutQuad'
+                    });
+                });
+                item.addEventListener('mouseleave', () => {
+                    anime({
+                        targets: item,
+                        scale: 1,
+                        boxShadow: 'none',
+                        duration: 300,
+                        easing: 'easeOutQuad'
+                    });
+                });
+            });
+
+            // Hover animations para logros
+            document.addEventListener('click', (e) => {
+                if (e.target.closest('.logro-card')) {
+                    anime({
+                        targets: e.target.closest('.logro-card'),
+                        scale: [1, 0.95, 1],
+                        duration: 300,
+                        easing: 'easeOutElastic(1, .8)'
+                    });
                 }
             });
         });

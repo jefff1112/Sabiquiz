@@ -6,6 +6,10 @@
     <title data-translate="mainMenuTitle">Sabiquiz - Menú Principal</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <!-- Librerías para animaciones y efectos -->
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js"></script>
     <style>
         /* Estilos para los botones adicionales */
         .menu-actions {
@@ -481,7 +485,13 @@
         <!-- MENÚ PRINCIPAL -->
         <div id="mainMenu" class="container main-menu-container">
             <div class="main-menu-header">
-                <h1 id="welcomeMessage">¡Bienvenido!</h1>
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 10px; width: 100%;">
+                    <div class="sabiquiz-logo">
+                        <img src="img/sabi/sabi_curioso.png" alt="Sabi" class="sabi-mascot-menu sabi-mascot-bounce sabi-fade-in" id="menuMascot">
+                    </div>
+                    <h1 id="welcomeMessage">¡Bienvenido!</h1>
+                    <p id="mascotMessage" style="color: #667eea; font-weight: 600; font-size: 16px; opacity: 0; transform: translateY(10px);">¿Qué materia quieres jugar hoy? 🤔</p>
+                </div>
                 <div class="header-buttons">
                     <a href="leaderboard.html" class="btn btn-leaderboard"><img src="img/trofeo.png" class="icon-btn"> Ranking</a>
                     <a href="profile.html" class="btn btn-profile"><img src="img/default-avatar.png" class="icon-btn"> Mi Perfil</a>
@@ -540,7 +550,7 @@
             <h2><img src="img/espadas.png" class="icon-btn"> Modo Duelo 1vs1</h2>
 
             <div id="matchmakingStatus" class="matchmaking-status" style="display: none;">
-                <p><img src="img/sabi/sabi_curioso.png" class="sabi-mascot-1vs1 sabi-mascot-bounce"> Buscando oponente...</p>
+                <p><img src="img/sabi/sabi_curioso.png" class="sabi-mascot-1vs1 sabi-mascot-bounce sabi-fade-in" id="matchmakingMascot"> Buscando oponente...</p>
                 <div class="spinner" style="margin:10px auto;width:40px;height:40px;border:4px solid #e2e8f0;border-top-color:#667eea;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
                 <button id="cancelMatchBtn" class="btn" style="background:#fc8181;color:white;padding:8px 20px;border:none;border-radius:10px;cursor:pointer;">Cancelar</button>
             </div>
@@ -625,7 +635,7 @@
         <!-- ============================================ -->
         <!-- PANTALLA DE RESULTADOS -->
         <!-- ============================================ -->
-        <div id="endGameContainer" class="end-game-container container" style="display: none;text-align:center;">
+        <div id="endGameContainer" class="end-game-container container" style="display: none; flex-direction: column; align-items: center; justify-content: center; text-align: center; min-height: 400px;">
             <h2 style="color:#2d3748;"><img src="img/trofeo.png" class="icon-btn"> Resultados</h2>
             <div style="display:flex;justify-content:center;align-items:center;gap:30px;margin:30px 0;flex-wrap:wrap;">
                 <div>
@@ -641,7 +651,7 @@
                 </div>
             </div>
             <h3 id="endGameMessage" style="font-size:24px;color:#2d3748;"></h3>
-            <button id="rematchBtn" style="background:#667eea;color:white;padding:14px 40px;border:none;border-radius:12px;font-weight:bold;font-size:18px;cursor:pointer;margin-top:20px;"><img src="img/estrellas.png" class="icon-btn"> Revancha</button>
+            <button id="rematchBtn" style="background:#667eea;color:white;padding:14px 40px;border:none;border-radius:12px;font-weight:bold;font-size:18px;cursor:pointer;margin-top:20px;">🔄 Revancha</button>
         </div>
     </div>
 
@@ -941,6 +951,31 @@ const player2ScoreValue = document.getElementById('player2ScoreValue');
         }
 
         // ============================================
+        // CONFETI - canvas-confetti
+        // ============================================
+        function launchConfetti() {
+            if (typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#667eea', '#764ba2', '#48bb78', '#ffd700', '#ff6b6b'],
+                    duration: 3000
+                });
+                // Segundo burst
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 50,
+                        spread: 100,
+                        origin: { y: 0.4 },
+                        colors: ['#667eea', '#764ba2'],
+                        duration: 2000
+                    });
+                }, 300);
+            }
+        }
+
+        // ============================================
         // FUNCIONES DE UI
         // ============================================
         function setStatus(message) {
@@ -988,7 +1023,28 @@ const player2ScoreValue = document.getElementById('player2ScoreValue');
 
         function showEndGame() {
             gameContainer.style.display = 'none';
-            endGameContainer.style.display = 'block';
+            endGameContainer.style.display = 'flex';
+            // Animación de entrada con anime.js
+            anime({
+                targets: '#endGameContainer',
+                opacity: [0, 1],
+                scale: [0.9, 1],
+                duration: 500,
+                easing: 'easeOutQuad'
+            });
+            anime({
+                targets: '#endGameContainer > *',
+                translateY: [30, 0],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutQuad',
+                delay: anime.stagger(100, {start: 200})
+            });
+            // Confeti si el usuario ganó
+            const endMessage = document.getElementById('endGameMessage');
+            if (endMessage && endMessage.innerHTML.includes('Ganaste')) {
+                launchConfetti();
+            }
         }
 
         function showMatchFound() {
@@ -1652,6 +1708,94 @@ socket.on('opponentLeft', (message) => {
             } else {
                 console.warn('⚠️ Botón de notificaciones no encontrado');
             }
+
+            // ============================================
+            // ANIMACIONES DE ENTRADA CON ANIME.JS
+            // ============================================
+            // Mascota de bienvenida
+            anime({
+                targets: '#menuMascot',
+                scale: [0.5, 1],
+                opacity: [0, 1],
+                duration: 800,
+                easing: 'easeOutElastic(1, .8)',
+                delay: 200
+            });
+
+            // Mensaje de la mascota
+            anime({
+                targets: '#mascotMessage',
+                translateY: [20, 0],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutQuad',
+                delay: 600
+            });
+
+            // Tarjetas de materias - entrada escalonada
+            anime({
+                targets: '.subject-card',
+                translateY: [40, 0],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutQuad',
+                delay: anime.stagger(80, {start: 800})
+            });
+
+            // Botones de acción
+            anime({
+                targets: '.menu-actions .btn',
+                scale: [0.9, 1],
+                opacity: [0, 1],
+                duration: 500,
+                easing: 'easeOutElastic(1, .8)',
+                delay: anime.stagger(100, {start: 1000})
+            });
+
+            // Animación idle de rebote suave para la mascota del menú
+            anime({
+                targets: '#menuMascot',
+                translateY: [0, -8, 0],
+                duration: 3000,
+                easing: 'easeInOutSine',
+                direction: 'alternate',
+                loop: true,
+                delay: 2000
+            });
+
+            // Hover animations para tarjetas de materia (con anime.js)
+            document.querySelectorAll('.subject-card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    anime({
+                        targets: card,
+                        translateY: -6,
+                        boxShadow: '0 15px 35px rgba(0,0,0,0.15)',
+                        duration: 300,
+                        easing: 'easeOutQuad'
+                    });
+                    anime({
+                        targets: card.querySelector('img'),
+                        scale: 1.1,
+                        duration: 300,
+                        easing: 'easeOutQuad'
+                    });
+                });
+                card.addEventListener('mouseleave', () => {
+                    anime({
+                        targets: card,
+                        translateY: 0,
+                        boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                        duration: 300,
+                        easing: 'easeOutQuad'
+                    });
+                    anime({
+                        targets: card.querySelector('img'),
+                        scale: 1,
+                        duration: 300,
+                        easing: 'easeOutQuad'
+                    });
+                });
+            });
 
             console.log('✅ Menú principal cargado correctamente');
             console.log('👤 Usuario:', profile.displayName);

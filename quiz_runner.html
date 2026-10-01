@@ -6,6 +6,10 @@
     <title>Sabiquiz - Quiz</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap">
+    <!-- Librerías para animaciones y efectos -->
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js"></script>
     <style>
         .quiz-main-container {
             max-width: 900px;
@@ -272,7 +276,7 @@
                 <button id="nextQuestionBtn" class="next-btn" style="display:none;">Siguiente pregunta ➜</button>
             </div>
             <div class="quiz-mascot-block">
-                <img id="quizMascot" src="img/sabi/sabi_pensando.png" alt="Mascota del Quiz" class="quiz-mascot-img sabi-mascot sabi-mascot-bounce">
+                <img id="quizMascot" src="img/sabi/sabi_pensando.png" alt="Mascota del Quiz" class="sabi-mascot-quiz sabi-mascot-bounce sabi-fade-in">
             </div>
         </div>
     </div>
@@ -661,7 +665,36 @@ if (completado) {
     }
 
     quizMascot.src = completado ? mascotImages.medal : mascotImages.incorrect;
+    
+    // Confeti si aprobó con 3 estrellas
+    if (completado && estrellas === 3) {
+        launchConfetti();
+    }
 }
+
+        // ============================================
+        // CONFETI - canvas-confetti
+        // ============================================
+        function launchConfetti() {
+            if (typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#667eea', '#764ba2', '#48bb78', '#ffd700', '#ff6b6b'],
+                    duration: 3000
+                });
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 50,
+                        spread: 100,
+                        origin: { y: 0.4 },
+                        colors: ['#667eea', '#764ba2'],
+                        duration: 2000
+                    });
+                }, 300);
+            }
+        }
 
         // ============================================
         // INICIAR QUIZ
@@ -801,6 +834,90 @@ if (completado) {
         // ============================================
         document.addEventListener('DOMContentLoaded', () => {
             iniciarQuiz();
+
+            // ============================================
+            // ANIMACIONES DE ENTRADA CON ANIME.JS
+            // ============================================
+            // Mascota del quiz
+            anime({
+                targets: '#quizMascot',
+                scale: [0.5, 1],
+                opacity: [0, 1],
+                duration: 800,
+                easing: 'easeOutElastic(1, .8)',
+                delay: 200
+            });
+
+            // Tarjeta de pregunta - entrada
+            anime({
+                targets: '.question-card',
+                translateY: [30, 0],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutQuad',
+                delay: 400
+            });
+
+            // Botones de opciones - entrada escalonada
+            anime({
+                targets: '.option-btn',
+                translateX: [-30, 0],
+                opacity: [0, 1],
+                duration: 500,
+                easing: 'easeOutQuad',
+                delay: anime.stagger(80, {start: 600})
+            });
+
+            // Animación idle de rebote suave para la mascota
+            anime({
+                targets: '#quizMascot',
+                translateY: [0, -8, 0],
+                duration: 3000,
+                easing: 'easeInOutSine',
+                direction: 'alternate',
+                loop: true,
+                delay: 2000
+            });
+
+            // Hover animations para opciones (con anime.js)
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    if (!btn.disabled) {
+                        anime({
+                            targets: btn,
+                            translateY: -2,
+                            boxShadow: '0 8px 20px rgba(102, 126, 234, 0.2)',
+                            duration: 200,
+                            easing: 'easeOutQuad'
+                        });
+                    }
+                });
+                btn.addEventListener('mouseleave', () => {
+                    if (!btn.disabled) {
+                        anime({
+                            targets: btn,
+                            translateY: 0,
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                            duration: 200,
+                            easing: 'easeOutQuad'
+                        });
+                    }
+                });
+            });
+
+            // Animación pop al clic en opciones
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (!btn.disabled) {
+                        anime({
+                            targets: btn,
+                            scale: [1, 0.95, 1],
+                            duration: 300,
+                            easing: 'easeOutElastic(1, .8)'
+                        });
+                    }
+                });
+            });
         });
 
         // Exponer funciones globalmente para el botón de reintentar
