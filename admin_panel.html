@@ -714,7 +714,13 @@
             try {
                 const data = await apiRequest('/quiz/materias');
                 const select = document.getElementById('torneoMateria');
+                if (!select) {
+                    console.error('Select torneoMateria no encontrado');
+                    return;
+                }
                 if (data.success && data.materias) {
+                    // Limpiar opciones excepto la primera
+                    select.innerHTML = '<option value="">Seleccionar materia...</option>';
                     data.materias.forEach(m => {
                         const opt = document.createElement('option');
                         opt.value = m.id;
@@ -820,30 +826,55 @@
             const form = document.getElementById('torneoForm');
             const title = document.getElementById('modalTitle');
             
+            if (!form || !modal || !title) {
+                console.error('Elementos del modal no encontrados');
+                return;
+            }
+            
             form.reset();
-            document.getElementById('torneoId').value = '';
+            const torneoIdEl = document.getElementById('torneoId');
+            if (torneoIdEl) torneoIdEl.value = '';
             
             if (torneo) {
                 title.textContent = '✏️ Editar Torneo';
-                document.getElementById('torneoId').value = torneo.id;
-                document.getElementById('torneoNombre').value = torneo.nombre;
-                document.getElementById('torneoMateria').value = torneo.materia_id;
-                document.getElementById('torneoModo').value = torneo.modo;
-                document.getElementById('torneoFechaInicio').value = formatDateForInput(torneo.fecha_inicio);
-                document.getElementById('torneoFechaFin').value = formatDateForInput(torneo.fecha_fin);
-                document.getElementById('torneoDuracion').value = torneo.duracion_minutos;
-                document.getElementById('torneoMaxUsuarios').value = torneo.max_usuarios;
-                document.getElementById('torneoEstado').value = torneo.estado;
+                const idEl = document.getElementById('torneoId');
+                if (idEl) idEl.value = torneo.id;
+                
+                const nombreEl = document.getElementById('torneoNombre');
+                if (nombreEl) nombreEl.value = torneo.nombre;
+                
+                const materiaEl = document.getElementById('torneoMateria');
+                if (materiaEl) materiaEl.value = torneo.materia_id;
+                
+                const modoEl = document.getElementById('torneoModo');
+                if (modoEl) modoEl.value = torneo.modo;
+                
+                const fechaInicioEl = document.getElementById('torneoFechaInicio');
+                if (fechaInicioEl) fechaInicioEl.value = formatDateForInput(torneo.fecha_inicio);
+                
+                const fechaFinEl = document.getElementById('torneoFechaFin');
+                if (fechaFinEl) fechaFinEl.value = formatDateForInput(torneo.fecha_fin);
+                
+                const duracionEl = document.getElementById('torneoDuracion');
+                if (duracionEl) duracionEl.value = torneo.duracion_minutos;
+                
+                const maxUsuariosEl = document.getElementById('torneoMaxUsuarios');
+                if (maxUsuariosEl) maxUsuariosEl.value = torneo.max_usuarios;
+                
+                const estadoEl = document.getElementById('torneoEstado');
+                if (estadoEl) estadoEl.value = torneo.estado;
             } else {
                 title.textContent = '➕ Crear Torneo';
                 // Default: mañana a las 10:00
                 const tomorrow = new Date();
                 tomorrow.setDate(tomorrow.getDate() + 1);
                 tomorrow.setHours(10, 0, 0, 0);
-                document.getElementById('torneoFechaInicio').value = formatDateForInput(tomorrow.toISOString());
+                const fechaInicioEl = document.getElementById('torneoFechaInicio');
+                if (fechaInicioEl) fechaInicioEl.value = formatDateForInput(tomorrow.toISOString());
                 const end = new Date(tomorrow);
                 end.setMinutes(end.getMinutes() + 15);
-                document.getElementById('torneoFechaFin').value = formatDateForInput(end.toISOString());
+                const fechaFinEl = document.getElementById('torneoFechaFin');
+                if (fechaFinEl) fechaFinEl.value = formatDateForInput(end.toISOString());
             }
             
             modal.style.display = 'flex';
@@ -879,8 +910,6 @@
         async function deleteTorneo(id) {
             if (!confirm('¿Seguro que quieres eliminar este torneo?')) return;
             try {
-                // No hay endpoint DELETE, usar estado finalizado o crear uno
-                // Por ahora solo finalizamos
                 const data = await apiRequest('/torneos/' + id + '/finalizar', { method: 'POST' });
                 if (data.success) {
                     showToast('✅ Torneo finalizado', 'success');
@@ -896,13 +925,15 @@
         async function saveTorneo(e) {
             e.preventDefault();
             const form = e.target;
+            if (!form) return;
+            
             const formData = new FormData(form);
             const torneoData = Object.fromEntries(formData);
             
             // Convertir números
-            torneoData.materia_id = parseInt(torneoData.materia_id);
-            torneoData.duracion_minutos = parseInt(torneoData.duracion_minutos);
-            torneoData.max_usuarios = parseInt(torneoData.max_usuarios);
+            if (torneoData.materia_id) torneoData.materia_id = parseInt(torneoData.materia_id);
+            if (torneoData.duracion_minutos) torneoData.duracion_minutos = parseInt(torneoData.duracion_minutos);
+            if (torneoData.max_usuarios) torneoData.max_usuarios = parseInt(torneoData.max_usuarios);
             
             const id = torneoData.id;
             delete torneoData.id;
@@ -910,7 +941,6 @@
             try {
                 const url = id ? '/torneos/' + id : '/torneos';
                 const method = id ? 'PUT' : 'POST';
-                // Nota: solo hay POST, para editar se usaría el mismo endpoint si existe
                 const data = await apiRequest(url, {
                     method: method,
                     body: JSON.stringify(torneoData)
