@@ -236,6 +236,26 @@
         </div>
     </div>
 
+    <!-- SECCIÓN TORNEOS -->
+    <div id="section-torneos" class="admin-section" style="display: none;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+            <h2 style="margin: 0; color: #2d3748;">🏆 Gestión de Torneos</h2>
+            <button id="btnNuevoTorneo" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">➕ Crear Torneo</button>
+        </div>
+
+        <div class="filter-tabs" style="margin-bottom: 20px;">
+            <button class="active" data-torneo-filter="all">📋 Todos</button>
+            <button data-torneo-filter="proximo">📅 Próximos</button>
+            <button data-torneo-filter="inscripcion_abierta">✍️ Inscripciones</button>
+            <button data-torneo-filter="en_curso">🔴 En Curso</button>
+            <button data-torneo-filter="finalizado">🏁 Finalizados</button>
+        </div>
+
+        <div id="torneosList">
+            <div class="loading-text">⏳ Cargando torneos...</div>
+        </div>
+    </div>
+
     <div id="toast" class="toast"></div>
 
     <script>
@@ -652,27 +672,37 @@
             loadTorneos('all');
             
             // Tabs principales
-            document.querySelectorAll('.main-tab').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
-                    document.getElementById('section-' + btn.dataset.tab).style.display = 'block';
+            const mainTabs = document.querySelectorAll('.main-tab');
+            if (mainTabs.length > 0) {
+                mainTabs.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
+                        const section = document.getElementById('section-' + btn.dataset.tab);
+                        if (section) section.style.display = 'block';
+                    });
                 });
-            });
-
+            }
+            
             // Filtros de torneos
-            document.querySelectorAll('[data-torneo-filter]').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.querySelectorAll('[data-torneo-filter]').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    loadTorneos(btn.dataset.torneoFilter);
+            const torneoFilters = document.querySelectorAll('[data-torneo-filter]');
+            if (torneoFilters.length > 0) {
+                torneoFilters.forEach(btn => {
+                    btn.addEventListener('click', () => {
+                        document.querySelectorAll('[data-torneo-filter]').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        loadTorneos(btn.dataset.torneoFilter);
+                    });
                 });
-            });
+            }
 
             // Modal torneo
-            document.getElementById('btnNuevoTorneo').addEventListener('click', () => openTorneoModal());
-            document.getElementById('torneoForm').addEventListener('submit', saveTorneo);
+            const btnNuevo = document.getElementById('btnNuevoTorneo');
+            if (btnNuevo) btnNuevo.addEventListener('click', () => openTorneoModal());
+            
+            const torneoForm = document.getElementById('torneoForm');
+            if (torneoForm) torneoForm.addEventListener('submit', saveTorneo);
         });
 
         // ============================================
