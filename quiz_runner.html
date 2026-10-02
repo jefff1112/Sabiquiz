@@ -6,6 +6,10 @@
     <title>Sabiquiz - Quiz</title>
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap">
+    <!-- Librerías para animaciones y efectos -->
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js"></script>
     <style>
         .quiz-main-container {
             max-width: 900px;
@@ -109,8 +113,8 @@
         .next-btn:hover { background: #5a67d8; }
         .quiz-mascot-block { flex-shrink: 0; }
         .quiz-mascot-img {
-            width: 150px;
-            height: 150px;
+            width: 160px;
+            height: 160px;
             object-fit: contain;
         }
         .results-container {
@@ -155,12 +159,90 @@
             padding: 50px;
             font-size: 20px;
         }
+
+        /* ============================================
+           SECCIÓN TEÓRICA COLAPSABLE (estilo minijuegos)
+           ============================================ */
+        .theory-section {
+            width: 100%;
+            max-width: 700px;
+            margin: 24px auto 0;
+            background: #ffffff;
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+        }
+
+        .theory-toggle {
+            width: 100%;
+            padding: 16px 20px;
+            background: #f7fafc;
+            border: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-family: 'Comic Neue', cursive, sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #4a5568;
+            transition: background 0.2s;
+        }
+
+        .theory-toggle:hover { background: #edf2f7; }
+        .theory-toggle svg { transition: transform 0.3s; }
+        .theory-toggle.active svg { transform: rotate(180deg); }
+
+        .theory-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+            text-align: left;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .theory-content.open {
+            padding: 24px;
+            max-height: 1500px;
+        }
+
+        .theory-content h4 {
+            color: #2d3748;
+            font-family: 'Comic Neue', cursive, sans-serif;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        .theory-content h4:first-child { margin-top: 0; }
+        .theory-content p { margin-bottom: 12px; font-size: 15px; }
+        
+        .formula-box {
+            background: #f1f5f9;
+            border-left: 4px solid #667eea;
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            font-family: monospace;
+            font-size: 14px;
+            margin: 16px 0;
+            color: #2d3748;
+        }
+
+        .formula-box div { margin-bottom: 8px; }
+        .formula-box div:last-child { margin-bottom: 0; }
+        .highlight { color: #667eea; font-weight: bold; }
+
         @media (max-width: 700px) {
             .quiz-content-row { flex-direction: column; align-items: center; }
             .quiz-mascot-img { width: 100px; height: 100px; }
             .options-grid { grid-template-columns: 1fr; }
             .quiz-top-bar { font-size: 14px; padding: 10px 15px; }
             .question-card #questionText { font-size: 18px; }
+        }
+        @media (max-width: 480px) {
+            .quiz-mascot-img { width: 80px; height: 80px; }
         }
         @media (max-width: 480px) {
             .quiz-main-container { padding: 15px; margin: 10px; }
@@ -194,7 +276,7 @@
                 <button id="nextQuestionBtn" class="next-btn" style="display:none;">Siguiente pregunta ➜</button>
             </div>
             <div class="quiz-mascot-block">
-                <img id="quizMascot" src="img/confundido_perro_4.png" alt="Mascota del Quiz" class="quiz-mascot-img">
+                <img id="quizMascot" src="img/sabi/sabi_pensando.png" alt="Mascota del Quiz" class="sabi-mascot-quiz sabi-mascot-bounce sabi-fade-in">
             </div>
         </div>
     </div>
@@ -308,10 +390,10 @@
         const errorMessage = document.getElementById('errorMessage');
 
         const mascotImages = {
-            thinking: 'img/confundido_perro_4.png',
-            correct: 'img/celebrando_perro_2.png',
-            incorrect: 'img/triste_perro_3.png',
-            medal: 'img/medella_perro_5.png'
+            thinking: 'img/sabi/sabi_pensando.png',
+            correct: 'img/sabi/sabi_celebrando.png',
+            incorrect: 'img/sabi/sabi_triste.png',
+            medal: 'img/sabi/sabi_medalla.png'
         };
 
         // ============================================
@@ -367,14 +449,14 @@
             });
 
             if (!button) {
-                feedbackDiv.innerHTML = `⏰ ¡Se acabó el tiempo! La respuesta correcta era: <b>${respuestaCorrecta}</b>`;
+                feedbackDiv.innerHTML = '⏱️ ¡Se acabó el tiempo! La respuesta correcta era: <b>${respuestaCorrecta}</b>';
                 feedbackDiv.style.color = '#c53030';
                 incorrectSound.play();
                 quizMascot.src = mascotImages.incorrect;
             } else if (isCorrect) {
                 score++;
                 button.classList.add('correct');
-                feedbackDiv.innerHTML = '✅ ¡Correcto! 🎉';
+                feedbackDiv.innerHTML = '✅ ¡Correcto!';
                 feedbackDiv.style.color = '#276749';
                 correctSound.play();
                 quizMascot.src = mascotImages.correct;
@@ -521,8 +603,31 @@ if (completado) {
     // ============================================
     // MOSTRAR RESULTADOS
     // ============================================
-    const resultTitle = completado ? '🎉 ¡Nivel Completado!' : '😢 Inténtalo de nuevo';
-    const resultEmoji = completado ? '🎉' : '😢';
+    const resultTitle = completado ? '¡Nivel Completado!' : 'Inténtalo de nuevo';
+    const resultEmoji = completado ? '<img src="img/sabi/sabi_festejando.png" class="sabi-mascot-small sabi-mascot-bounce">' : '<img src="img/sabi/sabi_anima.png" class="sabi-mascot-small sabi-mascot-bounce">';
+
+    // ============================================
+    // OBTENER TEORÍA DEL NIVEL
+    // ============================================
+    let teoriaHTML = '';
+    try {
+        const teoriaData = await apiRequest(`/quiz/nivel/${nivelId}/teoria`);
+        if (teoriaData.success && teoriaData.teoria) {
+            teoriaHTML = `
+                <div class="theory-section" id="theorySection">
+                    <button class="theory-toggle" id="theoryToggle">
+                        <span><img src="img/lenguaje.png" class="icon-btn"> ¿Cómo funciona? (Ver teoría)</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                    </button>
+                    <div class="theory-content" id="theoryContent">
+                        ${teoriaData.teoria}
+                    </div>
+                </div>
+            `;
+        }
+    } catch (e) {
+        console.log('ℹ️ No hay teoría disponible para este nivel');
+    }
 
     quizGameEl.innerHTML = `
         <div class="results-container">
@@ -539,13 +644,57 @@ if (completado) {
                     `<img src="img/${i < estrellas ? 'star_filled.png' : 'star_empty.png'}" class="star-icon">`
                 ).join('')}
             </div>
-            ${completado ? '<p style="color:#48bb78;font-weight:bold;">✅ ¡Nivel completado!</p>' : '<p style="color:#fc8181;font-weight:bold;">❌ Necesitas al menos 60% para aprobar</p>'}
+            ${completado ? '<p style="color:#48bb78;font-weight:bold;"><img src="img/sabi/sabi_celebrando.png" class="sabi-mascot-small"> ¡Nivel completado!</p>' : '<p style="color:#fc8181;font-weight:bold;"><img src="img/sabi/sabi_anima.png" class="sabi-mascot-small"> Necesitas al menos 60% para aprobar</p>'}
+            ${teoriaHTML}
             <a href="${backBtn.href}" class="main-menu-btn">Volver a niveles</a>
         </div>
     `;
 
+    // Inicializar el toggle de la teoría
+    if (teoriaHTML) {
+        setTimeout(() => {
+            const toggle = document.getElementById('theoryToggle');
+            const content = document.getElementById('theoryContent');
+            if (toggle && content) {
+                toggle.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    content.classList.toggle('open');
+                });
+            }
+        }, 100);
+    }
+
     quizMascot.src = completado ? mascotImages.medal : mascotImages.incorrect;
+    
+    // Confeti si aprobó con 3 estrellas
+    if (completado && estrellas === 3) {
+        launchConfetti();
+    }
 }
+
+        // ============================================
+        // CONFETI - canvas-confetti
+        // ============================================
+        function launchConfetti() {
+            if (typeof confetti !== 'undefined') {
+                confetti({
+                    particleCount: 100,
+                    spread: 70,
+                    origin: { y: 0.6 },
+                    colors: ['#667eea', '#764ba2', '#48bb78', '#ffd700', '#ff6b6b'],
+                    duration: 3000
+                });
+                setTimeout(() => {
+                    confetti({
+                        particleCount: 50,
+                        spread: 100,
+                        origin: { y: 0.4 },
+                        colors: ['#667eea', '#764ba2'],
+                        duration: 2000
+                    });
+                }, 300);
+            }
+        }
 
         // ============================================
         // INICIAR QUIZ
@@ -611,8 +760,14 @@ if (completado) {
                 console.log('✅ nivelId real:', nivelId);
                 console.log('✅ numero real:', nivelNumero);
 
-                backBtn.href = `materias/${subjectId}.html`;
+                // Matemáticas tiene un hub (matematicas.html) que separa quizzes y minijuegos;
+                // el "Volver" del quiz debe ir a la pantalla de niveles de quizzes, no al hub.
+                const quizBackUrl = subjectId === 'matematicas'
+                    ? `materias/matematicas_quizzes.html`
+                    : `materias/${subjectId}.html`;
+                backBtn.href = quizBackUrl;
                 subjectTitle.textContent = `${materiaNombre}`;
+
                 document.getElementById('levelDisplay').textContent = `Nivel ${nivelNumero}`;
 
                 // 3. Cargar preguntas
@@ -679,6 +834,90 @@ if (completado) {
         // ============================================
         document.addEventListener('DOMContentLoaded', () => {
             iniciarQuiz();
+
+            // ============================================
+            // ANIMACIONES DE ENTRADA CON ANIME.JS
+            // ============================================
+            // Mascota del quiz
+            anime({
+                targets: '#quizMascot',
+                scale: [0.5, 1],
+                opacity: [0, 1],
+                duration: 800,
+                easing: 'easeOutElastic(1, .8)',
+                delay: 200
+            });
+
+            // Tarjeta de pregunta - entrada
+            anime({
+                targets: '.question-card',
+                translateY: [30, 0],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutQuad',
+                delay: 400
+            });
+
+            // Botones de opciones - entrada escalonada
+            anime({
+                targets: '.option-btn',
+                translateX: [-30, 0],
+                opacity: [0, 1],
+                duration: 500,
+                easing: 'easeOutQuad',
+                delay: anime.stagger(80, {start: 600})
+            });
+
+            // Animación idle de rebote suave para la mascota
+            anime({
+                targets: '#quizMascot',
+                translateY: [0, -8, 0],
+                duration: 3000,
+                easing: 'easeInOutSine',
+                direction: 'alternate',
+                loop: true,
+                delay: 2000
+            });
+
+            // Hover animations para opciones (con anime.js)
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.addEventListener('mouseenter', () => {
+                    if (!btn.disabled) {
+                        anime({
+                            targets: btn,
+                            translateY: -2,
+                            boxShadow: '0 8px 20px rgba(102, 126, 234, 0.2)',
+                            duration: 200,
+                            easing: 'easeOutQuad'
+                        });
+                    }
+                });
+                btn.addEventListener('mouseleave', () => {
+                    if (!btn.disabled) {
+                        anime({
+                            targets: btn,
+                            translateY: 0,
+                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                            duration: 200,
+                            easing: 'easeOutQuad'
+                        });
+                    }
+                });
+            });
+
+            // Animación pop al clic en opciones
+            document.querySelectorAll('.option-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    if (!btn.disabled) {
+                        anime({
+                            targets: btn,
+                            scale: [1, 0.95, 1],
+                            duration: 300,
+                            easing: 'easeOutElastic(1, .8)'
+                        });
+                    }
+                });
+            });
         });
 
         // Exponer funciones globalmente para el botón de reintentar

@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sabiquiz - Ranking</title>
     <link rel="stylesheet" href="css/styles.css">
+    <!-- Librerías para animaciones y efectos -->
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js"></script>
     <style>
         /* ============================================
            RESET Y BASE
@@ -131,8 +135,8 @@
         }
 
         .card .card-avatar {
-            width: 80px;
-            height: 80px;
+            width: 90px;
+            height: 90px;
             border-radius: 50%;
             border: 3px solid #667eea;
             object-fit: cover;
@@ -163,7 +167,7 @@
         }
 
         .card .crown {
-            font-size: 32px;
+            font-size: 48px;
             display: block;
             margin-bottom: -8px;
         }
@@ -224,8 +228,8 @@
         }
 
         .leaderboard-row .avatar-small {
-            width: 42px;
-            height: 42px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             border: 2px solid #667eea;
             object-fit: cover;
@@ -535,7 +539,7 @@
     <div class="leaderboard-container">
         <!-- TÍTULO -->
         <h1>🏆 Tabla de Clasificación</h1>
-        <p class="subtitle">¡Los mejores jugadores de SabiQuiz!</p>
+        <p class="subtitle">⭐ ¡Los mejores jugadores de SabiQuiz!</p>
 
         <!-- MENSAJES -->
         <div id="errorMessage" class="error-message"></div>
@@ -543,13 +547,47 @@
 
         <!-- TOP 3 -->
         <div id="leaderboard-top3" class="podium-container">
-            <div class="loading-text">⏳ Cargando ranking...</div>
+            <div class="skeleton skeleton-card" style="width: 180px; height: 254px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+                <div class="skeleton skeleton-title" style="width: 48px; height: 48px; border-radius: 50%; margin-bottom: 8px;"></div>
+                <div class="skeleton skeleton-title" style="width: 80%; height: 20px; margin: 4px 0;"></div>
+                <div class="skeleton skeleton-text" style="width: 60%; height: 16px; margin: 2px 0;"></div>
+                <div class="skeleton skeleton-text" style="width: 50%; height: 16px; margin: 2px 0;"></div>
+            </div>
+            <div class="skeleton skeleton-card" style="width: 180px; height: 254px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+                <div class="skeleton skeleton-title" style="width: 48px; height: 48px; border-radius: 50%; margin-bottom: 8px;"></div>
+                <div class="skeleton skeleton-title" style="width: 80%; height: 20px; margin: 4px 0;"></div>
+                <div class="skeleton skeleton-text" style="width: 60%; height: 16px; margin: 2px 0;"></div>
+                <div class="skeleton skeleton-text" style="width: 50%; height: 16px; margin: 2px 0;"></div>
+            </div>
+            <div class="skeleton skeleton-card" style="width: 180px; height: 254px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
+                <div class="skeleton skeleton-title" style="width: 48px; height: 48px; border-radius: 50%; margin-bottom: 8px;"></div>
+                <div class="skeleton skeleton-title" style="width: 80%; height: 20px; margin: 4px 0;"></div>
+                <div class="skeleton skeleton-text" style="width: 60%; height: 16px; margin: 2px 0;"></div>
+                <div class="skeleton skeleton-text" style="width: 50%; height: 16px; margin: 2px 0;"></div>
+            </div>
         </div>
 
         <!-- RANKING 4-10 -->
         <h2 class="others-title">📋 Ranking General <span>(4 - 10)</span></h2>
         <div id="leaderboard-others" class="others-container">
-            <div class="loading-text">⏳ Cargando...</div>
+            <div class="skeleton skeleton-card" style="width: 100%; height: 60px; display: flex; align-items: center; padding: 10px 20px; gap: 15px;">
+                <div class="skeleton skeleton-title" style="width: 42px; height: 42px; border-radius: 50%;"></div>
+                <div class="skeleton skeleton-title" style="flex: 1; height: 17px; margin-left: 10px;"></div>
+                <div class="skeleton skeleton-text" style="width: 90px; height: 16px;"></div>
+                <div class="skeleton skeleton-text" style="width: 90px; height: 16px;"></div>
+            </div>
+            <div class="skeleton skeleton-card" style="width: 100%; height: 60px; display: flex; align-items: center; padding: 10px 20px; gap: 15px;">
+                <div class="skeleton skeleton-title" style="width: 42px; height: 42px; border-radius: 50%;"></div>
+                <div class="skeleton skeleton-title" style="flex: 1; height: 17px; margin-left: 10px;"></div>
+                <div class="skeleton skeleton-text" style="width: 90px; height: 16px;"></div>
+                <div class="skeleton skeleton-text" style="width: 90px; height: 16px;"></div>
+            </div>
+            <div class="skeleton skeleton-card" style="width: 100%; height: 60px; display: flex; align-items: center; padding: 10px 20px; gap: 15px;">
+                <div class="skeleton skeleton-title" style="width: 42px; height: 42px; border-radius: 50%;"></div>
+                <div class="skeleton skeleton-title" style="flex: 1; height: 17px; margin-left: 10px;"></div>
+                <div class="skeleton skeleton-text" style="width: 90px; height: 16px;"></div>
+                <div class="skeleton skeleton-text" style="width: 90px; height: 16px;"></div>
+            </div>
         </div>
 
         <!-- BOTÓN VOLVER -->
@@ -622,7 +660,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function showDebug(msg) {
             const el = document.getElementById('debugInfo');
-            el.textContent = msg;
+            el.innerHTML = msg;
             el.style.display = 'block';
         }
 
@@ -641,12 +679,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 top3Container.innerHTML = '<div class="loading-text">⏳ Cargando ranking...</div>';
                 othersContainer.innerHTML = '<div class="loading-text">⏳ Cargando...</div>';
 
-                showDebug('🔍 Solicitando ranking...');
+                showDebug('📡 Solicitando ranking...');
                 const data = await apiRequest('/auth/ranking');
                 showDebug(`✅ ${data.ranking?.length || 0} jugadores encontrados`);
 
                 if (!data.success || !data.ranking || data.ranking.length === 0) {
-                    top3Container.innerHTML = '<div class="empty-message">😕 Aún no hay jugadores en el ranking</div>';
+                    top3Container.innerHTML = '<div class="empty-message">😴 Aún no hay jugadores en el ranking</div>';
                     othersTitle.style.display = 'none';
                     return;
                 }
@@ -658,8 +696,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 // ============================================
                 top3Container.innerHTML = '';
                 const top3 = players.slice(0, 3);
-                const medallas = ['🥇', '🥈', '🥉'];
-                const coronas = ['👑', '', ''];
+                const medallas = ['<img src="img/star_filled.png" class="icon-star" style="width:22px;height:22px;">', '<img src="img/star_filled.png" class="icon-star" style="width:22px;height:22px;">', '<img src="img/star_filled.png" class="icon-star" style="width:22px;height:22px;">'];
+                const coronas = ['<img src="img/reina.png" class="icon-btn" style="width:22px;height:22px;">', '', ''];
 
                 top3.forEach((player, index) => {
                     const rank = index + 1;
@@ -672,8 +710,8 @@ document.addEventListener('DOMContentLoaded', () => {
                         <img src="${player.photoURL || 'img/default-avatar.png'}" class="card-avatar" 
                              onerror="this.src='img/default-avatar.png'">
                         <div class="player-name">${player.displayName || player.username || 'Jugador'}</div>
-                        <div class="player-stats">🎯 Nivel: <strong>${player.level || 1}</strong></div>
-                        <div class="player-stats">⭐ XP: <strong>${player.totalXp || 0}</strong></div>
+                        <div class="player-stats"><img src="img/cohete.png" class="icon-btn"> Nivel: <strong>${player.level || 1}</strong></div>
+                        <div class="player-stats"><img src="img/star_filled.png" class="icon-star"> XP: <strong>${player.totalXp || 0}</strong></div>
                     `;
                     top3Container.appendChild(card);
                 });
@@ -697,8 +735,8 @@ document.addEventListener('DOMContentLoaded', () => {
                                      onerror="this.src='img/default-avatar.png'">
                                 <span class="player-name">${player.displayName || player.username || 'Jugador'}</span>
                             </div>
-                            <div class="row-stat"><strong>${player.level || 1}</strong> Nivel</div>
-                            <div class="row-stat"><strong>${player.totalXp || 0}</strong> XP</div>
+                            <div class="row-stat"><img src="img/cohete.png" class="icon-btn" style="width:22px;height:22px;"> <strong>${player.level || 1}</strong> Nivel</div>
+                            <div class="row-stat"><img src="img/star_filled.png" class="icon-star" style="width:22px;height:22px;"> <strong>${player.totalXp || 0}</strong> XP</div>
                         `;
                         othersContainer.appendChild(row);
                     });
@@ -732,6 +770,103 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchLeaderboard();
             document.getElementById('backToMenuBtn').addEventListener('click', () => {
                 window.location.href = 'main_menu.html';
+            });
+
+            // ============================================
+            // ANIMACIONES DE ENTRADA CON ANIME.JS
+            // ============================================
+            // Título - entrada
+            anime({
+                targets: '.leaderboard-container h1',
+                translateY: [-30, 0],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutQuad'
+            });
+
+            // Subtítulo - entrada
+            anime({
+                targets: '.leaderboard-container .subtitle',
+                translateY: [20, 0],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutQuad',
+                delay: 200
+            });
+
+            // Podio Top 3 - entrada escalonada
+            anime({
+                targets: '.podium-container .card',
+                translateY: [50, 0],
+                opacity: [0, 1],
+                scale: [0.8, 1],
+                duration: 800,
+                easing: 'easeOutElastic(1, .8)',
+                delay: anime.stagger(150, {start: 400})
+            });
+
+            // Ranking 4-10 - entrada escalonada
+            anime({
+                targets: '.leaderboard-row',
+                translateX: [-30, 0],
+                opacity: [0, 1],
+                duration: 500,
+                easing: 'easeOutQuad',
+                delay: anime.stagger(80, {start: 800})
+            });
+
+            // Botón volver - entrada
+            anime({
+                targets: '.btn-back',
+                translateY: [30, 0],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutQuad',
+                delay: 1200
+            });
+
+            // Hover animations para tarjetas del podio
+            document.querySelectorAll('.podium-container .card').forEach(card => {
+                card.addEventListener('mouseenter', () => {
+                    anime({
+                        targets: card,
+                        translateY: -10,
+                        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
+                        duration: 300,
+                        easing: 'easeOutQuad'
+                    });
+                });
+                card.addEventListener('mouseleave', () => {
+                    anime({
+                        targets: card,
+                        translateY: 0,
+                        boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+                        duration: 300,
+                        easing: 'easeOutQuad'
+                    });
+                });
+            });
+
+            // Hover animations para filas del ranking
+            document.querySelectorAll('.leaderboard-row').forEach(row => {
+                row.addEventListener('mouseenter', () => {
+                    anime({
+                        targets: row,
+                        translateX: 4,
+                        backgroundColor: '#edf2f7',
+                        duration: 200,
+                        easing: 'easeOutQuad'
+                    });
+                });
+                row.addEventListener('mouseleave', () => {
+                    anime({
+                        targets: row,
+                        translateX: 0,
+                        backgroundColor: '#f7fafc',
+                        duration: 200,
+                        easing: 'easeOutQuad'
+                    });
+                });
             });
         });
 

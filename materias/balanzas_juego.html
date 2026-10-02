@@ -17,6 +17,7 @@
             padding: 24px;
             background: radial-gradient(circle at 20% 10%, #eef2ff, #e0e7ff 45%, #dbeafe 100%);
             font-family: 'Segoe UI', system-ui, sans-serif;
+            flex-direction: column;
         }
         .game-container {
             background: #ffffff;
@@ -192,12 +193,24 @@
             .game-container { padding: 20px 16px 18px; }
             .equation-card { font-size: 22px; }
         }
+
+        /* Theory Section */
+        .theory-section { width: 100%; max-width: 660px; background: #ffffff; border-radius: 24px; box-shadow: 0 8px 25px rgba(0,0,0,0.08); border: 1px solid #e2e8f0; overflow: hidden; margin-top: 20px; margin-bottom: 20px; }
+        .theory-toggle { width: 100%; padding: 18px 24px; background: #f8fafc; border: none; display: flex; justify-content: space-between; align-items: center; cursor: pointer; font-family: 'Segoe UI', system-ui, sans-serif; font-size: 16px; font-weight: 700; color: #4a5568; transition: background 0.2s; }
+        .theory-toggle:hover { background: #edf2f7; }
+        .theory-toggle svg { transition: transform 0.3s; }
+        .theory-toggle.active svg { transform: rotate(180deg); }
+        .theory-content { padding: 0; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out, padding 0.4s ease-out; text-align: left; color: #4a5568; line-height: 1.6; }
+        .theory-content.open { padding: 24px; max-height: 1500px; }
+        .theory-content h4 { color: #2d3748; margin-top: 16px; margin-bottom: 8px; font-size: 18px; }
+        .theory-content h4:first-child { margin-top: 0; }
+        .theory-content p { margin-bottom: 12px; font-size: 15px; }
     </style>
 </head>
 <body>
     <div class="game-container">
         <a href="balanzas.html" class="back-btn">← Volver a niveles</a>
-        <div class="level-title">⚖️ Balanzas - Nivel <span id="levelNum">1</span></div>
+        <div class="level-title"><img src="../img/escala.png" class="icon-btn"> Balanzas - Nivel <span id="levelNum">1</span></div>
         <div class="stars" id="starsContainer">
             <span class="star" id="star1">☆</span>
             <span class="star" id="star2">☆</span>
@@ -258,6 +271,25 @@
         <div class="feedback" id="feedback"></div>
         <button class="next-btn" id="nextBtn">Siguiente ➜</button>
     </div>
+
+    <!-- Sección Teórica Colapsable -->
+    <div class="theory-section">
+        <button class="theory-toggle" id="theoryToggle">
+            <span><img src="../img/lenguaje.png" class="icon-btn"> ¿Cómo funciona? (Ver teoría)</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="theory-content" id="theoryContent">
+            <h4>El Principio de Igualdad</h4>
+            <p>Una ecuación matemática es exactamente como una balanza en equilibrio. El signo de igual (=) significa que todo lo que está en el lado izquierdo tiene el mismo valor o peso que todo lo que está en el lado derecho.</p>
+            
+            <h4>Despejando la Incógnita (x)</h4>
+            <p>Para encontrar el valor de la incógnita (la "x"), debes mantener la balanza equilibrada. La regla de oro del álgebra es: <strong>Lo que le haces a un lado de la ecuación, se lo debes hacer exactamente igual al otro lado</strong>. Si restas peso de un platillo, debes restar el mismo peso del otro platillo para que no se incline.</p>
+            
+            <h4>Aplicación en la Vida Real</h4>
+            <p>Las ecuaciones se utilizan en contabilidad para cuadrar balances financieros, en química para balancear reacciones de elementos, y en programación para calcular y asignar valores lógicos que hacen funcionar las aplicaciones.</p>
+        </div>
+    </div>
+
     <div id="confettiLayer"></div>
     <div id="toastLayer"></div>
 
@@ -318,7 +350,7 @@
         function updateStars(stars) {
             [star1, star2, star3].forEach((s, i) => {
                 const on = i < stars;
-                s.textContent = on ? '⭐' : '☆';
+                s.innerHTML = on ? '<img src="../img/star_filled.png" class="icon-star">' : '<img src="../img/star_empty.png" class="icon-star">';
                 s.classList.toggle('filled', on);
             });
         }
@@ -426,7 +458,7 @@
             isCompleted = true;
             const stars = getStars();
             updateStars(stars);
-            feedback.textContent = `✅ ¡Correcto! La balanza quedó equilibrada. Ganaste ${stars} estrellas.`;
+            feedback.innerHTML = `<img src="../img/correct.png" class="icon-btn"> ¡Correcto! La balanza quedó equilibrada. Ganaste ${stars} estrellas.`;
             feedback.style.color = '#48bb78';
             nextBtn.style.display = 'block';
             confetti();
@@ -453,9 +485,9 @@
             const t = document.createElement('div');
             t.className = 'toast';
             t.innerHTML =
-                '<div class="t-icon">' + (logro.icono || '🏅') + '</div>' +
+                '<div class="t-icon"><img src="../img/trofeo.png" class="icon-btn"></div>' +
                 '<div class="t-body">' +
-                '<div class="t-title">🏆 ¡Logro desbloqueado!</div>' +
+                '<div class="t-title"><img src="../img/trofeo.png" class="icon-btn"> ¡Logro desbloqueado!</div>' +
                 '<div class="t-name">' + logro.nombre + '</div>' +
                 '<div class="t-desc">' + (logro.descripcion || '') + '</div>' +
                 '</div>';
@@ -498,6 +530,12 @@
         }
 
         nextBtn.addEventListener('click', () => { window.location.href = 'balanzas.html'; });
+
+        // Theory toggle
+        document.getElementById('theoryToggle').addEventListener('click', function() {
+            this.classList.toggle('active');
+            document.getElementById('theoryContent').classList.toggle('open');
+        });
 
         loadLevel();
     </script>

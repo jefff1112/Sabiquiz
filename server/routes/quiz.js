@@ -6,6 +6,62 @@ const Progreso = require('../models/Progreso');
 const { pool } = require('../config/database');
 
 // ============================================
+// 🔥 NIVELES DE MINIJUEGO MATEMÁTICO (lista blanca)
+// ============================================
+// Estos IDs NO son niveles de quiz: son niveles "virtuales" sembrados por
+// server/scripts/seed-minigame-levels.js bajo la materia oculta
+// "Minijuegos Matemáticas" (activo = 0), para que su progreso viva en
+// `progreso_usuario` y sea visible a través del JOIN de /api/progress.
+//
+//   501-505 → Función Lineal Interactiva (nivel 1 a 5)
+//   511-515 → Círculo Trigonométrico     (nivel 1 a 5)
+//
+// Para estos IDs el cliente envía las estrellas ya calculadas por la mecánica
+// del juego (no hay preguntas ni opciones), así que /submit acepta
+// `respuestas: []` + `estrellas`. La lista blanca impide que se puedan
+// inyectar estrellas arbitrarias en niveles de quiz reales.
+const MINIGAME_LEVEL_IDS = new Set([501, 502, 503, 504, 505, 511, 512, 513, 514, 515]);
+
+// REDONDEA y acota las estrellas al rango válido 0-3
+function normalizarEstrellas(valor) {
+    const n = Math.round(Number(valor));
+    if (!Number.isFinite(n)) return 0;
+    return Math.min(3, Math.max(0, n));
+}
+
+// ============================================
+// RUTA: OBTENER TEORÍA DE UN NIVEL ESPECÍFICO (DEBE IR ANTES DE /nivel/:nivelId)
+// ============================================
+router.get('/nivel/:nivelId/teoria', authMiddleware, async (req, res) => {
+    try {
+        const [nivel] = await pool.query(
+            'SELECT id, numero, titulo, teoria FROM niveles WHERE id = ?',
+            [req.params.nivelId]
+        );
+        
+        if (nivel.length === 0) {
+            return res.status(404).json({
+                success: false,
+                error: 'Nivel no encontrado'
+            });
+        }
+        
+        res.json({
+            success: true,
+            teoria: nivel[0].teoria || null,
+            titulo: nivel[0].titulo,
+            numero: nivel[0].numero
+        });
+    } catch (error) {
+        console.error('Error al obtener teoría:', error);
+        res.status(500).json({ 
+            success: false, 
+            error: 'Error al cargar teoría' 
+        });
+    }
+});
+
+// ============================================
 // RUTA: OBTENER PREGUNTAS DE UN NIVEL
 // ============================================
 router.get('/nivel/:nivelId', authMiddleware, async (req, res) => {
@@ -51,10 +107,87 @@ router.get('/random/:materiaId', authMiddleware, async (req, res) => {
 // RUTA: ENVIAR RESPUESTAS Y CALCULAR PUNTAJE
 // ============================================
 router.post('/submit', authMiddleware, async (req, res) => {
-    const { nivelId, respuestas, tiempo } = req.body;
+    const { nivelId, respuestas, tiempo, estrellas: estrellasBody } = req.body;
     const usuarioId = req.usuarioId;
 
     console.log('📝 Recibiendo respuestas:', { nivelId, respuestas: respuestas?.length || 0, tiempo, usuarioId });
+
+    // Validación de entrada
+    if (!nivelId) {
+        return res.status(400).json({ 
+            success: false, 
+            error: 'nivelId es requerido' 
+        });
+    }
+
+    // ============================================
+    // 🔥 RAMA A: NIVEL DE MINIJUEGO MATEMÁTICO
+    // ============================================
+    // No hay preguntas: el juego calcula las estrellas según su propia
+    // mecánica y las envía. La regla de "no bajar estrellas" se aplica
+    // directamente en SQL con GREATEST.
+    if (MINIGAME_LEVEL_IDS.has(Number(nivelId))) {
+        let connection;
+        try {
+            const estrellasPedidas = normalizarEstrellas(estrellasBody);
+            const completado = estrellasPedidas > 0 ? 1 : 0;
+            const puntaje = Math.round((estrellasPedidas / 3) * 100);
+
+            connection = await pool.getConnection();
+
+            await connection.query(
+                `INSERT INTO progreso_usuario
+                 (usuario_id, nivel_id, puntaje, estrellas, completado, fecha_completado)
+                 VALUES (?, ?, ?, ?, ?, NOW())
+                 ON DUPLICATE KEY UPDATE
+                 estrellas  = GREATEST(estrellas, VALUES(estrellas)),
+                 puntaje    = GREATEST(COALESCE(puntaje, 0), VALUES(puntaje)),
+                 completado = (completado OR VALUES(completado)),
+                 fecha_completado = IF(VALUES(completado) = 1, NOW(), fecha_completado)`,
+                [usuarioId, Number(nivelId), puntaje, estrellasPedidas, completado]
+            );
+
+            const [rows] = await connection.query(
+                'SELECT estrellas, puntaje, completado FROM progreso_usuario WHERE usuario_id = ? AND nivel_id = ?',
+                [usuarioId, Number(nivelId)]
+            );
+            const guardado = rows[0] || { estrellas: estrellasPedidas, puntaje, completado };
+
+            console.log(`✅ Minijuego guardado: usuario=${usuarioId}, nivel=${nivelId}, estrellas=${guardado.estrellas}`);
+
+            return res.json({
+                success: true,
+                minijuego: true,
+                resultados: {
+                    totalCorrectas: 0,
+                    totalPreguntas: 0,
+                    porcentaje: Number(guardado.puntaje) || 0,
+                    puntaje: Number(guardado.puntaje) || 0,
+                    estrellas: Number(guardado.estrellas) || 0,
+                    estrellasObtenidas: estrellasPedidas,
+                    completado: !!guardado.completado
+                }
+            });
+        } catch (error) {
+            console.error('Error al guardar progreso de minijuego:', error);
+            return res.status(500).json({
+                success: false,
+                error: 'Error al guardar el progreso del minijuego'
+            });
+        } finally {
+            if (connection) connection.release();
+        }
+    }
+
+    // ============================================
+    // 🔥 RAMA B: NIVEL DE QUIZ (comportamiento original)
+    // ============================================
+    if (!Array.isArray(respuestas) || respuestas.length === 0) {
+        return res.status(400).json({ 
+            success: false, 
+            error: 'respuestas debe ser un array no vacío' 
+        });
+    }
 
     try {
         const connection = await pool.getConnection();
@@ -87,7 +220,20 @@ router.post('/submit', authMiddleware, async (req, res) => {
         const completado = porcentaje >= 0.6;
         const puntaje = Math.round(porcentaje * 100);
 
-        // 🔥 GUARDAR PROGRESO
+        // 🔥 GUARDAR PROGRESO (mantiene estrellas máximas, no baja al repetir)
+        // Primero obtener progreso existente para calcular el máximo
+        let [existing] = await connection.query(
+            'SELECT estrellas, puntaje FROM progreso_usuario WHERE usuario_id = ? AND nivel_id = ?',
+            [usuarioId, nivelId]
+        );
+        
+        const existingEstrellas = existing.length > 0 ? existing[0].estrellas : 0;
+        const existingPuntaje = existing.length > 0 ? existing[0].puntaje : 0;
+        
+        const estrellasFinal = Math.max(estrellas, existingEstrellas);
+        const puntajeFinal = Math.max(puntaje, existingPuntaje);
+        const completadoFinal = completado || (existing.length > 0 && existing[0].completado);
+
         await connection.query(
             `INSERT INTO progreso_usuario 
              (usuario_id, nivel_id, puntaje, estrellas, completado, fecha_completado)
@@ -96,14 +242,14 @@ router.post('/submit', authMiddleware, async (req, res) => {
              puntaje = VALUES(puntaje),
              estrellas = VALUES(estrellas),
              completado = VALUES(completado),
-             fecha_completado = NOW()`,
-            [usuarioId, nivelId, puntaje, estrellas, completado]
+             fecha_completado = IF(VALUES(completado) = 1, NOW(), fecha_completado)`,
+            [usuarioId, nivelId, puntajeFinal, estrellasFinal, completadoFinal]
         );
 
         await connection.commit();
         connection.release();
 
-        console.log(`✅ Progreso guardado: usuario=${usuarioId}, nivel=${nivelId}, estrellas=${estrellas}`);
+        console.log(`✅ Progreso guardado: usuario=${usuarioId}, nivel=${nivelId}, estrellas=${estrellasFinal}`);
 
         res.json({
             success: true,
@@ -111,9 +257,9 @@ router.post('/submit', authMiddleware, async (req, res) => {
                 totalCorrectas: correctas,
                 totalPreguntas: totalPreguntas,
                 porcentaje: porcentaje * 100,
-                puntaje,
-                estrellas,
-                completado
+                puntaje: puntajeFinal,
+                estrellas: estrellasFinal,
+                completado: completadoFinal
             }
         });
     } catch (error) {
@@ -147,12 +293,12 @@ router.get('/materias', async (req, res) => {
 });
 
 // ============================================
-// RUTA: OBTENER NIVELES DE UNA MATERIA
+// RUTA: OBTENER NIVELES DE UNA MATERIA (INCLUYE TEORÍA)
 // ============================================
 router.get('/materia/:materiaId/niveles', async (req, res) => {
     try {
         const [niveles] = await pool.query(
-            'SELECT * FROM niveles WHERE materia_id = ? ORDER BY numero',
+            'SELECT id, materia_id, numero, titulo, passing_score, orden, teoria FROM niveles WHERE materia_id = ? ORDER BY numero',
             [req.params.materiaId]
         );
         res.json({

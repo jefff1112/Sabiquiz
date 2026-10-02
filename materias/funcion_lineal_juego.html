@@ -1,0 +1,951 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Función Lineal - Juego</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
+            --accent-green: #48bb78;
+            --accent-purple: #9f7aea;
+            --text-dark: #2d3748;
+            --text-muted: #718096;
+            --bg-card: #ffffff;
+            --border-light: #e2e8f0;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+            --shadow-card: 0 24px 60px rgba(56, 66, 120, 0.22);
+            --shadow-soft: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px;
+            font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+            background: radial-gradient(circle at 20% 10%, #eef2ff, #e0e7ff 45%, #dbeafe 100%);
+            color: var(--text-dark);
+        }
+
+        .game-container {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px 24px;
+            box-shadow: var(--shadow-card);
+            text-align: center;
+            width: 100%;
+            max-width: 780px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 6px;
+            background: linear-gradient(90deg, #667eea, #9f7aea, #48bb78);
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            background: #f1f5f9;
+            border: 1px solid var(--border-light);
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: #e2e8f0;
+            transform: translateX(-3px);
+            color: #4c51bf;
+        }
+
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: #f7fafc;
+            border: 1px solid var(--border-light);
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .level-badge span { color: #667eea; }
+
+        .stars-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin: 6px 0 14px;
+        }
+
+        .star {
+            font-size: 32px;
+            color: #cbd5e0;
+            transition: color 0.3s, transform 0.3s;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
+        }
+
+        .star.filled {
+            color: #f6ad55;
+            filter: drop-shadow(0 4px 12px rgba(246, 173, 85, 0.4));
+            animation: starPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes starPop {
+            0% { transform: scale(0.5) rotate(-20deg); }
+            60% { transform: scale(1.25) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .hint {
+            font-size: 16px;
+            color: var(--text-dark);
+            font-weight: 600;
+            margin-bottom: 16px;
+            min-height: 22px;
+        }
+
+        #gameCanvas {
+            width: 100%;
+            max-width: 720px;
+            height: auto;
+            aspect-ratio: 2 / 1;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background: #f8fafc;
+            display: block;
+            margin: 0 auto 20px;
+            cursor: default;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .slider-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            padding: 20px;
+            background: #f1f5f9;
+            border-radius: var(--radius-md);
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-width: 200px;
+        }
+
+        .slider-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 16px;
+            color: var(--text-dark);
+        }
+
+        .slider-label .value {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 20px;
+            min-width: 45px;
+            text-align: right;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 250px;
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.6);
+        }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .equation-display {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 12px 24px;
+            border-radius: var(--radius-md);
+            font-family: 'Quicksand', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 16px;
+            box-shadow: 0 4px 16px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Quicksand', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.35);
+        }
+
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(102, 126, 234, 0.45); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.35);
+            display: none;
+        }
+
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(72, 187, 120, 0.45); }
+
+        .feedback {
+            margin-top: 10px;
+            min-height: 40px;
+            font-size: 15px;
+            line-height: 1.5;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback.success { display: block; background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .feedback.error { display: block; background: #fed7d7; color: #742a2a; border: 1px solid #feb2b2; }
+        .feedback.info { display: block; background: #eebefa; color: #6b46c1; border: 1px solid #d6bcfa; }
+
+        /* Theory Section */
+        .theory-section {
+            width: 100%;
+            max-width: 780px;
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+        }
+
+        .theory-toggle {
+            width: 100%;
+            padding: 18px 24px;
+            background: #f8fafc;
+            border: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #4a5568;
+            transition: background 0.2s;
+        }
+
+        .theory-toggle:hover { background: #edf2f7; }
+        .theory-toggle svg { transition: transform 0.3s; }
+        .theory-toggle.active svg { transform: rotate(180deg); }
+
+        .theory-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+            text-align: left;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .theory-content.open {
+            padding: 24px;
+            max-height: 1500px;
+        }
+
+        .theory-content h4 {
+            color: #2d3748;
+            font-family: 'Quicksand', sans-serif;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+        .theory-content h4:first-child { margin-top: 0; }
+        .theory-content p { margin-bottom: 12px; font-size: 15px; }
+        
+        .formula-box {
+            background: #f1f5f9;
+            border-left: 4px solid #667eea;
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            font-family: monospace;
+            font-size: 15px;
+            margin: 16px 0;
+            color: #2d3748;
+        }
+
+        .formula-box div { margin-bottom: 8px; }
+        .formula-box div:last-child { margin-bottom: 0; }
+        .highlight { color: #667eea; font-weight: bold; }
+
+        /* ---------- Mascota Sabi ---------- */
+        .sabi-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 18px;
+            padding: 14px 18px;
+            background: #f8fafc;
+            border: 1px dashed var(--border-light);
+            border-radius: var(--radius-md);
+            text-align: left;
+            flex-wrap: wrap;
+        }
+
+        .sabi-box img {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            flex: 0 0 auto;
+            filter: drop-shadow(0 6px 14px rgba(56, 66, 120, 0.18));
+        }
+
+        .sabi-box p { font-size: 15px; color: #4a5568; font-weight: 600; max-width: 560px; }
+
+        input[type="range"]:disabled { opacity: 0.5; cursor: not-allowed; }
+        input[type="range"]:disabled::-webkit-slider-thumb { cursor: not-allowed; }
+
+        /* Confetti Layer */
+        #confettiLayer {
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            z-index: 9999;
+            overflow: hidden;
+        }
+
+        .confetti {
+            position: absolute;
+            top: -20px;
+            width: 10px;
+            height: 14px;
+            border-radius: 3px;
+            animation: confettiFall 3s cubic-bezier(0.4, 0, 1, 1) forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(calc(100vh + 50px)) translateX(var(--drift, 0)) rotate(720deg) scale(0.5); opacity: 0; }
+        }
+
+        @media (max-width: 640px) {
+            .game-container { padding: 22px 18px; }
+            #gameCanvas { width: 100%; height: auto; max-width: 720px; }
+            .slider-controls { flex-direction: column; align-items: center; }
+            input[type="range"] { width: 100%; max-width: 250px; }
+            .slider-group { min-width: auto; width: 100%; }
+            .btn { width: 100%; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header-row">
+            <a href="funcion_lineal.html" class="back-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Volver
+            </a>
+            <div class="level-badge">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+                Nivel <span id="levelNum">1</span>
+            </div>
+        </div>
+
+        <div class="stars-row" id="starsContainer">
+            <span class="star" id="star1">☆</span>
+            <span class="star" id="star2">☆</span>
+            <span class="star" id="star3">☆</span>
+        </div>
+
+        <div class="hint" id="hintLine">Instrucciones aquí...</div>
+
+        <canvas id="gameCanvas" width="720" height="360"></canvas>
+
+        <div class="equation-display" id="equationDisplay">y = 0.0x + 0.0</div>
+
+        <div class="slider-controls">
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>Pendiente (m):</span>
+                    <span class="value" id="mValue">0.0</span>
+                </div>
+                <input type="range" id="mSlider" min="-5" max="5" step="0.1" value="0">
+            </div>
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>Intercepto (b):</span>
+                    <span class="value" id="bValue">0.0</span>
+                </div>
+                <input type="range" id="bSlider" min="-10" max="10" step="0.5" value="0">
+            </div>
+        </div>
+
+        <div class="mechanic-controls" id="mechanicControls">
+            <button class="btn btn-primary" id="btnValidar">Validar recta</button>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="sabi-box">
+            <img src="../img/sabi/sabi_pensando.png" id="sabiMascot" alt="Sabi pensando">
+            <p id="sabiText">Mueve los sliders hasta que la recta pase por todos los puntos rojos.</p>
+        </div>
+    </div>
+
+    <!-- Sección Teórica Colapsable -->
+    <div class="theory-section">
+        <button class="theory-toggle" id="theoryToggle">
+            <span><img src="../img/grafica.png" class="icon-btn"> ¿Cómo funciona? (Ver teoría)</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="theory-content" id="theoryContent">
+            <h4>La Función Lineal</h4>
+            <p>Una <strong>función lineal</strong> tiene la forma <span class="highlight">y = mx + b</span>, donde <span class="highlight">m</span> es la pendiente (qué tan inclinada está la recta) y <span class="highlight">b</span> es el intercepto en el eje Y (dónde cruza la recta el eje vertical).</p>
+            
+            <h4>Pendiente (m)</h4>
+            <p>La pendiente indica cuánto sube (o baja) la recta por cada unidad que avanza en X:</p>
+            <div class="formula-box">
+                <div>m > 0: La recta sube (creciente)</div>
+                <div>m < 0: La recta baja (decreciente)</div>
+                <div>m = 0: Recta horizontal</div>
+            </div>
+            
+            <h4>Intercepto (b)</h4>
+            <p>El valor <span class="highlight">b</span> es el valor de <span class="highlight">y</span> cuando <span class="highlight">x = 0</span>. Es el punto donde la recta cruza el eje Y.</p>
+
+            <h4>Paso por dos puntos</h4>
+            <p>Si conoces dos puntos (x₁, y₁) y (x₂, y₂), puedes calcular:</p>
+            <div class="formula-box">
+                <div>Pendiente: <span class="highlight">m = (y₂ - y₁) / (x₂ - x₁)</span></div>
+                <div>Intercepto: <span class="highlight">b = y₁ - m·x₁</span></div>
+            </div>
+
+            <h4>Aplicación en la Vida Real</h4>
+            <p>Las funciones lineales modelan relaciones de proporcionalidad directa: costo por cantidad, distancia en función del tiempo a velocidad constante, conversión de unidades, predicciones simples, etc.</p>
+        </div>
+    </div>
+
+    <div id="confettiLayer"></div>
+
+    <script>
+        const API_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1") 
+            ? "http://localhost:3000/api" 
+            : (window.location.origin + "/api");
+
+        function getToken() { return localStorage.getItem("token"); }
+
+        async function apiRequest(endpoint, options = {}) {
+            const token = getToken();
+            const headers = { 
+                "Content-Type": "application/json", 
+                "Authorization": token ? "Bearer " + token : "" 
+            };
+            const finalOptions = { ...options, headers: { ...headers, ...options.headers } };
+            const response = await fetch(API_URL + endpoint, finalOptions);
+            if (!response.ok) {
+                if (response.status === 401) { 
+                    localStorage.removeItem("token"); window.location.href = "../login.html"; 
+                }
+                throw new Error(await response.text());
+            }
+            return await response.json();
+        }
+
+        // ============================================
+        // ELEMENTOS DOM
+        // ============================================
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const hintLine = document.getElementById("hintLine");
+        const mechanicControls = document.getElementById("mechanicControls");
+        const feedback = document.getElementById("feedback");
+        const levelNumSpan = document.getElementById("levelNum");
+        const starElements = [document.getElementById("star1"), document.getElementById("star2"), document.getElementById("star3")];
+        const equationDisplay = document.getElementById("equationDisplay");
+        const mSlider = document.getElementById("mSlider");
+        const bSlider = document.getElementById("bSlider");
+        const mValue = document.getElementById("mValue");
+        const bValue = document.getElementById("bValue");
+        const sabiMascot = document.getElementById("sabiMascot");
+        const sabiText = document.getElementById("sabiText");
+
+        // Theory toggle
+        document.getElementById("theoryToggle").addEventListener("click", function() {
+            this.classList.toggle("active");
+            document.getElementById("theoryContent").classList.toggle("open");
+        });
+
+        // ============================================
+        // ESTADO GLOBAL DEL JUEGO
+        // ============================================
+        let currentLevel = parseInt(new URLSearchParams(window.location.search).get("nivel")) || 1;
+        let targetPoints = [];
+        let ranges = { xmin: -5, xmax: 5, ymin: -5, ymax: 15 };
+        // pendingStars > 0 → la recta ya es válida y falta guardar
+        let pendingStars = 0;
+        let isSaved = false;
+
+        // Niveles 501-505 → Función Lineal (sembrados por seed-minigame-levels.js)
+        const NIVEL_ID_BASE = 500;
+        const TOL_3 = 0.2, TOL_2 = 0.5, TOL_1 = 1.5;
+
+        function setSabi(img, text) {
+            sabiMascot.src = "../img/sabi/" + img;
+            sabiText.textContent = text;
+        }
+
+        const M = { left: 60, right: 30, top: 30, bottom: 50 };
+
+        function px(x) { return M.left + ((x - ranges.xmin) / (ranges.xmax - ranges.xmin)) * (canvas.width - M.left - M.right); }
+        function py(y) { return M.top + ((ranges.ymax - y) / (ranges.ymax - ranges.ymin)) * (canvas.height - M.top - M.bottom); }
+
+        function updateStars(count) {
+            starElements.forEach((s, i) => {
+                const on = i < count;
+                s.textContent = on ? "★" : "☆";
+                s.classList.toggle("filled", on);
+                if (on) s.style.animationDelay = (i * 0.1) + "s";
+                else s.style.animationDelay = "0s";
+            });
+        }
+
+        function showFeedback(msg, type = "success") {
+            feedback.innerHTML = msg;
+            feedback.className = "feedback " + type;
+        }
+
+        function confetti() {
+            const layer = document.getElementById("confettiLayer");
+            const colors = ["#667eea", "#48bb78", "#9f7aea", "#f6ad55", "#ecc94b", "#4299e1"];
+            for (let i = 0; i < 60; i++) {
+                const d = document.createElement("div");
+                d.className = "confetti";
+                d.style.left = (Math.random() * 100) + "%";
+                d.style.background = colors[i % colors.length];
+                d.style.animationDelay = (Math.random() * 0.5) + "s";
+                d.style.setProperty("--drift", (Math.random() * 250 - 125) + "px");
+                layer.appendChild(d);
+                setTimeout(() => d.remove(), 3000);
+            }
+        }
+
+        // ============================================
+        // RESULTADO: marcar listo → guardar en MySQL
+        // ============================================
+        // El nivel se marca como superado SOLO si se obtuvo al menos 1 estrella.
+        // (Antes se llamaba a completeLevel() incluso con 0 estrellas, lo que
+        //  desbloqueaba el siguiente nivel habiendo fallado.)
+        function markReady(stars) {
+            if (pendingStars > 0 || isSaved) return;
+            pendingStars = stars;
+
+            updateStars(stars);
+            if (stars > 0) confetti();
+
+            // El resultado ya está decidido: bloqueamos los sliders
+            mSlider.disabled = true;
+            bSlider.disabled = true;
+
+            setSabi(stars === 3 ? "sabi_medalla.png" : "sabi_celebrando.png",
+                stars === 3
+                    ? "¡Perfecto! Encontraste la recta exacta. Guarda tu resultado."
+                    : "¡Bien hecho! Guarda el resultado o pulsa Reintentar para buscar 3 estrellas.");
+
+            const btn = document.getElementById("btnValidar");
+            btn.textContent = "Guardar resultado";
+            btn.classList.remove("btn-primary");
+            btn.classList.add("btn-success");
+
+            const retry = document.createElement("button");
+            retry.className = "btn";
+            retry.id = "btnRetry";
+            retry.style.marginLeft = "12px";
+            retry.style.background = "#e2e8f0";
+            retry.style.color = "#4a5568";
+            retry.textContent = "Reintentar";
+            retry.onclick = () => window.location.reload();
+            mechanicControls.appendChild(retry);
+        }
+
+        async function saveResult() {
+            if (isSaved || pendingStars < 1) return;
+
+            isSaved = true;
+            const btn = document.getElementById("btnValidar");
+            btn.disabled = true;
+            btn.textContent = "Guardando...";
+
+            const nivelId = NIVEL_ID_BASE + currentLevel;
+
+            try {
+                const data = await apiRequest("/quiz/submit", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        nivelId: nivelId,
+                        respuestas: [],
+                        estrellas: pendingStars,
+                        tiempo: 0
+                    })
+                });
+
+                const guardadas = (data.resultados && data.resultados.estrellas) || pendingStars;
+                updateStars(guardadas);
+
+                showFeedback(
+                    `✅ Progreso guardado. Estrellas de este nivel: <b>${guardadas}</b>` +
+                    (guardadas > pendingStars
+                        ? " <span style='font-weight:600;'>(conservamos tu mejor marca anterior: las estrellas nunca bajan)</span>"
+                        : ""),
+                    "success"
+                );
+                setSabi("sabi_celebrando.png", "¡Resultado guardado! Puedes pasar al siguiente nivel.");
+            } catch (err) {
+                console.error("Error guardando:", err);
+                isSaved = false;
+                btn.disabled = false;
+                btn.textContent = "Guardar resultado";
+                showFeedback("No se pudo guardar el resultado. Revisa tu conexión e inténtalo otra vez.", "error");
+                setSabi("sabi_triste.png", "No pude guardar tu resultado. Vuelve a intentarlo.");
+                return;
+            }
+
+            // Reemplazamos el bloque de botones por "Siguiente nivel"
+            Array.from(mechanicControls.querySelectorAll(".btn")).forEach(b => b.remove());
+
+            const nextBtn = document.createElement("button");
+            nextBtn.className = "btn btn-success";
+            nextBtn.innerHTML = currentLevel < 5 ? "Siguiente nivel ➜" : "Volver al menú";
+            nextBtn.onclick = () => {
+                if (currentLevel < 5) window.location.href = `funcion_lineal_juego.html?nivel=${currentLevel + 1}`;
+                else window.location.href = "funcion_lineal.html";
+            };
+            mechanicControls.appendChild(nextBtn);
+        }
+
+        function clearCanvas() {
+            ctx.fillStyle = "#f8fafc";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Grid
+            ctx.strokeStyle = "#e2e8f0"; ctx.lineWidth = 1;
+            for (let t = Math.ceil(ranges.xmin); t <= Math.floor(ranges.xmax); t++) {
+                ctx.beginPath(); ctx.moveTo(px(t), M.top); ctx.lineTo(px(t), canvas.height - M.bottom); ctx.stroke();
+            }
+            for (let t = Math.ceil(ranges.ymin); t <= Math.floor(ranges.ymax); t++) {
+                ctx.beginPath(); ctx.moveTo(M.left, py(t)); ctx.lineTo(canvas.width - M.right, py(t)); ctx.stroke();
+            }
+
+            // Labels
+            ctx.fillStyle = "#718096"; ctx.font = "600 11px 'DM Sans', sans-serif";
+            ctx.textAlign = "center";
+            for (let t = Math.ceil(ranges.xmin); t <= Math.floor(ranges.xmax); t++) ctx.fillText(t, px(t), canvas.height - M.bottom + 18);
+            ctx.textAlign = "right";
+            for (let t = Math.ceil(ranges.ymin); t <= Math.floor(ranges.ymax); t++) ctx.fillText(t, M.left - 10, py(t) + 4);
+
+            // Axes
+            ctx.strokeStyle = "#cbd5e0"; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.moveTo(M.left, M.top); ctx.lineTo(M.left, canvas.height - M.bottom); ctx.lineTo(canvas.width - M.right, canvas.height - M.bottom); ctx.stroke();
+            
+            // Axis labels
+            ctx.fillStyle = "#4a5568"; ctx.font = "bold 12px sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillText("X", canvas.width - M.right + 15, canvas.height - M.bottom - 5);
+            ctx.textAlign = "right";
+            ctx.fillText("Y", M.left - 15, M.top + 15);
+        }
+
+        function drawTargetPoints() {
+            targetPoints.forEach(p => {
+                // Punto rojo de referencia
+                const g = ctx.createRadialGradient(px(p.x), py(p.y), 1, px(p.x), py(p.y), 12);
+                g.addColorStop(0, "#fc8181"); g.addColorStop(1, "#e53e3e");
+                ctx.fillStyle = g;
+                ctx.beginPath(); ctx.arc(px(p.x), py(p.y), 10, 0, Math.PI * 2); ctx.fill();
+                ctx.strokeStyle = "#ffffff"; ctx.lineWidth = 2.5; ctx.stroke();
+                
+                // Etiqueta del punto
+                ctx.fillStyle = "#e53e3e"; ctx.font = "bold 11px sans-serif"; ctx.textAlign = "center";
+                ctx.fillText(`(${p.x}, ${p.y})`, px(p.x), py(p.y) - 16);
+            });
+        }
+
+        function drawLine(m, b, color = "#38a169", dash = [], width = 3) {
+            ctx.strokeStyle = color;
+            ctx.lineWidth = width;
+            ctx.lineCap = "round";
+            ctx.setLineDash(dash);
+            ctx.beginPath(); 
+            ctx.moveTo(px(ranges.xmin), py(m * ranges.xmin + b)); 
+            ctx.lineTo(px(ranges.xmax), py(m * ranges.xmax + b)); 
+            ctx.stroke();
+            ctx.setLineDash([]);
+        }
+
+        function updateEquation() {
+            const m = parseFloat(mSlider.value);
+            const b = parseFloat(bSlider.value);
+            mValue.textContent = m.toFixed(1);
+            bValue.textContent = b.toFixed(1);
+            equationDisplay.textContent = `y = ${m >= 0 ? '' : ''}${m.toFixed(1)}x ${b >= 0 ? '+' : ''}${b.toFixed(1)}`;
+        }
+
+        function checkAccuracy() {
+            let maxError = 0;
+            targetPoints.forEach(p => {
+                const expectedY = parseFloat(mSlider.value) * p.x + parseFloat(bSlider.value);
+                const error = Math.abs(expectedY - p.y);
+                if (error > maxError) maxError = error;
+            });
+            return maxError;
+        }
+
+        function render() {
+            clearCanvas();
+            drawTargetPoints();
+            const m = parseFloat(mSlider.value);
+            const b = parseFloat(bSlider.value);
+            drawLine(m, b, "#667eea", [], 4);
+            updateEquation();
+        }
+
+        // ============================================
+        // CONFIGURACIÓN DE NIVELES
+        // ============================================
+        
+        function setupLevel1() {
+            hintLine.innerHTML = 'Mueve los sliders para que la recta pase por <span style="color:#e53e3e;">y = 5</span> (recta horizontal)';
+            targetPoints = [{x: -3, y: 5}, {x: 0, y: 5}, {x: 3, y: 5}];
+            ranges = { xmin: -5, xmax: 5, ymin: 0, ymax: 10 };
+            mSlider.value = 0; bSlider.value = 0;
+        }
+
+        function setupLevel2() {
+            hintLine.innerHTML = 'Ajusta la recta para que pase por <span style="color:#e53e3e;">(0,0)</span> y <span style="color:#e53e3e;">(3,6)</span>';
+            targetPoints = [{x: 0, y: 0}, {x: 3, y: 6}];
+            ranges = { xmin: -2, xmax: 5, ymin: -2, ymax: 8 };
+            mSlider.value = 0; bSlider.value = 0;
+        }
+
+        function setupLevel3() {
+            hintLine.innerHTML = 'Ajusta la recta para que pase por <span style="color:#e53e3e;">(0,10)</span> y <span style="color:#e53e3e;">(5,0)</span>';
+            targetPoints = [{x: 0, y: 10}, {x: 5, y: 0}];
+            ranges = { xmin: -1, xmax: 6, ymin: -1, ymax: 11 };
+            mSlider.value = 0; bSlider.value = 0;
+        }
+
+        function setupLevel4() {
+            hintLine.innerHTML = 'Encuentra m y b para que la recta pase por <span style="color:#e53e3e;">(-2,1)</span> y <span style="color:#e53e3e;">(2,5)</span>';
+            targetPoints = [{x: -2, y: 1}, {x: 2, y: 5}];
+            ranges = { xmin: -4, xmax: 4, ymin: -2, ymax: 7 };
+            mSlider.value = 0; bSlider.value = 0;
+        }
+
+        function setupLevel5() {
+            hintLine.innerHTML = 'Desafío: Ajusta la recta para que R² > 0.95 con los puntos de datos';
+            // Puntos con ruido alrededor de una recta conocida.
+            // La amplitud del ruido (0.5) está calibrada para que la recta
+            // correcta (m = 1.2, b = 2.5) alcance R² ≈ 0.975, de modo que las
+            // 3 estrellas sean realmente alcanzables con los sliders.
+            const trueM = 1.2, trueB = 2.5;
+            const seed = 505;
+            let rngState = seed;
+            function rng() {
+                rngState = (rngState * 1664525 + 1013904223) % 4294967296;
+                return rngState / 4294967296;
+            }
+            targetPoints = [];
+            for (let i = 0; i < 8; i++) {
+                const x = -2 + 4 * rng();
+                const y = trueM * x + trueB + (rng() * 2 - 1) * 0.5;
+                targetPoints.push({x, y});
+            }
+            ranges = { xmin: -3, xmax: 3, ymin: -1, ymax: 8 };
+            mSlider.value = 0; bSlider.value = 0;
+        }
+
+        function validateLevel() {
+            const error = checkAccuracy();
+            let stars = 0;
+            let message = "";
+            
+            if (currentLevel === 5) {
+                // Para nivel 5, calcular R²
+                const m = parseFloat(mSlider.value);
+                const b = parseFloat(bSlider.value);
+                let ssRes = 0, ssTot = 0;
+                const meanY = targetPoints.reduce((sum, p) => sum + p.y, 0) / targetPoints.length;
+                targetPoints.forEach(p => {
+                    const pred = m * p.x + b;
+                    ssRes += Math.pow(p.y - pred, 2);
+                    ssTot += Math.pow(p.y - meanY, 2);
+                });
+                const r2 = 1 - ssRes / ssTot;
+                
+                if (r2 >= 0.95) { stars = 3; message = `¡Excelente! R² = ${r2.toFixed(3)}`; }
+                else if (r2 >= 0.85) { stars = 2; message = `¡Bien! R² = ${r2.toFixed(3)}`; }
+                else if (r2 >= 0.7) { stars = 1; message = `Sigue intentando. R² = ${r2.toFixed(3)}`; }
+                else { stars = 0; message = `R² = ${r2.toFixed(3)}. Necesitas R² > 0.95 para 3 estrellas.`; }
+            } else {
+                // Niveles 1-4: precisión en puntos objetivo
+                if (error <= 0.2) { stars = 3; message = "¡Perfecto! La recta pasa exactamente por los puntos."; }
+                else if (error <= 0.5) { stars = 2; message = `¡Muy bien! Error máximo: ${error.toFixed(2)}`; }
+                else if (error <= 1.5) { stars = 1; message = `Casi. Error máximo: ${error.toFixed(2)}`; }
+                else { stars = 0; message = `Error máximo: ${error.toFixed(2)}. Sigue ajustando.`; }
+            }
+            
+            // Mostrar línea correcta en verde si acertó bien
+            if (stars >= 2 && currentLevel < 5) {
+                // Calcular la recta ideal
+                if (currentLevel === 1) { drawLine(0, 5, "#48bb78", [5, 5], 2); }
+                else if (currentLevel === 2) { drawLine(2, 0, "#48bb78", [5, 5], 2); }
+                else if (currentLevel === 3) { drawLine(-2, 10, "#48bb78", [5, 5], 2); }
+                else if (currentLevel === 4) { drawLine(1, 3, "#48bb78", [5, 5], 2); }
+            }
+            
+            showFeedback(message, stars > 0 ? "success" : "error");
+
+            if (stars > 0) {
+                // ✅ Se ganó al menos 1 estrella → habilitar "Guardar resultado"
+                markReady(stars);
+            } else {
+                // ❌ 0 estrellas: NO se completa ni se desbloquea el siguiente nivel
+                setSabi("sabi_anima.png", "¡Casi! Ajusta un poco más los sliders y vuelve a validar.");
+            }
+        }
+
+        // Event listeners para sliders
+        mSlider.addEventListener("input", render);
+        bSlider.addEventListener("input", render);
+        document.getElementById("btnValidar").addEventListener("click", () => {
+            // El mismo botón valida y luego guarda
+            if (pendingStars > 0) saveResult();
+            else validateLevel();
+        });
+
+        // ============================================
+        // CARGAR PROGRESO YA OBTENIDO EN ESTE NIVEL
+        // ============================================
+        async function loadExistingStars() {
+            try {
+                const data = await apiRequest("/progress");
+                if (!data.success || !data.progreso) return;
+                const nivelId = NIVEL_ID_BASE + currentLevel;
+                for (const niveles of Object.values(data.progreso)) {
+                    const found = niveles.find(n => Number(n.nivel_id) === nivelId);
+                    if (found) {
+                        updateStars(found.estrellas || 0);
+                        if (found.estrellas > 0) {
+                            showFeedback(`Ya tenías <b>${found.estrellas} estrella(s)</b> en este nivel. Al repetirlo nunca bajan, solo pueden mejorar.`, "info");
+                        }
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn("No se pudo cargar el progreso previo:", e);
+            }
+        }
+
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+        levelNumSpan.textContent = currentLevel;
+
+        if (canvas.getContext) {
+            switch(currentLevel) {
+                case 1: setupLevel1(); break;
+                case 2: setupLevel2(); break;
+                case 3: setupLevel3(); break;
+                case 4: setupLevel4(); break;
+                case 5: setupLevel5(); break;
+                default: setupLevel1(); break;
+            }
+            render();
+            loadExistingStars();
+        } else {
+            hintLine.textContent = "Tu navegador no soporta Canvas. Actualízalo por favor.";
+        }
+    </script>
+</body>
+</html>

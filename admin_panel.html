@@ -391,7 +391,7 @@
                 document.getElementById('statTotal').textContent = todas.length;
 
                 if (sugerencias.length === 0) {
-                    list.innerHTML = `<div class="no-suggestions">📭 No hay sugerencias ${filter === 'pendiente' ? 'pendientes' : filter === 'aprobada' ? 'aprobadas' : 'rechazadas'}</div>`;
+                    list.innerHTML = `<div class="no-suggestions">😴 No hay sugerencias ${filter === 'pendiente' ? 'pendientes' : filter === 'aprobada' ? 'aprobadas' : 'rechazadas'}</div>`;
                     return;
                 }
 
@@ -456,7 +456,7 @@
                                 ${sug.estado === 'pendiente' ? '⏳ Pendiente' : sug.estado === 'aprobada' ? '✅ Aprobada' : '❌ Rechazada'}
                             </span>
                         </div>
-                        <div class="question-text">❓ ${sug.texto_es || 'Pregunta'}</div>
+                        <div class="question-text">🤔 ${sug.texto_es || 'Pregunta'}</div>
                         <div class="options-list">${optionsHTML}</div>
                         ${sug.estado === 'pendiente' ? `
                             <div class="actions">
@@ -466,8 +466,8 @@
                             </div>
                         ` : `
                             <div style="margin-top:10px;font-size:14px;color:#718096;">
-                                ${sug.comentario_moderador ? `📝 Comentario: ${sug.comentario_moderador}` : ''}
-                                ${sug.fecha_revision ? `📅 Revisado: ${new Date(sug.fecha_revision).toLocaleDateString()}` : ''}
+                                ${sug.comentario_moderador ? '💬 Comentario: ${sug.comentario_moderador}' : ''}
+                                ${sug.fecha_revision ? '📅 Revisado: ${new Date(sug.fecha_revision).toLocaleDateString()}' : ''}
                             </div>
                         `}
                     `;
@@ -488,17 +488,18 @@
                         const nivelId = select ? select.value : null;
 
                         if (!nivelId) {
-                            showToast('⚠️ Por favor, selecciona un nivel para la pregunta', 'error');
+                            showToast('🤔 Por favor, selecciona un nivel para la pregunta', 'error');
                             return;
                         }
 
                         // Deshabilitar el botón para evitar doble clic
                         target.disabled = true;
-                        target.textContent = '⏳ Procesando...';
+                        target.innerHTML = '⏳ Procesando...';
                         
                         approveSuggestion(sugerenciaId, nivelId).finally(() => {
                             target.disabled = false;
-                            target.textContent = '✅ Aprobar';
+                            target.disabled = false;
+                            target.innerHTML = '✅ Aprobar';
                         });
                     }
                     
@@ -507,11 +508,11 @@
                         const sugerenciaId = target.dataset.sugerencia;
                         
                         target.disabled = true;
-                        target.textContent = '⏳ Procesando...';
+                        target.innerHTML = '⏳ Procesando...';
                         
                         rejectSuggestion(sugerenciaId).finally(() => {
                             target.disabled = false;
-                            target.textContent = '❌ Rechazar';
+                            target.innerHTML = '❌ Rechazar';
                         });
                     }
                 });

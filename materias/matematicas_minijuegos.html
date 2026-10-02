@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -65,7 +65,7 @@
 <body>
     <div class="container">
         <a href="matematicas.html" class="back-btn">← Volver a Matemáticas</a>
-        <h3>🎮 Minijuegos de Matemáticas</h3>
+        <h3><img src="../img/control.png" class="icon-btn"> Minijuegos de Matemáticas</h3>
         <p style="text-align:center; color:#718096;">Completa ciertos niveles de Quizzes para desbloquear cada minijuego.</p>
 
         <div class="game-grid" id="gameGrid">
@@ -109,10 +109,12 @@
         // nivelRequerido = número de nivel de QUIZ de Matemáticas necesario
         // ============================================
         const minijuegos = [
-            { id: 'puzzle',   nombre: '🧩 Puzzle Geométrico',          icon: '🧩', nivelRequerido: 5,  url: 'puzzle.html' },
-            { id: 'balanzas', nombre: '⚖️ Balanzas de Ecuaciones',     icon: '⚖️', nivelRequerido: 15, url: 'balanzas.html' },
-            { id: 'tiro',     nombre: '🚀 Tiro Parabólico',            icon: '🚀', nivelRequerido: 25, url: 'tiro.html' },
-            { id: 'regresion',nombre: '📈 Regresión y Predicción',     icon: '📈', nivelRequerido: 30, url: 'regresion.html' }
+            { id: 'puzzle',         nombre: '<img src="../img/puzzle.png" class="icon-btn"> Puzzle Geométrico',          icon: '<img src="../img/puzzle.png" class="icon-btn">', nivelRequerido: 5,  url: 'puzzle.html' },
+            { id: 'balanzas',       nombre: '<img src="../img/escala.png" class="icon-btn"> Balanzas de Ecuaciones',     icon: '<img src="../img/escala.png" class="icon-btn">', nivelRequerido: 15, url: 'balanzas.html' },
+            { id: 'tiro',           nombre: '<img src="../img/cohete.png" class="icon-btn"> Tiro Parabólico',            icon: '<img src="../img/cohete.png" class="icon-btn">', nivelRequerido: 25, url: 'tiro.html' },
+            { id: 'regresion',      nombre: '<img src="../img/grafica.png" class="icon-btn"> Regresión y Predicción',     icon: '<img src="../img/grafica.png" class="icon-btn">', nivelRequerido: 30, url: 'regresion.html' },
+            { id: 'funcion_lineal', nombre: '<img src="../img/grafica.png" class="icon-btn"> Función Lineal Interactiva',  icon: '<img src="../img/grafica.png" class="icon-btn">', nivelRequerido: 10, url: 'funcion_lineal.html' },
+            { id: 'trigonometria',  nombre: '<img src="../img/control2.png" class="icon-btn"> Círculo Trigonométrico',    icon: '<img src="../img/control2.png" class="icon-btn">', nivelRequerido: 20, url: 'trigonometria.html' }
         ];
 
         // ============================================
@@ -150,14 +152,14 @@
                         card.innerHTML = `
                             <span class="icon">${juego.icon}</span>
                             <h4>${juego.nombre}</h4>
-                            <span class="badge" style="background:#fc8181;color:white;">🔒 Bloqueado</span>
+                            <span class="badge" style="background:#fc8181;color:white;"><img src="../img/lock.png" class="icon-lock"> Bloqueado</span>
                             <div class="unlock-info">Completa el Nivel ${juego.nivelRequerido} de Quizzes</div>
                         `;
                     } else {
                         card.innerHTML = `
                             <span class="icon">${juego.icon}</span>
                             <h4>${juego.nombre}</h4>
-                            <span class="badge" style="background:#48bb78;color:white;">✅ Desbloqueado</span>
+                            <span class="badge" style="background:#48bb78;color:white;"><img src="../img/correct.png" class="icon-btn"> Desbloqueado</span>
                         `;
                         card.onclick = () => { window.location.href = juego.url; };
                     }

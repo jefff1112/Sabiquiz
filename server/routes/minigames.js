@@ -48,6 +48,7 @@ router.post('/submit', authMiddleware, async (req, res) => {
     }
 
     try {
+        // 🔥 Mantener las estrellas máximas (no bajar estrellas al repetir)
         await pool.query(
             `INSERT INTO progreso_minijuego (usuario_id, minijuego, nivel, estrellas, completado, fecha_completado)
              VALUES (?, ?, ?, ?, ?, NOW())

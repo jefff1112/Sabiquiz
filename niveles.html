@@ -112,7 +112,7 @@
                 // Obtener datos de la materia
                 const materiasData = await apiRequest('/quiz/materias');
                 const materia = materiasData.materias.find(m => m.id == materiaId);
-                document.getElementById('materiaTitulo').textContent = `📚 ${materia ? materia.nombre : 'Materia'} - Niveles`;
+                document.getElementById('materiaTitulo').textContent = `<img src="img/lenguaje.png" class="icon-btn"> ${materia ? materia.nombre : 'Materia'} - Niveles`;
 
                 // Obtener niveles
                 const nivelesData = await apiRequest(`/quiz/materia/${materiaId}/niveles`);
@@ -141,7 +141,7 @@
                     if (progresoNivel) {
                         if (progresoNivel.completado) {
                             estado = 'completado';
-                            estrellasHTML = '⭐'.repeat(progresoNivel.estrellas || 0);
+                            estrellasHTML = '<img src="../img/star_filled.png" class="icon-star">'.repeat(progresoNivel.estrellas || 0);
                         }
                     } else {
                         // Si no hay progreso, está disponible
@@ -152,9 +152,9 @@
                     card.innerHTML = `
                         <div style="font-size: 24px; font-weight: bold;">${nivel.numero}</div>
                         <div style="font-size: 14px; color: #4a5568;">${nivel.titulo || `Nivel ${nivel.numero}`}</div>
-                        <div class="estrellas">${estrellasHTML || '🔓'}</div>
-                        ${estado === 'completado' ? '<span style="color: #48bb78;">✅ Completado</span>' : ''}
-                        ${estado === 'bloqueado' ? '<span style="color: #fc8181;">🔒 Bloqueado</span>' : ''}
+                        <div class="estrellas">${estrellasHTML || '<img src="../img/lock.png" class="icon-lock">'}</div>
+                        `${estado === 'completado' ? '<span style="color: #48bb78;"><img src="../img/correct.png" class="icon-btn"> Completado</span>' : ''}
+                        ${estado === 'bloqueado' ? '<span style="color: #fc8181;"><img src="../img/lock.png" class="icon-lock"> Bloqueado</span>' : ''}
                     `;
 
                     // Solo permitir clic si está disponible o completado (para rejugar)
@@ -171,7 +171,7 @@
                 console.error('Error cargando niveles:', error);
                 document.getElementById('nivelesContainer').innerHTML = `
                     <div style="grid-column: 1/-1; text-align: center; color: #c53030;">
-                        ❌ Error al cargar niveles: ${error.message}
+                        <img src="img/incorrect.png" class="icon-btn"> Error al cargar niveles: ${error.message}
                     </div>
                 `;
             }

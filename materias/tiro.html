@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -26,10 +26,10 @@
 <body>
     <div class="container">
         <a href="matematicas_minijuegos.html" class="back-btn">← Volver a Minijuegos</a>
-        <h3>🚀 Tiro Parabólico</h3>
+        <h3><img src="../img/cohete.png" class="icon-btn"> Tiro Parabólico</h3>
         <div id="errorMessage" class="error-message"></div>
         <div id="level-grid" class="level-grid">
-            <div class="loading-text">⏳ Cargando niveles...</div>
+            <div class="loading-text"><img src="../img/estrellas.png" class="icon-btn"> Cargando niveles...</div>
         </div>
     </div>
 
@@ -70,7 +70,7 @@
 
                 if (bloqueado) {
                     btn.classList.add('locked');
-                    btn.innerHTML = `<span>${nivel.titulo}</span><img src="../img/lock.png" alt="Bloqueado" class="lock-icon"><div class="unlock-hint">🔒 Completa el nivel anterior</div>`;
+                    btn.innerHTML = `<span>${nivel.titulo}</span><img src="../img/lock.png" alt="Bloqueado" class="lock-icon"><div class="unlock-hint"><img src="../img/lock.png" class="icon-lock"> Completa el nivel anterior</div>`;
                 } else {
                     btn.href = `tiro_juego.html?nivel=${n}`;
                     const stars = (minijuegoProgreso[n] && minijuegoProgreso[n].estrellas) || 0;
@@ -88,12 +88,12 @@
                 if (!checkAuth()) return;
                 hideError();
                 const grid = document.getElementById('level-grid');
-                grid.innerHTML = '<div class="loading-text">⏳ Cargando niveles...</div>';
+                grid.innerHTML = '<div class="loading-text"><img src="../img/estrellas.png" class="icon-btn"> Cargando niveles...</div>';
                 let minijuegoProgreso = {};
                 const data = await apiRequest('/minigames/progreso');
                 if (data.success && data.progreso && data.progreso[MINIJUEGO]) minijuegoProgreso = data.progreso[MINIJUEGO];
                 drawLevels(minijuegoProgreso);
-            } catch (error) { console.error(error); showError('❌ Error al cargar los niveles: ' + error.message); }
+            } catch (error) { console.error(error); showError('<img src="../img/incorrect.png" class="icon-btn"> Error al cargar los niveles: ' + error.message); }
         }
 
         document.addEventListener('DOMContentLoaded', cargarNiveles);

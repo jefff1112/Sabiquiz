@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sabiquiz - Login</title>
     <link rel="stylesheet" href="css/styles.css">
+    <!-- Librerías para animaciones y efectos -->
+    <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js"></script>
     <style>
         /* ============================================
            ESTILOS COMPLETOS DEL LOGIN
@@ -229,8 +233,12 @@
 </head>
 <body>
     <div class="login-container">
-        <h1>📚 <span>Sabiquiz</span></h1>
+        <div class="login-mascot">
+            <img src="img/sabi/sabi_saludando.png" alt="Sabi" class="sabi-mascot-login sabi-mascot-bounce sabi-fade-in" id="loginMascot">
+        </div>
+        <h1><span>Sabiquiz</span></h1>
         <p class="subtitle">Aprende jugando</p>
+        <p class="mascot-welcome" id="mascotWelcome" style="color: #667eea; font-weight: 600; margin-bottom: 20px; font-size: 15px; opacity: 0; transform: translateY(10px);">¡Hola! Soy Sabi, tu guía 👋</p>
 
         <div id="messageBox" class="message"></div>
 
@@ -350,13 +358,13 @@
         togglePassword.addEventListener('click', () => {
             const type = loginPassword.type === 'password' ? 'text' : 'password';
             loginPassword.type = type;
-            togglePassword.textContent = type === 'password' ? '👁️' : '🙈';
+            togglePassword.innerHTML = type === 'password' ? '👁️' : '🙈';
         });
 
         toggleRegisterPassword.addEventListener('click', () => {
             const type = registerPassword.type === 'password' ? 'text' : 'password';
             registerPassword.type = type;
-            toggleRegisterPassword.textContent = type === 'password' ? '👁️' : '🙈';
+            toggleRegisterPassword.innerHTML = type === 'password' ? '👁️' : '🙈';
         });
 
         // ============================================
@@ -369,12 +377,12 @@ loginEmail.addEventListener('blur', () => {
     if (email && !isValidFormat) {
         loginEmail.classList.add('error');
         loginEmail.classList.remove('success');
-        emailValidation.textContent = '❌ Formato de correo inválido';
+        emailValidation.innerHTML = '❌ Formato de correo inválido';
         emailValidation.className = 'field-validation visible error';
     } else if (email && isValidFormat) {
         loginEmail.classList.remove('error');
         loginEmail.classList.add('success');
-        emailValidation.textContent = '✅ Formato de correo válido';
+        emailValidation.innerHTML = '✅ Formato de correo válido';
         emailValidation.className = 'field-validation visible success';
     } else {
         loginEmail.classList.remove('error', 'success');
@@ -390,12 +398,12 @@ loginEmail.addEventListener('blur', () => {
             if (pwd && pwd.length < 6) {
                 loginPassword.classList.add('error');
                 loginPassword.classList.remove('success');
-                passwordValidation.textContent = '❌ Mínimo 6 caracteres';
+                passwordValidation.innerHTML = '❌ Mínimo 6 caracteres';
                 passwordValidation.className = 'field-validation visible error';
             } else if (pwd && pwd.length >= 6) {
                 loginPassword.classList.remove('error');
                 loginPassword.classList.add('success');
-                passwordValidation.textContent = '✅ Longitud correcta';
+                passwordValidation.innerHTML = '✅ Longitud correcta';
                 passwordValidation.className = 'field-validation visible success';
             } else {
                 loginPassword.classList.remove('error', 'success');
@@ -433,7 +441,7 @@ loginEmail.addEventListener('blur', () => {
         // FUNCIONES DE UI
         // ============================================
         function showMessage(message, type = 'info') {
-            messageBox.textContent = message;
+            messageBox.innerHTML = message;
             messageBox.className = `message ${type}`;
             messageBox.style.display = 'block';
         }
@@ -445,12 +453,12 @@ loginEmail.addEventListener('blur', () => {
 
         function setLoading(loading) {
             loginBtn.disabled = loading;
-            loginBtn.textContent = loading ? '⏳ Verificando...' : 'Iniciar Sesión';
+            loginBtn.innerHTML = loading ? '⏳ Verificando...' : 'Iniciar Sesión';
         }
 
         function setRegisterLoading(loading) {
             registerBtn.disabled = loading;
-            registerBtn.textContent = loading ? '⏳ Creando...' : 'Crear Cuenta';
+            registerBtn.innerHTML = loading ? '⏳ Creando...' : 'Crear Cuenta';
         }
 
         function updateIntentosInfo(intentos, maxIntentos = 5) {
@@ -468,7 +476,7 @@ loginEmail.addEventListener('blur', () => {
                 intentosInfo.textContent = `⚠️ Te quedan ${restantes} intentos antes de ser bloqueado.`;
                 intentosInfo.className = 'intentos-info warning';
             } else {
-                intentosInfo.textContent = `🛡️ ${restantes} intentos restantes`;
+                intentosInfo.textContent = `⭐ ${restantes} intentos restantes`;
                 intentosInfo.className = 'intentos-info';
             }
         }
@@ -526,7 +534,7 @@ loginEmail.addEventListener('blur', () => {
                     localStorage.setItem('token', data.token);
                     localStorage.setItem('user', JSON.stringify(data.user));
 
-                    let mensaje = '✅ ¡Inicio de sesión exitoso!';
+                    let mensaje = '<img src="img/sabi/sabi_festejando.png" class="sabi-mascot-small"> ¡Inicio de sesión exitoso!';
                     if (data.user.ultimoLogin) {
                         const fecha = new Date(data.user.ultimoLogin);
                         mensaje += ` Último acceso: ${fecha.toLocaleDateString()} ${fecha.toLocaleTimeString()}`;
@@ -551,7 +559,7 @@ loginEmail.addEventListener('blur', () => {
                             // Ya está incluido en el mensaje de error
                         }
                     } else {
-                        showMessage(data.error || '❌ Credenciales inválidas', 'error');
+                        showMessage('❌ ' + (data.error || 'Credenciales inválidas'), 'error');
                     }
                     setLoading(false);
                 }
@@ -572,7 +580,7 @@ loginEmail.addEventListener('blur', () => {
             const confirmPassword = registerConfirmPassword.value.trim();
 
             if (!username || username.length < 3) {
-                showMessage('👤 El nombre debe tener al menos 3 caracteres', 'error');
+                showMessage('🤔 El nombre debe tener al menos 3 caracteres', 'error');
                 registerUsername.focus();
                 return;
             }
@@ -590,7 +598,7 @@ loginEmail.addEventListener('blur', () => {
             }
 
             if (password !== confirmPassword) {
-                showMessage('🔒 Las contraseñas no coinciden', 'error');
+                showMessage('❌ Las contraseñas no coinciden', 'error');
                 registerConfirmPassword.focus();
                 return;
             }
@@ -619,7 +627,7 @@ loginEmail.addEventListener('blur', () => {
                         showLogin();
                     }, 2000);
                 } else {
-                    showMessage(data.error || '❌ Error al registrar usuario', 'error');
+                    showMessage('❌ ' + (data.error || 'Error al registrar usuario'), 'error');
                     setRegisterLoading(false);
                 }
             } catch (error) {
@@ -661,6 +669,62 @@ loginEmail.addEventListener('blur', () => {
         window.handleRegister = handleRegister;
         window.showLogin = showLogin;
         window.showRegister = showRegister;
+
+        // ============================================
+        // ANIMACIONES CON ANIME.JS
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Animación de entrada de la mascota
+            anime({
+                targets: '#loginMascot',
+                scale: [0.5, 1],
+                opacity: [0, 1],
+                duration: 800,
+                easing: 'easeOutElastic(1, .8)',
+                delay: 200
+            });
+
+            // Animación del texto de bienvenida
+            anime({
+                targets: '#mascotWelcome',
+                translateY: [20, 0],
+                opacity: [0, 1],
+                duration: 600,
+                easing: 'easeOutQuad',
+                delay: 600
+            });
+
+            // Animación escalonada de los campos del formulario
+            anime({
+                targets: '.form-group',
+                translateX: [-30, 0],
+                opacity: [0, 1],
+                duration: 500,
+                easing: 'easeOutQuad',
+                delay: anime.stagger(100, {start: 800})
+            });
+
+            // Animación de los botones
+            anime({
+                targets: '.btn',
+                scale: [0.9, 1],
+                opacity: [0, 1],
+                duration: 500,
+                easing: 'easeOutElastic(1, .8)',
+                delay: anime.stagger(100, {start: 1200})
+            });
+
+            // Animación idle de rebote suave para la mascota
+            anime({
+                targets: '#loginMascot',
+                translateY: [0, -8, 0],
+                duration: 3000,
+                easing: 'easeInOutSine',
+                direction: 'alternate',
+                loop: true,
+                delay: 2000
+            });
+        });
     </script>
 </body>
 </html>
