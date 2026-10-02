@@ -351,7 +351,7 @@ router.post('/logros/check', authMiddleware, async (req, res) => {
         // Enviar notificación en tiempo real por cada logro nuevo
         for (const logro of nuevosLogros) {
             try {
-                const { sendNotification } = require('../server');
+                const { sendNotification } = require('../utils/notifications');
                 if (sendNotification) {
                     sendNotification(req.usuarioId, 'new_logro', {
                         logro: logro,

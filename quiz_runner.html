@@ -421,10 +421,7 @@
                 timerDisplay.textContent = timeLeft;
                 if (timeLeft <= 0) {
                     clearInterval(timer);
-                    const lang = localStorage.getItem('language') || 'es';
-                    const questionData = questions[currentQuestionIndex];
-                    const respuestaCorrecta = questionData.correctAnswer[lang] || questionData.correctAnswer.es || '';
-                    checkAnswer(null, respuestaCorrecta, questionData);
+                    checkAnswer(null, questions[currentQuestionIndex]);
                 }
             }, 1000);
         }
@@ -432,48 +429,60 @@
         // ============================================
         // VERIFICAR RESPUESTA
         // ============================================
-        function checkAnswer(button, correctAnswer, questionData) {
-            const lang = localStorage.getItem('language') || 'es';
-            const respuestaCorrecta = questionData.correctAnswer[lang] || questionData.correctAnswer.es || correctAnswer;
-
+        // El navegador NUNCA conoce la respuesta correcta de antemano: se
+        // pregunta al servidor con POST /api/quiz/check y este responde si la
+        // opción elegida es la correcta y cuál era la buena.
+        async function checkAnswer(button, questionData) {
             optionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
             clearInterval(timer);
 
-            const userAnswer = button ? button.textContent : null;
-            const isCorrect = userAnswer === respuestaCorrecta;
+            const opcionId = button ? Number(button.dataset.opcionId) : null;
+
+            let resultado = { correcta: false, respuestaCorrectaId: null, respuestaCorrectaTexto: null };
+            try {
+                resultado = await apiRequest('/quiz/check', {
+                    method: 'POST',
+                    body: JSON.stringify({ preguntaId: questionData.id, opcionId: opcionId || 0 })
+                });
+            } catch (e) {
+                console.error('No se pudo comprobar la respuesta:', e);
+            }
+
+            const isCorrect = !!resultado.correcta;
 
             userAnswers.push({
                 preguntaId: questionData.id,
-                opcionSeleccionada: userAnswer,
+                opcionId: opcionId,          // null si se agotó el tiempo
                 esCorrecta: isCorrect
             });
 
+            // Marcar en verde la opción correcta y en rojo la elegida si falló
+            optionsContainer.querySelectorAll('.option-btn').forEach(btn => {
+                if (Number(btn.dataset.opcionId) === Number(resultado.respuestaCorrectaId)) {
+                    btn.classList.add('correct');
+                }
+            });
+
+            const textoCorrecta = resultado.respuestaCorrectaTexto || '';
+
             if (!button) {
-                feedbackDiv.innerHTML = '⏱️ ¡Se acabó el tiempo! La respuesta correcta era: <b>${respuestaCorrecta}</b>';
+                feedbackDiv.textContent = `⏱️ ¡Se acabó el tiempo! La respuesta correcta era: ${textoCorrecta}`;
                 feedbackDiv.style.color = '#c53030';
                 incorrectSound.play();
                 quizMascot.src = mascotImages.incorrect;
             } else if (isCorrect) {
                 score++;
                 button.classList.add('correct');
-                feedbackDiv.innerHTML = '✅ ¡Correcto!';
+                feedbackDiv.textContent = '✅ ¡Correcto!';
                 feedbackDiv.style.color = '#276749';
                 correctSound.play();
                 quizMascot.src = mascotImages.correct;
             } else {
                 button.classList.add('incorrect');
-                feedbackDiv.innerHTML = `❌ Incorrecto. La respuesta correcta era: <b>${respuestaCorrecta}</b>`;
+                feedbackDiv.textContent = `❌ Incorrecto. La respuesta correcta era: ${textoCorrecta}`;
                 feedbackDiv.style.color = '#c53030';
                 incorrectSound.play();
                 quizMascot.src = mascotImages.incorrect;
-            }
-
-            if (!button || button.textContent !== respuestaCorrecta) {
-                optionsContainer.querySelectorAll('.option-btn').forEach(btn => {
-                    if (btn.textContent === respuestaCorrecta) {
-                        btn.classList.add('correct');
-                    }
-                });
             }
 
             nextQuestionBtn.style.display = 'block';
@@ -489,25 +498,25 @@
                 return;
             }
 
-            const lang = localStorage.getItem('language') || 'es';
             const questionData = questions[currentQuestionIndex];
             
-            questionText.textContent = questionData.question[lang] || questionData.question.es || 'Pregunta sin texto';
+            questionText.textContent = questionData.question.es || 'Pregunta sin texto';
             
             optionsContainer.innerHTML = '';
             feedbackDiv.innerHTML = '';
             nextQuestionBtn.style.display = 'none';
             quizMascot.src = mascotImages.thinking;
 
-            const opciones = questionData.options[lang] || questionData.options.es || [];
-            const respuestaCorrecta = questionData.correctAnswer[lang] || questionData.correctAnswer.es || '';
+            const opciones = questionData.options.es || [];
+            const idsOpciones = questionData.optionIds || [];
 
-            opciones.forEach(optionText => {
+            opciones.forEach((optionText, i) => {
                 const button = document.createElement('button');
                 button.classList.add('option-btn');
                 button.textContent = optionText;
-                button.dataset.opcionId = optionText;
-                button.addEventListener('click', () => checkAnswer(button, respuestaCorrecta, questionData));
+                // Se guarda el ID real de la opción: es lo que se envía al servidor
+                button.dataset.opcionId = idsOpciones[i] != null ? idsOpciones[i] : '';
+                button.addEventListener('click', () => checkAnswer(button, questionData));
                 optionsContainer.appendChild(button);
             });
 
@@ -560,18 +569,18 @@ async function showResult() {
     }
 
     // Guardar progreso en MySQL
+    // El servidor recalcula el puntaje consultando la base de datos: solo se
+    // envían los IDs (preguntaId + opcionId), nunca un "esCorrecta".
+    let estrellasServidor = estrellas;
+    let completadoServidor = completado;
     try {
         console.log('📤 Guardando progreso...');
         console.log('  nivelId (real):', nivelId);
-        console.log('  correctas:', correctas);
-        console.log('  estrellas:', estrellas);
-        console.log('  completado:', completado);
+        console.log('  respuestas:', userAnswers.length);
 
-        const puntaje = Math.round(porcentaje * 100);
-        
         const respuestasParaEnviar = userAnswers.map(a => ({
-            opcionId: a.preguntaId,
-            esCorrecta: a.esCorrecta
+            preguntaId: a.preguntaId,
+            opcionId: a.opcionId == null ? 0 : a.opcionId
         }));
 
         const resultado = await apiRequest('/quiz/submit', {
@@ -585,26 +594,26 @@ async function showResult() {
 
         console.log('✅ Progreso guardado:', resultado);
 
-        // 🔥 Actualizar localStorage después de guardar en MySQL
-        if (resultado.success) {
-            actualizarProgresoLocal(subjectId, nivelId, estrellas);
+        if (resultado.success && resultado.resultados) {
+            // Se muestran las estrellas REALES que quedaron guardadas
+            estrellasServidor = resultado.resultados.estrellas;
+            completadoServidor = !!resultado.resultados.completado;
+            actualizarProgresoLocal(subjectId, nivelId, estrellasServidor);
         }
 
     } catch (error) {
         console.error('❌ Error guardando progreso:', error);
-        // Después de mostrar los resultados
-if (completado) {
-    setTimeout(() => {
-        window.location.href = backBtn.href;
-    }, 3000); // Redirige después de 3 segundos
-}
     }
+
+    // Se usan los valores del servidor para pintar la pantalla de resultados
+    const estrellasMostrar = estrellasServidor;
+    const completadoMostrar = completadoServidor;
 
     // ============================================
     // MOSTRAR RESULTADOS
     // ============================================
-    const resultTitle = completado ? '¡Nivel Completado!' : 'Inténtalo de nuevo';
-    const resultEmoji = completado ? '<img src="img/sabi/sabi_festejando.png" class="sabi-mascot-small sabi-mascot-bounce">' : '<img src="img/sabi/sabi_anima.png" class="sabi-mascot-small sabi-mascot-bounce">';
+    const resultTitle = completadoMostrar ? '¡Nivel Completado!' : 'Inténtalo de nuevo';
+    const resultEmoji = completadoMostrar ? '<img src="img/sabi/sabi_festejando.png" class="sabi-mascot-small sabi-mascot-bounce">' : '<img src="img/sabi/sabi_anima.png" class="sabi-mascot-small sabi-mascot-bounce">';
 
     // ============================================
     // OBTENER TEORÍA DEL NIVEL
@@ -641,10 +650,10 @@ if (completado) {
             </p>
             <div class="result-stars">
                 ${Array(3).fill(0).map((_, i) => 
-                    `<img src="img/${i < estrellas ? 'star_filled.png' : 'star_empty.png'}" class="star-icon">`
+                    `<img src="img/${i < estrellasMostrar ? 'star_filled.png' : 'star_empty.png'}" class="star-icon" alt="${i < estrellasMostrar ? 'Estrella obtenida' : 'Estrella no obtenida'}">`
                 ).join('')}
             </div>
-            ${completado ? '<p style="color:#48bb78;font-weight:bold;"><img src="img/sabi/sabi_celebrando.png" class="sabi-mascot-small"> ¡Nivel completado!</p>' : '<p style="color:#fc8181;font-weight:bold;"><img src="img/sabi/sabi_anima.png" class="sabi-mascot-small"> Necesitas al menos 60% para aprobar</p>'}
+            ${completadoMostrar ? '<p style="color:#48bb78;font-weight:bold;"><img src="img/sabi/sabi_celebrando.png" class="sabi-mascot-small" alt="Sabi celebrando"> ¡Nivel completado!</p>' : '<p style="color:#fc8181;font-weight:bold;"><img src="img/sabi/sabi_anima.png" class="sabi-mascot-small" alt="Sabi animando"> Aún no alcanzas el puntaje de aprobación de este nivel</p>'}
             ${teoriaHTML}
             <a href="${backBtn.href}" class="main-menu-btn">Volver a niveles</a>
         </div>
@@ -664,10 +673,10 @@ if (completado) {
         }, 100);
     }
 
-    quizMascot.src = completado ? mascotImages.medal : mascotImages.incorrect;
+    quizMascot.src = completadoMostrar ? mascotImages.medal : mascotImages.incorrect;
     
     // Confeti si aprobó con 3 estrellas
-    if (completado && estrellas === 3) {
+    if (completadoMostrar && estrellasMostrar === 3) {
         launchConfetti();
     }
 }
@@ -779,15 +788,15 @@ if (completado) {
                     return;
                 }
 
+                // El servidor ya NO envía cuál es la opción correcta: se pregunta
+                // por cada respuesta con POST /api/quiz/check.
                 questions = preguntasData.preguntas.map(p => ({
                     id: p.id,
                     question: { es: p.texto_es || p.texto },
                     options: {
-                        es: p.opciones.map(o => o.texto || o.texto_es)
+                        es: p.opciones.map(o => o.texto)
                     },
-                    correctAnswer: {
-                        es: p.opciones.find(o => o.es_correcta)?.texto || ''
-                    },
+                    optionIds: p.opciones.map(o => o.id),
                     timeLimit: 20
                 }));
 

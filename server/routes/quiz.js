@@ -189,67 +189,118 @@ router.post('/submit', authMiddleware, async (req, res) => {
         });
     }
 
+    // ============================================
+    // 🔥 RAMA B: NIVEL DE QUIZ — el servidor calcula el puntaje
+    // ============================================
+    // Cada respuesta debe traer preguntaId + opcionId. La corrección se hace
+    // consultando `opciones.es_correcta` en la base de datos: NUNCA se confía
+    // en ningún booleano enviado por el navegador.
+    const normalizadas = [];
+    for (const r of respuestas) {
+        const preguntaId = Number(r && r.preguntaId);
+        const opcionId = Number(r && r.opcionId);
+        if (!Number.isInteger(preguntaId) || !Number.isInteger(opcionId)) {
+            return res.status(400).json({
+                success: false,
+                error: 'Cada respuesta debe incluir preguntaId y opcionId numéricos'
+            });
+        }
+        normalizadas.push({ preguntaId, opcionId });
+    }
+
+    let connection;
     try {
-        const connection = await pool.getConnection();
+        connection = await pool.getConnection();
         await connection.beginTransaction();
 
-        // 🔥 Contar respuestas correctas (según el flag enviado por el cliente)
-        let correctas = 0;
-        for (const respuesta of respuestas) {
-            if (respuesta.esCorrecta) {
-                correctas++;
-            }
+        // Comprobar que el nivel existe y es un nivel de quiz (no de minijuego)
+        const [nivelRows] = await connection.query('SELECT id FROM niveles WHERE id = ?', [nivelId]);
+        if (!nivelRows.length) {
+            await connection.rollback();
+            return res.status(404).json({ success: false, error: 'Nivel no encontrado' });
         }
 
-        // Obtener total de preguntas del nivel (o usar las respondidas)
-        const [preguntas] = await connection.query(
-            'SELECT COUNT(*) as total FROM preguntas WHERE nivel_id = ?',
-            [nivelId]
+        // Respuestas correctas REALES, leídas de la base de datos
+        const idsPreguntas = normalizadas.map(r => r.preguntaId);
+        const [correctasDB] = await connection.query(
+            `SELECT o.pregunta_id, o.id AS opcion_id
+             FROM opciones o
+             JOIN preguntas p ON p.id = o.pregunta_id
+             WHERE o.pregunta_id IN (?) AND p.nivel_id = ? AND o.es_correcta = TRUE`,
+            [idsPreguntas, nivelId]
         );
-        const totalPreguntas = (respuestas && respuestas.length > 0)
-            ? respuestas.length
-            : (preguntas[0].total || 1);
+        const mapaCorrectas = new Map(
+            correctasDB.map(c => [Number(c.pregunta_id), Number(c.opcion_id)]));
+
+        let correctas = 0;
+        for (const r of normalizadas) {
+            if (mapaCorrectas.get(r.preguntaId) === r.opcionId) correctas++;
+        }
+
+        const totalPreguntas = normalizadas.length;
 
         const porcentaje = totalPreguntas > 0 ? correctas / totalPreguntas : 0;
-        
+
         let estrellas = 0;
         if (porcentaje >= 1) estrellas = 3;
         else if (porcentaje >= 0.7) estrellas = 2;
         else if (porcentaje >= 0.5) estrellas = 1;
-        
-        const completado = porcentaje >= 0.6;
+
         const puntaje = Math.round(porcentaje * 100);
 
+        // Umbral de aprobación del propio nivel (antes estaba fijo en 0,6 e
+        // ignoraba niveles.passing_score, que va de 0,60 a 1,00)
+        const [[cfgNivel]] = await connection.query(
+            'SELECT passing_score FROM niveles WHERE id = ?', [nivelId]);
+        const umbral = cfgNivel ? Number(cfgNivel.passing_score) : 0.6;
+        const completado = porcentaje >= umbral;
+
         // 🔥 GUARDAR PROGRESO (mantiene estrellas máximas, no baja al repetir)
-        // Primero obtener progreso existente para calcular el máximo
-        let [existing] = await connection.query(
-            'SELECT estrellas, puntaje FROM progreso_usuario WHERE usuario_id = ? AND nivel_id = ?',
+        // Se seleccionan las 3 columnas: antes faltaba `completado`, y al
+        // repetir un nivel ya completado con <60 % quedaba desmarcado.
+        const [existing] = await connection.query(
+            'SELECT estrellas, puntaje, completado FROM progreso_usuario WHERE usuario_id = ? AND nivel_id = ?',
             [usuarioId, nivelId]
         );
-        
+
         const existingEstrellas = existing.length > 0 ? existing[0].estrellas : 0;
         const existingPuntaje = existing.length > 0 ? existing[0].puntaje : 0;
-        
+        const existingCompletado = existing.length > 0 && existing[0].completado;
+
         const estrellasFinal = Math.max(estrellas, existingEstrellas);
-        const puntajeFinal = Math.max(puntaje, existingPuntaje);
-        const completadoFinal = completado || (existing.length > 0 && existing[0].completado);
+        const puntajeFinal = Math.max(puntaje, Number(existingPuntaje) || 0);
+        const completadoFinal = completado || existingCompletado ? 1 : 0;
 
         await connection.query(
-            `INSERT INTO progreso_usuario 
+            `INSERT INTO progreso_usuario
              (usuario_id, nivel_id, puntaje, estrellas, completado, fecha_completado)
              VALUES (?, ?, ?, ?, ?, NOW())
              ON DUPLICATE KEY UPDATE
-             puntaje = VALUES(puntaje),
-             estrellas = VALUES(estrellas),
-             completado = VALUES(completado),
+             estrellas = GREATEST(estrellas, VALUES(estrellas)),
+             puntaje = GREATEST(COALESCE(puntaje, 0), VALUES(puntaje)),
+             completado = (completado OR VALUES(completado)),
              fecha_completado = IF(VALUES(completado) = 1, NOW(), fecha_completado)`,
             [usuarioId, nivelId, puntajeFinal, estrellasFinal, completadoFinal]
         );
 
         await connection.commit();
-        connection.release();
 
-        console.log(`✅ Progreso guardado: usuario=${usuarioId}, nivel=${nivelId}, estrellas=${estrellasFinal}`);
+        console.log(`✅ Progreso guardado: usuario=${usuarioId}, nivel=${nivelId}, ${correctas}/${totalPreguntas}, estrellas=${estrellasFinal}`);
+
+        // Actualizar actividad diaria
+        try {
+            const hoy = new Date().toISOString().split('T')[0];
+            const rachaDia = correctas === totalPreguntas && totalPreguntas > 0 ? totalPreguntas : 0;
+            await pool.query(`
+                INSERT INTO actividad_diaria (usuario_id, fecha, niveles_completados, preguntas_correctas, preguntas_totales, racha_maxima_dia)
+                VALUES (?, ?, ?, ?, ?, ?)
+                ON DUPLICATE KEY UPDATE
+                niveles_completados = niveles_completados + VALUES(niveles_completados),
+                preguntas_correctas = preguntas_correctas + VALUES(preguntas_correctas),
+                preguntas_totales = preguntas_totales + VALUES(preguntas_totales),
+                racha_maxima_dia = GREATEST(racha_maxima_dia, VALUES(racha_maxima_dia))
+            `, [usuarioId, hoy, completadoFinal ? 1 : 0, correctas, totalPreguntas, rachaDia]);
+        } catch (e) { console.log('No se pudo actualizar actividad diaria:', e); }
 
         res.json({
             success: true,
@@ -259,15 +310,59 @@ router.post('/submit', authMiddleware, async (req, res) => {
                 porcentaje: porcentaje * 100,
                 puntaje: puntajeFinal,
                 estrellas: estrellasFinal,
-                completado: completadoFinal
+                umbralAprobacion: umbral,
+                completado: !!completadoFinal
             }
         });
     } catch (error) {
+        if (connection) { try { await connection.rollback(); } catch (e) { /* noop */ } }
         console.error('Error al enviar respuestas:', error);
-        res.status(500).json({ 
-            success: false, 
-            error: 'Error al procesar respuestas: ' + error.message
+        res.status(500).json({
+            success: false,
+            error: 'Error al procesar respuestas'
         });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// ============================================
+// RUTA: VALIDAR UNA SOLA RESPUESTA
+// ============================================
+// Permite dar feedback inmediato en el quiz SIN enviar `es_correcta` en el
+// listado de preguntas (antes la respuesta correcta viajaba al navegador antes
+// de responder y se podía leer en DevTools).
+router.post('/check', authMiddleware, async (req, res) => {
+    const preguntaId = Number(req.body.preguntaId);
+    const opcionId = Number(req.body.opcionId);
+
+    if (!Number.isInteger(preguntaId) || !Number.isInteger(opcionId)) {
+        return res.status(400).json({ success: false, error: 'preguntaId y opcionId son obligatorios' });
+    }
+
+    try {
+        const [rows] = await pool.query(
+            `SELECT o.id, o.es_correcta, JSON_UNQUOTE(JSON_EXTRACT(o.texto, '$.es')) AS texto
+             FROM opciones o WHERE o.pregunta_id = ?`, [preguntaId]);
+        if (!rows.length) {
+            return res.status(404).json({ success: false, error: 'Pregunta no encontrada' });
+        }
+
+        const elegida = rows.find(o => Number(o.id) === opcionId);
+        const correcta = rows.find(o => o.es_correcta);
+        if (!elegida) {
+            return res.status(400).json({ success: false, error: 'La opción no pertenece a esa pregunta' });
+        }
+
+        res.json({
+            success: true,
+            correcta: !!elegida.es_correcta,
+            respuestaCorrectaId: correcta ? Number(correcta.id) : null,
+            respuestaCorrectaTexto: correcta ? correcta.texto : null
+        });
+    } catch (error) {
+        console.error('Error al comprobar respuesta:', error);
+        res.status(500).json({ success: false, error: 'Error al comprobar la respuesta' });
     }
 });
 

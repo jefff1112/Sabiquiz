@@ -30,6 +30,14 @@ class Usuario {
         return rows[0] || null;
     }
 
+    static async findByUsername(username) {
+        const [rows] = await pool.query(
+            'SELECT id, username FROM usuarios WHERE username = ?',
+            [username]
+        );
+        return rows[0] || null;
+    }
+
     static async findById(id) {
     const [rows] = await pool.query(
         `SELECT id, username, email, avatar_url, rol, pvpXp, password_changed_at,
@@ -78,16 +86,21 @@ class Usuario {
         }
     }
 
-    // Verificar si una contraseña ya fue usada anteriormente (opcional)
-    static async wasPasswordUsed(usuarioId, newPasswordHash) {
+    // Verificar si una contraseña ya fue usada anteriormente.
+    // Recibe la contraseña EN CLARO y la compara con todo el historial
+    // (antes recibía un hash y comparaba por igualdad exacta, lo que nunca
+    //  funcionaba porque bcrypt genera un salt distinto cada vez, y además
+    //  el método no se llamaba desde ningún sitio).
+    static async wasPasswordUsed(usuarioId, plainPassword) {
         try {
             const [rows] = await pool.query(
-                `SELECT COUNT(*) as total 
-                 FROM password_history 
-                 WHERE usuario_id = ? AND password_hash = ?`,
-                [usuarioId, newPasswordHash]
+                `SELECT password_hash FROM password_history WHERE usuario_id = ?`,
+                [usuarioId]
             );
-            return rows[0]?.total > 0;
+            for (const row of rows) {
+                if (await bcrypt.compare(plainPassword, row.password_hash)) return true;
+            }
+            return false;
         } catch (error) {
             console.error('Error verificando historial de contraseñas:', error);
             return false;
@@ -139,20 +152,38 @@ class Usuario {
         }
     }
 
-    static async getIntentosFallidos(email, ip) {
+    // Intentos fallidos SOLO por email (antes era "email OR ip_address", lo que
+    // hacía que desde una IP compartida 5 fallos de un usuario bloquearan a todos,
+    // y permitía bloquear a un tercero enviando intentos con su correo).
+    static async getIntentosFallidos(email, _ip = null) {
         try {
             const [rows] = await pool.query(
-                `SELECT COUNT(*) as total 
-                 FROM login_attempts 
-                 WHERE (email = ? OR ip_address = ?) 
-                   AND exito = FALSE 
+                `SELECT COUNT(*) as total
+                 FROM login_attempts
+                 WHERE email = ?
+                   AND exito = FALSE
                    AND fecha_intento > DATE_SUB(NOW(), INTERVAL 15 MINUTE)`,
-                [email, ip]
+                [email]
             );
             return rows[0]?.total || 0;
         } catch (error) {
             console.error('Error obteniendo intentos fallidos:', error);
             return 0;
+        }
+    }
+
+    // Limpia los fallos recientes tras un login correcto, para que el contador
+    // no arrastre intentos antiguos (antes nunca se reiniciaba).
+    static async limpiarIntentosFallidos(email) {
+        try {
+            await pool.query(
+                `DELETE FROM login_attempts
+                 WHERE email = ? AND exito = FALSE
+                   AND fecha_intento > DATE_SUB(NOW(), INTERVAL 15 MINUTE)`,
+                [email]
+            );
+        } catch (error) {
+            console.error('Error limpiando intentos fallidos:', error);
         }
     }
 

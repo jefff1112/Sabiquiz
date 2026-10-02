@@ -6,6 +6,7 @@ const http = require('http');
 const socketIO = require('socket.io');
 const path = require('path');
 const cors = require('cors');
+const jwt = require('jsonwebtoken');
 require('dotenv').config();
 const { testConnection } = require('./config/database');
 
@@ -16,6 +17,21 @@ const progressRoutes = require('./routes/progress');
 const suggestionRoutes = require('./routes/suggestions');
 const matchesRoutes = require('./routes/matches');
 const minigamesRoutes = require('./routes/minigames');
+const torneosRoutes = require('./routes/torneos');
+const profileRoutes = require('./routes/profile');
+const sabiRoutes = require('./routes/sabi');
+
+// ============================================
+// ORÍGENES PERMITIDOS (configurable en .env)
+// ============================================
+const ORIGENES_PERMITIDOS = (process.env.CORS_ORIGINS ||
+  'http://localhost:3000,http://127.0.0.1:3000,http://127.0.0.1:5500')
+  .split(',').map(o => o.trim()).filter(Boolean);
+
+function origenPermitido(origin) {
+  if (!origin) return true;                     // mismo origen, curl, apps nativas
+  return ORIGENES_PERMITIDOS.includes(origin);
+}
 
 // ============================================
 // CONFIGURACIÓN DE EXPRESS
@@ -24,22 +40,94 @@ const app = express();
 const server = http.createServer(app);
 
 const io = socketIO(server, {
-  cors: {
-    origin: ["http://localhost:3000", "http://127.0.0.1:5500", "https://sabiquiz.vercel.app", "https://sabiquiz.onrender.com"],
-    methods: ["GET", "POST"]
-  }
+  cors: { origin: ORIGENES_PERMITIDOS, methods: ['GET', 'POST'] }
 });
 
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// ============================================
+// MIDDLEWARES DE SEGURIDAD
+// ============================================
+app.disable('x-powered-by');
+app.set('trust proxy', 1);   // para que req.ip sea correcto detrás de un proxy
+
+// Cabeceras de seguridad (sin dependencias externas)
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  next();
+});
+
+// CORS restringido a la lista blanca (antes era cors() abierto a cualquiera)
+app.use(cors({
+  origin(origin, cb) {
+    if (origenPermitido(origin)) return cb(null, true);
+    return cb(new Error('Origen no permitido por CORS'));
+  },
+  credentials: false
+}));
+
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ extended: true, limit: '1mb' }));
+
+// ============================================
+// LÍMITE DE PETICIONES (implementación propia, sin dependencias)
+// ============================================
+const buckets = new Map();
+function rateLimit({ ventanaMs, maximo, mensaje }) {
+  return (req, res, next) => {
+    const clave = `${req.ip}|${req.baseUrl || ''}${req.path}`;
+    const ahora = Date.now();
+    let b = buckets.get(clave);
+    if (!b || ahora > b.expira) { b = { cuenta: 0, expira: ahora + ventanaMs }; buckets.set(clave, b); }
+    b.cuenta++;
+    if (b.cuenta > maximo) {
+      res.setHeader('Retry-After', Math.max(1, Math.ceil((b.expira - ahora) / 1000)));
+      return res.status(429).json({ success: false, error: mensaje || '⛔ Demasiadas peticiones. Intenta más tarde.' });
+    }
+    next();
+  };
+}
+// Limpieza periódica para que el Map no crezca sin límite
+setInterval(() => {
+  const ahora = Date.now();
+  for (const [k, v] of buckets) if (ahora > v.expira) buckets.delete(k);
+}, 60000).unref();
+
+app.use('/api/auth/login', rateLimit({ ventanaMs: 15 * 60 * 1000, maximo: 20 }));
+app.use('/api/auth/register', rateLimit({ ventanaMs: 60 * 60 * 1000, maximo: 10 }));
+app.use('/api/auth/forgot-password', rateLimit({ ventanaMs: 60 * 60 * 1000, maximo: 5 }));
+app.use('/api/auth/reset-password', rateLimit({ ventanaMs: 60 * 60 * 1000, maximo: 10 }));
+app.use('/api', rateLimit({ ventanaMs: 60 * 1000, maximo: 400 }));
 
 // ============================================
 // SERVIR ARCHIVOS ESTÁTICOS (FRONTEND)
 // ============================================
+// La raíz del proyecto se sirve para el frontend, pero NUNCA debe exponer
+// código fuente, secretos, dependencias ni volcados de la base de datos.
 const publicPath = path.resolve(__dirname, '..');
-app.use(express.static(publicPath));
+
+const RUTAS_PROHIBIDAS = [
+  /^\/server(\/|$)/i,                       // backend completo
+  /^\/node_modules(\/|$)/i,                 // dependencias (101 MB)
+  /^\/\.git(\/|$)/i,                        // historial de Git
+  /^\/\.env/i,                              // secretos
+  /^\/\.gitignore$/i,
+  /^\/package(-lock)?\.json$/i,             // configuración del proyecto
+  /^\/serviceAccountKey\.json$/i,           // clave privada de Firebase
+  /^\/[^/]+\.md$/i,                         // reportes de auditoría
+  /^\/materias\/[^/]*-data\.js$/i,          // semillas con las 1.050 respuestas
+  /\.(sql|log|bak|old|sqlite|db)$/i         // volcados y respaldos
+];
+
+app.use((req, res, next) => {
+  if (RUTAS_PROHIBIDAS.some(re => re.test(req.path))) {
+    return res.status(404).json({ success: false, error: 'Ruta no encontrada' });
+  }
+  next();
+});
+
+app.use(express.static(publicPath, { dotfiles: 'ignore', index: false }));
 
 // ============================================
 // RUTAS DE LA API
@@ -50,6 +138,9 @@ app.use('/api/progress', progressRoutes);
 app.use('/api/suggestions', suggestionRoutes);
 app.use('/api/matches', matchesRoutes);
 app.use('/api/minigames', minigamesRoutes);
+app.use('/api/torneos', torneosRoutes);
+app.use('/api/profile', profileRoutes);
+app.use('/api/sabi', sabiRoutes);
 
 // ============================================
 // RUTA DE PRUEBA (Health Check)
@@ -150,22 +241,17 @@ app.use((err, req, res, next) => {
 // ============================================
 // SOCKET.IO - NOTIFICACIONES EN TIEMPO REAL
 // ============================================
+const notificationManager = require('./utils/notifications');
+
 const userSockets = {};
 
-// Función para enviar notificación a un usuario específico
+// Conectar el módulo de notificaciones
+notificationManager.setIO(io);
+notificationManager.setUserSockets(userSockets);
+
+// Función para enviar notificación (wrapper para compatibilidad)
 function sendNotification(uid, type, data) {
-    const socketId = userSockets[uid];
-    if (socketId) {
-        io.to(socketId).emit('notification', {
-            type: type,
-            data: data,
-            timestamp: new Date().toISOString()
-        });
-        console.log(`📨 Notificación enviada a ${uid}: ${type}`);
-        return true;
-    }
-    console.log(`⚠️ Usuario ${uid} no conectado, notificación guardada en BD`);
-    return false;
+    return notificationManager.sendNotification(uid, type, data);
 }
 
 // ============================================
@@ -174,20 +260,43 @@ function sendNotification(uid, type, data) {
 let rooms = {};
 let matchmakingPool = [];
 
-io.on('connection', (socket) => {
-  console.log(`Usuario conectado: ${socket.id}`);
+// ============================================
+// AUTENTICACIÓN DE SOCKETS (JWT en el handshake)
+// ============================================
+// Antes cualquier cliente anónimo podía conectarse y decir "soy el usuario X"
+// mediante el evento registerUser(uid), recibiendo notificaciones ajenas.
+// Ahora el uid se deriva del token firmado y no se acepta del cliente.
+io.use((socket, next) => {
+  const token = (socket.handshake.auth && socket.handshake.auth.token) ||
+                socket.handshake.query.token;
+  if (!token) return next(new Error('AUTH_REQUIRED'));
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    if (!decoded || !decoded.id) return next(new Error('AUTH_INVALID'));
+    socket.userId = decoded.id;
+    return next();
+  } catch (e) {
+    return next(new Error('AUTH_INVALID'));
+  }
+});
 
-  // Registrar usuario para notificaciones
-  socket.on('registerUser', (uid) => {
-    if (uid) {
-      userSockets[uid] = socket.id;
-      console.log(`✅ Usuario ${uid} registrado para notificaciones con socket ${socket.id}`);
-    }
+io.on('connection', (socket) => {
+  const uid = socket.userId;
+  console.log(`Usuario conectado: ${socket.id} (uid ${uid})`);
+
+  // Registro automático para notificaciones (el uid viene del token)
+  userSockets[uid] = socket.id;
+
+  // Compatibilidad con el cliente antiguo: el argumento se ignora a propósito
+  socket.on('registerUser', () => {
+    userSockets[uid] = socket.id;
   });
 
   socket.on('findMatch', (playerData) => {
     if (matchmakingPool.some(p => p.socketId === socket.id)) return;
-    matchmakingPool.push({ socketId: socket.id, data: playerData });
+    // El uid SIEMPRE se toma del token, nunca del cliente
+    const data = Object.assign({}, playerData || {}, { uid });
+    matchmakingPool.push({ socketId: socket.id, data });
   });
 
   socket.on('cancelFindMatch', () => {
@@ -195,11 +304,15 @@ io.on('connection', (socket) => {
   });
 
   socket.on('createRoom', (data) => {
-    const { roomCode, player, gameType } = data;
+    const { roomCode, player, gameType } = data || {};
+    if (!roomCode) return;
+    // El uid del jugador se fuerza desde el token
+    const jugador = Object.assign({}, player || {}, { uid });
     if (rooms[roomCode] && rooms[roomCode].players.length < 2) {
+      if (rooms[roomCode].players.includes(socket.id)) return;   // ya está dentro
       socket.join(roomCode);
       rooms[roomCode].players.push(socket.id);
-      rooms[roomCode].playerData[socket.id] = player;
+      rooms[roomCode].playerData[socket.id] = jugador;
       io.to(roomCode).emit('playerJoined', rooms[roomCode].players.length);
       if (rooms[roomCode].players.length === 2) {
         rooms[roomCode].rematchVoters = new Set();
@@ -209,7 +322,7 @@ io.on('connection', (socket) => {
       socket.join(roomCode);
       rooms[roomCode] = {
         players: [socket.id],
-        playerData: { [socket.id]: player },
+        playerData: { [socket.id]: jugador },
         gameData: null,
         gameMode: null,
         rematchVoters: new Set(),
@@ -224,7 +337,9 @@ io.on('connection', (socket) => {
 
   socket.on('acceptMatch', ({ roomId }) => {
     const room = rooms[roomId];
-    if (!room || room.votes.has(socket.id)) return;
+    // Solo las salas de votación tienen `votes`; las creadas por código no.
+    if (!room || !room.votes || !room.players.includes(socket.id)) return;
+    if (room.votes.has(socket.id)) return;
     room.votes.add(socket.id);
     if (room.votes.size === 2) {
       room.rematchVoters = new Set();
@@ -237,10 +352,17 @@ io.on('connection', (socket) => {
     const room = rooms[roomId];
     if (!room) return;
     io.to(roomId).emit('matchRejected');
-    room.players.forEach(playerId => {
-      const playerProfile = room.playerData[playerId];
-      if (playerProfile) matchmakingPool.unshift({ socketId: playerId, data: playerProfile });
-    });
+    // Solo se reencola a quien realmente estaba en la cola de emparejamiento
+    // (las salas creadas por código no participan del matchmaking).
+    if (room.votes) {
+      room.players.forEach(playerId => {
+        const playerProfile = room.playerData[playerId];
+        if (playerProfile && playerProfile.uid) {
+          matchmakingPool.unshift({ socketId: playerId, data: playerProfile });
+        }
+      });
+    }
+    if (room.timerInterval) clearInterval(room.timerInterval);
     delete rooms[roomId];
   });
 
@@ -253,6 +375,20 @@ io.on('connection', (socket) => {
     const correctAnswer = currentQuestion?.correctAnswer;
     const isCorrect = correctAnswer ? (normalize(answer) === normalize(correctAnswer)) : false;
     gameData.playerAnswers[socket.id] = { answer, isCorrect };
+
+    // Detalle por pregunta, para poder persistirlo en `detalles_partida`
+    if (gameData.detalle && gameData.detalle[socket.id]) {
+      const idxOpcion = Array.isArray(currentQuestion.options)
+        ? currentQuestion.options.indexOf(answer) : -1;
+      gameData.detalle[socket.id].push({
+        preguntaId: currentQuestion.preguntaId || null,
+        opcionSeleccionadaId: (idxOpcion >= 0 && Array.isArray(currentQuestion.optionIds))
+          ? currentQuestion.optionIds[idxOpcion] : null,
+        tiempoRespuesta: gameData.preguntaInicio
+          ? Math.min(99.99, (Date.now() - gameData.preguntaInicio) / 1000) : null,
+        isCorrect
+      });
+    }
     const answersCount = Object.keys(gameData.playerAnswers).length;
     const aPlayerWasCorrect = Object.values(gameData.playerAnswers).some(p => p.isCorrect);
     let roundOver = false;
@@ -278,8 +414,8 @@ io.on('connection', (socket) => {
   });
 
   socket.on('requestRematch', (data) => {
-    const room = rooms[data.roomCode];
-    if (!room || room.rematchVoters.has(socket.id)) return;
+    const room = rooms[data && data.roomCode];
+    if (!room || !room.rematchVoters || room.rematchVoters.has(socket.id)) return;
     room.rematchVoters.add(socket.id);
     if (room.rematchVoters.size === 2) {
       startGame(data.roomCode, room.gameType || 'normal');
@@ -289,10 +425,9 @@ io.on('connection', (socket) => {
   socket.on('disconnect', () => {
     console.log(`Usuario desconectado: ${socket.id}`);
     // Eliminar usuario de userSockets
-    for (const [uid, sid] of Object.entries(userSockets)) {
+    for (const [u, sid] of Object.entries(userSockets)) {
       if (sid === socket.id) {
-        delete userSockets[uid];
-        console.log(`🗑️ Usuario ${uid} eliminado de userSockets`);
+        delete userSockets[u];
         break;
       }
     }
@@ -309,6 +444,8 @@ io.on('connection', (socket) => {
             const remainingPlayerSocketId = room.players[0];
             io.to(remainingPlayerSocketId).emit('opponentLeft', `${disconnectedPlayerName} ha abandonado la partida.`);
           }
+          // Limpiar el temporizador antes de borrar la sala (antes quedaba huérfano)
+          if (room.timerInterval) clearInterval(room.timerInterval);
           delete rooms[roomCode];
         }
         break;
@@ -336,122 +473,100 @@ function obtenerRangoNiveles(nivelPromedio) {
 // ============================================
 // 🔥 FUNCIÓN PARA OBTENER PREGUNTAS DESDE MYSQL CON FILTRO POR NIVEL
 // ============================================
+// Compara el nombre de la materia ignorando tildes y mayúsculas.
+// Antes se usaba LOWER(m.nombre) = 'matematicas', que NUNCA coincidía con
+// 'Matemáticas' (la tilde no se elimina con LOWER) y el modo "maths" caía
+// siempre al fallback de 3 preguntas de cultura general.
+const SQL_MATERIA_SIN_ACENTOS = `REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(
+  LOWER(m.nombre),'á','a'),'é','e'),'í','i'),'ó','o'),'ú','u')`;
+
+function filaAPregunta(row) {
+  // options_raw y option_ids_raw se generan con el MISMO ORDER BY o.orden,
+  // así que se recorren en paralelo para no desalinear texto e id.
+  const textos = String(row.options_raw || '').split('|||');
+  const ids = String(row.option_ids_raw || '').split('|||');
+  const opciones = [];
+  for (let k = 0; k < textos.length; k++) {
+    const texto = (textos[k] || '').trim();
+    if (!texto) continue;
+    opciones.push({ id: Number((ids[k] || '').trim()) || null, texto });
+  }
+  if (opciones.length === 0) {
+    ['Opción 1', 'Opción 2', 'Opción 3', 'Opción 4'].forEach(t => opciones.push({ id: null, texto: t }));
+  }
+  const correcta = row.correctAnswer || opciones[0].texto;
+  const opcionCorrecta = opciones.find(o => o.texto === correcta);
+
+  return {
+    preguntaId: row.id,
+    question: row.question || 'Pregunta sin texto',
+    options: opciones.map(o => o.texto),
+    optionIds: opciones.map(o => o.id),
+    correctAnswer: correcta,
+    opcionCorrectaId: opcionCorrecta ? opcionCorrecta.id : null,
+    difficulty: row.dificultad || 'easy'
+  };
+}
+
+const SELECT_PREGUNTAS_1VS1 = `
+  SELECT
+    p.id,
+    JSON_UNQUOTE(JSON_EXTRACT(p.texto, '$.es')) as question,
+    p.dificultad,
+    GROUP_CONCAT(JSON_UNQUOTE(JSON_EXTRACT(o.texto, '$.es')) ORDER BY o.orden SEPARATOR '|||') as options_raw,
+    GROUP_CONCAT(o.id ORDER BY o.orden SEPARATOR '|||') as option_ids_raw,
+    JSON_UNQUOTE(
+      (SELECT JSON_EXTRACT(o2.texto, '$.es')
+       FROM opciones o2
+       WHERE o2.pregunta_id = p.id AND o2.es_correcta = TRUE
+       LIMIT 1)
+    ) as correctAnswer
+  FROM preguntas p
+  JOIN niveles n ON p.nivel_id = n.id
+  JOIN materias m ON n.materia_id = m.id
+  JOIN opciones o ON o.pregunta_id = p.id
+`;
+
 async function getQuestionsFromDB(gameType = 'normal', cantidad = 5, nivelPromedio = null) {
   try {
     const { pool } = require('./config/database');
-    
-    let query = `
-      SELECT 
-        p.id,
-        JSON_EXTRACT(p.texto, '$.es') as question,
-        p.dificultad,
-        GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(o.texto, '$.es')) ORDER BY o.orden SEPARATOR '|||') as options_raw,
-        JSON_UNQUOTE(
-          (SELECT JSON_EXTRACT(o2.texto, '$.es') 
-           FROM opciones o2 
-           WHERE o2.pregunta_id = p.id AND o2.es_correcta = TRUE 
-           LIMIT 1)
-        ) as correctAnswer
-      FROM preguntas p
-      JOIN niveles n ON p.nivel_id = n.id
-      JOIN materias m ON n.materia_id = m.id
-      JOIN opciones o ON o.pregunta_id = p.id
-    `;
-    
-    // 🔥 FILTRO POR TIPO DE JUEGO
-    if (gameType === 'maths') {
-      query += ` WHERE LOWER(m.nombre) = 'matematicas'`;
-    } else {
-      query += ` WHERE LOWER(m.nombre) != 'matematicas'`;
-    }
-    
-    // 🔥 FILTRO POR NIVEL PROMEDIO (si se proporciona)
-    if (nivelPromedio !== null && nivelPromedio > 0) {
+
+    // Solo materias activas: excluye la materia oculta de los minijuegos (id 8)
+    let where = gameType === 'maths'
+      ? ` WHERE m.activo = 1 AND ${SQL_MATERIA_SIN_ACENTOS} = 'matematicas'`
+      : ` WHERE m.activo = 1 AND ${SQL_MATERIA_SIN_ACENTOS} <> 'matematicas'`;
+    const params = [];
+
+    const conRango = nivelPromedio !== null && nivelPromedio > 0;
+    if (conRango) {
       const rango = obtenerRangoNiveles(nivelPromedio);
-      query += ` AND n.numero BETWEEN ${rango.min} AND ${rango.max}`;
+      where += ` AND n.numero BETWEEN ? AND ?`;
+      params.push(rango.min, rango.max);
       console.log(`🎯 Nivel promedio: ${nivelPromedio} → Rango de niveles: ${rango.min}-${rango.max}`);
     }
-    
-    query += ` GROUP BY p.id ORDER BY RAND() LIMIT ?`;
-    
-    const [rows] = await pool.query(query, [cantidad]);
-    
-    // 🔥 Si no hay suficientes preguntas, expandir el rango y reintentar
-    if (rows.length < cantidad && nivelPromedio !== null && nivelPromedio > 0) {
-      console.log(`⚠️ Solo ${rows.length} preguntas encontradas en el rango inicial. Expandiendo...`);
-      
-      // Expandir rango gradualmente (sumar 5 al mínimo y al máximo)
-      let rangoExpandido = { min: 1, max: 30 };
-      let rangoActual = obtenerRangoNiveles(nivelPromedio);
-      
-      // Intentar con un rango más amplio (todo el rango de la materia)
-      let queryExpandida = `
-        SELECT 
-          p.id,
-          JSON_EXTRACT(p.texto, '$.es') as question,
-          p.dificultad,
-          GROUP_CONCAT(DISTINCT JSON_UNQUOTE(JSON_EXTRACT(o.texto, '$.es')) ORDER BY o.orden SEPARATOR '|||') as options_raw,
-          JSON_UNQUOTE(
-            (SELECT JSON_EXTRACT(o2.texto, '$.es') 
-             FROM opciones o2 
-             WHERE o2.pregunta_id = p.id AND o2.es_correcta = TRUE 
-             LIMIT 1)
-          ) as correctAnswer
-        FROM preguntas p
-        JOIN niveles n ON p.nivel_id = n.id
-        JOIN materias m ON n.materia_id = m.id
-        JOIN opciones o ON o.pregunta_id = p.id
-      `;
-      
-      if (gameType === 'maths') {
-        queryExpandida += ` WHERE LOWER(m.nombre) = 'matematicas'`;
-      } else {
-        queryExpandida += ` WHERE LOWER(m.nombre) != 'matematicas'`;
-      }
-      
-      queryExpandida += ` GROUP BY p.id ORDER BY RAND() LIMIT ?`;
-      
-      const [rowsExpandidas] = await pool.query(queryExpandida, [cantidad]);
-      
+
+    const [rows] = await pool.query(
+      `${SELECT_PREGUNTAS_1VS1}${where} GROUP BY p.id ORDER BY RAND() LIMIT ?`,
+      [...params, cantidad]
+    );
+
+    // Si no hay suficientes preguntas en el rango, se reintenta sin filtro de nivel
+    if (rows.length < cantidad && conRango) {
+      console.log(`⚠️ Solo ${rows.length} preguntas en el rango inicial. Expandiendo a todos los niveles...`);
+      const whereAmplio = gameType === 'maths'
+        ? ` WHERE m.activo = 1 AND ${SQL_MATERIA_SIN_ACENTOS} = 'matematicas'`
+        : ` WHERE m.activo = 1 AND ${SQL_MATERIA_SIN_ACENTOS} <> 'matematicas'`;
+      const [rowsExpandidas] = await pool.query(
+        `${SELECT_PREGUNTAS_1VS1}${whereAmplio} GROUP BY p.id ORDER BY RAND() LIMIT ?`,
+        [cantidad]
+      );
       if (rowsExpandidas.length > 0) {
         console.log(`✅ ${rowsExpandidas.length} preguntas encontradas en rango expandido`);
-        return rowsExpandidas.map(row => {
-          let optionsArray = [];
-          if (row.options_raw) {
-            optionsArray = row.options_raw.split('|||').map(o => o.trim()).filter(o => o.length > 0);
-          }
-          
-          if (optionsArray.length === 0) {
-            optionsArray = ['Opción 1', 'Opción 2', 'Opción 3', 'Opción 4'];
-          }
-          
-          return {
-            question: row.question || 'Pregunta sin texto',
-            options: optionsArray,
-            correctAnswer: row.correctAnswer || optionsArray[0] || 'Respuesta no disponible',
-            difficulty: row.dificultad || 'easy'
-          };
-        });
+        return rowsExpandidas.map(filaAPregunta);
       }
     }
-    
-    return rows.map(row => {
-      let optionsArray = [];
-      if (row.options_raw) {
-        optionsArray = row.options_raw.split('|||').map(o => o.trim()).filter(o => o.length > 0);
-      }
-      
-      if (optionsArray.length === 0) {
-        optionsArray = ['Opción 1', 'Opción 2', 'Opción 3', 'Opción 4'];
-      }
-      
-      return {
-        question: row.question || 'Pregunta sin texto',
-        options: optionsArray,
-        correctAnswer: row.correctAnswer || optionsArray[0] || 'Respuesta no disponible',
-        difficulty: row.dificultad || 'easy'
-      };
-    });
+
+    return rows.map(filaAPregunta);
   } catch (error) {
     console.error('❌ Error obteniendo preguntas de MySQL:', error);
     return getFallbackQuestions(gameType, cantidad);
@@ -502,13 +617,17 @@ function startGame(roomCode, gameType = 'normal') {
       questions: selectedQuestions,
       currentQuestionIndex: 0,
       scores: { [room.players[0]]: 0, [room.players[1]]: 0 },
-      playerAnswers: {}
+      playerAnswers: {},
+      // Acumula el detalle de cada respuesta para persistirlo en `detalles_partida`
+      detalle: { [room.players[0]]: [], [room.players[1]]: [] },
+      preguntaInicio: Date.now()
     };
     
     io.to(roomCode).emit('startCountdown', { gameMode: room.gameMode, roomCode, gameType });
     
     setTimeout(() => {
       const firstQuestion = room.gameData.questions[0];
+      room.gameData.preguntaInicio = Date.now();
       io.to(roomCode).emit('nextQuestion', { 
         question: firstQuestion.question, 
         options: firstQuestion.options 
@@ -555,6 +674,7 @@ function proceedToNextQuestion(roomCode) {
   
   room.gameData.currentQuestionIndex++;
   room.gameData.playerAnswers = {};
+  room.gameData.preguntaInicio = Date.now();
   
   if (room.gameData.currentQuestionIndex >= room.gameData.questions.length) {
     handleEndGame(roomCode);
@@ -586,93 +706,105 @@ async function handleEndGame(roomCode) {
   const [p1_socketId, p2_socketId] = playerSocketIds;
   const p1_uid = room.playerData[p1_socketId]?.uid;
   const p2_uid = room.playerData[p2_socketId]?.uid;
-  
-  if (!p1_uid || !p2_uid) {
-    console.error('❌ No se encontraron UIDs de los jugadores');
+
+  // Nunca guardar una partida contra uno mismo
+  if (!p1_uid || !p2_uid || p1_uid === p2_uid) {
+    console.error('❌ Partida descartada: UIDs ausentes o iguales');
+    if (room.timerInterval) clearInterval(room.timerInterval);
+    delete rooms[roomCode];
     return;
   }
-  
+
+  const preguntasPartida = (room.gameData && room.gameData.questions) || [];
+  const respuestasPartida = (room.gameData && room.gameData.detalle) || {};
+
+  let connection;
   try {
     const { pool } = require('./config/database');
-    const connection = await pool.getConnection();
+    connection = await pool.getConnection();
     await connection.beginTransaction();
-    
+
     // Actualizar partidas jugadas
     await connection.query('UPDATE usuarios SET partidas_jugadas = partidas_jugadas + 1 WHERE id = ?', [p1_uid]);
     await connection.query('UPDATE usuarios SET partidas_jugadas = partidas_jugadas + 1 WHERE id = ?', [p2_uid]);
-    
+
     const p1Score = scores[p1_socketId] || 0;
     const p2Score = scores[p2_socketId] || 0;
-    
-    // ============================================
-    // 🔥 GENERAR room_code ÚNICO (más seguro)
-    // ============================================
+
     const timestamp = Date.now();
     const random1 = Math.random().toString(36).substring(2, 8);
     const random2 = Math.random().toString(36).substring(2, 8);
     const uniqueRoomCode = `p_${timestamp}_${random1}${random2}`;
-    
-    console.log(`📝 Guardando partida con room_code: ${uniqueRoomCode}`);
-    
-    // Insertar partida
+
     const ganadorId = p1Score > p2Score ? p1_uid : (p2Score > p1Score ? p2_uid : null);
-    
-    await connection.query(
-      `INSERT INTO partidas 
+
+    // modo_juego debe ser uno de los valores del ENUM ('solitario' | '1vs1').
+    // Antes se escribía 'normal'/'revancha', que no existen en el ENUM.
+    const [insPartida] = await connection.query(
+      `INSERT INTO partidas
        (anfitrion_id, oponente_id, room_code, tipo_juego, modo_juego, estado, fecha_inicio, fecha_fin, ganador_id)
-       VALUES (?, ?, ?, ?, ?, 'finalizada', NOW(), NOW(), ?)`,
-      [
-        p1_uid, 
-        p2_uid, 
-        uniqueRoomCode, 
-        room.gameType || 'normal', 
-        room.gameMode || 'normal', 
-        ganadorId
-      ]
+       VALUES (?, ?, ?, ?, '1vs1', 'finalizada', NOW(), NOW(), ?)`,
+      [p1_uid, p2_uid, uniqueRoomCode, room.gameType || 'normal', ganadorId]
     );
-    
+
+    // ============================================
+    // 🔥 PERSISTIR EL DETALLE POR PREGUNTA (antes nunca se guardaba)
+    // ============================================
+    const partidaId = insPartida.insertId;
+    const filasDetalle = [];
+    for (const socketId of [p1_socketId, p2_socketId]) {
+      const uidJugador = room.playerData[socketId]?.uid;
+      const respuestas = respuestasPartida[socketId] || [];
+      respuestas.forEach(r => {
+        if (!r.preguntaId) return;
+        filasDetalle.push([
+          partidaId,
+          uidJugador,
+          r.preguntaId,
+          r.opcionSeleccionadaId || null,
+          r.tiempoRespuesta === undefined ? null : r.tiempoRespuesta,
+          r.isCorrect ? 1 : 0,
+          r.isCorrect ? 10 : 0
+        ]);
+      });
+    }
+    if (filasDetalle.length > 0) {
+      await connection.query(
+        `INSERT IGNORE INTO detalles_partida
+         (partida_id, usuario_id, pregunta_id, opcion_seleccionada_id, tiempo_respuesta, es_correcta, puntos)
+         VALUES ?`,
+        [filasDetalle]
+      );
+    }
+
     // ============================================
     // 🔥 ACTUALIZAR XP DE 1VS1 Y PARTIDAS GANADAS
     // ============================================
     if (p1Score > p2Score) {
-      // Jugador 1 GANA: +50 XP, Jugador 2: +10 XP
       await connection.query(
-        'UPDATE usuarios SET partidas_ganadas = partidas_ganadas + 1, pvpXp = pvpXp + 50 WHERE id = ?',
-        [p1_uid]
-      );
-      await connection.query(
-        'UPDATE usuarios SET pvpXp = pvpXp + 10 WHERE id = ?',
-        [p2_uid]
-      );
+        'UPDATE usuarios SET partidas_ganadas = partidas_ganadas + 1, pvpXp = pvpXp + 50 WHERE id = ?', [p1_uid]);
+      await connection.query('UPDATE usuarios SET pvpXp = pvpXp + 10 WHERE id = ?', [p2_uid]);
     } else if (p2Score > p1Score) {
-      // Jugador 2 GANA: +50 XP, Jugador 1: +10 XP
       await connection.query(
-        'UPDATE usuarios SET partidas_ganadas = partidas_ganadas + 1, pvpXp = pvpXp + 50 WHERE id = ?',
-        [p2_uid]
-      );
-      await connection.query(
-        'UPDATE usuarios SET pvpXp = pvpXp + 10 WHERE id = ?',
-        [p1_uid]
-      );
+        'UPDATE usuarios SET partidas_ganadas = partidas_ganadas + 1, pvpXp = pvpXp + 50 WHERE id = ?', [p2_uid]);
+      await connection.query('UPDATE usuarios SET pvpXp = pvpXp + 10 WHERE id = ?', [p1_uid]);
     } else {
-      // EMPATE: +15 XP para ambos
-      await connection.query(
-        'UPDATE usuarios SET pvpXp = pvpXp + 15 WHERE id = ?',
-        [p1_uid]
-      );
-      await connection.query(
-        'UPDATE usuarios SET pvpXp = pvpXp + 15 WHERE id = ?',
-        [p2_uid]
-      );
+      await connection.query('UPDATE usuarios SET pvpXp = pvpXp + 15 WHERE id = ?', [p1_uid]);
+      await connection.query('UPDATE usuarios SET pvpXp = pvpXp + 15 WHERE id = ?', [p2_uid]);
     }
-    
+
     await connection.commit();
-    connection.release();
-    
-    console.log(`✅ Partida ${uniqueRoomCode} guardada en MySQL`);
-    
+    console.log(`✅ Partida ${uniqueRoomCode} guardada (${filasDetalle.length} respuestas detalladas)`);
+
   } catch (error) {
-    console.error('❌ Error al guardar datos de 1vs1 en MySQL:', error);
+    if (connection) { try { await connection.rollback(); } catch (e) { /* ya cerrada */ } }
+    console.error('❌ Error al guardar datos de 1vs1 en MySQL:', error.message);
+  } finally {
+    // Sin esto, cada fallo dejaba una conexión del pool ocupada para siempre
+    // y a los 10 fallos el backend se quedaba sin conexiones.
+    if (connection) connection.release();
+    if (room.timerInterval) clearInterval(room.timerInterval);
+    delete rooms[roomCode];
   }
 }
 
@@ -719,6 +851,156 @@ setInterval(() => {
 }, 3000);
 
 // ============================================
+// VERIFICADOR DE ESTADOS DE TORNEOS (cada 1 minuto)
+// ============================================
+setInterval(async () => {
+  try {
+    const { pool } = require('./config/database');
+    const now = new Date();
+    
+    // Cambiar a 'inscripcion_abierta' si falta 1 hora
+    await pool.query(`
+      UPDATE torneos 
+      SET estado = 'inscripcion_abierta' 
+      WHERE estado = 'proximo' 
+      AND fecha_inicio <= DATE_ADD(?, INTERVAL 1 HOUR)
+      AND fecha_inicio > ?
+    `, [now, now]);
+
+    // Cambiar a 'en_curso' si es la hora de inicio
+    await pool.query(`
+      UPDATE torneos 
+      SET estado = 'en_curso' 
+      WHERE estado = 'inscripcion_abierta' 
+      AND fecha_inicio <= ?
+    `, [now]);
+
+    // Cambiar a 'finalizado' si pasó el tiempo
+    await pool.query(`
+      UPDATE torneos 
+      SET estado = 'finalizado' 
+      WHERE estado = 'en_curso' 
+      AND fecha_fin <= ?
+    `, [now]);
+
+    // Para torneos finalizados sin ranking, calcular ranking
+    const [torneosFinalizados] = await pool.query(`
+      SELECT t.id FROM torneos t
+      LEFT JOIN ranking_torneo rt ON t.id = rt.torneo_id
+      WHERE t.estado = 'finalizado' AND rt.id IS NULL
+    `);
+
+    for (const t of torneosFinalizados) {
+      await calcularRankingTorneo(t.id, pool);
+    }
+
+    // Enviar recordatorios 5 minutos antes
+    const [torneosProximos] = await pool.query(`
+      SELECT t.id, t.nombre, t.fecha_inicio, t.materia_id
+      FROM torneos t
+      WHERE t.estado = 'inscripcion_abierta'
+      AND t.fecha_inicio <= DATE_ADD(?, INTERVAL 5 MINUTE)
+      AND t.fecha_inicio > ?
+    `, [now, now]);
+
+    for (const torneo of torneosProximos) {
+      // Enviar notificación a inscritos
+      const [inscritos] = await pool.query(`
+        SELECT it.usuario_id, u.email, u.username
+        FROM inscripciones_torneo it
+        JOIN usuarios u ON it.usuario_id = u.id
+        WHERE it.torneo_id = ?
+      `, [torneo.id]);
+
+      for (const inscrito of inscritos) {
+        // Notificación en tiempo real
+        try {
+          sendNotification(inscrito.usuario_id, 'torneo_recordatorio', {
+            torneo_id: torneo.id,
+            mensaje: `⏰ ¡El torneo "${torneo.nombre}" empieza en 5 minutos!`
+          });
+        } catch (e) { /* ignore */ }
+
+        // Notificación en BD
+        await pool.query(`
+          INSERT INTO notificaciones (usuario_id, tipo, titulo, mensaje, data)
+          VALUES (?, 'torneo_recordatorio', '⏰ Torneo pronto', ?, ?)
+        `, [inscrito.usuario_id, `El torneo "${torneo.nombre}" comienza en 5 minutos. ¡Prepárate!`, JSON.stringify({ torneo_id: torneo.id })]);
+      }
+    }
+  } catch (error) {
+    console.error('Error en verificador de torneos:', error);
+  }
+}, 60000).unref();
+
+async function calcularRankingTorneo(torneoId, pool) {
+  try {
+    const [inscripciones] = await pool.query(`
+      SELECT it.usuario_id, it.puntaje, u.username
+      FROM inscripciones_torneo it
+      JOIN usuarios u ON it.usuario_id = u.id
+      WHERE it.torneo_id = ?
+      ORDER BY it.puntaje DESC, it.fecha_inscripcion ASC
+    `, [torneoId]);
+
+    if (inscripciones.length === 0) return;
+
+    let connection = await pool.getConnection();
+    await connection.beginTransaction();
+
+    try {
+      for (let i = 0; i < inscripciones.length; i++) {
+        const ins = inscripciones[i];
+        await connection.query(`
+          INSERT INTO ranking_torneo (torneo_id, usuario_id, posicion, puntaje_final)
+          VALUES (?, ?, ?, ?)
+        `, [torneoId, ins.usuario_id, i + 1, ins.puntaje]);
+      }
+
+      if (inscripciones.length > 0) {
+        const ganador = inscripciones[0];
+        
+        await connection.query(`
+          UPDATE usuarios SET pvpXp = pvpXp + 200 WHERE id = ?
+        `, [ganador.usuario_id]);
+
+        await connection.query(`
+          INSERT IGNORE INTO usuario_logros (usuario_id, logro_id)
+          VALUES (?, 100)
+        `, [ganador.usuario_id]);
+
+        try {
+          sendNotification(ganador.usuario_id, 'torneo_ganado', {
+            torneo_id: torneoId,
+            mensaje: `🏆 ¡Felicidades! Has ganado el torneo y recibido 200 XP + logro "Campeón de Torneo"`
+          });
+        } catch (e) { console.log('No se pudo enviar notificación'); }
+
+        // Email al ganador
+        try {
+          const { sendTournamentWinnerEmail } = require('./config/email-torneos');
+          const [torneoInfo] = await connection.query('SELECT * FROM torneos WHERE id = ?', [torneoId]);
+          const [userEmail] = await connection.query('SELECT email, username FROM usuarios WHERE id = ?', [ganador.usuario_id]);
+          if (userEmail[0] && torneoInfo[0]) {
+            await sendTournamentWinnerEmail(userEmail[0].email, userEmail[0].username, torneoInfo[0]);
+          }
+        } catch (e) { console.log('No se pudo enviar email de ganador'); }
+      }
+
+      await connection.commit();
+      console.log(`✅ Ranking calculado para torneo ${torneoId}`);
+    } catch (error) {
+      await connection.rollback();
+      throw error;
+    } finally {
+      connection.release();
+    }
+  } catch (error) {
+    console.error('Error calculando ranking:', error);
+  }
+}
+
+// ============================================
 // INICIO DEL SERVIDOR
 // ============================================
 const PORT = process.env.PORT || 3000;
@@ -742,6 +1024,6 @@ async function startServer() {
 }
 
 // Exportar funciones para usar en otras rutas
-module.exports = { io, sendNotification, userSockets };
+module.exports = { io, sendNotification, userSockets, notificationManager };
 
 startServer();

@@ -9,6 +9,7 @@
     <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         .language-switcher {
             position: fixed;
@@ -397,7 +398,83 @@
                     </div>
                 </div>
             </div>
-            
+
+            <!-- ESTADÍSTICAS AVANZADAS -->
+            <div class="stats-advanced-container" style="margin-top: 25px; border-top: 2px solid #e2e8f0; padding-top: 20px;">
+                <h3 style="color: #2d3748; margin-bottom: 20px;">📊 Estadísticas Avanzadas</h3>
+                
+                <!-- Gráfica Semanal -->
+                <div class="stat-section" style="margin-bottom: 30px;">
+                    <h4 style="color: #667eea; margin-bottom: 15px; font-size: 16px;">📈 Actividad Semanal</h4>
+                    <div style="background: #f8fafc; border-radius: 15px; padding: 20px; height: 250px;">
+                        <canvas id="weeklyChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Tarjetas de Materia Fuerte/Débil + Tiempo + Racha -->
+                <div class="stats-cards-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                    <!-- Materia Más Fuerte -->
+                    <div class="stat-card" style="background: #f0fff4; border: 2px solid #9ae6b4; border-radius: 15px; padding: 20px; text-align: center;" id="cardMateriaFuerte">
+                        <div style="font-size: 32px; margin-bottom: 8px;">💪</div>
+                        <h4 style="color: #276749; font-size: 14px; margin-bottom: 8px;">Materia Más Fuerte</h4>
+                        <div id="materiaFuerteNombre" style="font-family: 'Quicksand', sans-serif; font-size: 22px; font-weight: 700; color: #2d3748; margin-bottom: 4px;">--</div>
+                        <div id="materiaFuerteEstrellas" style="color: #38a169; font-weight: 600;">-- ⭐</div>
+                    </div>
+
+                    <!-- Materia Más Débil -->
+                    <div class="stat-card" style="background: #fffaf0; border: 2px solid #fbd38d; border-radius: 15px; padding: 20px; text-align: center;" id="cardMateriaDebil">
+                        <div style="font-size: 32px; margin-bottom: 8px;">📚</div>
+                        <h4 style="color: #c05621; font-size: 14px; margin-bottom: 8px;">Materia a Mejorar</h4>
+                        <div id="materiaDebilNombre" style="font-family: 'Quicksand', sans-serif; font-size: 22px; font-weight: 700; color: #2d3748; margin-bottom: 4px;">--</div>
+                        <div id="materiaDebilEstrellas" style="color: #ed8936; font-weight: 600;">-- ⭐</div>
+                        <button id="btnPracticarDebil" style="margin-top: 12px; padding: 8px 16px; background: #ed8936; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">Practicar ahora</button>
+                    </div>
+
+                    <!-- Tiempo Promedio -->
+                    <div class="stat-card" style="background: #eef2ff; border: 2px solid #c3dafe; border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">⏱️</div>
+                        <h4 style="color: #3182ce; font-size: 14px; margin-bottom: 8px;">Tiempo Promedio</h4>
+                        <div id="tiempoPromedio" style="font-family: 'Quicksand', sans-serif; font-size: 24px; font-weight: 700; color: #2d3748; margin-bottom: 4px;">--s</div>
+                        <div id="tiempoPercentil" style="color: #4299e1; font-size: 13px;">Top --%</div>
+                    </div>
+
+                    <!-- Racha Máxima -->
+                    <div class="stat-card" style="background: #fef3f2; border: 2px solid #fc8181; border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 32px; margin-bottom: 8px;">🔥</div>
+                        <h4 style="color: #c53030; font-size: 14px; margin-bottom: 8px;">Racha Máxima</h4>
+                        <div id="rachaMaxima" style="font-family: 'Quicksand', sans-serif; font-size: 24px; font-weight: 700; color: #2d3748; margin-bottom: 4px;">--</div>
+                        <div id="rachaActual" style="color: #fc8181; font-size: 13px;">Actual: --</div>
+                    </div>
+                </div>
+
+                <!-- Comparativa Percentiles -->
+                <div class="stat-section">
+                    <h4 style="color: #667eea; margin-bottom: 15px; font-size: 16px;">📊 Tu Posición Global</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px;" id="percentilesGrid">
+                        <!-- Se llena dinámicamente -->
+                    </div>
+                </div>
+
+                <!-- Torneos y 1vs1 -->
+                <div class="stats-cards-row" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-top: 20px;">
+                    <div class="stat-card" style="background: linear-gradient(135deg, #f6ad55, #ed8936); color: white; border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; margin-bottom: 4px;">🏆</div>
+                        <h4 style="font-size: 13px; opacity: 0.9; margin-bottom: 4px;">Torneos Ganados</h4>
+                        <div id="torneosGanados" style="font-family: 'Quicksand', sans-serif; font-size: 28px; font-weight: 700;">0</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; margin-bottom: 4px;">⚔️</div>
+                        <h4 style="font-size: 13px; opacity: 0.9; margin-bottom: 4px;">1vs1 Ganadas</h4>
+                        <div id="pvpGanadas" style="font-family: 'Quicksand', sans-serif; font-size: 28px; font-weight: 700;">0</div>
+                    </div>
+                    <div class="stat-card" style="background: linear-gradient(135deg, #48bb78, #38a169); color: white; border-radius: 15px; padding: 20px; text-align: center;">
+                        <div style="font-size: 28px; margin-bottom: 4px;">⭐</div>
+                        <h4 style="font-size: 13px; opacity: 0.9; margin-bottom: 4px;">Total Estrellas</h4>
+                        <div id="totalEstrellas" style="font-family: 'Quicksand', sans-serif; font-size: 28px; font-weight: 700;">0</div>
+                    </div>
+                </div>
+            </div>
+
             <button id="backToMenuBtn" class="button">← Volver al Menú</button>
         </div>
     </div>
@@ -753,6 +830,169 @@ async function handleAvatarUpload(event) {
         }
 
         // ============================================
+        // CARGAR ESTADÍSTICAS AVANZADAS
+        // ============================================
+        let weeklyChart = null;
+
+        async function loadStatsAvanzadas() {
+            try {
+                const data = await apiRequest('/profile/stats-avanzadas');
+                if (!data.success) return;
+
+                const stats = data.stats;
+
+                // 1. Gráfica semanal
+                renderWeeklyChart(stats.progreso_semanal);
+
+                // 2. Materia más fuerte
+                if (stats.materia_mas_fuerte) {
+                    document.getElementById('materiaFuerteNombre').textContent = stats.materia_mas_fuerte.nombre;
+                    document.getElementById('materiaFuerteEstrellas').textContent = stats.materia_mas_fuerte.promedio_estrellas + ' ⭐';
+                } else {
+                    document.getElementById('materiaFuerteNombre').textContent = 'Juega más';
+                    document.getElementById('materiaFuerteEstrellas').textContent = '--';
+                }
+
+                // 3. Materia más débil
+                if (stats.materia_mas_debil) {
+                    document.getElementById('materiaDebilNombre').textContent = stats.materia_mas_debil.nombre;
+                    document.getElementById('materiaDebilEstrellas').textContent = stats.materia_mas_debil.promedio_estrellas + ' ⭐';
+                    document.getElementById('btnPracticarDebil').onclick = () => {
+                        window.location.href = 'materias/' + stats.materia_mas_debil.nombre.toLowerCase() + '.html';
+                    };
+                } else {
+                    document.getElementById('materiaDebilNombre').textContent = 'Todas bien';
+                    document.getElementById('materiaDebilEstrellas').textContent = '--';
+                    document.getElementById('btnPracticarDebil').style.display = 'none';
+                }
+
+                // 4. Tiempo promedio
+                document.getElementById('tiempoPromedio').textContent = stats.tiempo_promedio_segundos + 's';
+                // Calcular percentil de tiempo (simplificado)
+                const tiempoNum = parseFloat(stats.tiempo_promedio_segundos);
+                let tiempoPercentil = 50;
+                if (tiempoNum < 8) tiempoPercentil = 90;
+                else if (tiempoNum < 12) tiempoPercentil = 70;
+                else if (tiempoNum < 18) tiempoPercentil = 40;
+                else if (tiempoNum < 25) tiempoPercentil = 20;
+                document.getElementById('tiempoPercentil').textContent = 'Top ' + (100 - tiempoPercentil) + '% más rápido';
+
+                // 5. Rachas
+                document.getElementById('rachaMaxima').textContent = stats.racha_maxima_historica;
+                document.getElementById('rachaActual').textContent = 'Actual: ' + (stats.racha_actual || 0);
+
+                // 6. Percentiles por materia
+                renderPercentiles(stats.top_porcentaje_materias);
+
+                // 7. Torneos y 1vs1
+                document.getElementById('torneosGanados').textContent = stats.torneos_ganados || 0;
+                document.getElementById('pvpGanadas').textContent = stats.total_partidas_1vs1_ganadas || 0;
+                document.getElementById('totalEstrellas').textContent = stats.total_estrellas || 0;
+
+            } catch (error) {
+                console.error('Error cargando stats avanzadas:', error);
+            }
+        }
+
+        function renderWeeklyChart(progresoSemanal) {
+            const ctx = document.getElementById('weeklyChart').getContext('2d');
+            
+            const labels = progresoSemanal.map(d => d.dia);
+            const values = progresoSemanal.map(d => d.niveles_completados);
+            const maxVal = Math.max(...values, 1);
+
+            const gradient = ctx.createLinearGradient(0, 0, 0, 250);
+            gradient.addColorStop(0, 'rgba(102, 126, 234, 0.8)');
+            gradient.addColorStop(1, 'rgba(118, 74, 162, 0.1)');
+
+            if (weeklyChart) weeklyChart.destroy();
+
+            weeklyChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Niveles completados',
+                        data: values,
+                        backgroundColor: gradient,
+                        borderColor: '#667eea',
+                        borderWidth: 2,
+                        borderRadius: 8,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: '#2d3748',
+                            titleFont: { family: 'Quicksand', size: 14 },
+                            bodyFont: { family: 'DM Sans', size: 13 },
+                            padding: 12,
+                            callbacks: {
+                                label: (ctx) => `Niveles: ${ctx.parsed.y}`
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: Math.max(maxVal + 1, 3),
+                            grid: { color: '#e2e8f0' },
+                            ticks: { 
+                                stepSize: 1,
+                                font: { family: 'DM Sans', size: 11 },
+                                color: '#718096'
+                            }
+                        },
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Quicksand', size: 12 }, color: '#4a5568' }
+                        }
+                    },
+                    animation: {
+                        duration: 1000,
+                        easing: 'easeOutQuart'
+                    }
+                }
+            });
+        }
+
+        function renderPercentiles(percentiles) {
+            const grid = document.getElementById('percentilesGrid');
+            if (!grid) return;
+
+            const materiaIcons = {
+                'matemáticas': 'img/mat.png',
+                'ciencias': 'img/ciencia.png',
+                'lenguaje': 'img/lenguaje2.png',
+                'sociales': 'img/sociales.png',
+                'inglés': 'img/ingles.png',
+                'programación': 'img/programacion.png',
+                'salud': 'img/salud.png'
+            };
+
+            grid.innerHTML = '';
+            Object.entries(percentiles).forEach(([materia, percentil]) => {
+                const card = document.createElement('div');
+                card.style.cssText = `
+                    background: ${percentil >= 70 ? '#f0fff4' : percentil >= 40 ? '#fffaf0' : '#fef3f2'};
+                    border: 2px solid ${percentil >= 70 ? '#9ae6b4' : percentil >= 40 ? '#fbd38d' : '#fc8181'};
+                    border-radius: 12px; padding: 16px; text-align: center;
+                `;
+                const icon = materiaIcons[materia] || 'img/estrellas.png';
+                card.innerHTML = `
+                    <img src="${icon}" style="width:24px;height:24px;margin-bottom:6px;">
+                    <div style="font-size:12px;color:#718096;margin-bottom:4px;">${materia.charAt(0).toUpperCase() + materia.slice(1)}</div>
+                    <div style="font-family:'Quicksand',sans-serif;font-size:20px;font-weight:700;color:#2d3748;">Top ${percentil}%</div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // ============================================
 // CARGAR PERFIL COMPLETO
 // ============================================
 async function loadProfile() {
@@ -826,6 +1066,11 @@ async function loadProfile() {
         // CARGAR LOGROS
         // ============================================
         await loadLogros();
+
+        // ============================================
+        // CARGAR ESTADÍSTICAS AVANZADAS
+        // ============================================
+        await loadStatsAvanzadas();
 
         loadLanguage();
 

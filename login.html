@@ -548,15 +548,10 @@ loginEmail.addEventListener('blur', () => {
                     // Manejar errores específicos
                     if (data.tipo === 'bloqueo') {
                         showMessage(data.error, 'warning');
-                    } else if (data.tipo === 'password_incorrecta') {
+                    } else if (data.tipo === 'credenciales') {
                         showMessage(data.error, 'error');
                         if (data.intentos !== undefined) {
-                            updateIntentosInfo(data.intentos, data.maxIntentos || 5);
-                        }
-                        // Mostrar fecha del último cambio de contraseña si existe
-                        if (data.lastPasswordChange) {
-                            const fecha = new Date(data.lastPasswordChange);
-                            // Ya está incluido en el mensaje de error
+                            updateIntentosInfo(data.intentos, data.maxIntentos || 8);
                         }
                     } else {
                         showMessage('❌ ' + (data.error || 'Credenciales inválidas'), 'error');

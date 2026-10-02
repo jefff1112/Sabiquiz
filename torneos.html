@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Torneos - Sabiquiz</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
+            --accent-green: #48bb78;
+            --accent-purple: #9f7aea;
+            --text-dark: #2d3748;
+            --text-muted: #718096;
+            --bg-card: #ffffff;
+            --border-light: #e2e8f0;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+            --shadow-card: 0 24px 60px rgba(56, 66, 120, 0.22);
+            --shadow-soft: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px;
+            font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+            background: radial-gradient(circle at 20% 10%, #eef2ff, #e0e7ff 45%, #dbeafe 100%);
+            color: var(--text-dark);
+        }
+
+        .container {
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 20px;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 10px 18px;
+            border-radius: var(--radius-sm);
+            background: #f1f5f9;
+            border: 1px solid var(--border-light);
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover {
+            background: #e2e8f0;
+            transform: translateX(-3px);
+            color: #4c51bf;
+        }
+
+        .header-content h1 {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 4px;
+        }
+
+        .header-content p {
+            color: var(--text-muted);
+            font-size: 14px;
+        }
+
+        .tournament-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .tournament-card {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tournament-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .tournament-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 32px 80px rgba(56, 66, 120, 0.28);
+        }
+
+        .tournament-card.locked {
+            opacity: 0.7;
+        }
+
+        .tournament-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Quicksand', sans-serif;
+            margin-bottom: 16px;
+        }
+
+        .status-proximo { background: #eef2ff; color: #667eea; }
+        .status-inscripcion_abierta { background: #fef3c7; color: #d97706; }
+        .status-en_curso { background: #dcfce7; color: #16a34a; animation: pulse 2s infinite; }
+        .status-finalizado { background: #f1f5f9; color: #64748b; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .tournament-name {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .tournament-meta {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .tournament-meta span {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .tournament-meta strong {
+            color: var(--text-dark);
+            font-weight: 600;
+        }
+
+        .tournament-progress {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            padding: 12px;
+            background: #f1f5f9;
+            border-radius: var(--radius-sm);
+        }
+
+        .progress-bar {
+            flex: 1;
+            height: 8px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-bar span {
+            display: block;
+            height: 100%;
+            background: var(--primary-gradient);
+            border-radius: 999px;
+            transition: width 0.5s ease;
+        }
+
+        .progress-text {
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: 14px;
+            color: var(--text-dark);
+            min-width: 50px;
+        }
+
+        .tournament-btn {
+            width: 100%;
+            padding: 14px 20px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-family: 'Quicksand', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.35);
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(102, 126, 234, 0.45);
+        }
+
+        .btn-secondary {
+            background: #f1f5f9;
+            color: #4a5568;
+            border: 1px solid var(--border-light);
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #e2e8f0;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.35);
+        }
+
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(72, 187, 120, 0.45);
+        }
+
+        .btn-disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-disabled:hover {
+            transform: none;
+            box-shadow: none;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state img {
+            width: 100px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 22px;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 10px 20px;
+            background: #f1f5f9;
+            border: 1px solid var(--border-light);
+            border-radius: 999px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-tab.active,
+        .filter-tab:hover {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
+        .countdown {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #fef3c7;
+            color: #d97706;
+            padding: 6px 12px;
+            border-radius: 999px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+        }
+
+        .countdown.urgent {
+            background: #fee2e2;
+            color: #dc2626;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        @media (max-width: 640px) {
+            .page-header { flex-direction: column; align-items: flex-start; }
+            .tournament-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="page-header">
+            <a href="main_menu.html" class="back-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Volver al Menú
+            </a>
+            <div class="header-content">
+                <h1><img src="img/trofeo.png" class="icon-btn" style="width:28px;height:28px;"> Torneos Feria CIMAT 2026</h1>
+                <p>Compite por materia y gana recompensas exclusivas</p>
+            </div>
+        </div>
+
+        <div class="filter-tabs" id="filterTabs">
+            <button class="filter-tab active" data-filter="all">Todos</button>
+            <button class="filter-tab" data-filter="inscripcion_abierta">Inscripciones Abiertas</button>
+            <button class="filter-tab" data-filter="en_curso">En Curso</button>
+            <button class="filter-tab" data-filter="proximo">Próximos</button>
+            <button class="filter-tab" data-filter="finalizado">Finalizados</button>
+        </div>
+
+        <div class="tournament-grid" id="tournamentGrid">
+            <div class="loading-text" style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-muted);">
+                <div class="spinner" style="margin:0 auto 16px;width:40px;height:40px;border:4px solid #e2e8f0;border-top-color:#667eea;border-radius:50%;animation:spin 0.8s linear infinite;"></div>
+                Cargando torneos...
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') 
+            ? 'http://localhost:3000/api' 
+            : (window.location.origin + '/api');
+
+        function getToken() { return localStorage.getItem('token'); }
+
+        async function apiRequest(endpoint, options = {}) {
+            const token = getToken();
+            const headers = { 
+                'Content-Type': 'application/json', 
+                'Authorization': token ? 'Bearer ' + token : '' 
+            };
+            const finalOptions = { ...options, headers: { ...headers, ...options.headers } };
+            const response = await fetch(API_URL + endpoint, finalOptions);
+            if (!response.ok) {
+                if (response.status === 401) { 
+                    localStorage.removeItem('token'); window.location.href = 'login.html'; 
+                }
+                throw new Error(await response.text());
+            }
+            return await response.json();
+        }
+
+        function checkAuth() { 
+            if (!getToken()) { window.location.href = 'login.html'; return false; } 
+            return true; 
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('es-ES', { 
+                weekday: 'long', day: 'numeric', month: 'long', 
+                hour: '2-digit', minute: '2-digit' 
+            });
+        }
+
+        function getTimeUntil(dateStr) {
+            const now = new Date();
+            const target = new Date(dateStr);
+            const diff = target - now;
+            
+            if (diff <= 0) return { text: 'Ya comenzó', urgent: false };
+            
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            
+            if (hours > 0) {
+                return { text: `${hours}h ${minutes}m`, urgent: hours < 1 };
+            }
+            return { text: `${minutes}m`, urgent: minutes <= 5 };
+        }
+
+        function createTournamentCard(torneo) {
+            const card = document.createElement('div');
+            const timeInfo = getTimeUntil(torneo.fecha_inicio);
+            const isInscrito = torneo.inscrito;
+            const canInscribirse = torneo.puedeInscribirse;
+            
+            let statusClass = 'status-' + torneo.estado;
+            let statusText = {
+                'proximo': 'Próximo',
+                'inscripcion_abierta': 'Inscripciones Abiertas',
+                'en_curso': '🔴 EN CURSO',
+                'finalizado': 'Finalizado'
+            }[torneo.estado] || torneo.estado;
+
+            let btnHTML = '';
+            if (torneo.estado === 'proximo') {
+                btnHTML = `<button class="tournament-btn btn-disabled" disabled>Próximamente</button>`;
+            } else if (torneo.estado === 'inscripcion_abierta') {
+                if (isInscrito) {
+                    btnHTML = `<button class="tournament-btn btn-success" disabled><img src="img/correct.png" class="icon-btn"> Inscrito</button>`;
+                } else if (canInscribirse) {
+                    btnHTML = `<button class="tournament-btn btn-primary" onclick="inscribirse(${torneo.id})"><img src="img/trofeo.png" class="icon-btn"> Inscribirme</button>`;
+                } else {
+                    btnHTML = `<button class="tournament-btn btn-disabled" disabled>Completo</button>`;
+                }
+            } else if (torneo.estado === 'en_curso') {
+                if (isInscrito) {
+                    btnHTML = `<a href="torneo_detalle.html?id=${torneo.id}" class="tournament-btn btn-success">🎮 Jugar Partida</a>`;
+                } else {
+                    btnHTML = `<button class="tournament-btn btn-disabled" disabled>Ya iniciado</button>`;
+                }
+            } else if (torneo.estado === 'finalizado') {
+                btnHTML = `<a href="torneo_detalle.html?id=${torneo.id}" class="tournament-btn btn-secondary">🏆 Ver Ranking</a>`;
+            }
+
+            const countdownHTML = torneo.estado === 'inscripcion_abierta' 
+                ? `<div class="countdown ${timeInfo.urgent ? 'urgent' : ''}">⏰ Inicia en: ${timeInfo.text}</div>`
+                : torneo.estado === 'proximo'
+                ? `<div class="countdown">📅 ${formatDate(torneo.fecha_inicio)}</div>`
+                : '';
+
+            card.className = 'tournament-card' + (isInscrito ? ' inscrito' : '') + (torneo.estado === 'finalizado' ? ' finalizado' : '');
+            card.dataset.estado = torneo.estado;
+            card.innerHTML = `
+                <div class="tournament-status ${statusClass}">${statusText}</div>
+                <h3 class="tournament-name">${torneo.nombre}</h3>
+                <div class="tournament-meta">
+                    <span><img src="${torneo.materia_icono || 'img/mat.png'}" style="width:16px;height:16px;"> <strong>Materia:</strong> ${torneo.materia_nombre}</span>
+                    <span>⏱️ <strong>Duración:</strong> ${torneo.duracion_minutos} min (5 partidas)</span>
+                    <span>👥 <strong>Participantes:</strong> ${torneo.inscritos}/${torneo.max_usuarios}</span>
+                    <span>🎮 <strong>Modo:</strong> ${torneo.modo === 'acumulativo' ? 'Acumulativo' : torneo.modo}</span>
+                </div>
+                ${countdownHTML}
+                <div class="tournament-progress">
+                    <div class="progress-bar">
+                        <span style="width: ${(torneo.inscritos / torneo.max_usuarios * 100)}%"></span>
+                    </div>
+                    <span class="progress-text">${torneo.inscritos}/${torneo.max_usuarios}</span>
+                </div>
+                ${btnHTML}
+            `;
+            return card;
+        }
+
+        async function loadTorneos() {
+            if (!checkAuth()) return;
+            const grid = document.getElementById('tournamentGrid');
+            grid.innerHTML = '<div class="loading-text" style="grid-column: 1/-1; text-align:center; padding:40px;"><div class="spinner" style="margin:0 auto 16px;width:40px;height:40px;border:4px solid #e2e8f0;border-top-color:#667eea;border-radius:50%;animation:spin 0.8s linear infinite;"></div>Cargando torneos...</div>';
+            
+            try {
+                const data = await apiRequest('/torneos');
+                if (data.success) {
+                    renderTorneos(data.torneos);
+                } else {
+                    throw new Error(data.error);
+                }
+            } catch (error) {
+                console.error('Error cargando torneos:', error);
+                grid.innerHTML = '<div class="empty-state"><img src="img/incorrect.png" class="icon-btn"><h3>Error al cargar torneos</h3><p>Intenta recargar la página</p></div>';
+            }
+        }
+
+        function renderTorneos(torneos) {
+            const grid = document.getElementById('tournamentGrid');
+            const activeFilter = document.querySelector('.filter-tab.active')?.dataset.filter || 'all';
+            
+            const filtered = torneos.filter(t => 
+                activeFilter === 'all' || t.estado === activeFilter
+            );
+
+            if (filtered.length === 0) {
+                grid.innerHTML = '<div class="empty-state" style="grid-column: 1/-1;"><img src="img/trofeo.png" class="icon-btn"><h3>No hay torneos</h3><p>No se encontraron torneos con este filtro</p></div>';
+                return;
+            }
+
+            grid.innerHTML = '';
+            filtered.forEach(t => grid.appendChild(createTournamentCard(t)));
+        }
+
+        async function inscribirse(torneoId) {
+            try {
+                const data = await apiRequest('/torneos/' + torneoId + '/inscribirse', { method: 'POST' });
+                if (data.success) {
+                    showToast('✅ ¡Inscrito correctamente! Recibirás un recordatorio antes de empezar.');
+                    loadTorneos();
+                } else {
+                    showToast('❌ ' + data.error, 'error');
+                }
+            } catch (error) {
+                console.error('Error inscribiéndose:', error);
+                showToast('❌ Error al inscribirse', 'error');
+            }
+        }
+
+        function showToast(message, type = 'success') {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed; bottom: 24px; right: 24px; z-index: 9999;
+                padding: 16px 24px; border-radius: 12px; font-weight: 600;
+                background: ${type === 'success' ? '#48bb78' : '#fc8181'};
+                color: white; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+                animation: slideIn 0.3s ease;
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transition = 'opacity 0.3s'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+
+        // Filtros
+        document.getElementById('filterTabs').addEventListener('click', (e) => {
+            if (e.target.classList.contains('filter-tab')) {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                e.target.classList.add('active');
+                loadTorneos(); // Re-render con filtro
+            }
+        });
+
+        // Auto-refresh cada 30 segundos
+        setInterval(loadTorneos, 30000);
+
+        document.addEventListener('DOMContentLoaded', loadTorneos);
+    </script>
+    <style>
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+</body>
+</html>

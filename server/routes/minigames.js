@@ -3,6 +3,7 @@ const router = express.Router();
 const { authMiddleware } = require('../middleware/auth');
 const Logro = require('../models/Logro');
 const { pool } = require('../config/database');
+const { sendNotification } = require('../utils/notifications');
 
 // ============================================
 // RUTAS DE MINIJUEGOS

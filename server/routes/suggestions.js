@@ -245,7 +245,7 @@ router.post('/aprobar/:sugerenciaId', adminMiddleware, async (req, res) => {
 
         // Intentar enviar en tiempo real (si el usuario está conectado)
         try {
-            const { sendNotification } = require('../server');
+            const { sendNotification } = require('../utils/notifications');
             sendNotification(usuarioId, 'suggestion_approved', {
                 sugerenciaId: sugerenciaId,
                 preguntaId: preguntaId,
@@ -323,7 +323,7 @@ router.post('/rechazar/:sugerenciaId', adminMiddleware, async (req, res) => {
         await saveNotificationToDB(usuarioId, 'suggestion_rejected', mensaje);
 
         try {
-            const { sendNotification } = require('../server');
+            const { sendNotification } = require('../utils/notifications');
             sendNotification(usuarioId, 'suggestion_rejected', {
                 sugerenciaId: sugerenciaId,
                 pregunta: preguntaTexto,

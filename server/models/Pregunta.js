@@ -5,8 +5,8 @@ class Pregunta {
         if (preguntas.length === 0) return preguntas;
         const ids = preguntas.map(p => p.id);
         const [opciones] = await pool.query(
-            `SELECT o.id, o.pregunta_id, JSON_EXTRACT(o.texto, '$.es') as texto, 
-                    o.es_correcta, o.orden
+            `SELECT o.id, o.pregunta_id, JSON_UNQUOTE(JSON_EXTRACT(o.texto, '$.es')) as texto,
+                    o.orden
              FROM opciones o
              WHERE o.pregunta_id IN (?)
              ORDER BY o.pregunta_id, o.orden`,
