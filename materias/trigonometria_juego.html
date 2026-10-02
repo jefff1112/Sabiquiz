@@ -1,0 +1,1249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Círculo Trigonométrico - Juego</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea, #764ba2);
+            --accent-green: #48bb78;
+            --accent-purple: #9f7aea;
+            --sin-color: #fc8181;
+            --cos-color: #4299e1;
+            --tan-color: #9f7aea;
+            --text-dark: #2d3748;
+            --text-muted: #718096;
+            --bg-card: #ffffff;
+            --border-light: #e2e8f0;
+            --radius-lg: 24px;
+            --radius-md: 16px;
+            --radius-sm: 12px;
+            --shadow-card: 0 24px 60px rgba(56, 66, 120, 0.22);
+            --shadow-soft: 0 8px 25px rgba(0, 0, 0, 0.08);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 16px;
+            font-family: 'DM Sans', 'Segoe UI', system-ui, sans-serif;
+            background: radial-gradient(circle at 20% 10%, #eef2ff, #e0e7ff 45%, #dbeafe 100%);
+            color: var(--text-dark);
+        }
+
+        .game-container {
+            background: var(--bg-card);
+            border-radius: var(--radius-lg);
+            padding: 28px 32px 24px;
+            box-shadow: var(--shadow-card);
+            text-align: center;
+            width: 100%;
+            max-width: 1080px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+        }
+
+        .game-container::before {
+            content: '';
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 6px;
+            background: linear-gradient(90deg, #667eea, #9f7aea, #48bb78);
+        }
+
+        .header-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .back-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 8px 16px;
+            border-radius: var(--radius-sm);
+            background: #f1f5f9;
+            border: 1px solid var(--border-light);
+            transition: all 0.2s ease;
+        }
+
+        .back-btn:hover { background: #e2e8f0; transform: translateX(-3px); color: #4c51bf; }
+
+        .level-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: #f7fafc;
+            border: 1px solid var(--border-light);
+            border-radius: 999px;
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .level-badge span { color: #667eea; }
+
+        .stars-row { display: flex; justify-content: center; gap: 8px; margin: 6px 0 14px; }
+
+        .star {
+            font-size: 32px;
+            color: #cbd5e0;
+            transition: color 0.3s, transform 0.3s;
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.05));
+        }
+
+        .star.filled {
+            color: #f6ad55;
+            filter: drop-shadow(0 4px 12px rgba(246, 173, 85, 0.4));
+            animation: starPop 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        @keyframes starPop {
+            0% { transform: scale(0.5) rotate(-20deg); }
+            60% { transform: scale(1.25) rotate(10deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .challenge {
+            background: #eef2ff;
+            border: 1px solid #c7d2fe;
+            color: #3730a3;
+            padding: 14px 18px;
+            border-radius: var(--radius-md);
+            font-size: 17px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        .challenge b { color: #4c51bf; }
+
+        .hint {
+            font-size: 15px;
+            color: var(--text-muted);
+            font-weight: 600;
+            margin-bottom: 18px;
+            min-height: 22px;
+        }
+
+        /* ---------- Layout: canvas + panel ---------- */
+        .game-layout {
+            display: flex;
+            gap: 22px;
+            align-items: flex-start;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .canvas-wrap { flex: 0 1 600px; max-width: 600px; width: 100%; }
+
+        #gameCanvas {
+            width: 100%;
+            max-width: 600px;
+            height: auto;
+            aspect-ratio: 1 / 1;
+            display: block;
+            margin: 0 auto;
+            border: 2px solid var(--border-light);
+            border-radius: var(--radius-md);
+            background: #ffffff;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.04);
+            cursor: grab;
+            touch-action: none;
+            user-select: none;
+        }
+
+        #gameCanvas.dragging { cursor: grabbing; }
+
+        .panel {
+            flex: 0 1 300px;
+            min-width: 250px;
+            background: #f7fafc;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-md);
+            padding: 18px;
+            text-align: left;
+        }
+
+        .panel h4 {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 15px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--text-muted);
+            margin-bottom: 12px;
+        }
+
+        .readout {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            padding: 8px 12px;
+            background: #ffffff;
+            border: 1px solid var(--border-light);
+            border-radius: var(--radius-sm);
+            margin-bottom: 8px;
+            font-size: 14px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .readout b {
+            font-family: 'Quicksand', sans-serif;
+            font-size: 19px;
+            color: var(--text-dark);
+        }
+
+        .func-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            border-radius: var(--radius-sm);
+            background: #ffffff;
+            border-left: 5px solid var(--border-light);
+            margin-bottom: 8px;
+            font-family: 'Quicksand', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            color: var(--text-dark);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .func-card .v { font-size: 20px; }
+
+        .func-card.sin { border-left-color: var(--sin-color); }
+        .func-card.cos { border-left-color: var(--cos-color); }
+        .func-card.tan { border-left-color: var(--tan-color); }
+
+        .func-card.sin .v { color: #c53030; }
+        .func-card.cos .v { color: #2b6cb0; }
+        .func-card.tan .v { color: #6b46c1; }
+
+        .func-card.objective {
+            box-shadow: 0 0 0 2px #667eea inset;
+            transform: translateX(4px);
+        }
+
+        .check-badge {
+            display: none;
+            margin-top: 12px;
+            padding: 10px 14px;
+            border-radius: var(--radius-sm);
+            background: #c6f6d5;
+            color: #22543d;
+            border: 1px solid #9ae6b4;
+            font-weight: 700;
+            text-align: center;
+            font-size: 15px;
+        }
+
+        .check-badge.show { display: block; animation: starPop 0.35s ease; }
+
+        /* ---------- Slider ---------- */
+        .slider-controls {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 18px;
+            flex-wrap: wrap;
+            padding: 18px;
+            background: #f1f5f9;
+            border-radius: var(--radius-md);
+        }
+
+        .slider-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+            min-width: 280px;
+            max-width: 100%;
+        }
+
+        .slider-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .slider-label .value {
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 20px;
+            min-width: 60px;
+            text-align: right;
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 320px;
+            max-width: 100%;
+            height: 8px;
+            border-radius: 4px;
+            background: #e2e8f0;
+            outline: none;
+            cursor: pointer;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary-gradient);
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.2); box-shadow: 0 4px 16px rgba(102, 126, 234, 0.6); }
+
+        input[type="range"]::-moz-range-thumb {
+            width: 24px; height: 24px; border-radius: 50%;
+            background: var(--primary-gradient); cursor: pointer; border: none;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        /* ---------- Botones ---------- */
+        .btn {
+            padding: 14px 28px;
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: 'Quicksand', sans-serif;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.35);
+        }
+
+        .btn-primary:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(102, 126, 234, 0.45); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        .btn-success {
+            background: linear-gradient(135deg, #48bb78, #38a169);
+            color: white;
+            box-shadow: 0 8px 20px rgba(72, 187, 120, 0.35);
+            display: none;
+        }
+
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(72, 187, 120, 0.45); }
+
+        .feedback {
+            margin-top: 12px;
+            min-height: 40px;
+            font-size: 15px;
+            line-height: 1.5;
+            padding: 12px 16px;
+            border-radius: var(--radius-md);
+            font-weight: 600;
+            display: none;
+        }
+
+        .feedback.success { display: block; background: #c6f6d5; color: #22543d; border: 1px solid #9ae6b4; }
+        .feedback.error { display: block; background: #fed7d7; color: #742a2a; border: 1px solid #feb2b2; }
+        .feedback.info { display: block; background: #eebefa; color: #6b46c1; border: 1px solid #d6bcfa; }
+
+        /* ---------- Sabi ---------- */
+        .sabi-box {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            margin-top: 18px;
+            padding: 14px 18px;
+            background: #f8fafc;
+            border: 1px dashed var(--border-light);
+            border-radius: var(--radius-md);
+            text-align: left;
+            flex-wrap: wrap;
+        }
+
+        .sabi-box img {
+            width: 90px;
+            height: 90px;
+            object-fit: contain;
+            flex: 0 0 auto;
+            filter: drop-shadow(0 6px 14px rgba(56, 66, 120, 0.18));
+        }
+
+        .sabi-box p { font-size: 15px; color: #4a5568; font-weight: 600; max-width: 620px; }
+
+        /* ---------- Teoría ---------- */
+        .theory-section {
+            width: 100%;
+            max-width: 1080px;
+            background: #ffffff;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-soft);
+            border: 1px solid var(--border-light);
+            overflow: hidden;
+        }
+
+        .theory-toggle {
+            width: 100%;
+            padding: 18px 24px;
+            background: #f8fafc;
+            border: none;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            font-family: 'Quicksand', sans-serif;
+            font-size: 16px;
+            font-weight: 700;
+            color: #4a5568;
+            transition: background 0.2s;
+        }
+
+        .theory-toggle:hover { background: #edf2f7; }
+        .theory-toggle svg { transition: transform 0.3s; }
+        .theory-toggle.active svg { transform: rotate(180deg); }
+
+        .theory-content {
+            padding: 0;
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out, padding 0.4s ease-out;
+            text-align: left;
+            color: #4a5568;
+            line-height: 1.6;
+        }
+
+        .theory-content.open { padding: 24px; max-height: 1800px; }
+
+        .theory-content h4 {
+            color: #2d3748;
+            font-family: 'Quicksand', sans-serif;
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-size: 18px;
+        }
+
+        .theory-content h4:first-child { margin-top: 0; }
+        .theory-content p { margin-bottom: 12px; font-size: 15px; }
+
+        .formula-box {
+            background: #f1f5f9;
+            border-left: 4px solid #667eea;
+            padding: 16px;
+            border-radius: 0 8px 8px 0;
+            font-family: monospace;
+            font-size: 15px;
+            margin: 16px 0;
+            color: #2d3748;
+        }
+
+        .formula-box div { margin-bottom: 8px; }
+        .formula-box div:last-child { margin-bottom: 0; }
+        .highlight { color: #667eea; font-weight: bold; }
+
+        /* ---------- Confeti ---------- */
+        #confettiLayer { position: fixed; inset: 0; pointer-events: none; z-index: 9999; overflow: hidden; }
+
+        .confetti {
+            position: absolute;
+            top: -20px;
+            width: 10px;
+            height: 14px;
+            border-radius: 3px;
+            animation: confettiFall 3s cubic-bezier(0.4, 0, 1, 1) forwards;
+        }
+
+        @keyframes confettiFall {
+            0% { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+            100% { transform: translateY(calc(100vh + 50px)) translateX(var(--drift, 0)) rotate(720deg) scale(0.5); opacity: 0; }
+        }
+
+        /* ---------- Responsive ---------- */
+        @media (max-width: 900px) {
+            .game-layout { flex-direction: column; align-items: center; }
+            .panel { width: 100%; max-width: 600px; flex: 1 1 auto; }
+        }
+
+        @media (max-width: 640px) {
+            .game-container { padding: 22px 16px; }
+            .challenge { font-size: 15px; }
+            .slider-group { min-width: auto; width: 100%; }
+            .btn { width: 100%; }
+            .sabi-box { flex-direction: column; text-align: center; }
+            .sabi-box p { text-align: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="header-row">
+            <a href="trigonometria.html" class="back-btn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+                Volver
+            </a>
+            <div class="level-badge">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 12V3M12 12l7 7"/></svg>
+                Nivel <span id="levelNum">1</span>
+            </div>
+        </div>
+
+        <div class="stars-row" id="starsContainer">
+            <span class="star" id="star1">☆</span>
+            <span class="star" id="star2">☆</span>
+            <span class="star" id="star3">☆</span>
+        </div>
+
+        <div class="challenge" id="challenge">Cargando desafío...</div>
+        <div class="hint" id="hintLine">Arrastra el punto rojo sobre el círculo o usa el slider para cambiar el ángulo.</div>
+
+        <div class="game-layout">
+            <div class="canvas-wrap">
+                <canvas id="gameCanvas" width="600" height="600"></canvas>
+            </div>
+
+            <aside class="panel">
+                <h4>Valores en tiempo real</h4>
+
+                <div class="readout">
+                    <span>Ángulo</span>
+                    <b id="degVal">0°</b>
+                </div>
+                <div class="readout">
+                    <span>Radianes</span>
+                    <b id="radVal">0.00</b>
+                </div>
+
+                <div class="func-card sin" id="cardSin">
+                    <span>sin(θ)</span>
+                    <span class="v" id="sinVal">0.00</span>
+                </div>
+                <div class="func-card cos" id="cardCos">
+                    <span>cos(θ)</span>
+                    <span class="v" id="cosVal">1.00</span>
+                </div>
+                <div class="func-card tan" id="cardTan">
+                    <span>tan(θ)</span>
+                    <span class="v" id="tanVal">0.00</span>
+                </div>
+
+                <div class="check-badge" id="checkBadge">✓ ¡Correcto! Estás en el ángulo</div>
+            </aside>
+        </div>
+
+        <div class="slider-controls">
+            <div class="slider-group">
+                <div class="slider-label">
+                    <span>Ángulo (θ):</span>
+                    <span class="value" id="angleValue">0°</span>
+                </div>
+                <input type="range" id="angleSlider" min="0" max="360" step="1" value="0" aria-label="Ángulo en grados">
+            </div>
+        </div>
+
+        <div class="mechanic-controls" id="mechanicControls">
+            <button class="btn btn-primary" id="btnValidar">Validar ángulo</button>
+        </div>
+
+        <div class="feedback" id="feedback"></div>
+
+        <div class="sabi-box">
+            <img src="../img/sabi/sabi_pensando.png" id="sabiMascot" alt="Sabi pensando">
+            <p id="sabiText">Arrastra el punto rojo hasta que el valor coincida con el objetivo. Sabi te acompaña.</p>
+        </div>
+    </div>
+
+    <!-- Sección Teórica Colapsable -->
+    <div class="theory-section">
+        <button class="theory-toggle" id="theoryToggle">
+            <span><img src="../img/control2.png" class="icon-btn"> ¿Cómo funciona? (Ver teoría)</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+        <div class="theory-content" id="theoryContent">
+            <h4>El círculo unitario</h4>
+            <p>El <strong>círculo unitario</strong> tiene radio <span class="highlight">1</span> y centro en el origen <span class="highlight">(0, 0)</span>. Si colocas un punto sobre él y mides el ángulo <span class="highlight">θ</span> desde el eje X positivo (en sentido antihorario), entonces las coordenadas de ese punto son exactamente <span class="highlight">(cos θ, sen θ)</span>.</p>
+
+            <h4>Las tres funciones</h4>
+            <div class="formula-box">
+                <div><span class="highlight">sen θ</span> = coordenada Y = cateto opuesto / hipotenusa</div>
+                <div><span class="highlight">cos θ</span> = coordenada X = cateto adyacente / hipotenusa</div>
+                <div><span class="highlight">tan θ</span> = sen θ / cos θ = cateto opuesto / cateto adyacente</div>
+            </div>
+
+            <h4>Ángulos notables</h4>
+            <div class="formula-box">
+                <div>30° (π/6) → sen = 0.5, cos ≈ 0.866</div>
+                <div>45° (π/4) → sen = cos ≈ 0.707, tan = 1</div>
+                <div>60° (π/3) → sen ≈ 0.866, cos = 0.5</div>
+                <div>90° (π/2) → sen = 1, cos = 0, tan no existe</div>
+                <div>180° (π) → sen = 0, cos = −1</div>
+                <div>270° (3π/2) → sen = −1, cos = 0</div>
+            </div>
+
+            <h4>Signos por cuadrante</h4>
+            <p>En el <strong>primer</strong> cuadrante (0°-90°) las tres funciones son positivas. En el <strong>segundo</strong> (90°-180°) solo el seno. En el <strong>tercero</strong> (180°-270°) solo la tangente. En el <strong>cuarto</strong> (270°-360°) solo el coseno. Truco: <em>"Todos Seno Tan Coseno"</em>.</p>
+
+            <h4>Radianes</h4>
+            <p>Un giro completo son <span class="highlight">2π radianes = 360°</span>. Para convertir: <span class="highlight">rad = grados × π / 180</span>.</p>
+
+            <h4>Aplicación en la vida real</h4>
+            <p>La trigonometría se usa para medir distancias inaccesibles (altura de un edificio por su sombra), en navegación y GPS, en gráficos por computadora, en el análisis de corriente alterna y en el estudio de ondas y sonido.</p>
+        </div>
+    </div>
+
+    <div id="confettiLayer"></div>
+
+    <script>
+        // ============================================
+        // CONFIGURACIÓN DE LA API
+        // ============================================
+        const API_URL = (window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1")
+            ? "http://localhost:3000/api"
+            : (window.location.origin + "/api");
+
+        function getToken() { return localStorage.getItem("token"); }
+
+        async function apiRequest(endpoint, options = {}) {
+            const token = getToken();
+            const headers = {
+                "Content-Type": "application/json",
+                "Authorization": token ? "Bearer " + token : ""
+            };
+            const finalOptions = { ...options, headers: { ...headers, ...options.headers } };
+            const response = await fetch(API_URL + endpoint, finalOptions);
+            if (!response.ok) {
+                if (response.status === 401) {
+                    localStorage.removeItem("token");
+                    localStorage.removeItem("user");
+                    window.location.href = "../login.html";
+                }
+                throw new Error(await response.text());
+            }
+            return await response.json();
+        }
+
+        // ============================================
+        // ELEMENTOS DOM
+        // ============================================
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+        const challengeEl = document.getElementById("challenge");
+        const hintLine = document.getElementById("hintLine");
+        const mechanicControls = document.getElementById("mechanicControls");
+        const btnValidar = document.getElementById("btnValidar");
+        const feedback = document.getElementById("feedback");
+        const levelNumSpan = document.getElementById("levelNum");
+        const degVal = document.getElementById("degVal");
+        const radVal = document.getElementById("radVal");
+        const sinVal = document.getElementById("sinVal");
+        const cosVal = document.getElementById("cosVal");
+        const tanVal = document.getElementById("tanVal");
+        const checkBadge = document.getElementById("checkBadge");
+        const cardSin = document.getElementById("cardSin");
+        const cardCos = document.getElementById("cardCos");
+        const cardTan = document.getElementById("cardTan");
+        const angleSlider = document.getElementById("angleSlider");
+        const angleValue = document.getElementById("angleValue");
+        const sabiMascot = document.getElementById("sabiMascot");
+        const sabiText = document.getElementById("sabiText");
+        const starElements = [document.getElementById("star1"), document.getElementById("star2"), document.getElementById("star3")];
+
+        // ============================================
+        // GEOMETRÍA DEL CANVAS
+        // ============================================
+        const SIZE = 600;
+        const CX = SIZE / 2;
+        const CY = SIZE / 2;
+        const UNIT = 200;               // 1 unidad = 200 px
+        const MARK = 0.5;               // marca cada 0.5 unidades
+
+        canvas.width = SIZE;
+        canvas.height = SIZE;
+
+        function toPx(x, y) { return [CX + x * UNIT, CY - y * UNIT]; }
+
+        // ============================================
+        // CONFIGURACIÓN DE LOS 5 NIVELES
+        // ============================================
+        // `rounds`: cada ronda es una lista de ángulos válidos (en grados).
+        // Nivel 4 pide 4 ángulos distintos, uno por ronda.
+        const LEVELS = [
+            {
+                numero: 1,
+                titulo: "Ángulos Notables",
+                enunciado: "Encuentra el ángulo donde <b>sen(θ) = 0.5</b>",
+                funcion: "sin",
+                pista: "sen(θ) es la altura del punto (coordenada Y). Hay dos ángulos válidos.",
+                rounds: [{ targets: [30, 150] }]
+            },
+            {
+                numero: 2,
+                titulo: "Coseno",
+                enunciado: "Encuentra el ángulo donde <b>cos(θ) = 0.5</b>",
+                funcion: "cos",
+                pista: "cos(θ) es el desplazamiento horizontal (coordenada X). Hay dos ángulos válidos.",
+                rounds: [{ targets: [60, 300] }]
+            },
+            {
+                numero: 3,
+                titulo: "Tangente",
+                enunciado: "Encuentra el ángulo donde <b>tan(θ) = 1</b>",
+                funcion: "tan",
+                pista: "tan(θ) = sen(θ)/cos(θ). Es positiva en el primer y tercer cuadrante.",
+                rounds: [{ targets: [45, 225] }]
+            },
+            {
+                numero: 4,
+                titulo: "Exploración",
+                enunciado: "Ajusta el ángulo exactamente a cada valor pedido",
+                funcion: null,
+                pista: "Cuatro rondas: 45°, 90°, 180° y 270°. Son los ángulos clave del círculo.",
+                sequence: true,
+                rounds: [{ targets: [45] }, { targets: [90] }, { targets: [180] }, { targets: [270] }]
+            },
+            {
+                numero: 5,
+                titulo: "Desafío Final",
+                enunciado: "Ajusta el ángulo para que <b>sen(θ) = cos(θ)</b>",
+                funcion: null,
+                pista: "Buscas donde la altura y el desplazamiento horizontal son iguales.",
+                rounds: [{ targets: [45, 225] }]
+            }
+        ];
+
+        // ============================================
+        // ESTADO GLOBAL
+        // ============================================
+        const nivelParam = parseInt(new URLSearchParams(window.location.search).get("nivel")) || 1;
+        const currentLevel = Math.min(5, Math.max(1, nivelParam));
+        const cfg = LEVELS[currentLevel - 1];
+
+        let angle = 0;                 // ángulo actual en grados (0-360)
+        let roundIndex = 0;            // ronda en curso
+        let roundErrors = [];          // error cometido en cada ronda validada
+        let allValidated = false;      // ya validó todas las rondas, falta guardar
+        let pendingStars = 0;
+        let isSaved = false;
+        let dragging = false;
+
+        const NIVEL_ID_BASE = 510;     // 511-515 → Trigonometría
+        const TOL_ACIERTO = 2;         // grados: aparece el check verde
+        const TOL_VALIDAR = 5;         // grados: error máximo aceptable (1 estrella)
+        const TOL_3 = 1, TOL_2 = 3;
+
+        // ============================================
+        // UTILIDADES MATEMÁTICAS
+        // ============================================
+        function norm360(a) { return ((a % 360) + 360) % 360; }
+
+        function angDist(a, b) {
+            const d = Math.abs(norm360(a) - norm360(b));
+            return Math.min(d, 360 - d);
+        }
+
+        function toRad(deg) { return deg * Math.PI / 180; }
+
+        function currentTargets() {
+            const idx = Math.min(roundIndex, cfg.rounds.length - 1);
+            return cfg.rounds[idx].targets;
+        }
+
+        function currentError() {
+            const targets = currentTargets();
+            let best = Infinity;
+            targets.forEach(t => { const d = angDist(angle, t); if (d < best) best = d; });
+            return best;
+        }
+
+        function sinDeg(d) { return Math.sin(toRad(d)); }
+        function cosDeg(d) { return Math.cos(toRad(d)); }
+
+        function tanDeg(d) {
+            const c = cosDeg(d);
+            if (Math.abs(c) < 1e-9) return null;   // indefinida a 90° y 270°
+            return Math.tan(toRad(d));
+        }
+
+        function fmt(n) {
+            if (n === null) return "∞";
+            const v = Math.abs(n) < 1e-9 ? 0 : n;
+            return (v < 0 ? "" : " ") + v.toFixed(2);
+        }
+
+        // ============================================
+        // INTERFAZ
+        // ============================================
+        function updateStars(count) {
+            starElements.forEach((s, i) => {
+                const on = i < count;
+                s.textContent = on ? "★" : "☆";
+                s.classList.toggle("filled", on);
+                s.style.animationDelay = on ? (i * 0.1) + "s" : "0s";
+            });
+        }
+
+        function showFeedback(msg, type = "success") {
+            feedback.innerHTML = msg;
+            feedback.className = "feedback " + type;
+        }
+
+        function hideFeedback() { feedback.className = "feedback"; feedback.innerHTML = ""; }
+
+        function setSabi(img, text) {
+            sabiMascot.src = "../img/sabi/" + img;
+            sabiText.textContent = text;
+        }
+
+        function confetti() {
+            const layer = document.getElementById("confettiLayer");
+            const colors = ["#667eea", "#48bb78", "#9f7aea", "#f6ad55", "#ecc94b", "#4299e1"];
+            for (let i = 0; i < 60; i++) {
+                const d = document.createElement("div");
+                d.className = "confetti";
+                d.style.left = (Math.random() * 100) + "%";
+                d.style.background = colors[i % colors.length];
+                d.style.animationDelay = (Math.random() * 0.5) + "s";
+                d.style.setProperty("--drift", (Math.random() * 250 - 125) + "px");
+                layer.appendChild(d);
+                setTimeout(() => d.remove(), 3000);
+            }
+        }
+
+        function setChallengeText() {
+            if (!cfg.sequence) {
+                challengeEl.innerHTML = `Nivel ${currentLevel} · ${cfg.titulo} — ${cfg.enunciado}`;
+                return;
+            }
+            const r = Math.min(roundIndex, cfg.rounds.length - 1);
+            const hechas = allValidated ? cfg.rounds.length : roundIndex;
+            challengeEl.innerHTML = `Nivel ${currentLevel} · ${cfg.titulo} — Ronda ${Math.min(roundIndex + 1, cfg.rounds.length)} de ${cfg.rounds.length}: ajusta a <b>${cfg.rounds[r].targets[0]}°</b> <span style="font-weight:600;color:#6b7280;">(${hechas}/${cfg.rounds.length} superadas)</span>`;
+        }
+
+        function markObjectiveCard() {
+            cardSin.classList.remove("objective");
+            cardCos.classList.remove("objective");
+            cardTan.classList.remove("objective");
+            if (cfg.funcion === "sin") cardSin.classList.add("objective");
+            else if (cfg.funcion === "cos") cardCos.classList.add("objective");
+            else if (cfg.funcion === "tan") cardTan.classList.add("objective");
+        }
+
+        // ============================================
+        // DIBUJO DEL CANVAS
+        // ============================================
+        function clearCanvas() {
+            ctx.fillStyle = "#ffffff";
+            ctx.fillRect(0, 0, SIZE, SIZE);
+        }
+
+        function drawGrid() {
+            ctx.strokeStyle = "#edf2f7";
+            ctx.lineWidth = 1;
+            for (let t = -1.5; t <= 1.5; t += MARK) {
+                const [x] = toPx(t, 0);
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, SIZE); ctx.stroke();
+                const [, y] = toPx(0, t);
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(SIZE, y); ctx.stroke();
+            }
+        }
+
+        function drawCircle() {
+            const [cx, cy] = toPx(0, 0);
+            ctx.beginPath();
+            ctx.arc(cx, cy, UNIT, 0, Math.PI * 2);
+            ctx.fillStyle = "#fbfdff";
+            ctx.fill();
+            ctx.strokeStyle = "#4a5568";
+            ctx.lineWidth = 2.5;
+            ctx.stroke();
+        }
+
+        function drawAxes() {
+            const [cx, cy] = toPx(0, 0);
+
+            // Ejes
+            ctx.strokeStyle = "#4a5568";
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.moveTo(0, cy); ctx.lineTo(SIZE, cy);      // eje X
+            ctx.moveTo(cx, SIZE); ctx.lineTo(cx, 0);      // eje Y
+            ctx.stroke();
+
+            // Flechas
+            ctx.fillStyle = "#4a5568";
+            ctx.beginPath(); ctx.moveTo(SIZE - 4, cy); ctx.lineTo(SIZE - 16, cy - 6); ctx.lineTo(SIZE - 16, cy + 6); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(cx, 4); ctx.lineTo(cx - 6, 16); ctx.lineTo(cx + 6, 16); ctx.fill();
+
+            // Marcas cada 0.5 con etiquetas
+            ctx.font = "600 12px 'DM Sans', sans-serif";
+            ctx.fillStyle = "#a0aec0";
+            for (let t = -1.5; t <= 1.5; t += MARK) {
+                if (Math.abs(t) < 1e-9) continue;
+                const [x] = toPx(t, 0);
+                ctx.beginPath(); ctx.moveTo(x, cy - 5); ctx.lineTo(x, cy + 5); ctx.strokeStyle = "#4a5568"; ctx.lineWidth = 1.5; ctx.stroke();
+                ctx.textAlign = "center";
+                ctx.fillText(t.toFixed(1).replace(".0", ""), x, cy + 20);
+
+                const [, y] = toPx(0, t);
+                ctx.beginPath(); ctx.moveTo(cx - 5, y); ctx.lineTo(cx + 5, y); ctx.stroke();
+                ctx.textAlign = "right";
+                ctx.fillText(t.toFixed(1).replace(".0", ""), cx - 10, y + 4);
+            }
+
+            // Etiquetas de eje
+            ctx.fillStyle = "#2d3748";
+            ctx.font = "bold 14px 'Quicksand', sans-serif";
+            ctx.textAlign = "left";
+            ctx.fillText("x", SIZE - 22, cy - 12);
+            ctx.fillText("y", cx + 12, 22);
+
+            // Origen
+            ctx.fillStyle = "#4a5568";
+            ctx.beginPath(); ctx.arc(cx, cy, 3.5, 0, Math.PI * 2); ctx.fill();
+        }
+
+        function drawTriangle(sin_, cos_, green) {
+            const [ox, oy] = toPx(0, 0);
+            const [px_, py_] = toPx(cos_, sin_);
+            const [fx, fy] = toPx(cos_, 0);      // pie de la vertical sobre el eje X
+            const [gx, gy] = toPx(0, sin_);      // pie de la horizontal sobre el eje Y
+
+            const colSin = green ? "#48bb78" : "#fc8181";
+            const colCos = green ? "#48bb78" : "#4299e1";
+            const colRad = green ? "#48bb78" : "#667eea";
+
+            // Cateto opuesto (sen) → vertical hasta el eje X
+            ctx.strokeStyle = colSin;
+            ctx.lineWidth = 5;
+            ctx.lineCap = "round";
+            ctx.beginPath(); ctx.moveTo(px_, py_); ctx.lineTo(fx, fy); ctx.stroke();
+
+            // Cateto adyacente (cos) → horizontal hasta el eje Y
+            ctx.strokeStyle = colCos;
+            ctx.beginPath(); ctx.moveTo(px_, py_); ctx.lineTo(gx, gy); ctx.stroke();
+
+            // Radio (hipotenusa)
+            ctx.strokeStyle = colRad;
+            ctx.lineWidth = 6;
+            ctx.beginPath(); ctx.moveTo(ox, oy); ctx.lineTo(px_, py_); ctx.stroke();
+
+            // Arco del ángulo
+            ctx.strokeStyle = green ? "#48bb78" : "#9f7aea";
+            ctx.lineWidth = 2.5;
+            ctx.beginPath();
+            ctx.arc(ox, oy, 52, 0, -toRad(angle), true);
+            ctx.stroke();
+
+            // Etiquetas de los catetos
+            ctx.font = "bold 13px 'DM Sans', sans-serif";
+            ctx.textAlign = "center";
+            ctx.fillStyle = colSin;
+            ctx.fillText("sen", px_ + (cos_ >= 0 ? 24 : -24), (py_ + fy) / 2);
+            ctx.fillStyle = colCos;
+            ctx.fillText("cos", (px_ + gx) / 2, py_ + (sin_ >= 0 ? -12 : 20));
+        }
+
+        function drawPoint(sin_, cos_, green) {
+            const [px_, py_] = toPx(cos_, sin_);
+            const g = ctx.createRadialGradient(px_, py_, 2, px_, py_, 16);
+            g.addColorStop(0, green ? "#68d391" : "#fc8181");
+            g.addColorStop(1, green ? "#2f855a" : "#e53e3e");
+            ctx.fillStyle = g;
+            ctx.beginPath(); ctx.arc(px_, py_, 13, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 3;
+            ctx.stroke();
+        }
+
+        function drawCheck(green) {
+            if (!green) return;
+            const [px_, py_] = toPx(cosDeg(angle), sinDeg(angle));
+            ctx.fillStyle = "#48bb78";
+            ctx.beginPath(); ctx.arc(px_ + 26, py_ - 26, 15, 0, Math.PI * 2); ctx.fill();
+            ctx.strokeStyle = "#ffffff";
+            ctx.lineWidth = 3.5;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(px_ + 19, py_ - 26);
+            ctx.lineTo(px_ + 24, py_ - 20);
+            ctx.lineTo(px_ + 33, py_ - 32);
+            ctx.stroke();
+        }
+
+        // ============================================
+        // RENDER PRINCIPAL
+        // ============================================
+        function render() {
+            const sin_ = sinDeg(angle);
+            const cos_ = cosDeg(angle);
+            const tan_ = tanDeg(angle);
+            const err = currentError();
+            const green = !allValidated && roundIndex < cfg.rounds.length && err <= TOL_ACIERTO;
+
+            clearCanvas();
+            drawGrid();
+            drawCircle();
+            drawAxes();
+            drawTriangle(sin_, cos_, green);
+            drawPoint(sin_, cos_, green);
+            drawCheck(green);
+
+            // Lecturas numéricas
+            degVal.textContent = angle + "°";
+            radVal.textContent = toRad(angle).toFixed(2) + " rad";
+            sinVal.textContent = fmt(sin_);
+            cosVal.textContent = fmt(cos_);
+            tanVal.textContent = tan_ === null ? "∞" : fmt(tan_);
+            angleValue.textContent = angle + "°";
+            if (angleSlider.value !== String(angle)) angleSlider.value = String(angle);
+
+            checkBadge.classList.toggle("show", green);
+            if (green) {
+                const objetivo = currentTargets().map(t => t + "°").join(" o ");
+                checkBadge.textContent = "✓ ¡Correcto! " + objetivo + " (error " + err.toFixed(1) + "°)";
+            }
+        }
+
+        // ============================================
+        // INTERACCIÓN
+        // ============================================
+        function setAngle(deg, syncSlider = true) {
+            if (isSaved) return;
+            angle = Math.round(norm360(deg));
+            if (angle === 360) angle = 0;
+            if (syncSlider) angleSlider.value = String(angle);
+            render();
+        }
+
+        function pointerToAngle(clientX, clientY) {
+            const rect = canvas.getBoundingClientRect();
+            const x = (clientX - rect.left) * (canvas.width / rect.width) - CX;
+            const y = CY - (clientY - rect.top) * (canvas.height / rect.height);
+            let deg = Math.atan2(y, x) * 180 / Math.PI;
+            if (deg < 0) deg += 360;
+            return deg;
+        }
+
+        function onDown(e) {
+            if (isSaved || e.button === 2) return;
+            dragging = true;
+            canvas.classList.add("dragging");
+            const p = e.touches ? e.touches[0] : e;
+            setAngle(pointerToAngle(p.clientX, p.clientY));
+            e.preventDefault();
+        }
+
+        function onMove(e) {
+            if (!dragging) return;
+            const p = e.touches ? e.touches[0] : e;
+            setAngle(pointerToAngle(p.clientX, p.clientY));
+            e.preventDefault();
+        }
+
+        function onUp() {
+            dragging = false;
+            canvas.classList.remove("dragging");
+        }
+
+        canvas.addEventListener("mousedown", onDown);
+        window.addEventListener("mousemove", onMove);
+        window.addEventListener("mouseup", onUp);
+
+        canvas.addEventListener("touchstart", onDown, { passive: false });
+        window.addEventListener("touchmove", onMove, { passive: false });
+        window.addEventListener("touchend", onUp);
+
+        angleSlider.addEventListener("input", () => setAngle(parseFloat(angleSlider.value), false));
+
+        document.getElementById("theoryToggle").addEventListener("click", function () {
+            this.classList.toggle("active");
+            document.getElementById("theoryContent").classList.toggle("open");
+        });
+
+        // ============================================
+        // VALIDACIÓN Y GUARDADO
+        // ============================================
+        function validate() {
+            if (isSaved) return;
+
+            // Ya validó todas las rondas → este clic guarda
+            if (allValidated) { saveResult(); return; }
+
+            const err = currentError();
+            const objetivo = currentTargets().map(t => t + "°").join(" o ");
+
+            if (err > TOL_VALIDAR) {
+                showFeedback(
+                    `Todavía no. Estás a <b>${err.toFixed(1)}°</b> de ${objetivo}. ` +
+                    `Necesitas un error de ${TOL_VALIDAR}° o menos para superar la ronda.`,
+                    "error"
+                );
+                setSabi("sabi_anima.png", "¡Casi! Sigue moviendo el punto rojo para acercarte al objetivo.");
+                return;
+            }
+
+            roundErrors.push(err);
+            roundIndex++;
+
+            if (roundIndex < cfg.rounds.length) {
+                const siguiente = cfg.rounds[roundIndex].targets[0];
+                showFeedback(`✓ Ronda superada con un error de <b>${err.toFixed(1)}°</b>. Ahora ajusta a <b>${siguiente}°</b>.`, "success");
+                setSabi("sabi_celebrando.png", `¡Muy bien! Error de ${err.toFixed(1)}°. Vamos por la siguiente ronda.`);
+                setChallengeText();
+                render();
+                return;
+            }
+
+            // Todas las rondas validadas → calcular estrellas
+            const peorError = Math.max.apply(null, roundErrors);
+            pendingStars = peorError <= TOL_3 ? 3 : peorError <= TOL_2 ? 2 : 1;
+            allValidated = true;
+
+            btnValidar.textContent = "Guardar resultado";
+            btnValidar.classList.remove("btn-primary");
+            btnValidar.classList.add("btn-success");
+            updateStars(pendingStars);
+
+            const detalle = cfg.rounds.length > 1
+                ? `Error máximo en las ${cfg.rounds.length} rondas: <b>${peorError.toFixed(1)}°</b>.`
+                : `Error final: <b>${peorError.toFixed(1)}°</b>.`;
+
+            showFeedback(`✓ ¡Desafío completado! ${detalle} Obtienes <b>${pendingStars} estrella(s)</b>. Pulsa "Guardar resultado".`, "success");
+            if (pendingStars > 0) confetti();
+            setSabi(pendingStars === 3 ? "sabi_medalla.png" : "sabi_celebrando.png",
+                pendingStars === 3
+                    ? "¡Perfecto! Dominaste el círculo unitario. Guarda tu resultado."
+                    : "¡Bien hecho! Puedes repetir el nivel para buscar 3 estrellas.");
+            setChallengeText();
+            render();
+        }
+
+        async function saveResult() {
+            if (isSaved) return;
+            if (pendingStars < 1) {
+                showFeedback("Necesitas al menos 1 estrella para guardar el resultado.", "error");
+                return;
+            }
+
+            isSaved = true;
+            btnValidar.disabled = true;
+            btnValidar.textContent = "Guardando...";
+
+            const nivelId = NIVEL_ID_BASE + currentLevel;
+
+            try {
+                const data = await apiRequest("/quiz/submit", {
+                    method: "POST",
+                    body: JSON.stringify({
+                        nivelId: nivelId,
+                        respuestas: [],
+                        estrellas: pendingStars,
+                        tiempo: 0
+                    })
+                });
+
+                const guardadas = (data.resultados && data.resultados.estrellas) || pendingStars;
+                updateStars(guardadas);
+
+                showFeedback(
+                    `✅ Progreso guardado. Estrellas de este nivel: <b>${guardadas}</b>` +
+                    (guardadas > pendingStars ? " <span style='font-weight:600;'>(conservamos tu mejor marca anterior)</span>" : ""),
+                    "success"
+                );
+                setSabi("sabi_celebrando.png", "¡Resultado guardado! Vuelve al menú para elegir el siguiente nivel.");
+            } catch (error) {
+                console.error("Error guardando el resultado:", error);
+                isSaved = false;
+                btnValidar.disabled = false;
+                btnValidar.textContent = "Guardar resultado";
+                showFeedback("No se pudo guardar el resultado. Revisa tu conexión e inténtalo otra vez.", "error");
+                setSabi("sabi_triste.png", "No pude guardar tu resultado. Vuelve a intentarlo.");
+                return;
+            }
+
+            mechanicControls.querySelectorAll(".btn-success").forEach(b => { if (b !== btnValidar) b.remove(); });
+
+            const nextBtn = document.createElement("button");
+            nextBtn.className = "btn btn-success";
+            nextBtn.style.marginLeft = "12px";
+            nextBtn.textContent = currentLevel < 5 ? "Siguiente nivel ➜" : "Volver al menú";
+            nextBtn.onclick = () => {
+                if (currentLevel < 5) window.location.href = `trigonometria_juego.html?nivel=${currentLevel + 1}`;
+                else window.location.href = "trigonometria.html";
+            };
+            mechanicControls.appendChild(nextBtn);
+            btnValidar.style.display = "none";
+        }
+
+        btnValidar.addEventListener("click", validate);
+
+        // ============================================
+        // CARGAR PROGRESO YA OBTENIDO EN ESTE NIVEL
+        // ============================================
+        async function loadExistingStars() {
+            try {
+                const data = await apiRequest("/progress");
+                if (!data.success || !data.progreso) return;
+                const nivelId = NIVEL_ID_BASE + currentLevel;
+                for (const niveles of Object.values(data.progreso)) {
+                    const found = niveles.find(n => Number(n.nivel_id) === nivelId);
+                    if (found) {
+                        updateStars(found.estrellas || 0);
+                        if (found.estrellas > 0) {
+                            showFeedback(`Ya tenías <b>${found.estrellas} estrella(s)</b> en este nivel. Puedes mejorarlas repitiéndolo (nunca bajan).`, "info");
+                        }
+                        return;
+                    }
+                }
+            } catch (e) {
+                console.warn("No se pudo cargar el progreso previo:", e);
+            }
+        }
+
+        // ============================================
+        // INICIALIZACIÓN
+        // ============================================
+        levelNumSpan.textContent = currentLevel;
+        setChallengeText();
+        markObjectiveCard();
+        setSabi("sabi_pensando.png", cfg.pista);
+        angleSlider.value = "0";
+        angle = 0;
+        render();
+        loadExistingStars();
+    </script>
+</body>
+</html>

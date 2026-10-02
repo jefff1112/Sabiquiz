@@ -732,7 +732,7 @@ async function handleAvatarUpload(event) {
                     // Usar el icono de la BD si existe, sino usar emoji por defecto
                     let iconoHTML = '';
                     if (logro.icono && logro.icono.startsWith('img/')) {
-                        iconoHTML = '<img src="' + logro.icono + '" class="logro-icon" alt="' + logro.nombre + '" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';"><span class="icono-fallback" style="display:none;">🏆</span>';
+                        iconoHTML = '<img src="' + logro.icono + '" class="logro-icon" alt="' + logro.nombre + '" onerror="this.style.display=\'none\'; this.nextElementSibling.style.display=\'block\';"><span class="icono-fallback" style="display:none;">🏆</span>';
                     } else if (logro.icono) {
                         iconoHTML = '<span class="icono">' + logro.icono + '</span>';
                     } else {
