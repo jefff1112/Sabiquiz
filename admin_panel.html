@@ -216,14 +216,22 @@
             </div>
         </div>
 
-        <div class="filter-tabs">
-            <button class="active" data-filter="pendiente">⏳ Pendientes</button>
-            <button data-filter="aprobada">✅ Aprobadas</button>
-            <button data-filter="rechazada">❌ Rechazadas</button>
-            <button data-filter="todas">📋 Todas</button>
+        <!-- TABS PRINCIPALES -->
+        <div class="main-tabs" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
+            <button class="main-tab active" data-tab="suggestions" style="padding: 12px 24px; border: 2px solid #e2e8f0; border-radius: 10px; background: white; cursor: pointer; font-weight: bold; transition: all 0.3s;">📝 Sugerencias</button>
+            <button class="main-tab" data-tab="torneos" style="padding: 12px 24px; border: 2px solid #e2e8f0; border-radius: 10px; background: white; cursor: pointer; font-weight: bold; transition: all 0.3s;">🏆 Torneos</button>
         </div>
 
-        <div id="suggestionsList">
+        <!-- SECCIÓN SUGERENCIAS -->
+        <div id="section-suggestions" class="admin-section">
+            <div class="filter-tabs">
+                <button class="active" data-filter="pendiente">⏳ Pendientes</button>
+                <button data-filter="aprobada">✅ Aprobadas</button>
+                <button data-filter="rechazada">❌ Rechazadas</button>
+                <button data-filter="todas">📋 Todas</button>
+            </div>
+
+            <div id="suggestionsList">
             <div class="loading-text">⏳ Cargando sugerencias...</div>
         </div>
     </div>
@@ -391,7 +399,104 @@
                 document.getElementById('statTotal').textContent = todas.length;
 
                 if (sugerencias.length === 0) {
-                    list.innerHTML = `<div class="no-suggestions">😴 No hay sugerencias ${filter === 'pendiente' ? 'pendientes' : filter === 'aprobada' ? 'aprobadas' : 'rechazadas'}</div>`;
+                    list.innerHTML = `<div class="no-suggestions">😴 No hay sugerencias ${filter === 'pendiente' ? 'pendientes' : filter === 'aprobada' ? 'aprobadas' : 'rechazadas'}</div>
+            </div>
+        </div>
+
+        <!-- SECCIÓN TORNEOS -->
+        <div id="section-torneos" class="admin-section" style="display: none;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                <h2 style="margin: 0; color: #2d3748;">🏆 Gestión de Torneos</h2>
+                <button id="btnNuevoTorneo" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">➕ Crear Torneo</button>
+            </div>
+
+            <div class="filter-tabs" style="margin-bottom: 20px;">
+                <button class="active" data-torneo-filter="all">📋 Todos</button>
+                <button data-torneo-filter="proximo">📅 Próximos</button>
+                <button data-torneo-filter="inscripcion_abierta">✍️ Inscripciones</button>
+                <button data-torneo-filter="en_curso">🔴 En Curso</button>
+                <button data-torneo-filter="finalizado">🏁 Finalizados</button>
+            </div>
+
+            <div id="torneosList">
+                <div class="loading-text">⏳ Cargando torneos...</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast" class="toast"></div>
+
+    <!-- MODAL CREAR/EDITAR TORNEO -->
+    <div id="torneoModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000;">
+        <div style="background: white; border-radius: 20px; padding: 30px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px;">
+                <h3 id="modalTitle" style="margin: 0; color: #2d3748;">➕ Crear Torneo</h3>
+                <button onclick="closeTorneoModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #718096;">×</button>
+            </div>
+            <form id="torneoForm">
+                <input type="hidden" id="torneoId" name="id">
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Nombre del Torneo *</label>
+                    <input type="text" id="torneoNombre" name="nombre" required placeholder="Ej: 🏆 Torneo de Matemáticas - Feria CIMAT" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Materia *</label>
+                        <select id="torneoMateria" name="materia_id" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                            <option value="">Seleccionar materia...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Modo *</label>
+                        <select id="torneoModo" name="modo" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                            <option value="acumulativo">📊 Acumulativo (5 partidas vs sistema)</option>
+                            <option value="roundrobin">🔄 Round Robin (todos contra todos)</option>
+                            <option value="ia">🤖 Contra IA (placeholder)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Fecha Inicio *</label>
+                        <input type="datetime-local" id="torneoFechaInicio" name="fecha_inicio" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Fecha Fin *</label>
+                        <input type="datetime-local" id="torneoFechaFin" name="fecha_fin" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Duración (min) *</label>
+                        <input type="number" id="torneoDuracion" name="duracion_minutos" value="15" min="5" max="120" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Máx. Usuarios *</label>
+                        <input type="number" id="torneoMaxUsuarios" name="max_usuarios" value="8" min="2" max="100" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Estado</label>
+                    <select id="torneoEstado" name="estado" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <option value="proximo">📅 Próximo</option>
+                        <option value="inscripcion_abierta">✍️ Inscripciones Abiertas</option>
+                        <option value="en_curso">🔴 En Curso</option>
+                        <option value="finalizado">🏁 Finalizado</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" onclick="closeTorneoModal()" style="background: #718096; color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">Cancelar</button>
+                    <button type="submit" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">💾 Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>`;
                     return;
                 }
 
@@ -543,6 +648,255 @@
         document.addEventListener('DOMContentLoaded', () => {
             if (!checkAuth()) return;
             loadSuggestions('pendiente');
+            loadMateriasForTorneo();
+            loadTorneos('all');
+            
+            // Tabs principales
+            document.querySelectorAll('.main-tab').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.main-tab').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.querySelectorAll('.admin-section').forEach(s => s.style.display = 'none');
+                    document.getElementById('section-' + btn.dataset.tab).style.display = 'block';
+                });
+            });
+
+            // Filtros de torneos
+            document.querySelectorAll('[data-torneo-filter]').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('[data-torneo-filter]').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    loadTorneos(btn.dataset.torneoFilter);
+                });
+            });
+
+            // Modal torneo
+            document.getElementById('btnNuevoTorneo').addEventListener('click', () => openTorneoModal());
+            document.getElementById('torneoForm').addEventListener('submit', saveTorneo);
         });
+
+        // ============================================
+        // GESTIÓN DE TORNEOS
+        // ============================================
+        let currentTorneoFilter = 'all';
+
+        async function loadMateriasForTorneo() {
+            try {
+                const data = await apiRequest('/quiz/materias');
+                const select = document.getElementById('torneoMateria');
+                if (data.success && data.materias) {
+                    data.materias.forEach(m => {
+                        const opt = document.createElement('option');
+                        opt.value = m.id;
+                        opt.textContent = m.nombre;
+                        select.appendChild(opt);
+                    });
+                }
+            } catch (e) { console.log('Error cargando materias:', e); }
+        }
+
+        async function loadTorneos(filter = 'all') {
+            currentTorneoFilter = filter;
+            const list = document.getElementById('torneosList');
+            list.innerHTML = '<div class="loading-text">⏳ Cargando torneos...</div>';
+            
+            try {
+                const data = await apiRequest('/torneos');
+                if (!data.success) throw new Error(data.error);
+
+                let torneos = data.torneos || [];
+                if (filter !== 'all') {
+                    torneos = torneos.filter(t => t.estado === filter);
+                }
+
+                if (torneos.length === 0) {
+                    list.innerHTML = '<div class="no-suggestions">😴 No hay torneos</div>';
+                    return;
+                }
+
+                list.innerHTML = '';
+                torneos.forEach(t => {
+                    const card = document.createElement('div');
+                    card.className = 'suggestion-card';
+                    card.style.borderLeftColor = getEstadoColor(t.estado);
+                    
+                    const timeInfo = getTimeUntil(t.fecha_inicio);
+                    const inscritos = t.inscritos || 0;
+                    
+                    card.innerHTML = `
+                        <div class="suggestion-header">
+                            <span class="user">🏆 ${t.nombre}</span>
+                            <span class="materia">${t.materia_nombre}</span>
+                            <span class="date">${formatDate(t.fecha_inicio)}</span>
+                            <span style="font-size:12px;font-weight:bold;padding:2px 10px;border-radius:10px;background:${getEstadoColor(t.estado)};color:white;">
+                                ${getEstadoText(t.estado)}
+                            </span>
+                        </div>
+                        <div class="question-text">
+                            📅 Inicio: ${formatDate(t.fecha_inicio)} | ⏰ Fin: ${formatDate(t.fecha_fin)}
+                            <br>👥 ${inscritos}/${t.max_usuarios} | ⏱️ ${t.duracion_minutos}min | 🎮 ${t.modo}
+                        </div>
+                        <div class="actions">
+                            <button class="btn-approve" data-torneo-id="${t.id}" onclick="editTorneo(${t.id})">✏️ Editar</button>
+                            <button class="btn-reject" data-torneo-id="${t.id}" onclick="deleteTorneo(${t.id})">🗑️ Eliminar</button>
+                            <a href="torneo_detalle.html?id=${t.id}" target="_blank" style="background:#4299e1;color:white;padding:8px 20px;border:none;border-radius:8px;text-decoration:none;font-weight:bold;">👁️ Ver</a>
+                        </div>
+                    `;
+                    list.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error:', error);
+                list.innerHTML = `<div class="no-suggestions">❌ Error: ${error.message}</div>`;
+            }
+        }
+
+        function getEstadoColor(estado) {
+            const colors = {
+                'proximo': '#667eea',
+                'inscripcion_abierta': '#ed8936',
+                'en_curso': '#48bb78',
+                'finalizado': '#a0aec0'
+            };
+            return colors[estado] || '#718096';
+        }
+
+        function getEstadoText(estado) {
+            const texts = {
+                'proximo': '📅 Próximo',
+                'inscripcion_abierta': '✍️ Inscripciones',
+                'en_curso': '🔴 En Curso',
+                'finalizado': '🏁 Finalizado'
+            };
+            return texts[estado] || estado;
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function getTimeUntil(dateStr) {
+            const now = new Date();
+            const target = new Date(dateStr);
+            const diff = target - now;
+            if (diff <= 0) return { text: 'Ya', urgent: false };
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+            return { text: hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`, urgent: hours < 1 };
+        }
+
+        function openTorneoModal(torneo = null) {
+            const modal = document.getElementById('torneoModal');
+            const form = document.getElementById('torneoForm');
+            const title = document.getElementById('modalTitle');
+            
+            form.reset();
+            document.getElementById('torneoId').value = '';
+            
+            if (torneo) {
+                title.textContent = '✏️ Editar Torneo';
+                document.getElementById('torneoId').value = torneo.id;
+                document.getElementById('torneoNombre').value = torneo.nombre;
+                document.getElementById('torneoMateria').value = torneo.materia_id;
+                document.getElementById('torneoModo').value = torneo.modo;
+                document.getElementById('torneoFechaInicio').value = formatDateForInput(torneo.fecha_inicio);
+                document.getElementById('torneoFechaFin').value = formatDateForInput(torneo.fecha_fin);
+                document.getElementById('torneoDuracion').value = torneo.duracion_minutos;
+                document.getElementById('torneoMaxUsuarios').value = torneo.max_usuarios;
+                document.getElementById('torneoEstado').value = torneo.estado;
+            } else {
+                title.textContent = '➕ Crear Torneo';
+                // Default: mañana a las 10:00
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(10, 0, 0, 0);
+                document.getElementById('torneoFechaInicio').value = formatDateForInput(tomorrow.toISOString());
+                const end = new Date(tomorrow);
+                end.setMinutes(end.getMinutes() + 15);
+                document.getElementById('torneoFechaFin').value = formatDateForInput(end.toISOString());
+            }
+            
+            modal.style.display = 'flex';
+        }
+
+        function formatDateForInput(dateStr) {
+            const date = new Date(dateStr);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+
+        function closeTorneoModal() {
+            document.getElementById('torneoModal').style.display = 'none';
+        }
+
+        async function editTorneo(id) {
+            try {
+                const data = await apiRequest('/torneos/' + id);
+                if (data.success) {
+                    openTorneoModal(data.torneo);
+                } else {
+                    showToast('❌ ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('❌ Error: ' + error.message, 'error');
+            }
+        }
+
+        async function deleteTorneo(id) {
+            if (!confirm('¿Seguro que quieres eliminar este torneo?')) return;
+            try {
+                // No hay endpoint DELETE, usar estado finalizado o crear uno
+                // Por ahora solo finalizamos
+                const data = await apiRequest('/torneos/' + id + '/finalizar', { method: 'POST' });
+                if (data.success) {
+                    showToast('✅ Torneo finalizado', 'success');
+                    loadTorneos(currentTorneoFilter);
+                } else {
+                    showToast('❌ ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('❌ Error: ' + error.message, 'error');
+            }
+        }
+
+        async function saveTorneo(e) {
+            e.preventDefault();
+            const form = e.target;
+            const formData = new FormData(form);
+            const torneoData = Object.fromEntries(formData);
+            
+            // Convertir números
+            torneoData.materia_id = parseInt(torneoData.materia_id);
+            torneoData.duracion_minutos = parseInt(torneoData.duracion_minutos);
+            torneoData.max_usuarios = parseInt(torneoData.max_usuarios);
+            
+            const id = torneoData.id;
+            delete torneoData.id;
+            
+            try {
+                const url = id ? '/torneos/' + id : '/torneos';
+                const method = id ? 'PUT' : 'POST';
+                // Nota: solo hay POST, para editar se usaría el mismo endpoint si existe
+                const data = await apiRequest(url, {
+                    method: method,
+                    body: JSON.stringify(torneoData)
+                });
+                
+                if (data.success) {
+                    showToast(id ? '✅ Torneo actualizado' : '✅ Torneo creado', 'success');
+                    closeTorneoModal();
+                    loadTorneos(currentTorneoFilter);
+                } else {
+                    showToast('❌ ' + data.error, 'error');
+                }
+            } catch (error) {
+                showToast('❌ Error: ' + error.message, 'error');
+            }
+        }
     </script>
 </body>
+</html>

@@ -433,6 +433,44 @@ router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
     }
 });
 
+// PUT /api/torneos/:id (actualizar torneo) - Solo admin
+router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+    try {
+        const { nombre, materia_id, fecha_inicio, fecha_fin, duracion_minutos, max_usuarios, modo, estado } = req.body;
+        const id = req.params.id;
+
+        // Verificar que el torneo existe
+        const [existing] = await pool.query('SELECT * FROM torneos WHERE id = ?', [id]);
+        if (existing.length === 0) {
+            return res.status(404).json({ success: false, error: 'Torneo no encontrado' });
+        }
+
+        const updates = [];
+        const params = [];
+
+        if (nombre !== undefined) { updates.push('nombre = ?'); params.push(nombre); }
+        if (materia_id !== undefined) { updates.push('materia_id = ?'); params.push(materia_id); }
+        if (fecha_inicio !== undefined) { updates.push('fecha_inicio = ?'); params.push(fecha_inicio); }
+        if (fecha_fin !== undefined) { updates.push('fecha_fin = ?'); params.push(fecha_fin); }
+        if (duracion_minutos !== undefined) { updates.push('duracion_minutos = ?'); params.push(duracion_minutos); }
+        if (max_usuarios !== undefined) { updates.push('max_usuarios = ?'); params.push(max_usuarios); }
+        if (modo !== undefined) { updates.push('modo = ?'); params.push(modo); }
+        if (estado !== undefined) { updates.push('estado = ?'); params.push(estado); }
+
+        if (updates.length === 0) {
+            return res.status(400).json({ success: false, error: 'No hay campos para actualizar' });
+        }
+
+        params.push(id);
+        await pool.query(`UPDATE torneos SET ${updates.join(', ')} WHERE id = ?`, params);
+
+        res.json({ success: true, message: 'Torneo actualizado' });
+    } catch (error) {
+        console.error('Error actualizando torneo:', error);
+        res.status(500).json({ success: false, error: 'Error al actualizar torneo' });
+    }
+});
+
 // POST /api/torneos/:id/finalizar - Finalizar torneo manualmente
 router.post('/:id/finalizar', authMiddleware, adminMiddleware, async (req, res) => {
     try {
