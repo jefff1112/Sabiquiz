@@ -202,7 +202,12 @@
         <button class="fire-btn" id="fireBtn"><img src="../img/cohete.png" class="icon-btn"> Disparar</button>
 
         <div class="feedback" id="feedback"></div>
-        <button class="next-btn" id="nextBtn">Siguiente ➜</button>
+        <div id="mechanicControls" style="display: flex; gap: 12px; justify-content: center; margin-top: 16px; flex-wrap: wrap;">
+            <button class="btn btn-primary" id="btnValidar" style="display: none;">Validar</button>
+            <button class="btn btn-success" id="btnGuardar" style="display: none;">Guardar resultado</button>
+            <button class="btn" id="btnReintentar" style="display: none; background: #e2e8f0; color: #4a5568;">Reintentar</button>
+            <button class="btn btn-success" id="nextBtn" style="display: none;">Siguiente nivel ➜</button>
+        </div>
         <div class="formula-note">Alcance = (v² · sen 2θ) / g &nbsp;·&nbsp; Altura máx = (v² · sen² θ) / 2g</div>
     </div>
 
@@ -250,7 +255,9 @@
         const angleValue = document.getElementById('angleValue');
         const powerValue = document.getElementById('powerValue');
         const fireBtn = document.getElementById('fireBtn');
-        const feedback = document.getElementById('feedback');
+        const btnValidar = document.getElementById('btnValidar');
+        const btnGuardar = document.getElementById('btnGuardar');
+        const btnReintentar = document.getElementById('btnReintentar');
         const nextBtn = document.getElementById('nextBtn');
         const hintLine = document.getElementById('hintLine');
         const levelNumSpan = document.getElementById('levelNum');
@@ -488,11 +495,29 @@
                     isCompleted = true;
                     const stars = getStars();
                     updateStars(stars);
-                    feedback.textContent = `<img src="../img/cohete.png" class="icon-btn"> ¡Diana! Impactaste en ${shots} disparo(s). Ganaste ${stars} estrellas.`;
+                    feedback.innerHTML = `<img src="../img/cohete.png" class="icon-btn"> ¡Diana! Impactaste en ${shots} disparo(s). Ganaste ${stars} estrellas.`;
                     feedback.style.color = '#48bb78';
-                    nextBtn.style.display = 'block';
                     confetti();
-                    saveProgress('tiro', levelNum, stars, true);
+
+                    // Auto-guardar en BD
+                    try {
+                        await apiRequest('/minigames/submit', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                minijuego: 'tiro',
+                                nivel: levelNum,
+                                estrellas: stars,
+                                completado: true
+                            })
+                        });
+                    } catch (err) { console.error("Error saving:", err); }
+
+                    // Mostrar botones Reintentar / Siguiente
+                    btnValidar.style.display = 'none';
+                    btnGuardar.style.display = 'none';
+                    btnReintentar.style.display = 'inline-flex';
+                    nextBtn.style.display = 'inline-flex';
+                    nextBtn.textContent = levelNum < 5 ? 'Siguiente nivel ➜' : 'Volver al menú';
                     return;
                 }
                 if (landed) {
@@ -587,7 +612,16 @@
             onSlider();
         }
 
-        nextBtn.addEventListener('click', () => { window.location.href = 'tiro.html'; });
+        // ============================================
+        // EVENTOS: Reintentar / Siguiente
+        // ============================================
+
+        btnReintentar.addEventListener('click', () => { window.location.reload(); });
+
+        nextBtn.addEventListener('click', () => {
+            if (levelNum < 5) window.location.href = `tiro_juego.html?nivel=${levelNum + 1}`;
+            else window.location.href = 'tiro.html';
+        });
 
         // Theory toggle
         document.getElementById('theoryToggle').addEventListener('click', function() {

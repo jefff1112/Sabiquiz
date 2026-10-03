@@ -44,14 +44,14 @@ router.get('/stats-avanzadas', authMiddleware, async (req, res) => {
             SELECT 
                 m.id,
                 m.nombre,
-                m.icono,
+                m.icono_url as icono,
                 AVG(p.estrellas) as promedio_estrellas,
                 COUNT(DISTINCT p.nivel_id) as niveles_jugados
             FROM progreso_usuario p
             JOIN niveles n ON p.nivel_id = n.id
             JOIN materias m ON n.materia_id = m.id
             WHERE p.usuario_id = ? AND p.completado = TRUE
-            GROUP BY m.id, m.nombre, m.icono
+            GROUP BY m.id, m.nombre, m.icono_url
             HAVING niveles_jugados >= 2
             ORDER BY promedio_estrellas DESC
         `, [usuarioId]);

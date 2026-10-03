@@ -518,17 +518,21 @@
 
         async function apiRequest(endpoint, options = {}) {
             const token = getToken();
+            console.log('📤 apiRequest:', endpoint, options.method || 'GET', token ? 'token:ok' : 'token:MISSING');
             const headers = { 
                 "Content-Type": "application/json", 
                 "Authorization": token ? "Bearer " + token : "" 
             };
             const finalOptions = { ...options, headers: { ...headers, ...options.headers } };
             const response = await fetch(API_URL + endpoint, finalOptions);
+            console.log('📥 apiResponse:', endpoint, response.status, response.ok);
             if (!response.ok) {
+                const errText = await response.text();
+                console.error('❌ apiError:', endpoint, response.status, errText);
                 if (response.status === 401) { 
                     localStorage.removeItem("token"); window.location.href = "../login.html"; 
                 }
-                throw new Error(await response.text());
+                throw new Error(errText);
             }
             return await response.json();
         }
@@ -561,6 +565,14 @@
         // ESTADO GLOBAL DEL JUEGO
         // ============================================
         let currentLevel = parseInt(new URLSearchParams(window.location.search).get("nivel")) || 1;
+        
+        // Validar que el nivel esté en rango válido (1-5 para minijuegos)
+        if (currentLevel < 1 || currentLevel > 5) {
+            console.warn('Nivel inválido:', currentLevel, 'redirigiendo a nivel 1');
+            currentLevel = 1;
+            window.location.search = '?nivel=1';
+        }
+        
         let targetPoints = [];
         let ranges = { xmin: -5, xmax: 5, ymin: -5, ymax: 15 };
         // pendingStars > 0 → la recta ya es válida y falta guardar
@@ -618,7 +630,11 @@
         // (Antes se llamaba a completeLevel() incluso con 0 estrellas, lo que
         //  desbloqueaba el siguiente nivel habiendo fallado.)
         function markReady(stars) {
-            if (pendingStars > 0 || isSaved) return;
+            console.log('markReady called with stars:', stars, 'pendingStars:', pendingStars, 'isSaved:', isSaved);
+            if (pendingStars > 0 || isSaved) {
+                console.log('markReady: early return');
+                return;
+            }
             pendingStars = stars;
 
             updateStars(stars);
@@ -633,10 +649,18 @@
                     ? "¡Perfecto! Encontraste la recta exacta. Guarda tu resultado."
                     : "¡Bien hecho! Guarda el resultado o pulsa Reintentar para buscar 3 estrellas.");
 
+            // Cambiar botón principal a "Guardar resultado" - MÁS ROBUSTO
             const btn = document.getElementById("btnValidar");
-            btn.textContent = "Guardar resultado";
-            btn.classList.remove("btn-primary");
-            btn.classList.add("btn-success");
+            console.log('markReady: btnValidar element:', btn);
+            if (btn) {
+                btn.textContent = "Guardar resultado";
+                btn.classList.remove("btn-primary");
+                btn.classList.add("btn-success");
+                btn.style.display = "inline-flex"; // FORZAR VISIBLE
+                console.log('markReady: button text changed to:', btn.textContent, 'display:', btn.style.display);
+            } else {
+                console.error('markReady: btnValidar NOT FOUND!');
+            }
 
             const retry = document.createElement("button");
             retry.className = "btn";
@@ -647,10 +671,25 @@
             retry.textContent = "Reintentar";
             retry.onclick = () => window.location.reload();
             mechanicControls.appendChild(retry);
+            
+            // DIAGNÓSTICO: mostrar todos los botones en mechanicControls
+            setTimeout(() => {
+                const allBtns = mechanicControls.querySelectorAll('button');
+                console.log('markReady: ALL buttons in mechanicControls after append:');
+                allBtns.forEach((b, i) => console.log(`  [${i}] id="${b.id}" class="${b.className}" text="${b.textContent}" display="${getComputedStyle(b).display}" visible="${b.offsetWidth > 0 && b.offsetHeight > 0}"`));
+            }, 100);
         }
 
         async function saveResult() {
-            if (isSaved || pendingStars < 1) return;
+            console.log('saveResult called: isSaved=', isSaved, 'pendingStars=', pendingStars);
+            if (isSaved) {
+                console.log('saveResult: ya guardado, ignorando');
+                return;
+            }
+            if (pendingStars < 1) {
+                showFeedback("⚠️ Necesitas al menos 1 estrella para guardar.", "error");
+                return;
+            }
 
             isSaved = true;
             const btn = document.getElementById("btnValidar");
@@ -658,6 +697,7 @@
             btn.textContent = "Guardando...";
 
             const nivelId = NIVEL_ID_BASE + currentLevel;
+            console.log('saveResult: guardando nivel', nivelId, 'estrellas:', pendingStars);
 
             try {
                 const data = await apiRequest("/quiz/submit", {
@@ -670,28 +710,32 @@
                     })
                 });
 
+                console.log('saveResult: respuesta servidor', data);
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Error desconocido del servidor');
+                }
+
                 const guardadas = (data.resultados && data.resultados.estrellas) || pendingStars;
                 updateStars(guardadas);
 
                 showFeedback(
-                    `✅ Progreso guardado. Estrellas de este nivel: <b>${guardadas}</b>` +
-                    (guardadas > pendingStars
-                        ? " <span style='font-weight:600;'>(conservamos tu mejor marca anterior: las estrellas nunca bajan)</span>"
-                        : ""),
+                    `✅ ¡Guardado! ${guardadas} estrella(s) en este nivel.`,
                     "success"
                 );
-                setSabi("sabi_celebrando.png", "¡Resultado guardado! Puedes pasar al siguiente nivel.");
+                setSabi("sabi_celebrando.png", "¡Nivel completado! Elige el siguiente.");
             } catch (err) {
-                console.error("Error guardando:", err);
+                console.error("saveResult: Error guardando:", err);
                 isSaved = false;
                 btn.disabled = false;
                 btn.textContent = "Guardar resultado";
-                showFeedback("No se pudo guardar el resultado. Revisa tu conexión e inténtalo otra vez.", "error");
+                showFeedback("❌ No se pudo guardar: " + err.message + " Revisa la consola (F12) para detalles.", "error");
                 setSabi("sabi_triste.png", "No pude guardar tu resultado. Vuelve a intentarlo.");
                 return;
             }
 
             // Reemplazamos el bloque de botones por "Siguiente nivel"
+            console.log('saveResult: removing all buttons, adding next button');
             Array.from(mechanicControls.querySelectorAll(".btn")).forEach(b => b.remove());
 
             const nextBtn = document.createElement("button");
@@ -886,6 +930,7 @@
             
             showFeedback(message, stars > 0 ? "success" : "error");
 
+            console.log('validateLevel: stars=', stars, 'calling markReady?', stars > 0);
             if (stars > 0) {
                 // ✅ Se ganó al menos 1 estrella → habilitar "Guardar resultado"
                 markReady(stars);
@@ -899,6 +944,7 @@
         mSlider.addEventListener("input", render);
         bSlider.addEventListener("input", render);
         document.getElementById("btnValidar").addEventListener("click", () => {
+            console.log('btnValidar CLICK: pendingStars=', pendingStars, 'isSaved=', isSaved);
             // El mismo botón valida y luego guarda
             if (pendingStars > 0) saveResult();
             else validateLevel();

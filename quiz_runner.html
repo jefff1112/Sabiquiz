@@ -609,11 +609,25 @@ async function showResult() {
     const estrellasMostrar = estrellasServidor;
     const completadoMostrar = completadoServidor;
 
+    // Detectar si es reintento (ya tenía progreso previo)
+    const esReintento = estrellasServidor > estrellas || (completadoServidor && !completado);
+
     // ============================================
     // MOSTRAR RESULTADOS
     // ============================================
-    const resultTitle = completadoMostrar ? '¡Nivel Completado!' : 'Inténtalo de nuevo';
-    const resultEmoji = completadoMostrar ? '<img src="img/sabi/sabi_festejando.png" class="sabi-mascot-small sabi-mascot-bounce">' : '<img src="img/sabi/sabi_anima.png" class="sabi-mascot-small sabi-mascot-bounce">';
+    let resultTitle, resultEmoji;
+    if (completado) {
+        // Intento actual aprobó
+        resultTitle = '¡Nivel Completado!';
+        resultEmoji = '<img src="img/sabi/sabi_festejando.png" class="sabi-mascot-small sabi-mascot-bounce">';
+    } else if (completadoMostrar && esReintento) {
+        // Ya lo tenía completado de antes
+        resultTitle = 'Nivel ya completado anteriormente';
+        resultEmoji = '<img src="img/sabi/sabi_celebrando.png" class="sabi-mascot-small sabi-mascot-bounce">';
+    } else {
+        resultTitle = 'Inténtalo de nuevo';
+        resultEmoji = '<img src="img/sabi/sabi_anima.png" class="sabi-mascot-small sabi-mascot-bounce">';
+    }
 
     // ============================================
     // OBTENER TEORÍA DEL NIVEL
@@ -641,19 +655,29 @@ async function showResult() {
     quizGameEl.innerHTML = `
         <div class="results-container">
             <h4>${resultEmoji} ${resultTitle}</h4>
+            
             <p style="font-size:18px;color:#4a5568;">
-                Puntaje final: ${correctas} / ${totalQuestionsLocal}
-                <br>
-                <span style="font-size:14px;color:#a0aec0;">
-                    ${Math.round(porcentaje * 100)}% de respuestas correctas
-                </span>
+                <strong>Intento actual:</strong> ${correctas} / ${totalQuestionsLocal} 
+                (${Math.round(porcentaje * 100)}% correctas)
             </p>
+            
             <div class="result-stars">
                 ${Array(3).fill(0).map((_, i) => 
                     `<img src="img/${i < estrellasMostrar ? 'star_filled.png' : 'star_empty.png'}" class="star-icon" alt="${i < estrellasMostrar ? 'Estrella obtenida' : 'Estrella no obtenida'}">`
                 ).join('')}
             </div>
-            ${completadoMostrar ? '<p style="color:#48bb78;font-weight:bold;"><img src="img/sabi/sabi_celebrando.png" class="sabi-mascot-small" alt="Sabi celebrando"> ¡Nivel completado!</p>' : '<p style="color:#fc8181;font-weight:bold;"><img src="img/sabi/sabi_anima.png" class="sabi-mascot-small" alt="Sabi animando"> Aún no alcanzas el puntaje de aprobación de este nivel</p>'}
+            
+            ${esReintento ? `
+                <div style="margin: 16px 0; padding: 12px; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; font-size: 14px; color:#2d3748;">
+                    <strong>📊 Tu mejor marca histórica:</strong> ${estrellasMostrar}★
+                    ${completadoMostrar ? ' | <span style="color:#48bb78;">Nivel completado</span>' : ''}
+                </div>
+            ` : ''}
+            
+            ${completado ? '<p style="color:#48bb78;font-weight:bold;">¡Nivel completado en este intento!</p>' : 
+              (completadoMostrar && esReintento ? '<p style="color:#48bb78;font-weight:bold;">Ya tenías este nivel completado.</p>' :
+                '<p style="color:#fc8181;font-weight:bold;">No alcanzas el puntaje de aprobación. ¡Inténtalo de nuevo!</p>')}
+            
             ${teoriaHTML}
             <a href="${backBtn.href}" class="main-menu-btn">Volver a niveles</a>
         </div>

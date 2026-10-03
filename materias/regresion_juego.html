@@ -453,6 +453,8 @@
         let state = {}; 
         let isCompleted = false;
 
+        
+
         const M = { left: 50, right: 30, top: 30, bottom: 40 };
 
         function px(x) { return M.left + ((x - ranges.xmin) / (ranges.xmax - ranges.xmin)) * (canvas.width - M.left - M.right); }
@@ -537,22 +539,30 @@
             updateStars(stars);
             if (stars > 0) confetti();
 
-            const nextBtn = document.createElement("button");
-            nextBtn.className = "btn btn-success";
-            nextBtn.innerHTML = currentLevel < 5 ? "Siguiente nivel ➜" : "Volver al menú";
-            nextBtn.style.display = "inline-flex";
-            nextBtn.onclick = () => {
-                if (currentLevel < 5) window.location.href = `regresion_juego.html?nivel=${currentLevel + 1}`;
-                else window.location.href = "regresion.html";
-            };
-            mechanicControls.appendChild(nextBtn);
-
+            // Auto-guardar en BD
             try {
                 await apiRequest("/minigames/submit", {
                     method: "POST",
-                    body: JSON.stringify({ minijuego: "regresion", nivel: currentLevel, estrellas: stars, completado: true })
+                    body: JSON.stringify({
+                        minijuego: "regresion",
+                        nivel: currentLevel,
+                        estrellas: stars,
+                        completado: true
+                    })
                 });
             } catch (err) { console.error("Error saving:", err); }
+
+            // Mostrar botones Reintentar / Siguiente
+            mechanicControls.innerHTML = `
+                <button class="btn" id="btnReintentar" style="background: #e2e8f0; color: #4a5568; margin-right: 12px;">Reintentar</button>
+                <button class="btn btn-success" id="nextBtn">${currentLevel < 5 ? "Siguiente nivel ➜" : "Volver al menú"}</button>
+            `;
+
+            document.getElementById('btnReintentar').addEventListener('click', () => { window.location.reload(); });
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                if (currentLevel < 5) window.location.href = `regresion_juego.html?nivel=${currentLevel + 1}`;
+                else window.location.href = "regresion.html";
+            });
         }
 
         function clearCanvas() {

@@ -258,6 +258,78 @@
 
     <div id="toast" class="toast"></div>
 
+    <!-- MODAL CREAR/EDITAR TORNEO -->
+    <div id="torneoModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000;">
+        <div style="background: white; border-radius: 20px; padding: 30px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px;">
+                <h3 id="modalTitle" style="margin: 0; color: #2d3748;">➕ Crear Torneo</h3>
+                <button onclick="closeTorneoModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #718096;">×</button>
+            </div>
+            <form id="torneoForm">
+                <input type="hidden" id="torneoId" name="id">
+                
+                <div style="margin-bottom: 16px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Nombre del Torneo *</label>
+                    <input type="text" id="torneoNombre" name="nombre" required placeholder="Ej: 🏆 Torneo de Matemáticas - Feria CIMAT" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Materia *</label>
+                        <select id="torneoMateria" name="materia_id" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                            <option value="">Seleccionar materia...</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Modo *</label>
+                        <select id="torneoModo" name="modo" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                            <option value="acumulativo">📊 Acumulativo (5 partidas vs sistema)</option>
+                            <option value="roundrobin">🔄 Round Robin (todos contra todos)</option>
+                            <option value="ia">🤖 Contra IA (placeholder)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Fecha Inicio *</label>
+                        <input type="datetime-local" id="torneoFechaInicio" name="fecha_inicio" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Fecha Fin *</label>
+                        <input type="datetime-local" id="torneoFechaFin" name="fecha_fin" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Duración (min) *</label>
+                        <input type="number" id="torneoDuracion" name="duracion_minutos" value="15" min="5" max="120" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Máx. Usuarios *</label>
+                        <input type="number" id="torneoMaxUsuarios" name="max_usuarios" value="8" min="2" max="100" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Estado</label>
+                    <select id="torneoEstado" name="estado" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <option value="proximo">📅 Próximo</option>
+                        <option value="inscripcion_abierta">✍️ Inscripciones Abiertas</option>
+                        <option value="en_curso">🔴 En Curso</option>
+                        <option value="finalizado">🏁 Finalizado</option>
+                    </select>
+                </div>
+
+                <div style="display: flex; gap: 12px; justify-content: flex-end;">
+                    <button type="button" onclick="closeTorneoModal()" style="background: #718096; color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">Cancelar</button>
+                    <button type="submit" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">💾 Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         // ============================================
         // CONFIGURACIÓN
@@ -419,104 +491,7 @@
                 document.getElementById('statTotal').textContent = todas.length;
 
                 if (sugerencias.length === 0) {
-                    list.innerHTML = `<div class="no-suggestions">😴 No hay sugerencias ${filter === 'pendiente' ? 'pendientes' : filter === 'aprobada' ? 'aprobadas' : 'rechazadas'}</div>
-            </div>
-        </div>
-
-        <!-- SECCIÓN TORNEOS -->
-        <div id="section-torneos" class="admin-section" style="display: none;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
-                <h2 style="margin: 0; color: #2d3748;">🏆 Gestión de Torneos</h2>
-                <button id="btnNuevoTorneo" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">➕ Crear Torneo</button>
-            </div>
-
-            <div class="filter-tabs" style="margin-bottom: 20px;">
-                <button class="active" data-torneo-filter="all">📋 Todos</button>
-                <button data-torneo-filter="proximo">📅 Próximos</button>
-                <button data-torneo-filter="inscripcion_abierta">✍️ Inscripciones</button>
-                <button data-torneo-filter="en_curso">🔴 En Curso</button>
-                <button data-torneo-filter="finalizado">🏁 Finalizados</button>
-            </div>
-
-            <div id="torneosList">
-                <div class="loading-text">⏳ Cargando torneos...</div>
-            </div>
-        </div>
-    </div>
-
-    <div id="toast" class="toast"></div>
-
-    <!-- MODAL CREAR/EDITAR TORNEO -->
-    <div id="torneoModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000;">
-        <div style="background: white; border-radius: 20px; padding: 30px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px;">
-                <h3 id="modalTitle" style="margin: 0; color: #2d3748;">➕ Crear Torneo</h3>
-                <button onclick="closeTorneoModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #718096;">×</button>
-            </div>
-            <form id="torneoForm">
-                <input type="hidden" id="torneoId" name="id">
-                
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Nombre del Torneo *</label>
-                    <input type="text" id="torneoNombre" name="nombre" required placeholder="Ej: 🏆 Torneo de Matemáticas - Feria CIMAT" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Materia *</label>
-                        <select id="torneoMateria" name="materia_id" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
-                            <option value="">Seleccionar materia...</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Modo *</label>
-                        <select id="torneoModo" name="modo" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
-                            <option value="acumulativo">📊 Acumulativo (5 partidas vs sistema)</option>
-                            <option value="roundrobin">🔄 Round Robin (todos contra todos)</option>
-                            <option value="ia">🤖 Contra IA (placeholder)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Fecha Inicio *</label>
-                        <input type="datetime-local" id="torneoFechaInicio" name="fecha_inicio" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Fecha Fin *</label>
-                        <input type="datetime-local" id="torneoFechaFin" name="fecha_fin" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Duración (min) *</label>
-                        <input type="number" id="torneoDuracion" name="duracion_minutos" value="15" min="5" max="120" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Máx. Usuarios *</label>
-                        <input type="number" id="torneoMaxUsuarios" name="max_usuarios" value="8" min="2" max="100" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
-                    </div>
-                </div>
-
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Estado</label>
-                    <select id="torneoEstado" name="estado" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
-                        <option value="proximo">📅 Próximo</option>
-                        <option value="inscripcion_abierta">✍️ Inscripciones Abiertas</option>
-                        <option value="en_curso">🔴 En Curso</option>
-                        <option value="finalizado">🏁 Finalizado</option>
-                    </select>
-                </div>
-
-                <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                    <button type="button" onclick="closeTorneoModal()" style="background: #718096; color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">Cancelar</button>
-                    <button type="submit" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">💾 Guardar</button>
-                </div>
-            </form>
-        </div>
-    </div>`;
+                    list.innerHTML = `<div class="no-suggestions">😴 No hay sugerencias ${filter === 'pendiente' ? 'pendientes' : filter === 'aprobada' ? 'aprobadas' : 'rechazadas'}</div>`;
                     return;
                 }
 
@@ -908,11 +883,11 @@
         }
 
         async function deleteTorneo(id) {
-            if (!confirm('¿Seguro que quieres eliminar este torneo?')) return;
+            if (!confirm('¿Seguro que quieres ELIMINAR este torneo? Esta acción no se puede deshacer.')) return;
             try {
-                const data = await apiRequest('/torneos/' + id + '/finalizar', { method: 'POST' });
+                const data = await apiRequest('/torneos/' + id, { method: 'DELETE' });
                 if (data.success) {
-                    showToast('✅ Torneo finalizado', 'success');
+                    showToast('✅ Torneo eliminado', 'success');
                     loadTorneos(currentTorneoFilter);
                 } else {
                     showToast('❌ ' + data.error, 'error');

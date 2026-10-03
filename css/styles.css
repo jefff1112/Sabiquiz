@@ -2758,7 +2758,7 @@ h1, h2, h3 {
 }
 
 .sabi-mascot-small {
-    max-width: 60px;
+    max-width: 120px;
     height: auto;
     object-fit: contain;
 }

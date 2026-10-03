@@ -638,19 +638,23 @@
 
         async function apiRequest(endpoint, options = {}) {
             const token = getToken();
+            console.log('📤 apiRequest:', endpoint, options.method || 'GET', token ? 'token:ok' : 'token:MISSING');
             const headers = {
                 "Content-Type": "application/json",
                 "Authorization": token ? "Bearer " + token : ""
             };
             const finalOptions = { ...options, headers: { ...headers, ...options.headers } };
             const response = await fetch(API_URL + endpoint, finalOptions);
+            console.log('📥 apiResponse:', endpoint, response.status, response.ok);
             if (!response.ok) {
+                const errText = await response.text();
+                console.error('❌ apiError:', endpoint, response.status, errText);
                 if (response.status === 401) {
                     localStorage.removeItem("token");
                     localStorage.removeItem("user");
                     window.location.href = "../login.html";
                 }
-                throw new Error(await response.text());
+                throw new Error(errText);
             }
             return await response.json();
         }
@@ -749,6 +753,13 @@
         // ============================================
         const nivelParam = parseInt(new URLSearchParams(window.location.search).get("nivel")) || 1;
         const currentLevel = Math.min(5, Math.max(1, nivelParam));
+        
+        // Validar nivel
+        if (currentLevel < 1 || currentLevel > 5) {
+            console.warn('Nivel inválido:', nivelParam, 'usando nivel 1');
+            window.location.search = '?nivel=1';
+        }
+        
         const cfg = LEVELS[currentLevel - 1];
 
         let angle = 0;                 // ángulo actual en grados (0-360)
@@ -1096,19 +1107,23 @@
         // ============================================
         // VALIDACIÓN Y GUARDADO
         // ============================================
+                // ============================================
+        // VALIDACIÓN Y GUARDADO (AUTO-GUARDAR)
+        // ============================================
         function validate() {
-            if (isSaved) return;
-
-            // Ya validó todas las rondas → este clic guarda
-            if (allValidated) { saveResult(); return; }
+            console.log('>>> validate called, allValidated:', allValidated, 'isSaved:', isSaved, 'pendingStars:', pendingStars);
+            if (isSaved) {
+                console.log('validate: isSaved true, returning');
+                return;
+            }
 
             const err = currentError();
             const objetivo = currentTargets().map(t => t + "°").join(" o ");
 
             if (err > TOL_VALIDAR) {
                 showFeedback(
-                    `Todavía no. Estás a <b>${err.toFixed(1)}°</b> de ${objetivo}. ` +
-                    `Necesitas un error de ${TOL_VALIDAR}° o menos para superar la ronda.`,
+                    'Todavía no. Estás a <b>' + err.toFixed(1) + '°</b> de ' + objetivo + '. ' +
+                    'Necesitas un error de ' + TOL_VALIDAR + '° o menos para superar la ronda.',
                     "error"
                 );
                 setSabi("sabi_anima.png", "¡Casi! Sigue moviendo el punto rojo para acercarte al objetivo.");
@@ -1120,51 +1135,62 @@
 
             if (roundIndex < cfg.rounds.length) {
                 const siguiente = cfg.rounds[roundIndex].targets[0];
-                showFeedback(`✓ Ronda superada con un error de <b>${err.toFixed(1)}°</b>. Ahora ajusta a <b>${siguiente}°</b>.`, "success");
-                setSabi("sabi_celebrando.png", `¡Muy bien! Error de ${err.toFixed(1)}°. Vamos por la siguiente ronda.`);
+                showFeedback('✓ Ronda superada con un error de <b>' + err.toFixed(1) + '°</b>. Ahora ajusta a <b>' + siguiente + '°</b>.', "success");
+                setSabi("sabi_celebrando.png", '¡Muy bien! Error de ' + err.toFixed(1) + '°. Vamos por la siguiente ronda.');
                 setChallengeText();
                 render();
                 return;
             }
 
-            // Todas las rondas validadas → calcular estrellas
+            // Todas las rondas validadas → calcular estrellas y AUTO-GUARDAR
             const peorError = Math.max.apply(null, roundErrors);
             pendingStars = peorError <= TOL_3 ? 3 : peorError <= TOL_2 ? 2 : 1;
             allValidated = true;
 
-            btnValidar.textContent = "Guardar resultado";
-            btnValidar.classList.remove("btn-primary");
-            btnValidar.classList.add("btn-success");
+            console.log('validate: all rounds done, pendingStars=', pendingStars, 'auto-saving...');
+            
+            // Mostrar estrellas
             updateStars(pendingStars);
 
             const detalle = cfg.rounds.length > 1
-                ? `Error máximo en las ${cfg.rounds.length} rondas: <b>${peorError.toFixed(1)}°</b>.`
-                : `Error final: <b>${peorError.toFixed(1)}°</b>.`;
+                ? 'Error máximo en las ' + cfg.rounds.length + ' rondas: <b>' + peorError.toFixed(1) + '°</b>.'
+                : 'Error final: <b>' + peorError.toFixed(1) + '°</b>.';
 
-            showFeedback(`✓ ¡Desafío completado! ${detalle} Obtienes <b>${pendingStars} estrella(s)</b>. Pulsa "Guardar resultado".`, "success");
+            showFeedback('✓ ¡Desafío completado! ' + detalle + ' Obtienes <b>' + pendingStars + ' estrella(s)</b>. Guardando...', "success");
             if (pendingStars > 0) confetti();
             setSabi(pendingStars === 3 ? "sabi_medalla.png" : "sabi_celebrando.png",
                 pendingStars === 3
-                    ? "¡Perfecto! Dominaste el círculo unitario. Guarda tu resultado."
-                    : "¡Bien hecho! Puedes repetir el nivel para buscar 3 estrellas.");
+                    ? "¡Perfecto! Dominaste el círculo unitario. Progreso guardado."
+                    : "¡Bien hecho! Progreso guardado. Elige el siguiente nivel.");
             setChallengeText();
             render();
+
+            // AUTO-GUARDAR inmediatamente
+            saveResult();
         }
 
         async function saveResult() {
-            if (isSaved) return;
+            console.log('>>> saveResult called, isSaved:', isSaved, 'pendingStars:', pendingStars);
+            if (isSaved) {
+                console.log('saveResult: ya guardado, ignorando');
+                return;
+            }
             if (pendingStars < 1) {
-                showFeedback("Necesitas al menos 1 estrella para guardar el resultado.", "error");
+                console.log('saveResult: pendingStars < 1');
+                showFeedback("⚠️ Necesitas al menos 1 estrella para guardar.", "error");
                 return;
             }
 
             isSaved = true;
             btnValidar.disabled = true;
             btnValidar.textContent = "Guardando...";
+            console.log('saveResult: starting API call');
 
             const nivelId = NIVEL_ID_BASE + currentLevel;
+            console.log('saveResult: guardando nivel', nivelId, 'estrellas:', pendingStars);
 
             try {
+                console.log('saveResult: calling API...');
                 const data = await apiRequest("/quiz/submit", {
                     method: "POST",
                     body: JSON.stringify({
@@ -1175,21 +1201,27 @@
                     })
                 });
 
+                console.log('<<< saveResult: API response:', data);
+                
+                if (!data.success) {
+                    throw new Error(data.error || 'Error desconocido del servidor');
+                }
+
                 const guardadas = (data.resultados && data.resultados.estrellas) || pendingStars;
+                console.log('saveResult: guardadas =', guardadas);
                 updateStars(guardadas);
 
                 showFeedback(
-                    `✅ Progreso guardado. Estrellas de este nivel: <b>${guardadas}</b>` +
-                    (guardadas > pendingStars ? " <span style='font-weight:600;'>(conservamos tu mejor marca anterior)</span>" : ""),
+                    `✅ ¡Guardado! ${guardadas} estrella(s) en este nivel.`,
                     "success"
                 );
-                setSabi("sabi_celebrando.png", "¡Resultado guardado! Vuelve al menú para elegir el siguiente nivel.");
+                setSabi("sabi_celebrando.png", "¡Nivel completado! Elige el siguiente.");
             } catch (error) {
-                console.error("Error guardando el resultado:", error);
+                console.error('!!! saveResult ERROR:', error);
                 isSaved = false;
                 btnValidar.disabled = false;
                 btnValidar.textContent = "Guardar resultado";
-                showFeedback("No se pudo guardar el resultado. Revisa tu conexión e inténtalo otra vez.", "error");
+                showFeedback("❌ No se pudo guardar: " + error.message + " Revisa la consola (F12) para detalles.", "error");
                 setSabi("sabi_triste.png", "No pude guardar tu resultado. Vuelve a intentarlo.");
                 return;
             }
@@ -1208,7 +1240,10 @@
             btnValidar.style.display = "none";
         }
 
-        btnValidar.addEventListener("click", validate);
+        btnValidar.addEventListener("click", () => {
+            console.log('btnValidar clicked, allValidated:', allValidated, 'isSaved:', isSaved, 'pendingStars:', pendingStars);
+            validate();
+        });
 
         // ============================================
         // CARGAR PROGRESO YA OBTENIDO EN ESTE NIVEL

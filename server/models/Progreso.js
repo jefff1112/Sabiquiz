@@ -33,10 +33,10 @@ class Progreso {
              (usuario_id, nivel_id, puntaje, estrellas, completado, fecha_completado)
              VALUES (?, ?, ?, ?, ?, NOW())
              ON DUPLICATE KEY UPDATE
-             puntaje = VALUES(puntaje),
-             estrellas = VALUES(estrellas),
-             completado = VALUES(completado),
-             fecha_completado = NOW()`,
+             puntaje = GREATEST(COALESCE(puntaje, 0), VALUES(puntaje)),
+             estrellas = GREATEST(estrellas, VALUES(estrellas)),
+             completado = (completado OR VALUES(completado)),
+             fecha_completado = IF(VALUES(completado) = 1, NOW(), fecha_completado)`,
             [usuarioId, nivelId, score, stars, completado]
         );
     }

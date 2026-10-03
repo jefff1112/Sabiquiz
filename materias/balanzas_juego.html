@@ -269,7 +269,10 @@
         <div class="tray" id="tray"></div>
 
         <div class="feedback" id="feedback"></div>
-        <button class="next-btn" id="nextBtn">Siguiente ➜</button>
+        <div id="mechanicControls" style="display: flex; gap: 12px; justify-content: center; margin-top: 16px; flex-wrap: wrap;">
+            <button class="btn" id="btnReintentar" style="display: none; background: #e2e8f0; color: #4a5568;">Reintentar</button>
+            <button class="btn btn-success" id="nextBtn" style="display: none;">Siguiente nivel ➜</button>
+        </div>
     </div>
 
     <!-- Sección Teórica Colapsable -->
@@ -317,6 +320,7 @@
         const answerBox = document.getElementById('answerBox');
         const trayEl = document.getElementById('tray');
         const feedback = document.getElementById('feedback');
+        const btnReintentar = document.getElementById('btnReintentar');
         const nextBtn = document.getElementById('nextBtn');
         const levelNumSpan = document.getElementById('levelNum');
         const star1 = document.getElementById('star1');
@@ -454,15 +458,24 @@
             setTimeout(() => { if (!isCompleted) feedback.textContent = ''; }, 1000);
         }
 
+        // ============================================
+        // COMPLETAR NIVEL - Auto-guardar y mostrar botones
+        // ============================================
         function completeLevel() {
             isCompleted = true;
             const stars = getStars();
             updateStars(stars);
             feedback.innerHTML = `<img src="../img/correct.png" class="icon-btn"> ¡Correcto! La balanza quedó equilibrada. Ganaste ${stars} estrellas.`;
             feedback.style.color = '#48bb78';
-            nextBtn.style.display = 'block';
             confetti();
+
+            // Auto-guardar en BD
             saveProgress('balanzas', levelNum, stars, true);
+
+            // Mostrar botones
+            btnReintentar.style.display = 'inline-flex';
+            nextBtn.style.display = 'inline-flex';
+            nextBtn.textContent = levelNum < 5 ? 'Siguiente nivel ➜' : 'Volver al menú';
         }
 
         function confetti() {
@@ -529,7 +542,16 @@
             setTilt(-6);
         }
 
-        nextBtn.addEventListener('click', () => { window.location.href = 'balanzas.html'; });
+        // ============================================
+        // EVENTOS: Reintentar / Siguiente
+        // ============================================
+
+        btnReintentar.addEventListener('click', () => { window.location.reload(); });
+
+        nextBtn.addEventListener('click', () => {
+            if (levelNum < 5) window.location.href = `balanzas_juego.html?nivel=${levelNum + 1}`;
+            else window.location.href = 'balanzas.html';
+        });
 
         // Theory toggle
         document.getElementById('theoryToggle').addEventListener('click', function() {

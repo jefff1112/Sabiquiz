@@ -21,6 +21,9 @@ const torneosRoutes = require('./routes/torneos');
 const profileRoutes = require('./routes/profile');
 const sabiRoutes = require('./routes/sabi');
 
+// Utilidades compartidas de torneos
+const { updateTournamentStates, calcularRankingTorneo } = require('./utils/torneos');
+
 // ============================================
 // ORÍGENES PERMITIDOS (configurable en .env)
 // ============================================
@@ -855,46 +858,13 @@ setInterval(() => {
 // ============================================
 setInterval(async () => {
   try {
+    // Actualizar estados y calcular rankings
+    await updateTournamentStates();
+    
+    // Enviar recordatorios 5 minutos antes (específico del servidor)
     const { pool } = require('./config/database');
     const now = new Date();
     
-    // Cambiar a 'inscripcion_abierta' si falta 1 hora
-    await pool.query(`
-      UPDATE torneos 
-      SET estado = 'inscripcion_abierta' 
-      WHERE estado = 'proximo' 
-      AND fecha_inicio <= DATE_ADD(?, INTERVAL 1 HOUR)
-      AND fecha_inicio > ?
-    `, [now, now]);
-
-    // Cambiar a 'en_curso' si es la hora de inicio
-    await pool.query(`
-      UPDATE torneos 
-      SET estado = 'en_curso' 
-      WHERE estado = 'inscripcion_abierta' 
-      AND fecha_inicio <= ?
-    `, [now]);
-
-    // Cambiar a 'finalizado' si pasó el tiempo
-    await pool.query(`
-      UPDATE torneos 
-      SET estado = 'finalizado' 
-      WHERE estado = 'en_curso' 
-      AND fecha_fin <= ?
-    `, [now]);
-
-    // Para torneos finalizados sin ranking, calcular ranking
-    const [torneosFinalizados] = await pool.query(`
-      SELECT t.id FROM torneos t
-      LEFT JOIN ranking_torneo rt ON t.id = rt.torneo_id
-      WHERE t.estado = 'finalizado' AND rt.id IS NULL
-    `);
-
-    for (const t of torneosFinalizados) {
-      await calcularRankingTorneo(t.id, pool);
-    }
-
-    // Enviar recordatorios 5 minutos antes
     const [torneosProximos] = await pool.query(`
       SELECT t.id, t.nombre, t.fecha_inicio, t.materia_id
       FROM torneos t
@@ -932,73 +902,6 @@ setInterval(async () => {
     console.error('Error en verificador de torneos:', error);
   }
 }, 60000).unref();
-
-async function calcularRankingTorneo(torneoId, pool) {
-  try {
-    const [inscripciones] = await pool.query(`
-      SELECT it.usuario_id, it.puntaje, u.username
-      FROM inscripciones_torneo it
-      JOIN usuarios u ON it.usuario_id = u.id
-      WHERE it.torneo_id = ?
-      ORDER BY it.puntaje DESC, it.fecha_inscripcion ASC
-    `, [torneoId]);
-
-    if (inscripciones.length === 0) return;
-
-    let connection = await pool.getConnection();
-    await connection.beginTransaction();
-
-    try {
-      for (let i = 0; i < inscripciones.length; i++) {
-        const ins = inscripciones[i];
-        await connection.query(`
-          INSERT INTO ranking_torneo (torneo_id, usuario_id, posicion, puntaje_final)
-          VALUES (?, ?, ?, ?)
-        `, [torneoId, ins.usuario_id, i + 1, ins.puntaje]);
-      }
-
-      if (inscripciones.length > 0) {
-        const ganador = inscripciones[0];
-        
-        await connection.query(`
-          UPDATE usuarios SET pvpXp = pvpXp + 200 WHERE id = ?
-        `, [ganador.usuario_id]);
-
-        await connection.query(`
-          INSERT IGNORE INTO usuario_logros (usuario_id, logro_id)
-          VALUES (?, 100)
-        `, [ganador.usuario_id]);
-
-        try {
-          sendNotification(ganador.usuario_id, 'torneo_ganado', {
-            torneo_id: torneoId,
-            mensaje: `🏆 ¡Felicidades! Has ganado el torneo y recibido 200 XP + logro "Campeón de Torneo"`
-          });
-        } catch (e) { console.log('No se pudo enviar notificación'); }
-
-        // Email al ganador
-        try {
-          const { sendTournamentWinnerEmail } = require('./config/email-torneos');
-          const [torneoInfo] = await connection.query('SELECT * FROM torneos WHERE id = ?', [torneoId]);
-          const [userEmail] = await connection.query('SELECT email, username FROM usuarios WHERE id = ?', [ganador.usuario_id]);
-          if (userEmail[0] && torneoInfo[0]) {
-            await sendTournamentWinnerEmail(userEmail[0].email, userEmail[0].username, torneoInfo[0]);
-          }
-        } catch (e) { console.log('No se pudo enviar email de ganador'); }
-      }
-
-      await connection.commit();
-      console.log(`✅ Ranking calculado para torneo ${torneoId}`);
-    } catch (error) {
-      await connection.rollback();
-      throw error;
-    } finally {
-      connection.release();
-    }
-  } catch (error) {
-    console.error('Error calculando ranking:', error);
-  }
-}
 
 // ============================================
 // INICIO DEL SERVIDOR

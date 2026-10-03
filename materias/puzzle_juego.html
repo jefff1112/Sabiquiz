@@ -268,7 +268,10 @@
         <div class="tray" id="tray"></div>
 
         <div class="feedback" id="feedback"></div>
-        <button class="next-btn" id="nextBtn">Siguiente ➜</button>
+        <div id="mechanicControls" style="display: flex; gap: 12px; justify-content: center; margin-top: 16px; flex-wrap: wrap;">
+            <button class="btn" id="btnReintentar" style="display: none; background: #e2e8f0; color: #4a5568;">Reintentar</button>
+            <button class="btn btn-success" id="nextBtn" style="display: none;">Siguiente nivel ➜</button>
+        </div>
     </div>
 
     <!-- Sección Teórica Colapsable -->
@@ -370,6 +373,7 @@
         const boardGrid = document.getElementById('boardGrid');
         const trayEl = document.getElementById('tray');
         const feedback = document.getElementById('feedback');
+        const btnReintentar = document.getElementById('btnReintentar');
         const nextBtn = document.getElementById('nextBtn');
         const placedLabel = document.getElementById('placedLabel');
         const totalLabel = document.getElementById('totalLabel');
@@ -539,15 +543,24 @@
         // ============================================
         // FINALIZAR
         // ============================================
+        // ============================================
+        // FINALIZAR - Auto-guardar y mostrar botones
+        // ============================================
         function completeLevel() {
             isCompleted = true;
             const stars = getStars();
             updateStars(stars);
             feedback.innerHTML = `<img src="../img/correct.png" class="icon-btn"> ¡Puzzle completado! Ganaste ${stars} estrellas.`;
             feedback.style.color = '#48bb78';
-            nextBtn.style.display = 'block';
             confetti();
+
+            // Auto-guardar en BD
             saveProgress('puzzle', levelNum, stars, true);
+
+            // Mostrar botones
+            btnReintentar.style.display = 'inline-flex';
+            nextBtn.style.display = 'inline-flex';
+            nextBtn.textContent = levelNum < 5 ? 'Siguiente nivel ➜' : 'Volver al menú';
         }
 
         function confetti() {
@@ -611,7 +624,16 @@
             buildTray();
         }
 
-        nextBtn.addEventListener('click', () => { window.location.href = 'puzzle.html'; });
+        // ============================================
+        // EVENTOS: Reintentar / Siguiente
+        // ============================================
+
+        btnReintentar.addEventListener('click', () => { window.location.reload(); });
+
+        nextBtn.addEventListener('click', () => {
+            if (levelNum < 5) window.location.href = `puzzle_juego.html?nivel=${levelNum + 1}`;
+            else window.location.href = 'puzzle.html';
+        });
 
         // Theory toggle
         document.getElementById('theoryToggle').addEventListener('click', function() {
