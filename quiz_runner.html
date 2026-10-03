@@ -421,7 +421,7 @@
                 timerDisplay.textContent = timeLeft;
                 if (timeLeft <= 0) {
                     clearInterval(timer);
-                    checkAnswer(null, questions[currentQuestionIndex]);
+                    checkAnswer(null, questions[currentQuestionIndex], null);
                 }
             }, 1000);
         }
@@ -432,11 +432,11 @@
         // El navegador NUNCA conoce la respuesta correcta de antemano: se
         // pregunta al servidor con POST /api/quiz/check y este responde si la
         // opción elegida es la correcta y cuál era la buena.
-        async function checkAnswer(button, questionData) {
+        async function checkAnswer(button, questionData, opcionIdStr) {
             optionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
             clearInterval(timer);
 
-            const opcionId = button ? Number(button.dataset.opcionId) : null;
+            const opcionId = opcionIdStr ? Number(opcionIdStr) : 0;
 
             let resultado = { correcta: false, respuestaCorrectaId: null, respuestaCorrectaTexto: null };
             try {
@@ -515,8 +515,9 @@
                 button.classList.add('option-btn');
                 button.textContent = optionText;
                 // Se guarda el ID real de la opción: es lo que se envía al servidor
-                button.dataset.opcionId = idsOpciones[i] != null ? idsOpciones[i] : '';
-                button.addEventListener('click', () => checkAnswer(button, questionData));
+                button.setAttribute('data-opcion-id', String(idsOpciones[i] || 0));
+                button.dataset.id = idsOpciones[i];
+                button.addEventListener('click', () => checkAnswer(button, questionData, idsOpciones[i]));
                 optionsContainer.appendChild(button);
             });
 
@@ -956,5 +957,6 @@ async function showResult() {
         // Exponer funciones globalmente para el botón de reintentar
         window.iniciarQuiz = iniciarQuiz;
     </script>
+    <script src="js/sabi_injector.js"></script>
 </body>
 </html>

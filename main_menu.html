@@ -1906,12 +1906,11 @@ socket.on('opponentLeft', (message) => {
             showToast('🎮 Preparando partida contra Sabi...');
             
             try {
-                // Obtener nivel del usuario para la partida
-                const userLevel = userProfile.level || 1;
-                
-                // Redirigir a una versión del quiz_runner adaptada para jugar contra Sabi
-                // Por ahora usamos el quiz_runner normal con un parámetro especial
-                window.location.href = `quiz_runner.html?vs=sabi&nivel=${userLevel}&sabi_difficulty=${sabiConfig.personalidad}`;
+                if (window.Sabi1vs1) {
+                    await window.Sabi1vs1.iniciar('normal');
+                } else {
+                    console.error('Sabi1vs1 no está definido');
+                }
             } catch (error) {
                 console.error('Error iniciando partida vs Sabi:', error);
                 showToast('❌ Error al iniciar partida', 'error');
@@ -1936,5 +1935,6 @@ socket.on('opponentLeft', (message) => {
         window.closeSabiModal = closeSabiModal;
         window.confirmPlaySabi = confirmPlaySabi;
     </script>
+    <script src="js/sabi_1vs1.js"></script>
 </body>
 </html>

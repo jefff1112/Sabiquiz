@@ -130,7 +130,7 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use(express.static(publicPath, { dotfiles: 'ignore', index: false }));
+app.use(express.static(publicPath, { dotfiles: 'ignore', index: false, setHeaders: (res) => { res.set('Cache-Control', 'no-store'); } }));
 
 // ============================================
 // RUTAS DE LA API

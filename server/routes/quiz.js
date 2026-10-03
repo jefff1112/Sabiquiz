@@ -336,6 +336,10 @@ router.post('/check', authMiddleware, async (req, res) => {
     const preguntaId = Number(req.body.preguntaId);
     const opcionId = Number(req.body.opcionId);
 
+    console.log('\n--- DIAGNOSTICO /check ---');
+    console.log('Recibido req.body:', req.body);
+    console.log('preguntaId:', preguntaId, 'opcionId:', opcionId);
+
     if (!Number.isInteger(preguntaId) || !Number.isInteger(opcionId)) {
         return res.status(400).json({ success: false, error: 'preguntaId y opcionId son obligatorios' });
     }
@@ -344,13 +348,18 @@ router.post('/check', authMiddleware, async (req, res) => {
         const [rows] = await pool.query(
             `SELECT o.id, o.es_correcta, JSON_UNQUOTE(JSON_EXTRACT(o.texto, '$.es')) AS texto
              FROM opciones o WHERE o.pregunta_id = ?`, [preguntaId]);
+             
+        console.log('Opciones en BD para pregunta', preguntaId, ':', rows.map(r => r.id));
+        
         if (!rows.length) {
             return res.status(404).json({ success: false, error: 'Pregunta no encontrada' });
         }
 
         const elegida = rows.find(o => Number(o.id) === opcionId);
         const correcta = rows.find(o => o.es_correcta);
+        
         if (!elegida) {
+            console.error('❌ ERROR: opcionId', opcionId, 'no se encontró entre las opciones válidas:', rows.map(r => r.id));
             return res.status(400).json({ success: false, error: 'La opción no pertenece a esa pregunta' });
         }
 
