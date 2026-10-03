@@ -19,6 +19,8 @@ class SabiChatPanel {
     // Recuperar sessionId de localStorage
     try {
       this.sessionId = localStorage.getItem('sabi_sessionId') || null;
+      // Guardar la materia de la sesión para detectar cambios de contexto
+      this._lastMateria = localStorage.getItem('sabi_lastMateria') || null;
     } catch (e) { /* ignore */ }
   }
 
@@ -34,6 +36,15 @@ class SabiChatPanel {
 
     if (contexto) {
       this.contexto = { ...this.contexto, ...contexto };
+      
+      // Si la materia/pregunta cambió desde la última sesión, crear sesión nueva
+      const claveSesion = (contexto.materia || '') + ':' + (contexto.pregunta || '').substring(0, 30);
+      if (this._lastMateria && this._lastMateria !== claveSesion) {
+        this.sessionId = null;
+        this.historial = [];
+      }
+      // Guardar la clave de sesión actual
+      try { localStorage.setItem('sabi_lastMateria', claveSesion); } catch(e) {}
     }
 
     this._inyectarCSS();
@@ -201,8 +212,20 @@ class SabiChatPanel {
   // ============================================
 
   setContexto(ctx) {
+    // Si cambió la materia o la pregunta, resetear la sesión para no arrastrar contexto viejo
+    const materiaAnterior = this.contexto.materia;
+    const preguntaAnterior = this.contexto.pregunta;
+    
     this.contexto = { ...this.contexto, ...ctx };
     this.contexto.intento = 0;
+
+    // Si el contexto cambió significativamente, crear sesión nueva
+    if (ctx.materia && ctx.materia !== materiaAnterior ||
+        ctx.pregunta && ctx.pregunta !== preguntaAnterior) {
+      this.sessionId = null;
+      this.historial = [];
+      try { localStorage.removeItem('sabi_sessionId'); } catch(e) {}
+    }
 
     // Actualizar status en header
     const status = document.getElementById('sabiHeaderStatus');
@@ -250,6 +273,11 @@ class SabiChatPanel {
       const apiBase = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
         ? 'http://localhost:3000/api'
         : (window.location.origin + '/api');
+      // Enviar instrucción oculta si estamos en Sugerencias para el Autocompletado
+      let mensajeBackend = mensaje;
+      if (this.contexto.materia === 'Creación de Preguntas') {
+        mensajeBackend += '\n\n[Regla del sistema: Si el usuario te pide la pregunta final o tú le propones una pregunta completa (con opciones), DEBES incluir al final de tu mensaje exactamente un bloque en este formato (sin markdown ni saltos de línea extra): @@@{"pregunta":"El texto de la pregunta","opciones":["Opción A","Opción B","Opción C"],"correcta":0}@@@ - Asegúrate de que "correcta" sea el índice (0, 1 o 2). Si haces esto, la UI se autocompletará.]';
+      }
 
       const response = await fetch(`${apiBase}/sabi/chat`, {
         method: 'POST',
@@ -258,7 +286,7 @@ class SabiChatPanel {
           'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
-          mensaje,
+          mensaje: mensajeBackend,
           contexto: {
             materia: this.contexto.materia,
             nivel: this.contexto.nivel,
@@ -275,7 +303,23 @@ class SabiChatPanel {
       this._mostrarEscribiendo(false);
 
       if (data.success) {
-        this._agregarMensaje('sabi', data.respuesta, data.imagen);
+        let respTexto = data.respuesta;
+        
+        // Interceptar bloque JSON de Autocompletado (@@@{...}@@@)
+        const match = respTexto.match(/@@@(.*?)@@@/s);
+        if (match) {
+          try {
+            const autoFillData = JSON.parse(match[1].trim());
+            // Disparar evento para que suggestions.html lo capture
+            window.dispatchEvent(new CustomEvent('sabiAutoFill', { detail: autoFillData }));
+            // Limpiar el bloque del texto visible para el usuario
+            respTexto = respTexto.replace(match[0], '').trim();
+          } catch(e) {
+            console.error('Error parseando autofill JSON de Sabi:', e);
+          }
+        }
+
+        this._agregarMensaje('sabi', respTexto, data.imagen);
         this._actualizarAvatar(data.imagen || 'img/sabi/sabi_curioso.png');
 
         // Guardar sessionId

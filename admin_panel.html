@@ -432,7 +432,9 @@
         async function rejectSuggestion(sugerenciaId) {
             if (isLoading) return;
             
-            const motivo = prompt('Motivo del rechazo (opcional):');
+            const motivo = await showCustomModal('Motivo del rechazo', 'Escribe el motivo del rechazo (opcional):', true);
+            if (motivo === null) return; // Usuario canceló
+
             try {
                 isLoading = true;
                 
@@ -561,7 +563,8 @@
                         ${sug.estado === 'pendiente' ? `
                             <div class="actions">
                                 ${nivelSelectHTML}
-                                <button class="btn-approve" data-sugerencia="${sug.id}">✅ Aprobar</button>
+                                <button class="btn-verify-ai" data-sugerencia="${sug.id}" style="background:#805ad5;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;margin-right:5px;">🤖 Evaluar con Sabi</button>
+                                <button class="btn-approve" data-sugerencia="${sug.id}">✅ Aprobar (y empujar niveles)</button>
                                 <button class="btn-reject" data-sugerencia="${sug.id}">❌ Rechazar</button>
                             </div>
                         ` : `
@@ -575,10 +578,49 @@
                     list.appendChild(card);
                 }
 
-                // 🔥 AGREGAR EVENTOS USANDO DELEGACIÓN (más eficiente y evita duplicados)
-                // En lugar de agregar listeners a cada botón, usamos un solo listener en el contenedor
                 list.addEventListener('click', function(event) {
                     const target = event.target;
+                    
+                    // Botón Evaluar con Sabi
+                    if (target.classList.contains('btn-verify-ai')) {
+                        const sugerenciaId = target.dataset.sugerencia;
+                        
+                        // Extraer información del DOM de la tarjeta directamente
+                        const card = target.closest('.suggestion-card');
+                        const textQ = card.querySelector('.question-text') ? card.querySelector('.question-text').textContent.replace('🤔', '').trim() : '';
+                        
+                        let opcionesText = [];
+                        let correctaIdx = 0;
+                        const opEls = card.querySelectorAll('.options-list .opt');
+                        opEls.forEach((el, idx) => {
+                          opcionesText.push(el.textContent.trim());
+                          if (el.classList.contains('correct')) correctaIdx = idx;
+                        });
+
+                        target.disabled = true;
+                        target.innerHTML = '🤖 Pensando...';
+
+                        apiRequest('/sabi/verify-suggestion', {
+                            method: 'POST',
+                            body: JSON.stringify({
+                                pregunta: textQ,
+                                opciones: opcionesText,
+                                correcta: correctaIdx
+                            })
+                        }).then(data => {
+                            target.disabled = false;
+                            target.innerHTML = '🤖 Evaluar con Sabi';
+                            if (data.success) {
+                                showCustomModal('🤖 Sabi dice:', data.analisis);
+                            } else {
+                                showCustomModal('Error de Sabi', data.error);
+                            }
+                        }).catch(error => {
+                            target.disabled = false;
+                            target.innerHTML = '🤖 Evaluar con Sabi';
+                            showCustomModal('Error de conexión', 'No se pudo conectar con el servidor. ¿Reiniciaste el backend?');
+                        });
+                    }
                     
                     // Botón Aprobar
                     if (target.classList.contains('btn-approve')) {

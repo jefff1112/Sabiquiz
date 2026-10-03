@@ -22,11 +22,12 @@
     const paginasConChat = [
       'quiz_runner',
       'niveles',
-      '_juego',         // todos los minijuegos: balanzas_juego, puzzle_juego, etc.
+      '_juego',
       'funcion_lineal',
       'trigonometria',
       'torneos',
-      'torneo_detalle'
+      'torneo_detalle',
+      'suggestions'
     ];
 
     // Verificar por ruta
@@ -36,6 +37,7 @@
     if (document.getElementById('quiz-game')) return true;
     if (document.getElementById('gameCanvas')) return true;
     if (document.querySelector('.level-grid, #level-grid')) return true;
+    if (document.querySelector('.suggestions-container')) return true;
 
     return false;
   }
@@ -46,9 +48,10 @@
   function detectarContexto() {
     const ctx = { materia: null, nivel: null, pregunta: null, opciones: [] };
     const params = new URLSearchParams(window.location.search);
+    const pathname = window.location.pathname.toLowerCase();
 
     // 1. Quiz normal (quiz_runner.html?subject=X&level=Y)
-    if (window.location.pathname.includes('quiz_runner')) {
+    if (pathname.includes('quiz_runner')) {
       ctx.materia = _capitalizarMateria(params.get('subject') || window.materiaNombre || 'General');
       ctx.nivel = parseInt(params.get('level')) || window.nivelNumero || 1;
       const qText = document.getElementById('questionText');
@@ -57,38 +60,85 @@
       return ctx;
     }
 
-    // 2. Minijuegos quiz-style (funcion_lineal_juego, trigonometria_juego)
-    if (window.NIVEL_ID_BASE !== undefined && window.currentLevel !== undefined) {
+    // 2. Minijuegos quiz-style: Función Lineal y Trigonometría
+    if (pathname.includes('funcion_lineal_juego') || pathname.includes('trigonometria_juego')) {
       ctx.materia = 'Matemáticas';
-      ctx.nivel = window.currentLevel;
-      const hint = document.getElementById('hintLine') || document.getElementById('challenge');
-      if (hint) ctx.pregunta = hint.textContent;
+      ctx.nivel = window.currentLevel || parseInt(params.get('nivel')) || 1;
+      // Leer la instrucción/reto del juego
+      const challenge = document.getElementById('challenge');
+      const hintLine = document.getElementById('hintLine');
+      const levelTitle = document.querySelector('.level-title');
+      if (challenge) {
+        ctx.pregunta = challenge.textContent.trim();
+      } else if (hintLine) {
+        ctx.pregunta = hintLine.textContent.trim();
+      } else if (levelTitle) {
+        ctx.pregunta = levelTitle.textContent.trim();
+      }
+      // Descripción del tipo de juego para Sabi
+      if (pathname.includes('funcion_lineal')) {
+        ctx.pregunta = (ctx.pregunta || '') + ' [Minijuego: Función Lineal - ajustar sliders de pendiente e intercepto]';
+      } else {
+        ctx.pregunta = (ctx.pregunta || '') + ' [Minijuego: Trigonometría - resolver ángulos y lados]';
+      }
       return ctx;
     }
 
-    // 3. Minijuegos puros (balanzas, puzzle, regresion, tiro)
-    if (window.levelConfigs || window.LEVELS || window.location.pathname.includes('_juego')) {
-      ctx.nivel = parseInt(params.get('nivel')) || 1;
-      ctx.materia = _extraerMateriaDeUrl(window.location.pathname);
+    // 3. Minijuegos puros: Puzzle, Balanzas, Regresión, Tiro Parabólico
+    if (pathname.includes('_juego')) {
+      ctx.materia = 'Matemáticas';
+      ctx.nivel = window.currentLevel || parseInt(params.get('nivel')) || 1;
+      
+      // Intentar leer la instrucción del DOM
+      const hintLine = document.getElementById('hintLine');
+      const levelTitle = document.querySelector('.level-title');
+      const challenge = document.getElementById('challenge');
+      
+      if (hintLine && hintLine.textContent.trim()) {
+        ctx.pregunta = hintLine.textContent.trim();
+      } else if (challenge && challenge.textContent.trim()) {
+        ctx.pregunta = challenge.textContent.trim();
+      } else if (levelTitle && levelTitle.textContent.trim()) {
+        ctx.pregunta = levelTitle.textContent.trim();
+      }
+
+      // Agregar tipo de minijuego para que Sabi sepa qué juego es
+      if (pathname.includes('puzzle')) {
+        ctx.pregunta = (ctx.pregunta || 'Puzzle Geométrico') + ' [Minijuego: arrastrar figuras geométricas al lugar correcto]';
+      } else if (pathname.includes('balanzas')) {
+        ctx.pregunta = (ctx.pregunta || 'Balanzas') + ' [Minijuego: equilibrar ecuaciones con balanzas, encontrar el valor de X]';
+      } else if (pathname.includes('regresion')) {
+        ctx.pregunta = (ctx.pregunta || 'Regresión') + ' [Minijuego: ajustar la recta de regresión a los puntos del gráfico]';
+      } else if (pathname.includes('tiro')) {
+        ctx.pregunta = (ctx.pregunta || 'Tiro Parabólico') + ' [Minijuego: configurar ángulo y velocidad para acertar al objetivo]';
+      }
       return ctx;
     }
 
     // 4. Niveles / Práctica
-    if (window.location.pathname.includes('niveles')) {
+    if (pathname.includes('niveles')) {
       ctx.materia = _capitalizarMateria(params.get('subject') || 'General');
       ctx.nivel = parseInt(params.get('level')) || 1;
       return ctx;
     }
 
     // 5. Torneos
-    if (window.location.pathname.includes('torneo')) {
+    if (pathname.includes('torneo')) {
       ctx.materia = 'Torneo';
       ctx.nivel = 1;
       return ctx;
     }
 
-    // 6. Fallback: intentar extraer de la URL
-    ctx.materia = _extraerMateriaDeUrl(window.location.pathname);
+    // 6. Sugerencias
+    if (pathname.includes('suggestions')) {
+      ctx.materia = 'Creación de Preguntas';
+      ctx.nivel = 1;
+      ctx.pregunta = 'El usuario está sugiriendo una nueva pregunta para Sabiquiz. Ayúdale a pensar en buenas preguntas o validar que sus opciones sean lógicas.';
+      return ctx;
+    }
+
+    // 7. Fallback: intentar extraer de la URL
+    ctx.materia = _extraerMateriaDeUrl(pathname);
     ctx.nivel = parseInt(params.get('nivel') || params.get('level')) || 1;
 
     return ctx.materia ? ctx : null;
@@ -203,16 +253,28 @@
   // OBSERVER: Detectar cambios de pregunta en quiz_runner
   // ============================================
   function _observarCambiosPregunta() {
+    if (!window.SabiChat) return;
+
+    // Observer para quiz_runner (questionText)
     const questionEl = document.getElementById('questionText');
-    if (!questionEl || !window.SabiChat) return;
+    if (questionEl) {
+      const observer = new MutationObserver(() => {
+        const pregunta = questionEl.textContent;
+        const opciones = Array.from(document.querySelectorAll('.option-btn, .option-button')).map(b => b.textContent.trim());
+        window.SabiChat.actualizarPregunta(pregunta, opciones);
+      });
+      observer.observe(questionEl, { childList: true, characterData: true, subtree: true });
+    }
 
-    const observer = new MutationObserver(() => {
-      const pregunta = questionEl.textContent;
-      const opciones = Array.from(document.querySelectorAll('.option-btn, .option-button')).map(b => b.textContent.trim());
-      window.SabiChat.actualizarPregunta(pregunta, opciones);
-    });
-
-    observer.observe(questionEl, { childList: true, characterData: true, subtree: true });
+    // Observer para minijuegos (hintLine, challenge)
+    const hintEl = document.getElementById('hintLine') || document.getElementById('challenge');
+    if (hintEl) {
+      const observer2 = new MutationObserver(() => {
+        const pregunta = hintEl.textContent.trim();
+        if (pregunta) window.SabiChat.actualizarPregunta(pregunta, []);
+      });
+      observer2.observe(hintEl, { childList: true, characterData: true, subtree: true });
+    }
   }
 
   // ============================================

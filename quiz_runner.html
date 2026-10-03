@@ -294,12 +294,14 @@
         // FUNCIONES DE AUTENTICACIÓN
         // ============================================
         function getToken() {
-            return localStorage.getItem('token');
+            try { return localStorage.getItem('token'); } catch(e) { return null; }
         }
 
         function getCurrentUser() {
-            const userStr = localStorage.getItem('user');
-            return userStr ? JSON.parse(userStr) : null;
+            try {
+                const userStr = localStorage.getItem('user');
+                return userStr ? JSON.parse(userStr) : null;
+            } catch(e) { return null; }
         }
 
         function checkAuth() {

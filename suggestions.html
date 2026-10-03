@@ -419,6 +419,44 @@
             await loadMaterias();
             console.log('✅ Página de sugerencias cargada');
         });
+
+        // ============================================
+        // AUTOCOMPLETADO CON SABI IA
+        // ============================================
+        window.addEventListener('sabiAutoFill', (e) => {
+            const data = e.detail;
+            
+            // Llenar pregunta
+            if (data.pregunta) {
+                const el = document.getElementById('pregunta');
+                el.value = data.pregunta;
+                el.dispatchEvent(new Event('input')); // Activar contador de caracteres
+            }
+            
+            // Llenar opciones
+            if (data.opciones && Array.isArray(data.opciones)) {
+                const optEls = document.querySelectorAll('.opcion-input');
+                data.opciones.forEach((opt, idx) => {
+                    if (optEls[idx]) optEls[idx].value = opt;
+                });
+            }
+            
+            // Llenar respuesta correcta
+            if (data.correcta !== undefined && data.correcta !== null) {
+                document.getElementById('correcta').value = data.correcta;
+            }
+
+            // Efecto visual y alerta
+            const container = document.querySelector('.suggestions-container');
+            if (container) {
+                container.style.transition = 'box-shadow 0.5s';
+                container.style.boxShadow = '0 0 20px #805ad5';
+                setTimeout(() => { container.style.boxShadow = 'none'; }, 2000);
+            }
+            
+            showMessage('✨ ¡Formulario autocompletado mágicamente por Sabi!', 'success');
+        });
     </script>
+    <script src="js/sabi_injector.js"></script>
 </body>
 </html>

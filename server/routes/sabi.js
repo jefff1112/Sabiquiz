@@ -64,13 +64,18 @@ router.get('/historial/:sessionId', authMiddleware, async (req, res) => {
     }
 
     const session = rows[0];
+    const historialRaw = session.historial;
+    const historial = typeof historialRaw === 'string'
+      ? JSON.parse(historialRaw || '[]')
+      : (historialRaw || []);
+
     res.json({
       success: true,
       session: {
         id: session.id,
         materia: session.materia,
         nivel: session.nivel,
-        historial: JSON.parse(session.historial || '[]'),
+        historial,
         creado_en: session.creado_en,
         actualizado_en: session.actualizado_en
       }
@@ -516,5 +521,55 @@ async function _actualizarStatsPostPartida(usuarioId, puntajeUsuario, puntajeSab
     connection.release();
   }
 }
+// POST /api/sabi/verify-suggestion - Verificar pregunta sugerida
+router.post('/verify-suggestion', authMiddleware, async (req, res) => {
+  const { pregunta, opciones, correcta } = req.body;
+  if (!pregunta || !opciones || correcta === undefined) {
+    return res.status(400).json({ success: false, error: 'Faltan datos' });
+  }
+
+  try {
+    const SabiAI = require('../utils/sabi_ai');
+    const sabi = new SabiAI();
+    
+    // Usar directamente el fetch al webhook configurado
+    if (!sabi.webhookUrl) throw new Error('SABI_WEBHOOK_URL no configurado');
+
+    const opsTxt = opciones.map((o,i) => `${i}: ${o}`).join(', ');
+    const correctaTxt = opciones[correcta];
+    
+    const prompt = `Eres un experto evaluador educativo. Han sugerido esta pregunta para un juego de trivia:
+Pregunta: ${pregunta}
+Opciones: ${opsTxt}
+La opción marcada como CORRECTA es: ${correctaTxt}
+
+Dictamina SI ES CORRECTO Y COHERENTE. Responde solo con un pequeño reporte de máximo 4 líneas.`;
+
+    const payload = {
+      body: {
+        mensaje: prompt,
+        contexto: { materia: "Evaluador", nivel: 99, historial: [] }
+      }
+    };
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 15000);
+    const response = await fetch(sabi.webhookUrl, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+      signal: controller.signal
+    });
+    clearTimeout(timeout);
+    
+    const data = await response.json();
+    const analisis = data.respuesta || data.output || data.message || 'Error analizando la sugerencia';
+    
+    res.json({ success: true, analisis });
+  } catch(error) {
+    console.error('Error verify-suggestion:', error);
+    res.status(500).json({ success: false, error: 'Sabi no pudo analizar la sugerencia en este momento' });
+  }
+});
 
 module.exports = router;
