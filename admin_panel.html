@@ -4,69 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sabiquiz - Panel de Administración</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/navbar.css">
     <style>
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        .admin-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        }
         .admin-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 2px solid #e2e8f0;
-            padding-bottom: 15px;
-            margin-bottom: 25px;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: var(--space-4);
+            margin-bottom: var(--space-6);
             flex-wrap: wrap;
-            gap: 10px;
+            gap: var(--space-3);
         }
-        .admin-header h1 { margin: 0; color: #2d3748; }
-        .admin-header h1 span { color: #667eea; }
-        .admin-header .btn-back {
-            background: #718096;
-            color: white;
-            padding: 8px 20px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-weight: bold;
-            text-decoration: none;
-        }
-        .admin-header .btn-back:hover { background: #4a5568; }
+        .admin-header h1 { margin: 0; color: var(--color-text); }
+        .admin-header h1 span { color: var(--color-primary); }
+        
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 15px;
-            margin-bottom: 25px;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
         }
-        .stat-card {
-            background: #f7fafc;
-            padding: 15px;
-            border-radius: 12px;
-            text-align: center;
-        }
-        .stat-card .number { font-size: 28px; font-weight: bold; color: #2d3748; }
-        .stat-card .label { font-size: 14px; color: #718096; }
-        .stat-card.pendiente .number { color: #ed8936; }
-        .stat-card.aprobada .number { color: #48bb78; }
-        .stat-card.rechazada .number { color: #fc8181; }
+        
         .suggestion-card {
-            background: #f7fafc;
-            border-radius: 15px;
-            padding: 20px;
-            margin-bottom: 15px;
-            border-left: 4px solid #ed8936;
+            background: var(--color-surface);
+            border-radius: var(--radius-md);
+            padding: var(--space-5);
+            margin-bottom: var(--space-4);
+            border: 1px solid var(--color-border);
+            border-left: 4px solid var(--color-accent-amber);
             transition: transform 0.2s;
+            box-shadow: var(--shadow-sm);
         }
         .suggestion-card:hover { transform: translateX(5px); }
         .suggestion-card .suggestion-header {
@@ -74,247 +43,246 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px;
-            margin-bottom: 10px;
+            gap: var(--space-3);
+            margin-bottom: var(--space-3);
         }
-        .suggestion-card .suggestion-header .user { font-weight: bold; color: #2d3748; }
-        .suggestion-card .suggestion-header .date { color: #718096; font-size: 14px; }
+        .suggestion-card .suggestion-header .user { font-weight: bold; color: var(--color-text); }
+        .suggestion-card .suggestion-header .date { color: var(--color-text-muted); font-size: 0.875rem; }
         .suggestion-card .suggestion-header .materia {
-            background: #667eea;
+            background: var(--color-primary);
             color: white;
             padding: 2px 12px;
             border-radius: 12px;
-            font-size: 12px;
+            font-size: 0.75rem;
             font-weight: bold;
         }
-        .suggestion-card .question-text { font-size: 18px; color: #2d3748; margin: 10px 0; }
+        .suggestion-card .question-text { font-size: 1.125rem; color: var(--color-text); margin: var(--space-3) 0; }
         .suggestion-card .options-list {
             display: flex;
-            gap: 10px;
+            gap: var(--space-3);
             flex-wrap: wrap;
-            margin: 10px 0;
+            margin: var(--space-3) 0;
         }
         .suggestion-card .options-list .opt {
-            background: white;
+            background: var(--color-bg);
             padding: 4px 12px;
-            border-radius: 8px;
-            border: 1px solid #e2e8f0;
-            font-size: 14px;
+            border-radius: var(--radius-sm);
+            border: 1px solid var(--color-border);
+            font-size: 0.875rem;
         }
-        .suggestion-card .options-list .opt.correct { border-color: #48bb78; background: #c6f6d5; }
+        .suggestion-card .options-list .opt.correct { border-color: var(--color-success); background: #c6f6d5; }
         .suggestion-card .actions {
             display: flex;
-            gap: 10px;
-            margin-top: 15px;
+            gap: var(--space-3);
+            margin-top: var(--space-4);
             flex-wrap: wrap;
             align-items: center;
         }
         .suggestion-card .actions select {
             padding: 8px 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-sm);
+            font-size: 0.875rem;
+            background: var(--color-surface);
+            color: var(--color-text);
         }
-        .suggestion-card .actions select:focus { border-color: #667eea; outline: none; }
-        .btn-approve {
-            background: #48bb78;
-            color: white;
-            padding: 8px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-        .btn-approve:hover { background: #38a169; }
-        .btn-approve:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .btn-reject {
-            background: #fc8181;
-            color: white;
-            padding: 8px 20px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-        .btn-reject:hover { background: #f56565; }
-        .btn-reject:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        .no-suggestions { text-align: center; color: #718096; padding: 40px; font-size: 18px; }
-        .filter-tabs {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-        }
-        .filter-tabs button {
-            padding: 8px 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            background: white;
-            cursor: pointer;
-            font-weight: bold;
-            transition: all 0.3s;
-        }
-        .filter-tabs button:hover { border-color: #667eea; }
-        .filter-tabs button.active { border-color: #667eea; background: #667eea; color: white; }
-        .loading-text { text-align: center; color: #718096; padding: 40px; }
+        .suggestion-card .actions select:focus { border-color: var(--color-primary); outline: none; }
+        
+        .no-suggestions { text-align: center; color: var(--color-text-muted); padding: var(--space-10); font-size: 1.125rem; }
+        .loading-text { text-align: center; color: var(--color-text-muted); padding: var(--space-10); }
+        
         .toast {
             position: fixed;
             bottom: 20px;
             right: 20px;
             padding: 15px 25px;
-            border-radius: 12px;
+            border-radius: var(--radius-md);
             color: white;
             font-weight: bold;
             z-index: 999;
             animation: slideIn 0.3s ease;
             display: none;
         }
-        .toast.success { background: #48bb78; }
-        .toast.error { background: #fc8181; }
+        .toast.success { background: var(--color-success); }
+        .toast.error { background: var(--color-danger); }
         @keyframes slideIn {
             from { transform: translateX(100%); opacity: 0; }
             to { transform: translateX(0); opacity: 1; }
         }
         @media (max-width: 600px) {
-            .admin-container { padding: 15px; }
             .suggestion-card .actions { flex-direction: column; align-items: stretch; }
             .suggestion-card .actions select { width: 100%; }
+        }
+
+        .admin-layout {
+            display: flex;
+            gap: var(--space-6);
+        }
+        .admin-sidebar {
+            width: 220px;
+            flex-shrink: 0;
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+        }
+        .admin-sidebar .main-tab {
+            width: 100%;
+            text-align: left;
+            padding: var(--space-3) var(--space-4);
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            color: var(--color-text);
+        }
+        .admin-sidebar .main-tab.active {
+            background: var(--color-primary);
+            color: white;
+            border-color: var(--color-primary);
+        }
+        .admin-content {
+            flex: 1;
+            min-width: 0;
         }
     </style>
 </head>
 <body>
-    <div class="admin-container">
-        <div class="admin-header">
-            <h1>🛡️ Panel de <span>Administración</span></h1>
-            <a href="main_menu.html" class="btn-back">← Volver al Menú</a>
-        </div>
+    <div id="navbar-container"></div>
+    <script src="js/layout.js"></script>
 
-        <div class="stats-grid">
-            <div class="stat-card pendiente">
-                <div class="number" id="statPendientes">0</div>
-                <div class="label">⏳ Pendientes</div>
-            </div>
-            <div class="stat-card aprobada">
-                <div class="number" id="statAprobadas">0</div>
-                <div class="label">✅ Aprobadas</div>
-            </div>
-            <div class="stat-card rechazada">
-                <div class="number" id="statRechazadas">0</div>
-                <div class="label">❌ Rechazadas</div>
-            </div>
-            <div class="stat-card">
-                <div class="number" id="statTotal">0</div>
-                <div class="label">📊 Total</div>
-            </div>
-        </div>
+    <main class="main-content">
+        <div class="breadcrumb">Inicio / Panel Admin</div>
 
-        <!-- TABS PRINCIPALES -->
-        <div class="main-tabs" style="display: flex; gap: 10px; margin-bottom: 20px; flex-wrap: wrap; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px;">
-            <button class="main-tab active" data-tab="suggestions" style="padding: 12px 24px; border: 2px solid #e2e8f0; border-radius: 10px; background: white; cursor: pointer; font-weight: bold; transition: all 0.3s;">📝 Sugerencias</button>
-            <button class="main-tab" data-tab="torneos" style="padding: 12px 24px; border: 2px solid #e2e8f0; border-radius: 10px; background: white; cursor: pointer; font-weight: bold; transition: all 0.3s;">🏆 Torneos</button>
-        </div>
-
-        <!-- SECCIÓN SUGERENCIAS -->
-        <div id="section-suggestions" class="admin-section">
-            <div class="filter-tabs">
-                <button class="active" data-filter="pendiente">⏳ Pendientes</button>
-                <button data-filter="aprobada">✅ Aprobadas</button>
-                <button data-filter="rechazada">❌ Rechazadas</button>
-                <button data-filter="todas">📋 Todas</button>
+        <div class="card" style="margin-top: var(--space-4);">
+            <div class="admin-header">
+                <h1>🛡️ Panel de <span>Administración</span></h1>
             </div>
 
-            <div id="suggestionsList">
-            <div class="loading-text">⏳ Cargando sugerencias...</div>
-        </div>
-    </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="statPendientes" style="color: var(--color-accent-amber);">0</div>
+                    <div class="stat-label">⏳ Pendientes</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statAprobadas" style="color: var(--color-success);">0</div>
+                    <div class="stat-label">✅ Aprobadas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statRechazadas" style="color: var(--color-danger);">0</div>
+                    <div class="stat-label">❌ Rechazadas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="statTotal">0</div>
+                    <div class="stat-label">📊 Total</div>
+                </div>
+            </div>
 
-    <!-- SECCIÓN TORNEOS -->
-    <div id="section-torneos" class="admin-section" style="display: none;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
-            <h2 style="margin: 0; color: #2d3748;">🏆 Gestión de Torneos</h2>
-            <button id="btnNuevoTorneo" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">➕ Crear Torneo</button>
-        </div>
+            <div class="admin-layout">
+                <aside class="admin-sidebar">
+                    <button class="main-tab active" data-tab="suggestions">📝 Sugerencias</button>
+                    <button class="main-tab" data-tab="torneos">🏆 Torneos</button>
+                </aside>
+                
+                <div class="admin-content">
+                    <!-- SECCIÓN SUGERENCIAS -->
+                    <div id="section-suggestions" class="admin-section">
+                        <div class="tabs" style="margin-bottom: var(--space-4);">
+                            <button class="tab active" data-filter="pendiente">⏳ Pendientes</button>
+                            <button class="tab" data-filter="aprobada">✅ Aprobadas</button>
+                            <button class="tab" data-filter="rechazada">❌ Rechazadas</button>
+                            <button class="tab" data-filter="todas">📋 Todas</button>
+                        </div>
 
-        <div class="filter-tabs" style="margin-bottom: 20px;">
-            <button class="active" data-torneo-filter="all">📋 Todos</button>
-            <button data-torneo-filter="proximo">📅 Próximos</button>
-            <button data-torneo-filter="inscripcion_abierta">✍️ Inscripciones</button>
-            <button data-torneo-filter="en_curso">🔴 En Curso</button>
-            <button data-torneo-filter="finalizado">🏁 Finalizados</button>
-        </div>
+                        <div id="suggestionsList">
+                            <div class="loading-text">⏳ Cargando sugerencias...</div>
+                        </div>
+                    </div>
 
-        <div id="torneosList">
-            <div class="loading-text">⏳ Cargando torneos...</div>
+                    <!-- SECCIÓN TORNEOS -->
+                    <div id="section-torneos" class="admin-section" style="display: none;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); flex-wrap: wrap; gap: var(--space-3);">
+                            <h2 style="margin: 0; color: var(--color-text);">🏆 Gestión de Torneos</h2>
+                            <button id="btnNuevoTorneo" class="btn btn-primary">➕ Crear Torneo</button>
+                        </div>
+
+                        <div class="tabs" style="margin-bottom: var(--space-4);">
+                            <button class="tab active" data-torneo-filter="all">📋 Todos</button>
+                            <button class="tab" data-torneo-filter="proximo">📅 Próximos</button>
+                            <button class="tab" data-torneo-filter="inscripcion_abierta">✍️ Inscripciones</button>
+                            <button class="tab" data-torneo-filter="en_curso">🔴 En Curso</button>
+                            <button class="tab" data-torneo-filter="finalizado">🏁 Finalizados</button>
+                        </div>
+
+                        <div id="torneosList">
+                            <div class="loading-text">⏳ Cargando torneos...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
-    </div>
+    </main>
 
     <div id="toast" class="toast"></div>
 
     <!-- MODAL CREAR/EDITAR TORNEO -->
     <div id="torneoModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; z-index: 1000;">
-        <div style="background: white; border-radius: 20px; padding: 30px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid #e2e8f0; padding-bottom: 15px;">
-                <h3 id="modalTitle" style="margin: 0; color: #2d3748;">➕ Crear Torneo</h3>
-                <button onclick="closeTorneoModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: #718096;">×</button>
+        <div class="card" style="width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-4); border-bottom: 1px solid var(--color-border); padding-bottom: var(--space-3);">
+                <h3 id="modalTitle" style="margin: 0; color: var(--color-text);">➕ Crear Torneo</h3>
+                <button onclick="closeTorneoModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--color-text-muted);">×</button>
             </div>
             <form id="torneoForm">
                 <input type="hidden" id="torneoId" name="id">
                 
-                <div style="margin-bottom: 16px;">
-                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Nombre del Torneo *</label>
-                    <input type="text" id="torneoNombre" name="nombre" required placeholder="Ej: 🏆 Torneo de Matemáticas - Feria CIMAT" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                <div style="margin-bottom: var(--space-4);">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-text);">Nombre del Torneo *</label>
+                    <input type="text" id="torneoNombre" name="nombre" required placeholder="Ej: 🏆 Torneo de Matemáticas" class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text);">
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-4);">
                     <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Materia *</label>
-                        <select id="torneoMateria" name="materia_id" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-text);">Materia *</label>
+                        <select id="torneoMateria" name="materia_id" required class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text);">
                             <option value="">Seleccionar materia...</option>
                         </select>
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Modo *</label>
-                        <select id="torneoModo" name="modo" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
-                            <option value="acumulativo">📊 Acumulativo (5 partidas vs sistema)</option>
-                            <option value="roundrobin">🔄 Round Robin (todos contra todos)</option>
-                            <option value="ia">🤖 Contra IA (placeholder)</option>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-text);">Modo *</label>
+                        <select id="torneoModo" name="modo" required class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text);">
+                            <option value="acumulativo">📊 Acumulativo</option>
+                            <option value="roundrobin">🔄 Round Robin</option>
+                            <option value="ia">🤖 Contra IA</option>
                         </select>
                     </div>
                 </div>
 
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-4);">
                     <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Fecha Inicio *</label>
-                        <input type="datetime-local" id="torneoFechaInicio" name="fecha_inicio" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-text);">Fecha Inicio *</label>
+                        <input type="datetime-local" id="torneoFechaInicio" name="fecha_inicio" required class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text);">
                     </div>
                     <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Fecha Fin *</label>
-                        <input type="datetime-local" id="torneoFechaFin" name="fecha_fin" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
-                    </div>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
-                    <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Duración (min) *</label>
-                        <input type="number" id="torneoDuracion" name="duracion_minutos" value="15" min="5" max="120" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
-                    </div>
-                    <div>
-                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Máx. Usuarios *</label>
-                        <input type="number" id="torneoMaxUsuarios" name="max_usuarios" value="8" min="2" max="100" required style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-text);">Fecha Fin *</label>
+                        <input type="datetime-local" id="torneoFechaFin" name="fecha_fin" required class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text);">
                     </div>
                 </div>
 
-                <div style="margin-bottom: 20px;">
-                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: #2d3748;">Estado</label>
-                    <select id="torneoEstado" name="estado" style="width: 100%; padding: 12px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 16px;">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-4); margin-bottom: var(--space-4);">
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-text);">Duración (min) *</label>
+                        <input type="number" id="torneoDuracion" name="duracion_minutos" value="15" min="5" max="120" required class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text);">
+                    </div>
+                    <div>
+                        <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-text);">Máx. Usuarios *</label>
+                        <input type="number" id="torneoMaxUsuarios" name="max_usuarios" value="8" min="2" max="100" required class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text);">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: var(--space-5);">
+                    <label style="display: block; margin-bottom: 6px; font-weight: 600; color: var(--color-text);">Estado</label>
+                    <select id="torneoEstado" name="estado" class="form-control" style="width: 100%; padding: 10px; border: 1px solid var(--color-border); border-radius: var(--radius-sm); background: var(--color-surface); color: var(--color-text);">
                         <option value="proximo">📅 Próximo</option>
                         <option value="inscripcion_abierta">✍️ Inscripciones Abiertas</option>
                         <option value="en_curso">🔴 En Curso</option>
@@ -322,9 +290,9 @@
                     </select>
                 </div>
 
-                <div style="display: flex; gap: 12px; justify-content: flex-end;">
-                    <button type="button" onclick="closeTorneoModal()" style="background: #718096; color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">Cancelar</button>
-                    <button type="submit" style="background: linear-gradient(135deg, #667eea, #764ba2); color: white; padding: 12px 24px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold;">💾 Guardar</button>
+                <div style="display: flex; gap: var(--space-3); justify-content: flex-end;">
+                    <button type="button" class="btn btn-secondary" onclick="closeTorneoModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">💾 Guardar</button>
                 </div>
             </form>
         </div>
@@ -396,7 +364,6 @@
         // APROBAR SUGERENCIA (CON BLOQUEO)
         // ============================================
         async function approveSuggestion(sugerenciaId, nivelId) {
-            // 🔥 Evitar ejecuciones múltiples
             if (isLoading) return;
             
             try {
@@ -412,7 +379,6 @@
 
                 if (data.success) {
                     showToast('✅ ¡Pregunta aprobada!', 'success');
-                    // 🔥 Recargar después de un breve retraso
                     setTimeout(() => {
                         loadSuggestions(currentFilter);
                     }, 500);
@@ -432,7 +398,7 @@
         async function rejectSuggestion(sugerenciaId) {
             if (isLoading) return;
             
-            const motivo = await showCustomModal('Motivo del rechazo', 'Escribe el motivo del rechazo (opcional):', true);
+            const motivo = prompt('Escribe el motivo del rechazo (opcional):');
             if (motivo === null) return; // Usuario canceló
 
             try {
@@ -464,7 +430,6 @@
         // CARGAR SUGERENCIAS (CON LIMPIEZA DE EVENTOS)
         // ============================================
         async function loadSuggestions(filter = 'pendiente') {
-            // 🔥 Si ya está cargando, no hacer nada
             if (isLoading) return;
             
             try {
@@ -508,9 +473,9 @@
                     card.dataset.sugerenciaId = sug.id;
 
                     if (sug.estado === 'aprobada') {
-                        card.style.borderLeftColor = '#48bb78';
+                        card.style.borderLeftColor = 'var(--color-success)';
                     } else if (sug.estado === 'rechazada') {
-                        card.style.borderLeftColor = '#fc8181';
+                        card.style.borderLeftColor = 'var(--color-danger)';
                     }
 
                     const opciones = sug.opciones || [];
@@ -518,7 +483,7 @@
 
                     let optionsHTML = '';
                     if (opciones.length === 0) {
-                        optionsHTML = '<span style="color:#718096;">Sin opciones</span>';
+                        optionsHTML = '<span style="color:var(--color-text-muted);">Sin opciones</span>';
                     } else {
                         opciones.forEach((opt, index) => {
                             const isCorrect = index === correcta;
@@ -552,9 +517,9 @@
                     card.innerHTML = `
                         <div class="suggestion-header">
                             <span class="user">👤 ${sug.username || 'Usuario'}</span>
-                            <span class="materia">${sug.materia_nombre || 'Sin materia'}</span>
+                            <span class="badge" style="background-color: var(--color-primary); color: white;">${sug.materia_nombre || 'Sin materia'}</span>
                             <span class="date">${new Date(sug.fecha_sugerencia).toLocaleDateString()}</span>
-                            <span style="font-size:12px;font-weight:bold;padding:2px 10px;border-radius:10px;background:${sug.estado === 'pendiente' ? '#ed8936' : sug.estado === 'aprobada' ? '#48bb78' : '#fc8181'};color:white;">
+                            <span class="badge" style="background-color: ${sug.estado === 'pendiente' ? 'var(--color-accent-amber)' : sug.estado === 'aprobada' ? 'var(--color-success)' : 'var(--color-danger)'};">
                                 ${sug.estado === 'pendiente' ? '⏳ Pendiente' : sug.estado === 'aprobada' ? '✅ Aprobada' : '❌ Rechazada'}
                             </span>
                         </div>
@@ -563,101 +528,20 @@
                         ${sug.estado === 'pendiente' ? `
                             <div class="actions">
                                 ${nivelSelectHTML}
-                                <button class="btn-verify-ai" data-sugerencia="${sug.id}" style="background:#805ad5;color:white;border:none;padding:5px 10px;border-radius:4px;cursor:pointer;margin-right:5px;">🤖 Evaluar con Sabi</button>
-                                <button class="btn-approve" data-sugerencia="${sug.id}">✅ Aprobar (y empujar niveles)</button>
-                                <button class="btn-reject" data-sugerencia="${sug.id}">❌ Rechazar</button>
+                                <button class="btn btn-secondary btn-verify-ai" data-sugerencia="${sug.id}">🤖 Evaluar con Sabi</button>
+                                <button class="btn btn-primary btn-approve" data-sugerencia="${sug.id}">✅ Aprobar</button>
+                                <button class="btn btn-danger btn-reject" data-sugerencia="${sug.id}">❌ Rechazar</button>
                             </div>
                         ` : `
-                            <div style="margin-top:10px;font-size:14px;color:#718096;">
-                                ${sug.comentario_moderador ? '💬 Comentario: ${sug.comentario_moderador}' : ''}
-                                ${sug.fecha_revision ? '📅 Revisado: ${new Date(sug.fecha_revision).toLocaleDateString()}' : ''}
+                            <div style="margin-top:10px;font-size:14px;color:var(--color-text-muted);">
+                                ${sug.comentario_moderador ? '💬 Comentario: ' + sug.comentario_moderador : ''}
+                                ${sug.fecha_revision ? '📅 Revisado: ' + new Date(sug.fecha_revision).toLocaleDateString() : ''}
                             </div>
                         `}
                     `;
 
                     list.appendChild(card);
                 }
-
-                list.addEventListener('click', function(event) {
-                    const target = event.target;
-                    
-                    // Botón Evaluar con Sabi
-                    if (target.classList.contains('btn-verify-ai')) {
-                        const sugerenciaId = target.dataset.sugerencia;
-                        
-                        // Extraer información del DOM de la tarjeta directamente
-                        const card = target.closest('.suggestion-card');
-                        const textQ = card.querySelector('.question-text') ? card.querySelector('.question-text').textContent.replace('🤔', '').trim() : '';
-                        
-                        let opcionesText = [];
-                        let correctaIdx = 0;
-                        const opEls = card.querySelectorAll('.options-list .opt');
-                        opEls.forEach((el, idx) => {
-                          opcionesText.push(el.textContent.trim());
-                          if (el.classList.contains('correct')) correctaIdx = idx;
-                        });
-
-                        target.disabled = true;
-                        target.innerHTML = '🤖 Pensando...';
-
-                        apiRequest('/sabi/verify-suggestion', {
-                            method: 'POST',
-                            body: JSON.stringify({
-                                pregunta: textQ,
-                                opciones: opcionesText,
-                                correcta: correctaIdx
-                            })
-                        }).then(data => {
-                            target.disabled = false;
-                            target.innerHTML = '🤖 Evaluar con Sabi';
-                            if (data.success) {
-                                showCustomModal('🤖 Sabi dice:', data.analisis);
-                            } else {
-                                showCustomModal('Error de Sabi', data.error);
-                            }
-                        }).catch(error => {
-                            target.disabled = false;
-                            target.innerHTML = '🤖 Evaluar con Sabi';
-                            showCustomModal('Error de conexión', 'No se pudo conectar con el servidor. ¿Reiniciaste el backend?');
-                        });
-                    }
-                    
-                    // Botón Aprobar
-                    if (target.classList.contains('btn-approve')) {
-                        const sugerenciaId = target.dataset.sugerencia;
-                        const card = target.closest('.suggestion-card');
-                        const select = card ? card.querySelector('.nivel-select') : null;
-                        const nivelId = select ? select.value : null;
-
-                        if (!nivelId) {
-                            showToast('🤔 Por favor, selecciona un nivel para la pregunta', 'error');
-                            return;
-                        }
-
-                        // Deshabilitar el botón para evitar doble clic
-                        target.disabled = true;
-                        target.innerHTML = '⏳ Procesando...';
-                        
-                        approveSuggestion(sugerenciaId, nivelId).finally(() => {
-                            target.disabled = false;
-                            target.disabled = false;
-                            target.innerHTML = '✅ Aprobar';
-                        });
-                    }
-                    
-                    // Botón Rechazar
-                    if (target.classList.contains('btn-reject')) {
-                        const sugerenciaId = target.dataset.sugerencia;
-                        
-                        target.disabled = true;
-                        target.innerHTML = '⏳ Procesando...';
-                        
-                        rejectSuggestion(sugerenciaId).finally(() => {
-                            target.disabled = false;
-                            target.innerHTML = '❌ Rechazar';
-                        });
-                    }
-                });
 
             } catch (error) {
                 console.error('Error:', error);
@@ -667,12 +551,87 @@
             }
         }
 
+        // Listener global para sugerencias
+        document.getElementById('suggestionsList').addEventListener('click', function(event) {
+            const target = event.target;
+            
+            if (target.classList.contains('btn-verify-ai')) {
+                const sugerenciaId = target.dataset.sugerencia;
+                const card = target.closest('.suggestion-card');
+                const textQ = card.querySelector('.question-text') ? card.querySelector('.question-text').textContent.replace('🤔', '').trim() : '';
+                
+                let opcionesText = [];
+                let correctaIdx = 0;
+                const opEls = card.querySelectorAll('.options-list .opt');
+                opEls.forEach((el, idx) => {
+                    opcionesText.push(el.textContent.trim());
+                    if (el.classList.contains('correct')) correctaIdx = idx;
+                });
+
+                target.disabled = true;
+                target.innerHTML = '🤖 Pensando...';
+
+                apiRequest('/sabi/verify-suggestion', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        pregunta: textQ,
+                        opciones: opcionesText,
+                        correcta: correctaIdx
+                    })
+                }).then(data => {
+                    target.disabled = false;
+                    target.innerHTML = '🤖 Evaluar con Sabi';
+                    if (data.success) {
+                        alert('🤖 Sabi dice:\n' + data.analisis);
+                    } else {
+                        alert('Error de Sabi:\n' + data.error);
+                    }
+                }).catch(error => {
+                    target.disabled = false;
+                    target.innerHTML = '🤖 Evaluar con Sabi';
+                    alert('Error de conexión. ¿Reiniciaste el backend?');
+                });
+            }
+            
+            if (target.classList.contains('btn-approve')) {
+                const sugerenciaId = target.dataset.sugerencia;
+                const card = target.closest('.suggestion-card');
+                const select = card ? card.querySelector('.nivel-select') : null;
+                const nivelId = select ? select.value : null;
+
+                if (!nivelId) {
+                    showToast('🤔 Por favor, selecciona un nivel para la pregunta', 'error');
+                    return;
+                }
+
+                target.disabled = true;
+                target.innerHTML = '⏳ Procesando...';
+                
+                approveSuggestion(sugerenciaId, nivelId).finally(() => {
+                    target.disabled = false;
+                    target.innerHTML = '✅ Aprobar';
+                });
+            }
+            
+            if (target.classList.contains('btn-reject')) {
+                const sugerenciaId = target.dataset.sugerencia;
+                
+                target.disabled = true;
+                target.innerHTML = '⏳ Procesando...';
+                
+                rejectSuggestion(sugerenciaId).finally(() => {
+                    target.disabled = false;
+                    target.innerHTML = '❌ Rechazar';
+                });
+            }
+        });
+
         // ============================================
         // FILTROS
         // ============================================
-        document.querySelectorAll('.filter-tabs button').forEach(btn => {
+        document.querySelectorAll('.tab[data-filter]').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-tabs button').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab[data-filter]').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentFilter = btn.dataset.filter;
                 loadSuggestions(currentFilter);
@@ -703,11 +662,11 @@
             }
             
             // Filtros de torneos
-            const torneoFilters = document.querySelectorAll('[data-torneo-filter]');
+            const torneoFilters = document.querySelectorAll('.tab[data-torneo-filter]');
             if (torneoFilters.length > 0) {
                 torneoFilters.forEach(btn => {
                     btn.addEventListener('click', () => {
-                        document.querySelectorAll('[data-torneo-filter]').forEach(b => b.classList.remove('active'));
+                        document.querySelectorAll('.tab[data-torneo-filter]').forEach(b => b.classList.remove('active'));
                         btn.classList.add('active');
                         loadTorneos(btn.dataset.torneoFilter);
                     });
@@ -731,12 +690,9 @@
             try {
                 const data = await apiRequest('/quiz/materias');
                 const select = document.getElementById('torneoMateria');
-                if (!select) {
-                    console.error('Select torneoMateria no encontrado');
-                    return;
-                }
+                if (!select) return;
+                
                 if (data.success && data.materias) {
-                    // Limpiar opciones excepto la primera
                     select.innerHTML = '<option value="">Seleccionar materia...</option>';
                     data.materias.forEach(m => {
                         const opt = document.createElement('option');
@@ -773,26 +729,25 @@
                     card.className = 'suggestion-card';
                     card.style.borderLeftColor = getEstadoColor(t.estado);
                     
-                    const timeInfo = getTimeUntil(t.fecha_inicio);
                     const inscritos = t.inscritos || 0;
                     
                     card.innerHTML = `
                         <div class="suggestion-header">
                             <span class="user">🏆 ${t.nombre}</span>
-                            <span class="materia">${t.materia_nombre}</span>
+                            <span class="badge" style="background-color: var(--color-primary); color: white;">${t.materia_nombre}</span>
                             <span class="date">${formatDate(t.fecha_inicio)}</span>
-                            <span style="font-size:12px;font-weight:bold;padding:2px 10px;border-radius:10px;background:${getEstadoColor(t.estado)};color:white;">
+                            <span class="badge" style="background-color: ${getEstadoColor(t.estado)};">
                                 ${getEstadoText(t.estado)}
                             </span>
                         </div>
-                        <div class="question-text">
-                            📅 Inicio: ${formatDate(t.fecha_inicio)} | ⏰ Fin: ${formatDate(t.fecha_fin)}
-                            <br>👥 ${inscritos}/${t.max_usuarios} | ⏱️ ${t.duracion_minutos}min | 🎮 ${t.modo}
+                        <div class="question-text" style="font-size: 0.9rem;">
+                            📅 Inicio: ${formatDate(t.fecha_inicio)} | ⏰ Fin: ${formatDate(t.fecha_fin)}<br>
+                            👥 ${inscritos}/${t.max_usuarios} | ⏱️ ${t.duracion_minutos}min | 🎮 ${t.modo}
                         </div>
                         <div class="actions">
-                            <button class="btn-approve" data-torneo-id="${t.id}" onclick="editTorneo(${t.id})">✏️ Editar</button>
-                            <button class="btn-reject" data-torneo-id="${t.id}" onclick="deleteTorneo(${t.id})">🗑️ Eliminar</button>
-                            <a href="torneo_detalle.html?id=${t.id}" target="_blank" style="background:#4299e1;color:white;padding:8px 20px;border:none;border-radius:8px;text-decoration:none;font-weight:bold;">👁️ Ver</a>
+                            <button class="btn btn-secondary" onclick="editTorneo(${t.id})">✏️ Editar</button>
+                            <button class="btn btn-danger" onclick="deleteTorneo(${t.id})">🗑️ Eliminar</button>
+                            <a href="torneo_detalle.html?id=${t.id}" class="btn btn-primary" target="_blank" style="text-decoration:none;">👁️ Ver</a>
                         </div>
                     `;
                     list.appendChild(card);
@@ -805,12 +760,12 @@
 
         function getEstadoColor(estado) {
             const colors = {
-                'proximo': '#667eea',
-                'inscripcion_abierta': '#ed8936',
-                'en_curso': '#48bb78',
-                'finalizado': '#a0aec0'
+                'proximo': 'var(--color-primary)',
+                'inscripcion_abierta': 'var(--color-accent-amber)',
+                'en_curso': 'var(--color-success)',
+                'finalizado': 'var(--color-text-muted)'
             };
-            return colors[estado] || '#718096';
+            return colors[estado] || 'var(--color-text-muted)';
         }
 
         function getEstadoText(estado) {
@@ -828,25 +783,12 @@
             return date.toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
         }
 
-        function getTimeUntil(dateStr) {
-            const now = new Date();
-            const target = new Date(dateStr);
-            const diff = target - now;
-            if (diff <= 0) return { text: 'Ya', urgent: false };
-            const hours = Math.floor(diff / (1000 * 60 * 60));
-            const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-            return { text: hours > 0 ? `${hours}h ${minutes}m` : `${minutes}m`, urgent: hours < 1 };
-        }
-
         function openTorneoModal(torneo = null) {
             const modal = document.getElementById('torneoModal');
             const form = document.getElementById('torneoForm');
             const title = document.getElementById('modalTitle');
             
-            if (!form || !modal || !title) {
-                console.error('Elementos del modal no encontrados');
-                return;
-            }
+            if (!form || !modal || !title) return;
             
             form.reset();
             const torneoIdEl = document.getElementById('torneoId');
@@ -854,44 +796,24 @@
             
             if (torneo) {
                 title.textContent = '✏️ Editar Torneo';
-                const idEl = document.getElementById('torneoId');
-                if (idEl) idEl.value = torneo.id;
-                
-                const nombreEl = document.getElementById('torneoNombre');
-                if (nombreEl) nombreEl.value = torneo.nombre;
-                
-                const materiaEl = document.getElementById('torneoMateria');
-                if (materiaEl) materiaEl.value = torneo.materia_id;
-                
-                const modoEl = document.getElementById('torneoModo');
-                if (modoEl) modoEl.value = torneo.modo;
-                
-                const fechaInicioEl = document.getElementById('torneoFechaInicio');
-                if (fechaInicioEl) fechaInicioEl.value = formatDateForInput(torneo.fecha_inicio);
-                
-                const fechaFinEl = document.getElementById('torneoFechaFin');
-                if (fechaFinEl) fechaFinEl.value = formatDateForInput(torneo.fecha_fin);
-                
-                const duracionEl = document.getElementById('torneoDuracion');
-                if (duracionEl) duracionEl.value = torneo.duracion_minutos;
-                
-                const maxUsuariosEl = document.getElementById('torneoMaxUsuarios');
-                if (maxUsuariosEl) maxUsuariosEl.value = torneo.max_usuarios;
-                
-                const estadoEl = document.getElementById('torneoEstado');
-                if (estadoEl) estadoEl.value = torneo.estado;
+                if (document.getElementById('torneoId')) document.getElementById('torneoId').value = torneo.id;
+                if (document.getElementById('torneoNombre')) document.getElementById('torneoNombre').value = torneo.nombre;
+                if (document.getElementById('torneoMateria')) document.getElementById('torneoMateria').value = torneo.materia_id;
+                if (document.getElementById('torneoModo')) document.getElementById('torneoModo').value = torneo.modo;
+                if (document.getElementById('torneoFechaInicio')) document.getElementById('torneoFechaInicio').value = formatDateForInput(torneo.fecha_inicio);
+                if (document.getElementById('torneoFechaFin')) document.getElementById('torneoFechaFin').value = formatDateForInput(torneo.fecha_fin);
+                if (document.getElementById('torneoDuracion')) document.getElementById('torneoDuracion').value = torneo.duracion_minutos;
+                if (document.getElementById('torneoMaxUsuarios')) document.getElementById('torneoMaxUsuarios').value = torneo.max_usuarios;
+                if (document.getElementById('torneoEstado')) document.getElementById('torneoEstado').value = torneo.estado;
             } else {
                 title.textContent = '➕ Crear Torneo';
-                // Default: mañana a las 10:00
                 const tomorrow = new Date();
                 tomorrow.setDate(tomorrow.getDate() + 1);
                 tomorrow.setHours(10, 0, 0, 0);
-                const fechaInicioEl = document.getElementById('torneoFechaInicio');
-                if (fechaInicioEl) fechaInicioEl.value = formatDateForInput(tomorrow.toISOString());
+                if (document.getElementById('torneoFechaInicio')) document.getElementById('torneoFechaInicio').value = formatDateForInput(tomorrow.toISOString());
                 const end = new Date(tomorrow);
                 end.setMinutes(end.getMinutes() + 15);
-                const fechaFinEl = document.getElementById('torneoFechaFin');
-                if (fechaFinEl) fechaFinEl.value = formatDateForInput(end.toISOString());
+                if (document.getElementById('torneoFechaFin')) document.getElementById('torneoFechaFin').value = formatDateForInput(end.toISOString());
             }
             
             modal.style.display = 'flex';
@@ -947,7 +869,6 @@
             const formData = new FormData(form);
             const torneoData = Object.fromEntries(formData);
             
-            // Convertir números
             if (torneoData.materia_id) torneoData.materia_id = parseInt(torneoData.materia_id);
             if (torneoData.duracion_minutos) torneoData.duracion_minutos = parseInt(torneoData.duracion_minutos);
             if (torneoData.max_usuarios) torneoData.max_usuarios = parseInt(torneoData.max_usuarios);

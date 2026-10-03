@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title data-translate="mathsTitle">SabiQuiz - Matemáticas</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <link rel="stylesheet" href="../css/navbar.css">
     <style>
         .level-selection-container {
             max-width: 800px;
@@ -86,6 +87,7 @@
     </style>
 </head>
 <body data-subject-id="matematicas">
+    <div id="navbar-container"></div>
     <div class="container level-selection-container">
         <a href="matematicas.html" class="back-btn" data-translate="backToMath">← Volver a Matemáticas</a>
         <h3 data-translate="mathsQuizzes">📐 Matemáticas - Quizzes</h3>
@@ -289,5 +291,6 @@
         document.addEventListener('DOMContentLoaded', cargarNiveles);
         window.cargarNiveles = cargarNiveles;
     </script>
+    <script src="../js/layout.js"></script>
 </body>
 </html>

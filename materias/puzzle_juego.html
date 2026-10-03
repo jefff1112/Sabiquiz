@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Puzzle Geométrico - Juego</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <link rel="stylesheet" href="../css/navbar.css">
     <style>
         :root {
             --cell: 116px;
@@ -245,6 +246,7 @@
     </style>
 </head>
 <body>
+    <div id="navbar-container"></div>
     <div class="game-container">
         <a href="puzzle.html" class="back-btn">← Volver a niveles</a>
         <div class="level-title"><img src="../img/puzzle.png" class="icon-btn"> Puzzle Geométrico - Nivel <span id="levelNum">1</span></div>
@@ -644,5 +646,6 @@
         loadLevel();
     </script>
     <script src="../js/sabi_injector.js"></script>
+    <script src="../js/layout.js"></script>
 </body>
 </html>

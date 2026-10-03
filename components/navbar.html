@@ -1,0 +1,50 @@
+<nav class="navbar" role="navigation" aria-label="Navegación principal">
+  <!-- Progress bar at top -->
+  <div class="navbar-progress" aria-label="Progreso general">
+    <div class="navbar-progress-fill" id="navbarProgressFill" style="width: 0%"></div>
+  </div>
+  
+  <div class="navbar-inner">
+    <a href="main_menu.html" class="navbar-brand" aria-label="Ir al inicio">
+      <img src="img/sabi/sabi_saludando.png" alt="Sabi" class="navbar-logo">
+      <span class="navbar-brand-text">SabiQuiz</span>
+    </a>
+    
+    <button class="navbar-hamburger" id="navbarHamburger" aria-label="Abrir menú" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    
+    <ul class="navbar-links" id="navbarLinks">
+      <li><a href="main_menu.html" data-page="main_menu">🏠 Inicio</a></li>
+      <li><a href="leaderboard.html" data-page="leaderboard">🥇 Ranking</a></li>
+      <li><a href="torneos.html" data-page="torneos">🏆 Torneos</a></li>
+      <li><a href="suggestions.html" data-page="suggestions">💡 Sugerir</a></li>
+    </ul>
+    
+    <div class="navbar-actions">
+      <button class="icon-btn" id="themeToggle" aria-label="Cambiar tema">
+        <span class="theme-icon">🌙</span>
+      </button>
+      
+      <button class="icon-btn" id="navNotificationsBtn" aria-label="Notificaciones" style="position: relative;">
+        🔔
+        <span class="badge" id="navNotifCount" style="display: none;">0</span>
+      </button>
+      
+      <div class="user-menu" id="userMenu">
+        <button class="user-menu-trigger" id="userMenuTrigger" aria-haspopup="true" aria-expanded="false">
+          <img src="img/default-avatar.png" alt="" class="avatar avatar-sm" id="navUserAvatar">
+          <span class="user-name" id="navUserName">Usuario</span>
+          <span class="chevron">▾</span>
+        </button>
+        <div class="user-menu-dropdown" id="userMenuDropdown" role="menu" aria-hidden="true">
+          <a href="profile.html" role="menuitem">👤 Mi Perfil</a>
+          <a href="profile.html#logros" role="menuitem">🏅 Logros</a>
+          <a href="#" id="navAdminLink" role="menuitem" style="display:none;">⚙️ Panel Admin</a>
+          <hr>
+          <a href="#" id="navLogoutBtn" role="menuitem" class="text-danger">🚪 Cerrar Sesión</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

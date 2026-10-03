@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Tiro Parabólico - Juego</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <link rel="stylesheet" href="../css/navbar.css">
     <style>
         * { box-sizing: border-box; }
         body {
@@ -174,6 +175,7 @@
     </style>
 </head>
 <body>
+    <div id="navbar-container"></div>
     <div class="game-container">
         <a href="tiro.html" class="back-btn">← Volver a niveles</a>
         <div class="level-title"><img src="../img/cohete.png" class="icon-btn"> Tiro Parabólico - Nivel <span id="levelNum">1</span></div>
@@ -632,5 +634,6 @@
         loadLevel();
     </script>
     <script src="../js/sabi_injector.js"></script>
+    <script src="../js/layout.js"></script>
 </body>
 </html>

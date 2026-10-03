@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sabiquiz - Quiz</title>
-    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/navbar.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap">
     <!-- Librerías para animaciones y efectos -->
     <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
@@ -13,50 +14,50 @@
     <style>
         .quiz-main-container {
             max-width: 900px;
-            margin: 30px auto;
-            padding: 30px;
-            background: white;
-            border-radius: 20px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            margin: 0 auto;
+            padding: var(--space-6);
         }
         .back-btn {
             display: inline-block;
-            margin-bottom: 20px;
-            color: #667eea;
+            margin-bottom: var(--space-4);
+            color: var(--color-primary);
             text-decoration: none;
             font-weight: bold;
             font-size: 16px;
         }
-        .back-btn:hover { text-decoration: underline; }
+        .back-btn:hover { text-decoration: underline; color: var(--color-primary-dark); }
         .quiz-top-bar {
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
-            gap: 10px;
-            background: #f7fafc;
-            padding: 15px 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
+            gap: var(--space-3);
+            background: var(--color-surface);
+            padding: var(--space-4);
+            border-radius: var(--radius-md);
+            margin-bottom: var(--space-5);
             font-weight: bold;
-            color: #2d3748;
+            color: var(--color-text);
+            border: 1px solid var(--color-border);
         }
         .quiz-content-row {
             display: flex;
-            gap: 30px;
+            gap: var(--space-6);
             align-items: flex-start;
         }
         .quiz-question-block { flex: 1; }
         .question-card {
-            background: #f7fafc;
-            padding: 25px;
-            border-radius: 15px;
+            background: var(--color-surface);
+            padding: var(--space-5);
+            border-radius: var(--radius-lg);
             min-height: 200px;
+            border: 1px solid var(--color-border);
+            box-shadow: var(--shadow-sm);
         }
         .question-card #questionText {
             font-size: 22px;
             font-weight: 600;
-            color: #2d3748;
-            margin-bottom: 20px;
+            color: var(--color-text);
+            margin-bottom: var(--space-5);
         }
         .options-grid {
             display: grid;
@@ -65,25 +66,26 @@
         }
         .option-btn {
             padding: 14px 20px;
-            background: white;
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
+            background: var(--color-bg);
+            border: 2px solid var(--color-border);
+            border-radius: var(--radius-md);
             cursor: pointer;
             font-size: 16px;
             transition: all 0.3s;
             text-align: left;
+            color: var(--color-text);
         }
         .option-btn:hover:not(:disabled) {
-            border-color: #667eea;
-            background: #ebf4ff;
+            border-color: var(--color-primary);
+            background: var(--color-surface);
             transform: translateY(-2px);
         }
         .option-btn.correct {
-            border-color: #48bb78;
+            border-color: var(--color-success);
             background: #c6f6d5;
         }
         .option-btn.incorrect {
-            border-color: #fc8181;
+            border-color: var(--color-danger);
             background: #fed7d7;
         }
         .option-btn:disabled {
@@ -91,26 +93,13 @@
             opacity: 0.7;
         }
         .feedback-message {
-            margin-top: 15px;
+            margin-top: var(--space-4);
             padding: 12px;
-            border-radius: 10px;
+            border-radius: var(--radius-sm);
             font-weight: bold;
             font-size: 18px;
             text-align: center;
         }
-        .next-btn {
-            margin-top: 15px;
-            padding: 12px 30px;
-            background: #667eea;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .next-btn:hover { background: #5a67d8; }
         .quiz-mascot-block { flex-shrink: 0; }
         .quiz-mascot-img {
             width: 160px;
@@ -119,65 +108,50 @@
         }
         .results-container {
             text-align: center;
-            padding: 30px;
+            padding: var(--space-6);
         }
         .results-container h4 {
             font-size: 28px;
-            color: #2d3748;
+            color: var(--color-text);
             margin-bottom: 10px;
         }
-        .results-container .result-stars { margin: 20px 0; }
+        .results-container .result-stars { margin: var(--space-5) 0; }
         .results-container .result-stars .star-icon {
             width: 50px;
             height: 50px;
             margin: 0 5px;
         }
-        .results-container .main-menu-btn {
-            display: inline-block;
-            margin-top: 20px;
-            padding: 14px 40px;
-            background: #667eea;
-            color: white;
-            border-radius: 12px;
-            text-decoration: none;
-            font-weight: bold;
-            transition: background 0.3s;
-        }
-        .results-container .main-menu-btn:hover { background: #5a67d8; }
         .error-message {
             background: #fed7d7;
-            color: #c53030;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
+            color: var(--color-danger);
+            padding: var(--space-4);
+            border-radius: var(--radius-sm);
+            margin-bottom: var(--space-5);
             display: none;
             text-align: center;
         }
         .loading-text {
             text-align: center;
-            color: #a0aec0;
-            padding: 50px;
+            color: var(--color-text-muted);
+            padding: var(--space-10);
             font-size: 20px;
         }
 
-        /* ============================================
-           SECCIÓN TEÓRICA COLAPSABLE (estilo minijuegos)
-           ============================================ */
+        /* TEORÍA */
         .theory-section {
             width: 100%;
             max-width: 700px;
-            margin: 24px auto 0;
-            background: #ffffff;
-            border-radius: 16px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
-            border: 1px solid #e2e8f0;
+            margin: var(--space-6) auto 0;
+            background: var(--color-surface);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-border);
             overflow: hidden;
         }
-
         .theory-toggle {
             width: 100%;
             padding: 16px 20px;
-            background: #f7fafc;
+            background: var(--color-bg);
             border: none;
             display: flex;
             justify-content: space-between;
@@ -186,31 +160,27 @@
             font-family: 'Comic Neue', cursive, sans-serif;
             font-size: 16px;
             font-weight: 700;
-            color: #4a5568;
+            color: var(--color-text);
             transition: background 0.2s;
         }
-
-        .theory-toggle:hover { background: #edf2f7; }
+        .theory-toggle:hover { background: var(--color-surface); }
         .theory-toggle svg { transition: transform 0.3s; }
         .theory-toggle.active svg { transform: rotate(180deg); }
-
         .theory-content {
             padding: 0;
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.4s ease-out, padding 0.4s ease-out;
             text-align: left;
-            color: #4a5568;
+            color: var(--color-text);
             line-height: 1.6;
         }
-
         .theory-content.open {
             padding: 24px;
             max-height: 1500px;
         }
-
         .theory-content h4 {
-            color: #2d3748;
+            color: var(--color-text);
             font-family: 'Comic Neue', cursive, sans-serif;
             margin-top: 16px;
             margin-bottom: 8px;
@@ -220,19 +190,15 @@
         .theory-content p { margin-bottom: 12px; font-size: 15px; }
         
         .formula-box {
-            background: #f1f5f9;
-            border-left: 4px solid #667eea;
+            background: var(--color-bg);
+            border-left: 4px solid var(--color-primary);
             padding: 16px;
             border-radius: 0 8px 8px 0;
             font-family: monospace;
             font-size: 14px;
             margin: 16px 0;
-            color: #2d3748;
+            color: var(--color-text);
         }
-
-        .formula-box div { margin-bottom: 8px; }
-        .formula-box div:last-child { margin-bottom: 0; }
-        .highlight { color: #667eea; font-weight: bold; }
 
         @media (max-width: 700px) {
             .quiz-content-row { flex-direction: column; align-items: center; }
@@ -243,9 +209,7 @@
         }
         @media (max-width: 480px) {
             .quiz-mascot-img { width: 80px; height: 80px; }
-        }
-        @media (max-width: 480px) {
-            .quiz-main-container { padding: 15px; margin: 10px; }
+            .quiz-main-container { padding: 15px; }
             .quiz-top-bar { flex-direction: column; align-items: center; gap: 5px; font-size: 13px; }
             .results-container h4 { font-size: 22px; }
             .results-container .result-stars .star-icon { width: 35px; height: 35px; }
@@ -253,33 +217,38 @@
     </style>
 </head>
 <body>
-    <div id="quiz-game" class="container quiz-main-container">
-        <a href="#" id="backBtn" class="back-btn">← Volver a los niveles</a>
-        
-        <div id="errorMessage" class="error-message"></div>
-        
-        <div class="quiz-top-bar">
-            <span id="subjectTitle">Cargando Quiz...</span>
-            <span id="levelDisplay"></span>
-            <span>Pregunta <span id="questionCounter"></span></span>
-            <span>Puntos: <span id="scoreDisplay">0</span></span>
-            <span>Tiempo: <span id="timerDisplay">20</span>s</span>
-        </div>
-        
-        <div class="quiz-content-row">
-            <div class="quiz-question-block">
-                <div id="currentQuestionCard" class="question-card">
-                    <p id="questionText">Cargando pregunta...</p>
-                    <div id="optionsContainer" class="options-grid"></div>
+    <div id="navbar-container"></div>
+    <script src="js/layout.js"></script>
+
+    <main class="main-content">
+        <div id="quiz-game" class="card quiz-main-container">
+            <a href="#" id="backBtn" class="back-btn">← Volver a los niveles</a>
+            
+            <div id="errorMessage" class="error-message"></div>
+            
+            <div class="quiz-top-bar">
+                <span id="subjectTitle">Cargando Quiz...</span>
+                <span id="levelDisplay"></span>
+                <span>Pregunta <span id="questionCounter"></span></span>
+                <span>Puntos: <span id="scoreDisplay">0</span></span>
+                <span>Tiempo: <span id="timerDisplay">20</span>s</span>
+            </div>
+            
+            <div class="quiz-content-row">
+                <div class="quiz-question-block">
+                    <div id="currentQuestionCard" class="question-card">
+                        <p id="questionText">Cargando pregunta...</p>
+                        <div id="optionsContainer" class="options-grid"></div>
+                    </div>
+                    <div id="feedback" class="feedback-message"></div>
+                    <button id="nextQuestionBtn" class="btn btn-primary" style="display:none; margin-top: var(--space-4);">Siguiente pregunta ➜</button>
                 </div>
-                <div id="feedback" class="feedback-message"></div>
-                <button id="nextQuestionBtn" class="next-btn" style="display:none;">Siguiente pregunta ➜</button>
-            </div>
-            <div class="quiz-mascot-block">
-                <img id="quizMascot" src="img/sabi/sabi_pensando.png" alt="Mascota del Quiz" class="sabi-mascot-quiz sabi-mascot-bounce sabi-fade-in">
+                <div class="quiz-mascot-block">
+                    <img id="quizMascot" src="img/sabi/sabi_pensando.png" alt="Mascota del Quiz" class="quiz-mascot-img">
+                </div>
             </div>
         </div>
-    </div>
+    </main>
 
     <audio id="correctSound" src="img/correct.mp3"></audio>
     <audio id="incorrectSound" src="img/incorrect.mp3"></audio>
@@ -290,18 +259,8 @@
         // ============================================
         const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000/api' : (window.location.origin + '/api');
 
-        // ============================================
-        // FUNCIONES DE AUTENTICACIÓN
-        // ============================================
         function getToken() {
             try { return localStorage.getItem('token'); } catch(e) { return null; }
-        }
-
-        function getCurrentUser() {
-            try {
-                const userStr = localStorage.getItem('user');
-                return userStr ? JSON.parse(userStr) : null;
-            } catch(e) { return null; }
         }
 
         function checkAuth() {
@@ -313,9 +272,6 @@
             return true;
         }
 
-        // ============================================
-        // FUNCIÓN PARA PETICIONES A LA API
-        // ============================================
         async function apiRequest(endpoint, options = {}) {
             const token = getToken();
             const headers = {
@@ -351,16 +307,10 @@
             }
         }
 
-        // ============================================
-        // FUNCIÓN PARA NORMALIZAR TEXTO (quitar tildes)
-        // ============================================
         function normalizarTexto(texto) {
             return texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
         }
 
-        // ============================================
-        // VARIABLES GLOBALES DEL QUIZ
-        // ============================================
         let questions = [];
         let currentQuestionIndex = 0;
         let score = 0;
@@ -373,9 +323,6 @@
         let userAnswers = [];
         let totalQuestions = 0;
 
-        // ============================================
-        // REFERENCIAS A ELEMENTOS DOM
-        // ============================================
         const backBtn = document.getElementById('backBtn');
         const subjectTitle = document.getElementById('subjectTitle');
         const questionCounter = document.getElementById('questionCounter');
@@ -398,9 +345,6 @@
             medal: 'img/sabi/sabi_medalla.png'
         };
 
-        // ============================================
-        // FUNCIONES DE UI
-        // ============================================
         function showError(message) {
             errorMessage.textContent = message;
             errorMessage.style.display = 'block';
@@ -410,9 +354,6 @@
             errorMessage.style.display = 'none';
         }
 
-        // ============================================
-        // INICIAR TEMPORIZADOR
-        // ============================================
         function startTimer(duration) {
             let timeLeft = duration;
             timerDisplay.textContent = timeLeft;
@@ -428,12 +369,6 @@
             }, 1000);
         }
 
-        // ============================================
-        // VERIFICAR RESPUESTA
-        // ============================================
-        // El navegador NUNCA conoce la respuesta correcta de antemano: se
-        // pregunta al servidor con POST /api/quiz/check y este responde si la
-        // opción elegida es la correcta y cuál era la buena.
         async function checkAnswer(button, questionData, opcionIdStr) {
             optionsContainer.querySelectorAll('.option-btn').forEach(btn => btn.disabled = true);
             clearInterval(timer);
@@ -454,11 +389,10 @@
 
             userAnswers.push({
                 preguntaId: questionData.id,
-                opcionId: opcionId,          // null si se agotó el tiempo
+                opcionId: opcionId,
                 esCorrecta: isCorrect
             });
 
-            // Marcar en verde la opción correcta y en rojo la elegida si falló
             optionsContainer.querySelectorAll('.option-btn').forEach(btn => {
                 if (Number(btn.dataset.opcionId) === Number(resultado.respuestaCorrectaId)) {
                     btn.classList.add('correct');
@@ -469,20 +403,20 @@
 
             if (!button) {
                 feedbackDiv.textContent = `⏱️ ¡Se acabó el tiempo! La respuesta correcta era: ${textoCorrecta}`;
-                feedbackDiv.style.color = '#c53030';
+                feedbackDiv.style.color = 'var(--color-danger)';
                 incorrectSound.play();
                 quizMascot.src = mascotImages.incorrect;
             } else if (isCorrect) {
                 score++;
                 button.classList.add('correct');
                 feedbackDiv.textContent = '✅ ¡Correcto!';
-                feedbackDiv.style.color = '#276749';
+                feedbackDiv.style.color = 'var(--color-success)';
                 correctSound.play();
                 quizMascot.src = mascotImages.correct;
             } else {
                 button.classList.add('incorrect');
                 feedbackDiv.textContent = `❌ Incorrecto. La respuesta correcta era: ${textoCorrecta}`;
-                feedbackDiv.style.color = '#c53030';
+                feedbackDiv.style.color = 'var(--color-danger)';
                 incorrectSound.play();
                 quizMascot.src = mascotImages.incorrect;
             }
@@ -491,9 +425,6 @@
             scoreDisplay.textContent = score;
         }
 
-        // ============================================
-        // MOSTRAR PREGUNTA
-        // ============================================
         function showQuestion() {
             if (currentQuestionIndex >= questions.length) {
                 showResult();
@@ -516,7 +447,6 @@
                 const button = document.createElement('button');
                 button.classList.add('option-btn');
                 button.textContent = optionText;
-                // Se guarda el ID real de la opción: es lo que se envía al servidor
                 button.setAttribute('data-opcion-id', String(idsOpciones[i] || 0));
                 button.dataset.id = idsOpciones[i];
                 button.addEventListener('click', () => checkAnswer(button, questionData, idsOpciones[i]));
@@ -530,187 +460,152 @@
             startTimer(timeLimit);
         }
 
-        // ============================================
-// MOSTRAR RESULTADOS Y GUARDAR PROGRESO
-// ============================================
-async function showResult() {
-    const lang = localStorage.getItem('language') || 'es';
-    
-    const correctas = userAnswers.filter(a => a.esCorrecta).length;
-    const totalQuestionsLocal = questions.length;
-    const porcentaje = correctas / totalQuestionsLocal;
-    
-    let estrellas = 0;
-    if (porcentaje >= 1) estrellas = 3;
-    else if (porcentaje >= 0.7) estrellas = 2;
-    else if (porcentaje >= 0.5) estrellas = 1;
-    
-    const completado = porcentaje >= 0.6;
-
-    // ============================================
-    // 🔥 ACTUALIZAR LOCALSTORAGE (para desbloquear niveles)
-    // ============================================
-    function actualizarProgresoLocal(subjectId, nivelId, estrellas) {
-        try {
-            let levelsCompleted = JSON.parse(localStorage.getItem('levelsCompleted')) || {};
+        async function showResult() {
+            const lang = localStorage.getItem('language') || 'es';
             
-            if (!levelsCompleted[subjectId]) {
-                levelsCompleted[subjectId] = {};
+            const correctas = userAnswers.filter(a => a.esCorrecta).length;
+            const totalQuestionsLocal = questions.length;
+            const porcentaje = correctas / totalQuestionsLocal;
+            
+            let estrellas = 0;
+            if (porcentaje >= 1) estrellas = 3;
+            else if (porcentaje >= 0.7) estrellas = 2;
+            else if (porcentaje >= 0.5) estrellas = 1;
+            
+            const completado = porcentaje >= 0.6;
+
+            function actualizarProgresoLocal(subjectId, nivelId, estrellas) {
+                try {
+                    let levelsCompleted = JSON.parse(localStorage.getItem('levelsCompleted')) || {};
+                    if (!levelsCompleted[subjectId]) {
+                        levelsCompleted[subjectId] = {};
+                    }
+                    levelsCompleted[subjectId][nivelId] = {
+                        stars: estrellas,
+                        completed: true,
+                        timestamp: Date.now()
+                    };
+                    localStorage.setItem('levelsCompleted', JSON.stringify(levelsCompleted));
+                } catch (e) {
+                    console.error('❌ Error actualizando localStorage:', e);
+                }
             }
-            
-            levelsCompleted[subjectId][nivelId] = {
-                stars: estrellas,
-                completed: true,
-                timestamp: Date.now()
-            };
-            
-            localStorage.setItem('levelsCompleted', JSON.stringify(levelsCompleted));
-            console.log('✅ Progreso local actualizado:', levelsCompleted);
-        } catch (e) {
-            console.error('❌ Error actualizando localStorage:', e);
-        }
-    }
 
-    // Guardar progreso en MySQL
-    // El servidor recalcula el puntaje consultando la base de datos: solo se
-    // envían los IDs (preguntaId + opcionId), nunca un "esCorrecta".
-    let estrellasServidor = estrellas;
-    let completadoServidor = completado;
-    try {
-        console.log('📤 Guardando progreso...');
-        console.log('  nivelId (real):', nivelId);
-        console.log('  respuestas:', userAnswers.length);
+            let estrellasServidor = estrellas;
+            let completadoServidor = completado;
+            try {
+                const respuestasParaEnviar = userAnswers.map(a => ({
+                    preguntaId: a.preguntaId,
+                    opcionId: a.opcionId == null ? 0 : a.opcionId
+                }));
 
-        const respuestasParaEnviar = userAnswers.map(a => ({
-            preguntaId: a.preguntaId,
-            opcionId: a.opcionId == null ? 0 : a.opcionId
-        }));
+                const resultado = await apiRequest('/quiz/submit', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        nivelId: nivelId,
+                        respuestas: respuestasParaEnviar,
+                        tiempo: 0
+                    })
+                });
 
-        const resultado = await apiRequest('/quiz/submit', {
-            method: 'POST',
-            body: JSON.stringify({
-                nivelId: nivelId,
-                respuestas: respuestasParaEnviar,
-                tiempo: 0
-            })
-        });
+                if (resultado.success && resultado.resultados) {
+                    estrellasServidor = resultado.resultados.estrellas;
+                    completadoServidor = !!resultado.resultados.completado;
+                    actualizarProgresoLocal(subjectId, nivelId, estrellasServidor);
+                }
 
-        console.log('✅ Progreso guardado:', resultado);
+            } catch (error) {
+                console.error('❌ Error guardando progreso:', error);
+            }
 
-        if (resultado.success && resultado.resultados) {
-            // Se muestran las estrellas REALES que quedaron guardadas
-            estrellasServidor = resultado.resultados.estrellas;
-            completadoServidor = !!resultado.resultados.completado;
-            actualizarProgresoLocal(subjectId, nivelId, estrellasServidor);
-        }
+            const estrellasMostrar = estrellasServidor;
+            const completadoMostrar = completadoServidor;
 
-    } catch (error) {
-        console.error('❌ Error guardando progreso:', error);
-    }
+            const esReintento = estrellasServidor > estrellas || (completadoServidor && !completado);
 
-    // Se usan los valores del servidor para pintar la pantalla de resultados
-    const estrellasMostrar = estrellasServidor;
-    const completadoMostrar = completadoServidor;
+            let resultTitle, resultEmoji;
+            if (completado) {
+                resultTitle = '¡Nivel Completado!';
+                resultEmoji = '<img src="img/sabi/sabi_festejando.png" style="width: 40px; height: 40px;" alt="">';
+            } else if (completadoMostrar && esReintento) {
+                resultTitle = 'Nivel ya completado anteriormente';
+                resultEmoji = '<img src="img/sabi/sabi_celebrando.png" style="width: 40px; height: 40px;" alt="">';
+            } else {
+                resultTitle = 'Inténtalo de nuevo';
+                resultEmoji = '<img src="img/sabi/sabi_anima.png" style="width: 40px; height: 40px;" alt="">';
+            }
 
-    // Detectar si es reintento (ya tenía progreso previo)
-    const esReintento = estrellasServidor > estrellas || (completadoServidor && !completado);
+            let teoriaHTML = '';
+            try {
+                const teoriaData = await apiRequest(`/quiz/nivel/${nivelId}/teoria`);
+                if (teoriaData.success && teoriaData.teoria) {
+                    teoriaHTML = `
+                        <div class="theory-section" id="theorySection">
+                            <button class="theory-toggle" id="theoryToggle">
+                                <span>📚 ¿Cómo funciona? (Ver teoría)</span>
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+                            </button>
+                            <div class="theory-content" id="theoryContent">
+                                ${teoriaData.teoria}
+                            </div>
+                        </div>
+                    `;
+                }
+            } catch (e) {
+                console.log('ℹ️ No hay teoría disponible para este nivel');
+            }
 
-    // ============================================
-    // MOSTRAR RESULTADOS
-    // ============================================
-    let resultTitle, resultEmoji;
-    if (completado) {
-        // Intento actual aprobó
-        resultTitle = '¡Nivel Completado!';
-        resultEmoji = '<img src="img/sabi/sabi_festejando.png" class="sabi-mascot-small sabi-mascot-bounce">';
-    } else if (completadoMostrar && esReintento) {
-        // Ya lo tenía completado de antes
-        resultTitle = 'Nivel ya completado anteriormente';
-        resultEmoji = '<img src="img/sabi/sabi_celebrando.png" class="sabi-mascot-small sabi-mascot-bounce">';
-    } else {
-        resultTitle = 'Inténtalo de nuevo';
-        resultEmoji = '<img src="img/sabi/sabi_anima.png" class="sabi-mascot-small sabi-mascot-bounce">';
-    }
-
-    // ============================================
-    // OBTENER TEORÍA DEL NIVEL
-    // ============================================
-    let teoriaHTML = '';
-    try {
-        const teoriaData = await apiRequest(`/quiz/nivel/${nivelId}/teoria`);
-        if (teoriaData.success && teoriaData.teoria) {
-            teoriaHTML = `
-                <div class="theory-section" id="theorySection">
-                    <button class="theory-toggle" id="theoryToggle">
-                        <span>📚 ¿Cómo funciona? (Ver teoría)</span>
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
-                    </button>
-                    <div class="theory-content" id="theoryContent">
-                        ${teoriaData.teoria}
+            quizGameEl.innerHTML = `
+                <div class="results-container">
+                    <h4>${resultEmoji} ${resultTitle}</h4>
+                    
+                    <p style="font-size:18px;color:var(--color-text);">
+                        <strong>Intento actual:</strong> ${correctas} / ${totalQuestionsLocal} 
+                        (${Math.round(porcentaje * 100)}% correctas)
+                    </p>
+                    
+                    <div class="result-stars">
+                        ${Array(3).fill(0).map((_, i) => 
+                            `<img src="img/${i < estrellasMostrar ? 'star_filled.png' : 'star_empty.png'}" class="star-icon" alt="">`
+                        ).join('')}
                     </div>
+                    
+                    ${esReintento ? `
+                        <div style="margin: 16px 0; padding: 12px; background: var(--color-surface); border-radius: var(--radius-sm); border-left: 4px solid var(--color-primary); font-size: 14px; color:var(--color-text);">
+                            <strong>📊 Tu mejor marca histórica:</strong> ${estrellasMostrar}★
+                            ${completadoMostrar ? ' | <span style="color:var(--color-success);">Nivel completado</span>' : ''}
+                        </div>
+                    ` : ''}
+                    
+                    ${completado ? '<p style="color:var(--color-success);font-weight:bold;">¡Nivel completado en este intento!</p>' : 
+                      (completadoMostrar && esReintento ? '<p style="color:var(--color-success);font-weight:bold;">Ya tenías este nivel completado.</p>' :
+                        '<p style="color:var(--color-danger);font-weight:bold;">No alcanzas el puntaje de aprobación. ¡Inténtalo de nuevo!</p>')}
+                    
+                    ${teoriaHTML}
+                    <a href="${backBtn.href}" class="btn btn-primary" style="display:inline-block; margin-top:20px;">Volver a niveles</a>
                 </div>
             `;
-        }
-    } catch (e) {
-        console.log('ℹ️ No hay teoría disponible para este nivel');
-    }
 
-    quizGameEl.innerHTML = `
-        <div class="results-container">
-            <h4>${resultEmoji} ${resultTitle}</h4>
-            
-            <p style="font-size:18px;color:#4a5568;">
-                <strong>Intento actual:</strong> ${correctas} / ${totalQuestionsLocal} 
-                (${Math.round(porcentaje * 100)}% correctas)
-            </p>
-            
-            <div class="result-stars">
-                ${Array(3).fill(0).map((_, i) => 
-                    `<img src="img/${i < estrellasMostrar ? 'star_filled.png' : 'star_empty.png'}" class="star-icon" alt="${i < estrellasMostrar ? 'Estrella obtenida' : 'Estrella no obtenida'}">`
-                ).join('')}
-            </div>
-            
-            ${esReintento ? `
-                <div style="margin: 16px 0; padding: 12px; background: #f7fafc; border-radius: 10px; border-left: 4px solid #667eea; font-size: 14px; color:#2d3748;">
-                    <strong>📊 Tu mejor marca histórica:</strong> ${estrellasMostrar}★
-                    ${completadoMostrar ? ' | <span style="color:#48bb78;">Nivel completado</span>' : ''}
-                </div>
-            ` : ''}
-            
-            ${completado ? '<p style="color:#48bb78;font-weight:bold;">¡Nivel completado en este intento!</p>' : 
-              (completadoMostrar && esReintento ? '<p style="color:#48bb78;font-weight:bold;">Ya tenías este nivel completado.</p>' :
-                '<p style="color:#fc8181;font-weight:bold;">No alcanzas el puntaje de aprobación. ¡Inténtalo de nuevo!</p>')}
-            
-            ${teoriaHTML}
-            <a href="${backBtn.href}" class="main-menu-btn">Volver a niveles</a>
-        </div>
-    `;
-
-    // Inicializar el toggle de la teoría
-    if (teoriaHTML) {
-        setTimeout(() => {
-            const toggle = document.getElementById('theoryToggle');
-            const content = document.getElementById('theoryContent');
-            if (toggle && content) {
-                toggle.addEventListener('click', function() {
-                    this.classList.toggle('active');
-                    content.classList.toggle('open');
-                });
+            if (teoriaHTML) {
+                setTimeout(() => {
+                    const toggle = document.getElementById('theoryToggle');
+                    const content = document.getElementById('theoryContent');
+                    if (toggle && content) {
+                        toggle.addEventListener('click', function() {
+                            this.classList.toggle('active');
+                            content.classList.toggle('open');
+                        });
+                    }
+                }, 100);
             }
-        }, 100);
-    }
 
-    quizMascot.src = completadoMostrar ? mascotImages.medal : mascotImages.incorrect;
-    
-    // Confeti si aprobó con 3 estrellas
-    if (completadoMostrar && estrellasMostrar === 3) {
-        launchConfetti();
-    }
-}
+            quizMascot.src = completadoMostrar ? mascotImages.medal : mascotImages.incorrect;
+            
+            if (completadoMostrar && estrellasMostrar === 3) {
+                launchConfetti();
+            }
+        }
 
-        // ============================================
-        // CONFETI - canvas-confetti
-        // ============================================
         function launchConfetti() {
             if (typeof confetti !== 'undefined') {
                 confetti({
@@ -732,9 +627,6 @@ async function showResult() {
             }
         }
 
-        // ============================================
-        // INICIAR QUIZ
-        // ============================================
         async function iniciarQuiz() {
             try {
                 if (!checkAuth()) return;
@@ -745,26 +637,19 @@ async function showResult() {
                 subjectId = urlParams.get('subject');
                 const levelParam = urlParams.get('level');
                 
-                console.log('🔍 Parámetros:', { subjectId, levelParam });
-                
                 if (!subjectId || !levelParam) {
                     showError('❌ No se especificó la materia o el nivel');
                     quizGameEl.innerHTML = '<div class="loading-text">❌ Error: Materia o nivel no especificado</div>';
                     return;
                 }
 
-                // El levelParam puede ser el ID del nivel (ej: 126) o el número (ej: 1)
                 const levelIdOrNumber = parseInt(levelParam);
 
-                // 1. Obtener materias
                 const materiasData = await apiRequest('/quiz/materias');
-                console.log('📚 Materias obtenidas:', materiasData);
                 
                 const materia = materiasData.materias.find(m => 
                     normalizarTexto(m.nombre) === normalizarTexto(subjectId)
                 );
-                
-                console.log('📚 Materia encontrada:', materia);
                 
                 if (!materia) {
                     showError(`❌ Materia "${subjectId}" no encontrada`);
@@ -773,17 +658,12 @@ async function showResult() {
 
                 materiaNombre = materia.nombre;
 
-                // 2. Obtener niveles
                 const nivelesData = await apiRequest(`/quiz/materia/${materia.id}/niveles`);
-                console.log('📖 Niveles obtenidos:', nivelesData);
                 
-                // Buscar por ID o por número
                 let nivel = nivelesData.niveles.find(n => n.id === levelIdOrNumber);
                 if (!nivel) {
                     nivel = nivelesData.niveles.find(n => n.numero === levelIdOrNumber);
                 }
-                
-                console.log('📖 Nivel encontrado:', nivel);
                 
                 if (!nivel) {
                     showError(`❌ Nivel ${levelParam} no encontrado`);
@@ -792,12 +672,7 @@ async function showResult() {
 
                 nivelId = nivel.id;
                 nivelNumero = nivel.numero;
-                
-                console.log('✅ nivelId real:', nivelId);
-                console.log('✅ numero real:', nivelNumero);
 
-                // Matemáticas tiene un hub (matematicas.html) que separa quizzes y minijuegos;
-                // el "Volver" del quiz debe ir a la pantalla de niveles de quizzes, no al hub.
                 const quizBackUrl = subjectId === 'matematicas'
                     ? `materias/matematicas_quizzes.html`
                     : `materias/${subjectId}.html`;
@@ -806,17 +681,13 @@ async function showResult() {
 
                 document.getElementById('levelDisplay').textContent = `Nivel ${nivelNumero}`;
 
-                // 3. Cargar preguntas
                 const preguntasData = await apiRequest(`/quiz/nivel/${nivelId}`);
-                console.log('❓ Preguntas obtenidas:', preguntasData);
                 
                 if (!preguntasData.success || !preguntasData.preguntas || preguntasData.preguntas.length === 0) {
                     showError('❌ No hay preguntas disponibles para este nivel');
                     return;
                 }
 
-                // El servidor ya NO envía cuál es la opción correcta: se pregunta
-                // por cada respuesta con POST /api/quiz/check.
                 questions = preguntasData.preguntas.map(p => ({
                     id: p.id,
                     question: { es: p.texto_es || p.texto },
@@ -826,8 +697,6 @@ async function showResult() {
                     optionIds: p.opciones.map(o => o.id),
                     timeLimit: 20
                 }));
-
-                console.log('✅ Preguntas procesadas:', questions);
 
                 if (questions.length === 0) {
                     showError('❌ No se pudieron cargar las preguntas');
@@ -847,34 +716,22 @@ async function showResult() {
                 quizGameEl.innerHTML = `
                     <div class="loading-text">
                         ❌ Error al cargar el quiz<br>
-                        <small style="font-size:14px;color:#a0aec0;">${error.message}</small>
+                        <small style="font-size:14px;color:var(--color-text-muted);">${error.message}</small>
                         <br><br>
-                        <button onclick="iniciarQuiz()" style="padding:10px 24px;border:none;background:#667eea;color:#fff;border-radius:8px;cursor:pointer;font-weight:bold;">
-                            🔄 Reintentar
-                        </button>
+                        <button class="btn btn-primary" onclick="iniciarQuiz()">🔄 Reintentar</button>
                     </div>
                 `;
             }
         }
 
-        // ============================================
-        // EVENTO: SIGUIENTE PREGUNTA
-        // ============================================
         nextQuestionBtn.addEventListener('click', () => {
             currentQuestionIndex++;
             showQuestion();
         });
 
-        // ============================================
-        // INICIALIZAR
-        // ============================================
         document.addEventListener('DOMContentLoaded', () => {
             iniciarQuiz();
 
-            // ============================================
-            // ANIMACIONES DE ENTRADA CON ANIME.JS
-            // ============================================
-            // Mascota del quiz
             anime({
                 targets: '#quizMascot',
                 scale: [0.5, 1],
@@ -884,7 +741,6 @@ async function showResult() {
                 delay: 200
             });
 
-            // Tarjeta de pregunta - entrada
             anime({
                 targets: '.question-card',
                 translateY: [30, 0],
@@ -894,7 +750,6 @@ async function showResult() {
                 delay: 400
             });
 
-            // Botones de opciones - entrada escalonada
             anime({
                 targets: '.option-btn',
                 translateX: [-30, 0],
@@ -904,7 +759,6 @@ async function showResult() {
                 delay: anime.stagger(80, {start: 600})
             });
 
-            // Animación idle de rebote suave para la mascota
             anime({
                 targets: '#quizMascot',
                 translateY: [0, -8, 0],
@@ -915,7 +769,6 @@ async function showResult() {
                 delay: 2000
             });
 
-            // Hover animations para opciones (con anime.js)
             document.querySelectorAll('.option-btn').forEach(btn => {
                 btn.addEventListener('mouseenter', () => {
                     if (!btn.disabled) {
@@ -933,16 +786,12 @@ async function showResult() {
                         anime({
                             targets: btn,
                             translateY: 0,
-                            boxShadow: '0 1px 3px rgba(0,0,0,0.04)',
+                            boxShadow: 'none',
                             duration: 200,
                             easing: 'easeOutQuad'
                         });
                     }
                 });
-            });
-
-            // Animación pop al clic en opciones
-            document.querySelectorAll('.option-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
                     if (!btn.disabled) {
                         anime({
@@ -956,7 +805,6 @@ async function showResult() {
             });
         });
 
-        // Exponer funciones globalmente para el botón de reintentar
         window.iniciarQuiz = iniciarQuiz;
     </script>
     <script src="js/sabi_injector.js"></script>

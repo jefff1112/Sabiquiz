@@ -4,618 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sabiquiz - Ranking</title>
-    <link rel="stylesheet" href="css/styles.css">
-    <!-- Librerías para animaciones y efectos -->
+    <link rel="stylesheet" href="css/design-system.css">
+    <link rel="stylesheet" href="css/navbar.css">
     <script src="https://cdn.jsdelivr.net/npm/animejs@3.2.1/lib/anime.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/lottie-web@5.12.2/build/player/lottie.min.js"></script>
-    <style>
-        /* ============================================
-           RESET Y BASE
-           ============================================ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 30px;
-        }
-
-        /* ============================================
-           CONTENEDOR PRINCIPAL - MÁS GRANDE
-           ============================================ */
-        .leaderboard-container {
-            max-width: 1000px;
-            width: 100%;
-            background: white;
-            border-radius: 30px;
-            padding: 45px 50px 40px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.25);
-            transition: all 0.3s ease;
-        }
-
-        /* ============================================
-           TÍTULOS
-           ============================================ */
-        .leaderboard-container h1 {
-            text-align: center;
-            color: #2d3748;
-            font-size: 38px;
-            font-weight: 800;
-            letter-spacing: 1px;
-            margin-bottom: 4px;
-        }
-
-        .leaderboard-container .subtitle {
-            text-align: center;
-            color: #a0aec0;
-            font-size: 18px;
-            font-weight: 500;
-            margin-bottom: 35px;
-            letter-spacing: 0.5px;
-        }
-
-        /* ============================================
-           TOP 3 - PODIO MEJORADO
-           ============================================ */
-        .podium-container {
-            display: flex;
-            justify-content: center;
-            align-items: flex-end;
-            gap: 30px;
-            margin: 20px 0 45px;
-            min-height: 300px;
-            flex-wrap: wrap;
-        }
-
-        .card {
-            background: #f7fafc;
-            border-radius: 20px;
-            padding: 25px 20px 20px;
-            text-align: center;
-            width: 180px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            border: 3px solid #e2e8f0;
-            position: relative;
-        }
-
-        .card:hover {
-            transform: translateY(-10px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.12);
-        }
-
-        /* ORO - 1er Lugar */
-        .card.rank-1 {
-            border-color: #FFD700;
-            background: linear-gradient(180deg, #FFFDE7 0%, #FFF8E1 100%);
-            order: 2;
-            padding-bottom: 35px;
-            transform: scale(1.08);
-            box-shadow: 0 8px 30px rgba(255, 215, 0, 0.25);
-        }
-        .card.rank-1:hover {
-            transform: scale(1.1);
-        }
-
-        /* PLATA - 2do Lugar */
-        .card.rank-2 {
-            border-color: #C0C0C0;
-            background: linear-gradient(180deg, #F8F9FA 0%, #F1F3F5 100%);
-            order: 1;
-            padding-bottom: 25px;
-        }
-
-        /* BRONCE - 3er Lugar */
-        .card.rank-3 {
-            border-color: #CD7F32;
-            background: linear-gradient(180deg, #FDF6F0 0%, #F8EDE3 100%);
-            order: 3;
-            padding-bottom: 20px;
-        }
-
-        .card .medal {
-            font-size: 48px;
-            display: block;
-            margin-bottom: 2px;
-        }
-
-        .card .card-rank {
-            font-size: 16px;
-            font-weight: 600;
-            color: #718096;
-            margin-bottom: 4px;
-        }
-
-        .card .card-avatar {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            border: 3px solid #667eea;
-            object-fit: cover;
-            margin: 8px auto 12px;
-            display: block;
-            background: #edf2f7;
-        }
-
-        .card .player-name {
-            font-weight: 700;
-            font-size: 20px;
-            color: #2d3748;
-            margin: 6px 0 4px;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .card .player-stats {
-            font-size: 15px;
-            color: #4a5568;
-            margin: 3px 0;
-        }
-
-        .card .player-stats strong {
-            color: #2d3748;
-            font-weight: 700;
-        }
-
-        .card .crown {
-            font-size: 48px;
-            display: block;
-            margin-bottom: -8px;
-        }
-
-        /* ============================================
-           RANKING GENERAL (4 - 10)
-           ============================================ */
-        .others-title {
-            color: #2d3748;
-            margin: 10px 0 18px;
-            border-bottom: 2px solid #edf2f7;
-            padding-bottom: 14px;
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 0.3px;
-        }
-
-        .others-title span {
-            color: #667eea;
-        }
-
-        .others-container {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            margin-bottom: 35px;
-        }
-
-        .leaderboard-row {
-            display: flex;
-            align-items: center;
-            padding: 14px 22px;
-            background: #f7fafc;
-            border-radius: 14px;
-            transition: background 0.2s ease, transform 0.2s ease;
-            gap: 18px;
-            border: 1px solid transparent;
-        }
-
-        .leaderboard-row:hover {
-            background: #edf2f7;
-            border-color: #e2e8f0;
-            transform: translateX(4px);
-        }
-
-        .leaderboard-row .row-rank {
-            font-weight: 700;
-            color: #4a5568;
-            min-width: 45px;
-            font-size: 17px;
-        }
-
-        .leaderboard-row .row-player-info {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            flex: 1;
-        }
-
-        .leaderboard-row .avatar-small {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            border: 2px solid #667eea;
-            object-fit: cover;
-            background: #edf2f7;
-        }
-
-        .leaderboard-row .player-name {
-            font-weight: 600;
-            color: #2d3748;
-            font-size: 17px;
-        }
-
-        .leaderboard-row .row-stat {
-            color: #4a5568;
-            min-width: 90px;
-            text-align: center;
-            font-size: 16px;
-        }
-
-        .leaderboard-row .row-stat strong {
-            color: #2d3748;
-            font-weight: 700;
-        }
-
-        /* ============================================
-           BOTÓN VOLVER
-           ============================================ */
-        .btn-back {
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 14px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: transform 0.2s ease, box-shadow 0.2s ease;
-            letter-spacing: 0.5px;
-        }
-
-        .btn-back:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-back:active {
-            transform: translateY(0);
-        }
-
-        /* ============================================
-           MENSAJES Y ESTADOS
-           ============================================ */
-        .loading-text {
-            text-align: center;
-            color: #a0aec0;
-            padding: 50px;
-            font-size: 20px;
-            font-weight: 500;
-            width: 100%;
-        }
-
-        .error-message {
-            background: #fed7d7;
-            color: #c53030;
-            padding: 16px 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            display: none;
-            text-align: center;
-            font-weight: 600;
-        }
-
-        .debug-info {
-            background: #ebf4ff;
-            padding: 12px 18px;
-            border-radius: 10px;
-            margin: 10px 0 20px;
-            font-size: 14px;
-            color: #4a5568;
-            display: none;
-            border-left: 4px solid #667eea;
-        }
-
-        .empty-message {
-            text-align: center;
-            color: #a0aec0;
-            padding: 50px;
-            font-size: 20px;
-            width: 100%;
-        }
-
-        /* ============================================
-           RESPONSIVE - PROFESIONAL
-           ============================================ */
-        @media (max-width: 820px) {
-            .leaderboard-container {
-                padding: 30px 25px 30px;
-                border-radius: 24px;
-            }
-
-            .leaderboard-container h1 {
-                font-size: 30px;
-            }
-
-            .podium-container {
-                gap: 20px;
-                min-height: 250px;
-            }
-
-            .card {
-                width: 150px;
-                padding: 20px 15px 15px;
-            }
-
-            .card .card-avatar {
-                width: 65px;
-                height: 65px;
-            }
-
-            .card .player-name {
-                font-size: 17px;
-            }
-
-            .card.rank-1 {
-                transform: scale(1.05);
-            }
-            .card.rank-1:hover {
-                transform: scale(1.07);
-            }
-
-            .leaderboard-row {
-                padding: 12px 16px;
-                gap: 12px;
-            }
-
-            .leaderboard-row .row-stat {
-                min-width: 70px;
-                font-size: 14px;
-            }
-
-            .leaderboard-row .player-name {
-                font-size: 15px;
-            }
-
-            .leaderboard-row .avatar-small {
-                width: 36px;
-                height: 36px;
-            }
-        }
-
-        @media (max-width: 600px) {
-            body {
-                padding: 15px;
-            }
-
-            .leaderboard-container {
-                padding: 20px 16px 25px;
-                border-radius: 20px;
-            }
-
-            .leaderboard-container h1 {
-                font-size: 26px;
-            }
-
-            .leaderboard-container .subtitle {
-                font-size: 15px;
-                margin-bottom: 25px;
-            }
-
-            .podium-container {
-                flex-direction: column;
-                align-items: center;
-                gap: 16px;
-                min-height: auto;
-                margin-bottom: 30px;
-            }
-
-            .card {
-                width: 100%;
-                max-width: 260px;
-                padding: 18px 16px;
-            }
-
-            .card.rank-1 {
-                order: 1;
-                transform: none;
-                padding-bottom: 20px;
-            }
-            .card.rank-1:hover {
-                transform: none;
-            }
-            .card.rank-2 {
-                order: 2;
-            }
-            .card.rank-3 {
-                order: 3;
-            }
-
-            .card .card-avatar {
-                width: 60px;
-                height: 60px;
-            }
-
-            .card .player-name {
-                font-size: 18px;
-            }
-
-            .others-title {
-                font-size: 20px;
-                margin-top: 5px;
-            }
-
-            .leaderboard-row {
-                flex-wrap: wrap;
-                gap: 6px 12px;
-                padding: 12px 14px;
-                border-radius: 12px;
-            }
-
-            .leaderboard-row .row-rank {
-                min-width: 35px;
-                font-size: 15px;
-            }
-
-            .leaderboard-row .row-player-info {
-                flex: 1 1 100%;
-                gap: 10px;
-            }
-
-            .leaderboard-row .player-name {
-                font-size: 15px;
-            }
-
-            .leaderboard-row .avatar-small {
-                width: 32px;
-                height: 32px;
-            }
-
-            .leaderboard-row .row-stat {
-                min-width: 50px;
-                font-size: 13px;
-                flex: 1;
-                text-align: left;
-            }
-
-            .btn-back {
-                font-size: 16px;
-                padding: 14px;
-                border-radius: 12px;
-            }
-
-            .loading-text {
-                padding: 30px 15px;
-                font-size: 17px;
-            }
-
-            .empty-message {
-                padding: 30px 15px;
-                font-size: 17px;
-            }
-        }
-
-        @media (max-width: 400px) {
-            .leaderboard-container {
-                padding: 15px 12px 20px;
-                border-radius: 16px;
-            }
-
-            .leaderboard-container h1 {
-                font-size: 22px;
-            }
-
-            .card {
-                padding: 14px 12px;
-            }
-
-            .card .card-avatar {
-                width: 50px;
-                height: 50px;
-            }
-
-            .card .player-name {
-                font-size: 16px;
-            }
-
-            .card .player-stats {
-                font-size: 13px;
-            }
-
-            .leaderboard-row {
-                padding: 10px 12px;
-            }
-
-            .leaderboard-row .player-name {
-                font-size: 14px;
-            }
-
-            .leaderboard-row .row-stat {
-                font-size: 12px;
-                min-width: 40px;
-            }
-        }
-    </style>
 </head>
 <body>
-    <div class="leaderboard-container">
-        <!-- TÍTULO -->
-        <h1>🏆 Tabla de Clasificación</h1>
-        <p class="subtitle">⭐ ¡Los mejores jugadores de SabiQuiz!</p>
+    <div id="navbar-container"></div>
+    
+    <main class="main-content">
+        <div class="container-wide">
+            <!-- BREADCRUMB -->
+            <nav class="breadcrumb" aria-label="Navegación">
+                <a href="main_menu.html">Inicio</a>
+                <span class="separator">/</span>
+                <span aria-current="page">Ranking</span>
+            </nav>
 
-        <!-- MENSAJES -->
-        <div id="errorMessage" class="error-message"></div>
-        <div id="debugInfo" class="debug-info"></div>
+            <!-- HEADER -->
+            <header class="dashboard-header animate-in">
+                <h1>🏆 Tabla de Clasificación</h1>
+                <p class="muted">Los mejores jugadores de SabiQuiz</p>
+            </header>
 
-        <!-- TOP 3 -->
-        <div id="leaderboard-top3" class="podium-container">
-            <div class="skeleton skeleton-card" style="width: 180px; height: 254px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
-                <div class="skeleton skeleton-title" style="width: 48px; height: 48px; border-radius: 50%; margin-bottom: 8px;"></div>
-                <div class="skeleton skeleton-title" style="width: 80%; height: 20px; margin: 4px 0;"></div>
-                <div class="skeleton skeleton-text" style="width: 60%; height: 16px; margin: 2px 0;"></div>
-                <div class="skeleton skeleton-text" style="width: 50%; height: 16px; margin: 2px 0;"></div>
+            <!-- FILTERS -->
+            <div class="card animate-in animate-delay-1">
+                <div class="tabs" id="rankingTabs" role="tablist">
+                    <button class="tab active" data-tab="total" role="tab" aria-selected="true">Total</button>
+                    <button class="tab" data-tab="semanal" role="tab" aria-selected="false">Semanal</button>
+                    <button class="tab" data-tab="mensual" role="tab" aria-selected="false">Mensual</button>
+                </div>
+                
+                <div style="margin-top: var(--space-4);">
+                    <input type="text" class="form-input" id="searchUser" placeholder="🔍 Buscar jugador..." style="max-width: 300px;">
+                </div>
             </div>
-            <div class="skeleton skeleton-card" style="width: 180px; height: 254px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
-                <div class="skeleton skeleton-title" style="width: 48px; height: 48px; border-radius: 50%; margin-bottom: 8px;"></div>
-                <div class="skeleton skeleton-title" style="width: 80%; height: 20px; margin: 4px 0;"></div>
-                <div class="skeleton skeleton-text" style="width: 60%; height: 16px; margin: 2px 0;"></div>
-                <div class="skeleton skeleton-text" style="width: 50%; height: 16px; margin: 2px 0;"></div>
-            </div>
-            <div class="skeleton skeleton-card" style="width: 180px; height: 254px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px;">
-                <div class="skeleton skeleton-title" style="width: 48px; height: 48px; border-radius: 50%; margin-bottom: 8px;"></div>
-                <div class="skeleton skeleton-title" style="width: 80%; height: 20px; margin: 4px 0;"></div>
-                <div class="skeleton skeleton-text" style="width: 60%; height: 16px; margin: 2px 0;"></div>
-                <div class="skeleton skeleton-text" style="width: 50%; height: 16px; margin: 2px 0;"></div>
-            </div>
+
+            <!-- TOP 3 PODIUM -->
+            <section class="podium-section animate-in animate-delay-2" id="podiumSection">
+                <div class="podium-container" id="podiumContainer">
+                    <!-- Top 3 will be rendered here -->
+                </div>
+            </section>
+
+            <!-- RANKING TABLE -->
+            <section class="ranking-section animate-in animate-delay-3">
+                <div class="section-header">
+                    <h2>Ranking General</h2>
+                </div>
+                
+                <div class="card" style="overflow-x: auto;">
+                    <table class="ranking-table" id="rankingTable">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Jugador</th>
+                                <th scope="col">Nivel</th>
+                                <th scope="col">XP</th>
+                                <th scope="col">⭐ Estrellas</th>
+                                <th scope="col">Materia Fuerte</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Rows will be rendered here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- PAGINATION -->
+                <nav class="pagination" id="pagination" aria-label="Paginación del ranking" style="display: flex; justify-content: center; gap: var(--space-2); margin-top: var(--space-6);">
+                    <!-- Pagination buttons -->
+                </nav>
+            </section>
         </div>
+    </main>
 
-        <!-- RANKING 4-10 -->
-        <h2 class="others-title">📋 Ranking General <span>(4 - 10)</span></h2>
-        <div id="leaderboard-others" class="others-container">
-            <div class="skeleton skeleton-card" style="width: 100%; height: 60px; display: flex; align-items: center; padding: 10px 20px; gap: 15px;">
-                <div class="skeleton skeleton-title" style="width: 42px; height: 42px; border-radius: 50%;"></div>
-                <div class="skeleton skeleton-title" style="flex: 1; height: 17px; margin-left: 10px;"></div>
-                <div class="skeleton skeleton-text" style="width: 90px; height: 16px;"></div>
-                <div class="skeleton skeleton-text" style="width: 90px; height: 16px;"></div>
-            </div>
-            <div class="skeleton skeleton-card" style="width: 100%; height: 60px; display: flex; align-items: center; padding: 10px 20px; gap: 15px;">
-                <div class="skeleton skeleton-title" style="width: 42px; height: 42px; border-radius: 50%;"></div>
-                <div class="skeleton skeleton-title" style="flex: 1; height: 17px; margin-left: 10px;"></div>
-                <div class="skeleton skeleton-text" style="width: 90px; height: 16px;"></div>
-                <div class="skeleton skeleton-text" style="width: 90px; height: 16px;"></div>
-            </div>
-            <div class="skeleton skeleton-card" style="width: 100%; height: 60px; display: flex; align-items: center; padding: 10px 20px; gap: 15px;">
-                <div class="skeleton skeleton-title" style="width: 42px; height: 42px; border-radius: 50%;"></div>
-                <div class="skeleton skeleton-title" style="flex: 1; height: 17px; margin-left: 10px;"></div>
-                <div class="skeleton skeleton-text" style="width: 90px; height: 16px;"></div>
-                <div class="skeleton skeleton-text" style="width: 90px; height: 16px;"></div>
-            </div>
-        </div>
-
-        <!-- BOTÓN VOLVER -->
-        <button id="backToMenuBtn" class="btn-back">← Volver al Menú</button>
-    </div>
-
+    <script src="js/layout.js"></script>
+    <script src="js/sabi_injector.js"></script>
     <script>
         // ============================================
         // CONFIGURACIÓN
         // ============================================
         const API_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') ? 'http://localhost:3000/api' : (window.location.origin + '/api');
-        function verificarAutenticacion() {
-    const token = localStorage.getItem('token');
-    if (!token) {
-        window.location.href = 'login.html';
-        return false;
-    }
-    return true;
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-    if (!verificarAutenticacion()) return;
-    // ... resto del código
-});
-
-        // ============================================
-        // AUTENTICACIÓN
-        // ============================================
         function getToken() {
             return localStorage.getItem('token');
         }
@@ -629,9 +100,6 @@ document.addEventListener('DOMContentLoaded', () => {
             return true;
         }
 
-        // ============================================
-        // PETICIÓN A LA API
-        // ============================================
         async function apiRequest(endpoint) {
             const token = getToken();
             const headers = {
@@ -646,231 +114,237 @@ document.addEventListener('DOMContentLoaded', () => {
                     localStorage.removeItem('user');
                     window.location.href = 'login.html';
                 }
-                const data = await response.json();
-                throw new Error(data.error || `Error ${response.status}`);
+                throw new Error(await response.text());
             }
             return await response.json();
-        }
-
-        function showError(msg) {
-            const el = document.getElementById('errorMessage');
-            el.textContent = msg;
-            el.style.display = 'block';
-        }
-
-        function showDebug(msg) {
-            const el = document.getElementById('debugInfo');
-            el.innerHTML = msg;
-            el.style.display = 'block';
         }
 
         // ============================================
         // RENDERIZAR RANKING
         // ============================================
-        async function fetchLeaderboard() {
-            const top3Container = document.getElementById('leaderboard-top3');
-            const othersContainer = document.getElementById('leaderboard-others');
-            const othersTitle = document.querySelector('.others-title');
+        let currentPeriod = 'total';
+        let currentPage = 1;
+        const PER_PAGE = 10;
+        let allPlayers = [];
+
+        async function fetchLeaderboard(period = 'total') {
+            const podiumContainer = document.getElementById('podiumContainer');
+            const tbody = document.querySelector('#rankingTable tbody');
+            const pagination = document.getElementById('pagination');
 
             try {
                 if (!checkAuth()) return;
 
-                document.getElementById('errorMessage').style.display = 'none';
-                top3Container.innerHTML = '<div class="loading-text">⏳ Cargando ranking...</div>';
-                othersContainer.innerHTML = '<div class="loading-text">⏳ Cargando...</div>';
+                podiumContainer.innerHTML = '<div class="loading-text" style="text-align:center;padding:40px;">⏳ Cargando ranking...</div>';
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">⏳ Cargando...</td></tr>';
 
-                showDebug('📡 Solicitando ranking...');
-                const data = await apiRequest('/auth/ranking');
-                showDebug(`✅ ${data.ranking?.length || 0} jugadores encontrados`);
-
+                const data = await apiRequest(`/auth/ranking?period=${period}`);
+                
                 if (!data.success || !data.ranking || data.ranking.length === 0) {
-                    top3Container.innerHTML = '<div class="empty-message">😴 Aún no hay jugadores en el ranking</div>';
-                    othersTitle.style.display = 'none';
+                    podiumContainer.innerHTML = '<div class="empty-message" style="text-align:center;padding:40px;">😴 Aún no hay jugadores en el ranking</div>';
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No hay datos</td></tr>';
                     return;
                 }
 
-                const players = data.ranking;
-
-                // ============================================
-                // TOP 3
-                // ============================================
-                top3Container.innerHTML = '';
-                const top3 = players.slice(0, 3);
-                const medallas = ['<img src="img/star_filled.png" class="icon-star" style="width:22px;height:22px;">', '<img src="img/star_filled.png" class="icon-star" style="width:22px;height:22px;">', '<img src="img/star_filled.png" class="icon-star" style="width:22px;height:22px;">'];
-                const coronas = ['<img src="img/reina.png" class="icon-btn" style="width:22px;height:22px;">', '', ''];
-
-                top3.forEach((player, index) => {
-                    const rank = index + 1;
-                    const card = document.createElement('div');
-                    card.className = `card rank-${rank}`;
-                    card.innerHTML = `
-                        <span class="crown">${coronas[index]}</span>
-                        <span class="medal">${medallas[index]}</span>
-                        <div class="card-rank">#${rank}</div>
-                        <img src="${player.photoURL || 'img/default-avatar.png'}" class="card-avatar" 
-                             onerror="this.src='img/default-avatar.png'">
-                        <div class="player-name">${player.displayName || player.username || 'Jugador'}</div>
-                        <div class="player-stats"><img src="img/cohete.png" class="icon-btn"> Nivel: <strong>${player.level || 1}</strong></div>
-                        <div class="player-stats"><img src="img/star_filled.png" class="icon-star"> XP: <strong>${player.totalXp || 0}</strong></div>
-                    `;
-                    top3Container.appendChild(card);
-                });
-
-                // ============================================
-                // RANKING 4-10
-                // ============================================
-                othersContainer.innerHTML = '';
-                if (players.length > 3) {
-                    othersTitle.style.display = 'block';
-                    const others = players.slice(3);
-
-                    others.forEach((player, index) => {
-                        const rank = index + 4;
-                        const row = document.createElement('div');
-                        row.className = 'leaderboard-row';
-                        row.innerHTML = `
-                            <div class="row-rank">#${rank}</div>
-                            <div class="row-player-info">
-                                <img src="${player.photoURL || 'img/default-avatar.png'}" class="avatar-small" 
-                                     onerror="this.src='img/default-avatar.png'">
-                                <span class="player-name">${player.displayName || player.username || 'Jugador'}</span>
-                            </div>
-                            <div class="row-stat"><img src="img/cohete.png" class="icon-btn" style="width:22px;height:22px;"> <strong>${player.level || 1}</strong> Nivel</div>
-                            <div class="row-stat"><img src="img/star_filled.png" class="icon-star" style="width:22px;height:22px;"> <strong>${player.totalXp || 0}</strong> XP</div>
-                        `;
-                        othersContainer.appendChild(row);
-                    });
-                } else {
-                    othersTitle.style.display = 'none';
-                }
-
-                showDebug(`✅ Ranking mostrado: ${players.length} jugadores`);
+                allPlayers = data.ranking;
+                renderPodium(allPlayers.slice(0, 3));
+                renderTable(allPlayers);
+                renderPagination();
 
             } catch (error) {
                 console.error('❌ Error:', error);
-                showError('❌ ' + error.message);
-                top3Container.innerHTML = `
-                    <div class="empty-message">
-                        ❌ Error al cargar el ranking<br>
-                        <small style="font-size:14px;color:#a0aec0;">${error.message}</small>
-                        <br><br>
-                        <button onclick="fetchLeaderboard()" style="padding:12px 28px;border:none;background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);color:#fff;border-radius:10px;cursor:pointer;font-weight:700;font-size:16px;transition:transform 0.2s;">
-                            🔄 Reintentar
-                        </button>
-                    </div>
-                `;
+                podiumContainer.innerHTML = `<div class="empty-message" style="text-align:center;padding:40px;">❌ Error al cargar el ranking<br><small style="color:var(--color-text-muted)">${error.message}</small></div>`;
             }
         }
 
+        function renderPodium(top3) {
+            const podiumContainer = document.getElementById('podiumContainer');
+            podiumContainer.innerHTML = '';
+
+            const medals = ['🥇', '🥈', '🥉'];
+            const crowns = ['👑', '', ''];
+
+            top3.forEach((player, index) => {
+                const rank = index + 1;
+                const card = document.createElement('div');
+                card.className = `card podium-card rank-${rank}`;
+                card.style.cssText = `
+                    background: var(--color-surface);
+                    border: 2px solid var(--color-border);
+                    border-radius: var(--radius-xl);
+                    padding: var(--space-6);
+                    text-align: center;
+                    min-width: 180px;
+                    flex: 1;
+                    position: relative;
+                    transition: all var(--transition-base);
+                `;
+                
+                if (rank === 1) {
+                    card.style.borderColor = '#f59e0b';
+                    card.style.boxShadow = '0 12px 32px rgba(245, 158, 11, 0.2)';
+                } else if (rank === 2) {
+                    card.style.borderColor = '#9ca3af';
+                } else if (rank === 3) {
+                    card.style.borderColor = '#d97706';
+                }
+
+                card.innerHTML = `
+                    <div style="font-size: 48px; margin-bottom: var(--space-2);">${crowns[index]}</div>
+                    <div style="font-size: 48px; margin-bottom: var(--space-2);">${medals[index]}</div>
+                    <img src="${player.photoURL || 'img/default-avatar.png'}" class="avatar avatar-xl" style="margin: 0 auto var(--space-3); width: 80px; height: 80px;" onerror="this.src='img/default-avatar.png'">
+                    <div class="h3" style="color: var(--color-text);">${player.displayName || player.username || 'Jugador'}</div>
+                    <div class="text-muted" style="margin-top: var(--space-2);">
+                        <div>🚀 Nivel: <strong>${player.level || 1}</strong></div>
+                        <div>⭐ XP: <strong>${player.totalXp || 0}</strong></div>
+                    </div>
+                `;
+                podiumContainer.appendChild(card);
+            });
+        }
+
+        function renderTable(players) {
+            const tbody = document.querySelector('#rankingTable tbody');
+            const searchTerm = document.getElementById('searchUser').value.toLowerCase();
+            
+            let filtered = players;
+            if (searchTerm) {
+                filtered = players.filter(p => 
+                    (p.displayName || p.username || '').toLowerCase().includes(searchTerm)
+                );
+            }
+
+            const start = (currentPage - 1) * PER_PAGE;
+            const end = start + PER_PAGE;
+            const pagePlayers = filtered.slice(start, end);
+
+            if (pagePlayers.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:40px;">No hay jugadores</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = '';
+            pagePlayers.forEach((player, index) => {
+                const rank = start + index + 1;
+                const row = document.createElement('tr');
+                row.style.cssText = `
+                    border-bottom: 1px solid var(--color-border);
+                    transition: background-color var(--transition-fast);
+                `;
+                
+                const materiaFuerte = player.materia_fuerte || '-';
+                const avatar = player.photoURL || 'img/default-avatar.png';
+                
+                row.innerHTML = `
+                    <td style="padding: var(--space-4); font-weight: 700; color: var(--color-text-muted);">#${rank}</td>
+                    <td style="padding: var(--space-4);">
+                        <div style="display: flex; align-items: center; gap: var(--space-3);">
+                            <img src="${avatar}" class="avatar avatar-sm" onerror="this.src='img/default-avatar.png'">
+                            <span style="font-weight: 600; color: var(--color-text);">${player.displayName || player.username || 'Jugador'}</span>
+                        </div>
+                    </td>
+                    <td style="padding: var(--space-4); text-align: center;">
+                        <span class="badge badge-primary">${player.level || 1}</span>
+                    </td>
+                    <td style="padding: var(--space-4); text-align: center; font-weight: 600; color: var(--color-text);">${player.totalXp || 0}</td>
+                    <td style="padding: var(--space-4); text-align: center; color: var(--color-accent-amber); font-weight: 600;">${player.totalEstrellas || 0}</td>
+                    <td style="padding: var(--space-4); text-align: center; color: var(--color-text-muted);">${materiaFuerte}</td>
+                `;
+                
+                row.addEventListener('mouseenter', () => {
+                    row.style.backgroundColor = 'var(--color-primary-50)';
+                });
+                row.addEventListener('mouseleave', () => {
+                    row.style.backgroundColor = '';
+                });
+                
+                tbody.appendChild(row);
+            });
+
+            // Ocultar filas después de la página actual si no hay filtro
+            if (!searchTerm) {
+                renderPagination(filtered.length);
+            }
+        }
+
+        function renderPagination(total = allPlayers.length) {
+            const pagination = document.getElementById('pagination');
+            const totalPages = Math.ceil(total / PER_PAGE);
+            
+            if (totalPages <= 1) {
+                pagination.innerHTML = '';
+                return;
+            }
+
+            let html = '';
+            
+            // Previous button
+            html += `<button class="btn btn-ghost btn-sm" ${currentPage === 1 ? 'disabled' : ''} onclick="changePage(${currentPage - 1})">‹ Anterior</button>`;
+            
+            // Page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                if (i === 1 || i === totalPages || (i >= currentPage - 1 && i <= currentPage + 1)) {
+                    html += `<button class="btn ${i === currentPage ? 'btn-primary' : 'btn-ghost'} btn-sm" onclick="changePage(${i})">${i}</button>`;
+                } else if (i === currentPage - 2 || i === currentPage + 2) {
+                    html += `<span style="display: flex; align-items: center; padding: 0 var(--space-2); color: var(--color-text-muted);">...</span>`;
+                }
+            }
+            
+            // Next button
+            html += `<button class="btn btn-ghost btn-sm" ${currentPage === totalPages ? 'disabled' : ''} onclick="changePage(${currentPage + 1})">Siguiente ›</button>`;
+            
+            pagination.innerHTML = html;
+        }
+
+        function changePage(page) {
+            const totalPages = Math.ceil(allPlayers.length / PER_PAGE);
+            if (page < 1 || page > totalPages) return;
+            currentPage = page;
+            renderTable(allPlayers);
+            
+            // Scroll to top of table
+            document.querySelector('.ranking-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
         // ============================================
-        // INICIALIZAR
+        // EVENT LISTENERS
         // ============================================
         document.addEventListener('DOMContentLoaded', () => {
             if (!checkAuth()) return;
-            fetchLeaderboard();
-            document.getElementById('backToMenuBtn').addEventListener('click', () => {
-                window.location.href = 'main_menu.html';
+            
+            fetchLeaderboard(currentPeriod);
+            
+            // Tabs
+            document.querySelectorAll('#rankingTabs .tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('#rankingTabs .tab').forEach(t => {
+                        t.classList.remove('active');
+                        t.setAttribute('aria-selected', 'false');
+                    });
+                    tab.classList.add('active');
+                    tab.setAttribute('aria-selected', 'true');
+                    currentPeriod = tab.dataset.tab;
+                    currentPage = 1;
+                    fetchLeaderboard(currentPeriod);
+                });
             });
-
-            // ============================================
-            // ANIMACIONES DE ENTRADA CON ANIME.JS
-            // ============================================
-            // Título - entrada
-            anime({
-                targets: '.leaderboard-container h1',
-                translateY: [-30, 0],
-                opacity: [0, 1],
-                duration: 600,
-                easing: 'easeOutQuad'
+            
+            // Search
+            document.getElementById('searchUser')?.addEventListener('input', (e) => {
+                currentPage = 1;
+                renderTable(allPlayers);
             });
-
-            // Subtítulo - entrada
+            
+            // Animaciones de entrada
             anime({
-                targets: '.leaderboard-container .subtitle',
+                targets: '.animate-in',
                 translateY: [20, 0],
                 opacity: [0, 1],
                 duration: 600,
                 easing: 'easeOutQuad',
-                delay: 200
-            });
-
-            // Podio Top 3 - entrada escalonada
-            anime({
-                targets: '.podium-container .card',
-                translateY: [50, 0],
-                opacity: [0, 1],
-                scale: [0.8, 1],
-                duration: 800,
-                easing: 'easeOutElastic(1, .8)',
-                delay: anime.stagger(150, {start: 400})
-            });
-
-            // Ranking 4-10 - entrada escalonada
-            anime({
-                targets: '.leaderboard-row',
-                translateX: [-30, 0],
-                opacity: [0, 1],
-                duration: 500,
-                easing: 'easeOutQuad',
-                delay: anime.stagger(80, {start: 800})
-            });
-
-            // Botón volver - entrada
-            anime({
-                targets: '.btn-back',
-                translateY: [30, 0],
-                opacity: [0, 1],
-                duration: 600,
-                easing: 'easeOutQuad',
-                delay: 1200
-            });
-
-            // Hover animations para tarjetas del podio
-            document.querySelectorAll('.podium-container .card').forEach(card => {
-                card.addEventListener('mouseenter', () => {
-                    anime({
-                        targets: card,
-                        translateY: -10,
-                        boxShadow: '0 20px 40px rgba(0,0,0,0.2)',
-                        duration: 300,
-                        easing: 'easeOutQuad'
-                    });
-                });
-                card.addEventListener('mouseleave', () => {
-                    anime({
-                        targets: card,
-                        translateY: 0,
-                        boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
-                        duration: 300,
-                        easing: 'easeOutQuad'
-                    });
-                });
-            });
-
-            // Hover animations para filas del ranking
-            document.querySelectorAll('.leaderboard-row').forEach(row => {
-                row.addEventListener('mouseenter', () => {
-                    anime({
-                        targets: row,
-                        translateX: 4,
-                        backgroundColor: '#edf2f7',
-                        duration: 200,
-                        easing: 'easeOutQuad'
-                    });
-                });
-                row.addEventListener('mouseleave', () => {
-                    anime({
-                        targets: row,
-                        translateX: 0,
-                        backgroundColor: '#f7fafc',
-                        duration: 200,
-                        easing: 'easeOutQuad'
-                    });
-                });
+                delay: anime.stagger(100, {start: 200})
             });
         });
-
-        window.fetchLeaderboard = fetchLeaderboard;
     </script>
 </body>
 </html>

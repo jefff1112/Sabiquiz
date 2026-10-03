@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Puzzle Geométrico - Matemáticas</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <link rel="stylesheet" href="../css/navbar.css">
     <style>
         .level-grid {
             display: grid;
@@ -76,6 +77,7 @@
     </style>
 </head>
 <body>
+    <div id="navbar-container"></div>
     <div class="container">
         <a href="matematicas_minijuegos.html" class="back-btn">← Volver a Minijuegos</a>
         <h3><img src="../img/puzzle.png" class="icon-btn"> Puzzle Geométrico</h3>
@@ -237,5 +239,6 @@
         document.addEventListener('DOMContentLoaded', cargarNiveles);
         window.cargarNiveles = cargarNiveles;
     </script>
+    <script src="../js/layout.js"></script>
 </body>
 </html>

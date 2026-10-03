@@ -2,6 +2,7 @@
 // SERVIDOR PRINCIPAL DE SABIQUIZ
 // ============================================
 const express = require('express');
+const fs = require('fs');
 const http = require('http');
 const socketIO = require('socket.io');
 const path = require('path');
@@ -127,8 +128,61 @@ app.use((req, res, next) => {
   if (RUTAS_PROHIBIDAS.some(re => re.test(req.path))) {
     return res.status(404).json({ success: false, error: 'Ruta no encontrada' });
   }
+
+  if (req.method !== 'GET' || req.path.startsWith('/api/') || req.path.startsWith('/css/') || req.path.startsWith('/js/') || req.path.startsWith('/img/') || req.path.startsWith('/components/')) {
+    return next();
+  }
+
+  const htmlRoutes = ['/', '/index.html', '/main_menu', '/main_menu.html', '/profile', '/profile.html', '/leaderboard', '/leaderboard.html', '/quiz_runner', '/quiz_runner.html', '/admin_panel', '/admin_panel.html', '/suggestions', '/suggestions.html', '/torneos', '/torneos.html'];
+  const isHtmlRoute = req.path.endsWith('.html') || htmlRoutes.includes(req.path);
+
+  if (isHtmlRoute) {
+    const normalizedPath = req.path === '/' ? 'index.html' : req.path.replace(/^\/+/, '');
+    const filePath = path.join(publicPath, normalizedPath.endsWith('.html') ? normalizedPath : `${normalizedPath}.html`);
+
+    if (fs.existsSync(filePath)) {
+      const html = fs.readFileSync(filePath, 'utf8');
+      return res.send(injectSharedLayout(html, req.path));
+    }
+  }
+
   next();
 });
+
+function injectSharedLayout(html, requestPath = '') {
+  if (!html || typeof html !== 'string') return html;
+
+  const excluded = ['/login', '/login.html', '/forgot-password', '/forgot-password.html', '/reset-password', '/reset-password.html'];
+  if (excluded.includes(requestPath) || requestPath.includes('login') || requestPath.includes('forgot-password') || requestPath.includes('reset-password')) {
+    return html;
+  }
+
+  let updated = html;
+
+  if (!updated.includes('/css/design-system.css')) {
+    updated = updated.replace(/<\/head>/i, '<link rel="stylesheet" href="/css/design-system.css"><link rel="stylesheet" href="/css/navbar.css"></head>');
+  }
+
+  if (!updated.includes('/js/layout.js')) {
+    updated = updated.replace(/<\/body>/i, '<script src="/js/layout.js" defer></script></body>');
+  }
+
+  if (!updated.includes('id="navbar-container"')) {
+    updated = updated.replace(/<body[^>]*>/i, '$&<div id="navbar-container"></div>');
+  }
+
+  return updated;
+}
+
+function sendHtmlFile(res, relativePath) {
+  const filePath = path.join(publicPath, relativePath);
+  if (!fs.existsSync(filePath)) {
+    return res.status(404).send('Página no encontrada');
+  }
+
+  const html = fs.readFileSync(filePath, 'utf8');
+  res.send(injectSharedLayout(html, '/' + relativePath));
+}
 
 app.use(express.static(publicPath, { dotfiles: 'ignore', index: false, setHeaders: (res) => { res.set('Cache-Control', 'no-store'); } }));
 
@@ -161,7 +215,7 @@ app.get('/api/health', (req, res) => {
 // RUTAS PARA EL FRONTEND (HTML)
 // ============================================
 app.get('/', (req, res) => {
-  res.sendFile(path.join(publicPath, 'index.html'));
+  sendHtmlFile(res, 'index.html');
 });
 
 app.get('/login', (req, res) => {
@@ -173,51 +227,51 @@ app.get('/login.html', (req, res) => {
 });
 
 app.get('/main_menu', (req, res) => {
-  res.sendFile(path.join(publicPath, 'main_menu.html'));
+  sendHtmlFile(res, 'main_menu.html');
 });
 
 app.get('/main_menu.html', (req, res) => {
-  res.sendFile(path.join(publicPath, 'main_menu.html'));
+  sendHtmlFile(res, 'main_menu.html');
 });
 
 app.get('/profile', (req, res) => {
-  res.sendFile(path.join(publicPath, 'profile.html'));
+  sendHtmlFile(res, 'profile.html');
 });
 
 app.get('/profile.html', (req, res) => {
-  res.sendFile(path.join(publicPath, 'profile.html'));
+  sendHtmlFile(res, 'profile.html');
 });
 
 app.get('/leaderboard', (req, res) => {
-  res.sendFile(path.join(publicPath, 'leaderboard.html'));
+  sendHtmlFile(res, 'leaderboard.html');
 });
 
 app.get('/leaderboard.html', (req, res) => {
-  res.sendFile(path.join(publicPath, 'leaderboard.html'));
+  sendHtmlFile(res, 'leaderboard.html');
 });
 
 app.get('/quiz_runner', (req, res) => {
-  res.sendFile(path.join(publicPath, 'quiz_runner.html'));
+  sendHtmlFile(res, 'quiz_runner.html');
 });
 
 app.get('/quiz_runner.html', (req, res) => {
-  res.sendFile(path.join(publicPath, 'quiz_runner.html'));
+  sendHtmlFile(res, 'quiz_runner.html');
 });
 
 app.get('/admin_panel', (req, res) => {
-  res.sendFile(path.join(publicPath, 'admin_panel.html'));
+  sendHtmlFile(res, 'admin_panel.html');
 });
 
 app.get('/admin_panel.html', (req, res) => {
-  res.sendFile(path.join(publicPath, 'admin_panel.html'));
+  sendHtmlFile(res, 'admin_panel.html');
 });
 
 app.get('/suggestions', (req, res) => {
-  res.sendFile(path.join(publicPath, 'suggestions.html'));
+  sendHtmlFile(res, 'suggestions.html');
 });
 
 app.get('/suggestions.html', (req, res) => {
-  res.sendFile(path.join(publicPath, 'suggestions.html'));
+  sendHtmlFile(res, 'suggestions.html');
 });
 
 // ============================================

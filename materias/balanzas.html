@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Balanzas de Ecuaciones - Matemáticas</title>
-    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/design-system.css">
+    <link rel="stylesheet" href="../css/navbar.css">
     <style>
         .level-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; margin-top: 20px; }
         .level-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px 10px; background: #f7fafc; border-radius: 15px; text-decoration: none; color: #2d3748; font-weight: bold; font-size: 16px; transition: transform 0.2s, box-shadow 0.2s; border: 2px solid #e2e8f0; min-height: 100px; gap: 8px; }
@@ -24,6 +25,7 @@
     </style>
 </head>
 <body>
+    <div id="navbar-container"></div>
     <div class="container">
         <a href="matematicas_minijuegos.html" class="back-btn">← Volver a Minijuegos</a>
         <h3><img src="../img/escala.png" class="icon-btn"> Balanzas de Ecuaciones</h3>
@@ -99,5 +101,6 @@
 
         document.addEventListener('DOMContentLoaded', cargarNiveles);
     </script>
+    <script src="../js/layout.js"></script>
 </body>
 </html>
