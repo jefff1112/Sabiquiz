@@ -312,9 +312,10 @@
                 ];
                 container.innerHTML = '';
                 logros.forEach(logro => {
+                    const isUnlocked = logro.desbloqueado !== false && !!logro.fecha_desbloqueo;
                     const card = document.createElement('div');
-                    card.className = 'card logro-card' + (logro.desbloqueado ? '' : ' locked');
-                    card.style.cssText = 'text-align:center;padding:var(--space-6);opacity:' + (logro.desbloqueado ? '1' : '0.5') + ';filter:' + (logro.desbloqueado ? 'none' : 'grayscale(100%)');
+                    card.className = 'card logro-card' + (isUnlocked ? '' : ' locked');
+                    card.style.cssText = 'text-align:center;padding:var(--space-6);opacity:' + (isUnlocked ? '1' : '0.5') + ';filter:' + (isUnlocked ? 'none' : 'grayscale(100%)');
                     let iconoHTML = logro.icono?.startsWith('img/') ? `<img src="${logro.icono}" class="logro-icon" style="width:60px;height:60px;margin:0 auto var(--space-3);">` : `<span class="icono" style="font-size:40px;display:block;margin-bottom:var(--space-2);">${logro.icono||'🏆'}</span>`;
                     card.innerHTML = iconoHTML + '<div class="nombre" style="font-weight:700;color:var(--color-text);margin-bottom:var(--space-1);">' + (logro.nombre||'Logro') + '</div><div class="descripcion" style="font-size:12px;color:var(--color-text-muted);margin-bottom:var(--space-2);">' + (logro.descripcion||'¡Sigue jugando!') + '</div><div class="fecha" style="font-size:11px;color:var(--color-text-muted);">✅ ' + new Date(logro.fecha_desbloqueo||Date.now()).toLocaleDateString() + '</div>';
                     container.appendChild(card);

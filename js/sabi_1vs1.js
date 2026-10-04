@@ -364,3 +364,5 @@ const Sabi1vs1 = (function () {
   };
 
 })();
+
+window.Sabi1vs1 = Sabi1vs1;

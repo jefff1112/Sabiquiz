@@ -190,8 +190,8 @@ class SabiAI {
     let probabilidadAcierto, delayMin, delayMax, personalidad;
 
     if (promedioEstrellas >= 2.5) {
-      probabilidadAcierto = 0.85 + Math.random() * 0.1;
-      delayMin = 300; delayMax = 800;
+      probabilidadAcierto = 0.65 + Math.random() * 0.15;
+      delayMin = 500; delayMax = 1200;
       personalidad = 'experto';
     } else if (promedioEstrellas >= 1.5) {
       probabilidadAcierto = 0.55 + Math.random() * 0.2;

@@ -185,9 +185,9 @@ router.post('/1vs1/:matchId/responder', authMiddleware, async (req, res) => {
     }
 
     const match = matches[0];
-    const preguntas = JSON.parse(match.preguntas || '[]');
-    const detalles = JSON.parse(match.detalles || '[]');
-    const dificultad = JSON.parse(match.sabi_dificultad || '{}');
+    const preguntas = typeof match.preguntas === 'string' ? JSON.parse(match.preguntas || '[]') : (match.preguntas || []);
+    const detalles = typeof match.detalles === 'string' ? JSON.parse(match.detalles || '[]') : (match.detalles || []);
+    const dificultad = typeof match.sabi_dificultad === 'string' ? JSON.parse(match.sabi_dificultad || '{}') : (match.sabi_dificultad || {});
     const preguntaActual = match.pregunta_actual;
 
     if (preguntaActual >= preguntas.length) {
@@ -303,9 +303,9 @@ router.get('/1vs1/:matchId/estado', authMiddleware, async (req, res) => {
         puntaje_usuario: m.puntaje_usuario,
         puntaje_sabi: m.puntaje_sabi,
         pregunta_actual: m.pregunta_actual,
-        total_preguntas: JSON.parse(m.preguntas || '[]').length,
+        total_preguntas: (typeof m.preguntas === 'string' ? JSON.parse(m.preguntas || '[]') : (m.preguntas || [])).length,
         sabi_nivel: m.sabi_nivel,
-        detalles: JSON.parse(m.detalles || '[]'),
+        detalles: typeof m.detalles === 'string' ? JSON.parse(m.detalles || '[]') : (m.detalles || []),
         creado_en: m.creado_en,
         finalizado_en: m.finalizado_en
       }

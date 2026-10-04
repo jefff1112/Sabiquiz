@@ -70,9 +70,9 @@
    3. Dark Mode Variables
    -------------------------------------------------------------------------- */
 [data-theme="dark"] {
-  --color-bg: #0f0f1a;
-  --color-surface: #1a1a2e;
-  --color-border: #2d2d44;
+  --color-bg: #151522;
+  --color-surface: #202033;
+  --color-border: #35354f;
   --color-text: #f1f1f7;
   --color-text-muted: #a1a1b5;
   --color-primary-50: #2d1f4a;
@@ -281,6 +281,16 @@ small, .text-sm {
 .icon-btn:hover {
   background-color: var(--color-primary-50);
   color: var(--color-primary-700);
+}
+
+img.icon-btn {
+  width: 20px;
+  height: 20px;
+  display: inline-block;
+  vertical-align: middle;
+  border-radius: 0;
+  background: none;
+  object-fit: contain;
 }
 
 /* --------------------------------------------------------------------------
@@ -517,15 +527,12 @@ small, .text-sm {
 #navbar-container ~ #appContainer .menu-actions,
 #navbar-container ~ #appContainer #notificationsBtn,
 #navbar-container ~ #appContainer #logoutBtn,
-#navbar-container ~ #appContainer #duelBtn,
 #navbar-container ~ #appContainer .btn-admin,
 #navbar-container ~ #appContainer .btn-notifications,
 #navbar-container ~ #appContainer .btn-profile,
 #navbar-container ~ #appContainer .btn-leaderboard,
 #navbar-container ~ #appContainer .btn-logout,
-body > .language-switcher,
-#sabiFab,
-.fab {
+body > .language-switcher {
   display: none !important;
 }
 
