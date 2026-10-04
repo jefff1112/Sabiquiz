@@ -659,4 +659,62 @@ router.post('/admin/pregunta', adminMiddleware, async (req, res) => {
     }
 });
 
+// ============================================
+// RUTA ADMIN: GENERAR TEORÍA CON IA
+// ============================================
+router.post('/admin/nivel/:id/generar-teoria', adminMiddleware, async (req, res) => {
+    const nivelId = req.params.id;
+    try {
+        // Obtener el nivel y la materia
+        const [nivelesRows] = await pool.query(`
+            SELECT n.numero, m.nombre as materia_nombre
+            FROM niveles n
+            JOIN materias m ON n.materia_id = m.id
+            WHERE n.id = ?
+        `, [nivelId]);
+
+        if (nivelesRows.length === 0) {
+            return res.status(404).json({ success: false, error: 'Nivel no encontrado' });
+        }
+
+        const nivel = nivelesRows[0];
+
+        // Obtener preguntas
+        const [preguntas] = await pool.query(
+            'SELECT texto FROM preguntas WHERE nivel_id = ?',
+            [nivelId]
+        );
+
+        if (preguntas.length === 0) {
+            return res.status(400).json({ success: false, error: 'El nivel no tiene preguntas para analizar' });
+        }
+
+        // Parsear texto de preguntas
+        const preguntasParseadas = preguntas.map(p => {
+            try {
+                const parsed = JSON.parse(p.texto);
+                return { texto: parsed.es || p.texto };
+            } catch (e) {
+                return { texto: p.texto };
+            }
+        });
+
+        // Llamar a SabiAI
+        const SabiAI = require('../utils/sabi_ai');
+        const sabi = new SabiAI();
+        const teoria = await sabi.generarTeoria(nivel.materia_nombre, nivel.numero, preguntasParseadas);
+
+        // Actualizar la base de datos
+        await pool.query(
+            'UPDATE niveles SET teoria = ? WHERE id = ?',
+            [teoria, nivelId]
+        );
+
+        res.json({ success: true, teoria, message: 'Teoría generada correctamente' });
+    } catch (error) {
+        console.error('Error al generar teoría:', error);
+        res.status(500).json({ success: false, error: 'Error al generar teoría: ' + error.message });
+    }
+});
+
 module.exports = router;

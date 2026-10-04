@@ -1021,13 +1021,19 @@
                     <div class="suggestion-card" style="border-left-color: var(--color-primary);">
                         <div class="suggestion-header">
                             <span class="user">Nivel ${n.numero} ${n.titulo ? '- ' + n.titulo : ''}</span>
-                            <span class="materia">${n.total_preguntas} pregunta${n.total_preguntas !== 1 ? 's' : ''}</span>
+                            <span class="materia">
+                                ${n.teoria ? '✅ Con Teoría' : '❌ Sin Teoría'} | 
+                                ${n.total_preguntas} pregunta${n.total_preguntas !== 1 ? 's' : ''}
+                            </span>
                         </div>
-                        <div class="actions">
+                        <div class="actions" style="margin-top:var(--space-2); display:flex; flex-wrap:wrap; gap:var(--space-2); align-items:center;">
                             <button class="btn btn-primary btn-sm" onclick="openNuevaPreguntaModal(${n.id}, ${n.numero})">
-                                ➕ Agregar Pregunta
+                                ➕ Pregunta
                             </button>
-                            <span style="color:var(--color-text-muted);font-size:0.85rem;">
+                            <button class="btn btn-secondary btn-sm" onclick="generarTeoria(${n.id})" id="btnTeoria-${n.id}">
+                                🤖 Generar Teoría
+                            </button>
+                            <span style="color:var(--color-text-muted);font-size:0.85rem;margin-left:auto;">
                                 Aprobación: ${Math.round((n.passing_score || 0.6) * 100)}%
                             </span>
                         </div>
@@ -1035,6 +1041,30 @@
                 `).join('');
             } catch (e) {
                 container.innerHTML = '<div class="no-suggestions">Error al cargar niveles</div>';
+            }
+        }
+
+        async function generarTeoria(nivelId) {
+            const btn = document.getElementById(`btnTeoria-${nivelId}`);
+            if (!btn) return;
+            btn.innerHTML = '⏳ Generando...';
+            btn.disabled = true;
+
+            try {
+                const data = await apiRequest(`/quiz/admin/nivel/${nivelId}/generar-teoria`, { method: 'POST' });
+                if (data.success) {
+                    showToast('✅ Teoría generada con éxito', 'success');
+                    const materiaId = document.getElementById('nivelMateriaSelect').value;
+                    loadNivelesAdmin(materiaId);
+                } else {
+                    showToast('❌ ' + data.error, 'error');
+                    btn.innerHTML = '🤖 Generar Teoría';
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                showToast('❌ Error: ' + e.message, 'error');
+                btn.innerHTML = '🤖 Generar Teoría';
+                btn.disabled = false;
             }
         }
 

@@ -208,26 +208,26 @@ router.post('/aprobar/:sugerenciaId', adminMiddleware, async (req, res) => {
         const textoJSON = JSON.stringify({ es: preguntaTexto });
 
         // SHIFT DE NIVELES: Desplazar niveles existentes hacia arriba
-        // 1. Obtener la materia y numero_nivel del nivel objetivo
+        // 1. Obtener la materia y numero del nivel objetivo
         const [nivelRef] = await connection.query(
-            'SELECT materia_id, numero_nivel FROM niveles WHERE id = ?', 
+            'SELECT materia_id, numero FROM niveles WHERE id = ?', 
             [nivelId]
         );
         let finalNivelId = nivelId;
 
         if (nivelRef.length > 0) {
             const materiaId = nivelRef[0].materia_id;
-            const numeroTarget = nivelRef[0].numero_nivel;
+            const numeroTarget = nivelRef[0].numero;
 
             // 2. Empujar todos los niveles >= numeroTarget uno hacia arriba
             await connection.query(
-                'UPDATE niveles SET numero_nivel = numero_nivel + 1 WHERE materia_id = ? AND numero_nivel >= ?',
+                'UPDATE niveles SET numero = numero + 1 WHERE materia_id = ? AND numero >= ?',
                 [materiaId, numeroTarget]
             );
 
             // 3. Crear el nuevo nivel que tomará la posición original
             const [nuevoNivel] = await connection.query(
-                'INSERT INTO niveles (materia_id, numero_nivel, titulo, descripcion) VALUES (?, ?, ?, ?)',
+                'INSERT INTO niveles (materia_id, numero, titulo, descripcion) VALUES (?, ?, ?, ?)',
                 [materiaId, numeroTarget, 'Nivel ' + numeroTarget, 'Sugerido por la comunidad']
             );
             

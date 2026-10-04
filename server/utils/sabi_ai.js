@@ -229,6 +229,36 @@ class SabiAI {
       nivelesCompletados: user.niveles_completados || 0
     };
   }
+  /**
+   * Genera la teoría de un nivel usando la IA (o fallback local)
+   */
+  async generarTeoria(materia, numeroNivel, preguntas) {
+    const prompt = `Actúa como Sabi, un búho tutor amigable para niños y jóvenes.
+Genera una explicación teórica corta y clara para el Nivel ${numeroNivel} de la materia ${materia}.
+Las preguntas de este nivel son sobre los siguientes temas:\n` + preguntas.map(p => `- ${p.texto}`).join('\n') + `\n
+La teoría debe estar en formato Markdown, ser fácil de entender, tener emojis y no superar los 3-4 párrafos.`;
+
+    if (this.webhookUrl) {
+      try {
+        const respuesta = await this._llamarWebhook(prompt, { materia, nivel: numeroNivel }, [], crypto.randomUUID());
+        return respuesta;
+      } catch (error) {
+        console.error('Error generando teoría con webhook:', error.message);
+      }
+    }
+
+    // Fallback local
+    return `### 📚 Teoría: Nivel ${numeroNivel} de ${materia}
+
+¡Hola! Soy Sabi 🦉. En este nivel vamos a aprender conceptos muy importantes de **${materia}**.
+
+Lee con cuidado cada pregunta y recuerda lo que has aprendido en clase. Si te equivocas, no te preocupes, ¡de los errores se aprende!
+
+**Conceptos clave a repasar:**
+${preguntas.slice(0, 3).map(p => `- Analiza bien: *${p.texto}*`).join('\n')}
+
+¡Mucho éxito en tu quiz! 🚀`;
+  }
 }
 
 module.exports = SabiAI;
