@@ -85,7 +85,7 @@ router.get('/pending', adminMiddleware, async (req, res) => {
         const [rows] = await pool.query(
             `SELECT s.*, u.username, u.email, u.avatar_url
              FROM solicitudes_admin s
-             JOIN usuarios u ON s.usuario_id = u.id
+             JOIN usuarios u ON s.usuario_id COLLATE utf8mb4_unicode_ci = u.id COLLATE utf8mb4_unicode_ci
              ORDER BY 
                 CASE WHEN s.estado = 'pendiente' THEN 1 ELSE 2 END,
                 s.fecha_solicitud ASC`

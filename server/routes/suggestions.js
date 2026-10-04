@@ -227,8 +227,8 @@ router.post('/aprobar/:sugerenciaId', adminMiddleware, async (req, res) => {
 
             // 3. Crear el nuevo nivel que tomará la posición original
             const [nuevoNivel] = await connection.query(
-                'INSERT INTO niveles (materia_id, numero, titulo, descripcion) VALUES (?, ?, ?, ?)',
-                [materiaId, numeroTarget, 'Nivel ' + numeroTarget, 'Sugerido por la comunidad']
+                'INSERT INTO niveles (materia_id, numero, titulo, teoria, passing_score, orden) VALUES (?, ?, ?, ?, ?, ?)',
+                [materiaId, numeroTarget, 'Nivel ' + numeroTarget, 'Sugerido por la comunidad', 0.6, numeroTarget]
             );
             
             finalNivelId = nuevoNivel.insertId;
