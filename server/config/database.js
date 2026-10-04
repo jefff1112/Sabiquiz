@@ -33,7 +33,7 @@ async function testConnection() {
         await connection.query(`
             CREATE TABLE IF NOT EXISTS sabi_1vs1_matches (
                 id VARCHAR(100) PRIMARY KEY,
-                usuario_id CHAR(36),
+                usuario_id VARCHAR(100),
                 sabi_nivel INT,
                 sabi_dificultad JSON,
                 estado VARCHAR(50),
@@ -50,7 +50,7 @@ async function testConnection() {
         await connection.query(`
             CREATE TABLE IF NOT EXISTS sabi_chat_sessions (
                 id VARCHAR(100) PRIMARY KEY,
-                usuario_id CHAR(36),
+                usuario_id VARCHAR(100),
                 materia VARCHAR(100),
                 nivel INT,
                 pregunta_actual TEXT,
@@ -59,6 +59,14 @@ async function testConnection() {
                 actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )
         `);
+
+        // Ajustar el tamaño de las columnas por si la tabla ya existía con un tamaño menor
+        try {
+            await connection.query("ALTER TABLE sabi_chat_sessions MODIFY id VARCHAR(100), MODIFY usuario_id VARCHAR(100);");
+            await connection.query("ALTER TABLE sabi_1vs1_matches MODIFY id VARCHAR(100), MODIFY usuario_id VARCHAR(100);");
+        } catch (e) {
+            console.log("No se pudo alterar las tablas (quizás ya tienen el tamaño correcto o hay restricciones FK):", e.message);
+        }
         
         connection.release();
         return true;
