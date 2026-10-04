@@ -68,7 +68,11 @@ const app = express();
 const server = http.createServer(app);
 
 const io = socketIO(server, {
-  cors: { origin: ORIGENES_PERMITIDOS, methods: ['GET', 'POST'] }
+  cors: { 
+    origin: allowedOrigins, 
+    methods: ['GET', 'POST'],
+    credentials: true 
+  }
 });
 
 // ============================================
