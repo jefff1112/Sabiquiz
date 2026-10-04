@@ -336,10 +336,10 @@ router.post('/check', authMiddleware, async (req, res) => {
     const preguntaId = Number(req.body.preguntaId);
     const opcionId = Number(req.body.opcionId);
 
-    // Validar que ambos sean enteros positivos (rechaza 0, NaN, negativos)
+    // Validar (preguntaId debe ser > 0, opcionId puede ser 0 por timeout)
     if (!Number.isInteger(preguntaId) || preguntaId <= 0 ||
-        !Number.isInteger(opcionId)   || opcionId <= 0) {
-        return res.status(400).json({ success: false, error: 'preguntaId y opcionId deben ser enteros positivos' });
+        !Number.isInteger(opcionId)   || opcionId < 0) {
+        return res.status(400).json({ success: false, error: 'preguntaId y opcionId inválidos' });
     }
 
     try {

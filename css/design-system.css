@@ -293,6 +293,14 @@ img.icon-btn {
   object-fit: contain;
 }
 
+img.icon-star, .icon-star {
+  width: 18px;
+  height: 18px;
+  display: inline-block;
+  vertical-align: middle;
+  object-fit: contain;
+}
+
 /* --------------------------------------------------------------------------
    8. Card Component
    -------------------------------------------------------------------------- */

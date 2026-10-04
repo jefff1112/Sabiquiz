@@ -631,9 +631,17 @@
                         if (progresoResp.success && progresoResp.progreso) {
                             const cards = document.querySelectorAll('#subjectsGrid .subject-card');
                             cards.forEach(card => {
-                                const name = card.querySelector('h3')?.textContent?.trim();
-                                if (name && progresoResp.progreso[name]) {
-                                    const materiaProgs = progresoResp.progreso[name];
+                                const rawName = card.querySelector('h3')?.textContent?.trim() || '';
+                                // Normalizar quitando acentos y minúsculas
+                                const name = rawName.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+                                
+                                // Buscar en progresoResp.progreso la materia equivalente
+                                const materiaEncontrada = Object.keys(progresoResp.progreso).find(key => 
+                                    key.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase() === name
+                                );
+
+                                if (materiaEncontrada) {
+                                    const materiaProgs = progresoResp.progreso[materiaEncontrada];
                                     const completed = materiaProgs.filter(p => p.completado).length;
                                     const total = 30; // 30 levels per subject max (approx)
                                     const pct = Math.min((completed / total) * 100, 100);

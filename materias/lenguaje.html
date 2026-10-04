@@ -220,7 +220,7 @@
             document.querySelectorAll('[data-translate]').forEach(el => {
                 const key = el.getAttribute('data-translate');
                 if (t[key]) {
-                    el.textContent = t[key];
+                    el.innerHTML = t[key];
                 }
             });
 

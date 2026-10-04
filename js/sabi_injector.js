@@ -226,7 +226,19 @@
 
     // Cargar sabi_chat.js si no está cargado
     if (typeof SabiChatPanel === 'undefined') {
+      if (window.__sabiChatLoading) {
+        // Wait for it to finish loading
+        const checkInterval = setInterval(() => {
+          if (typeof SabiChatPanel !== 'undefined') {
+            clearInterval(checkInterval);
+            _inicializarChat(contexto);
+          }
+        }, 100);
+        return;
+      }
+      window.__sabiChatLoading = true;
       cargarScript('js/sabi_chat.js', () => {
+        window.__sabiChatLoading = false;
         _inicializarChat(contexto);
       });
     } else {
