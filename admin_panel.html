@@ -873,6 +873,10 @@
             if (torneoData.duracion_minutos) torneoData.duracion_minutos = parseInt(torneoData.duracion_minutos);
             if (torneoData.max_usuarios) torneoData.max_usuarios = parseInt(torneoData.max_usuarios);
             
+            // Convertir fechas locales a UTC antes de enviar al servidor (que está en UTC)
+            if (torneoData.fecha_inicio) torneoData.fecha_inicio = new Date(torneoData.fecha_inicio).toISOString();
+            if (torneoData.fecha_fin) torneoData.fecha_fin = new Date(torneoData.fecha_fin).toISOString();
+            
             const id = torneoData.id;
             delete torneoData.id;
             

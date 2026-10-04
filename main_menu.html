@@ -930,16 +930,9 @@
             }
         }
         
-        // Mock notification methods just so code doesn't break if navbar tries to access them,
-        // although navbar.js usually manages its own notifications in the new system.
-        async function loadNotifications() { /* Handle via layout.js/navbar.js */ }
-        function updateNotificationBadge() { /* Handle via layout.js/navbar.js */ }
-        function showNotifications() { /* Handle via layout.js/navbar.js */ }
-        function closeNotifications() { }
-        async function markNotification(id) { }
-        async function markAllNotifications() { }
-        async function deleteNotification(id) { }
-        async function deleteAllNotifications() { }
+        // Notifications are fully managed by layout.js now.
+        async function loadNotifications() { /* Handled by layout.js */ }
+        function updateNotificationBadge() { /* Handled by layout.js */ }
         
         function showToastNotification(notification) {
             // Very simple toast implementation

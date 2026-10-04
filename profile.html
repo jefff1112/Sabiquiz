@@ -386,7 +386,10 @@
             grid.innerHTML = '';
             Object.entries(pcts).forEach(([m,p]) => {
                 const card = document.createElement('div');
-                card.style.cssText = `background:${p>=70?'#f0fff4':p>=40?'#fffaf0':'#fef3f2'};border:2px solid ${p>=70?'#9ae6b4':p>=40?'#fbd38d':'#fc8181'};border-radius:var(--radius-lg);padding:var(--space-4);text-align:center;`;
+                const borderColor = p>=70 ? 'var(--color-accent-green)' : (p>=40 ? 'var(--color-accent-yellow)' : 'var(--color-accent-red)');
+                const bgColor = p>=70 ? 'rgba(16, 185, 129, 0.1)' : (p>=40 ? 'rgba(245, 158, 11, 0.1)' : 'rgba(239, 68, 68, 0.1)');
+                
+                card.style.cssText = `background: ${bgColor}; border: 2px solid ${borderColor}; border-radius: var(--radius-lg); padding: var(--space-4); text-align: center;`;
                 card.innerHTML = `<img src="${icons[m]||'img/estrellas.png'}" style="width:24px;height:24px;margin-bottom:6px;"><div style="font-size:12px;color:var(--color-text-muted);margin-bottom:4px;">${m.charAt(0).toUpperCase()+m.slice(1)}</div><div style="font-size:20px;font-weight:700;color:var(--color-text);">Top ${p}%</div>`;
                 grid.appendChild(card);
             });
