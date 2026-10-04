@@ -32,32 +32,34 @@ async function testConnection() {
         // Auto-crear tablas faltantes (especialmente en producción/Aiven)
         await connection.query(`
             CREATE TABLE IF NOT EXISTS sabi_1vs1_matches (
-                id VARCHAR(100) PRIMARY KEY,
-                usuario_id CHAR(36),
-                sabi_nivel INT,
-                sabi_dificultad JSON,
-                estado VARCHAR(50),
-                preguntas JSON,
-                pregunta_actual INT DEFAULT 0,
-                detalles JSON,
-                fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                resultado VARCHAR(50) DEFAULT NULL,
-                puntaje_usuario INT DEFAULT 0,
-                puntaje_sabi INT DEFAULT 0,
-                finalizado_en TIMESTAMP NULL DEFAULT NULL
-            )
+                id CHAR(36) PRIMARY KEY,
+                usuario_id CHAR(36) NOT NULL,
+                sabi_nivel INT UNSIGNED NOT NULL DEFAULT 1,
+                sabi_dificultad JSON NOT NULL,
+                estado ENUM('en_curso', 'finalizada') NOT NULL DEFAULT 'en_curso',
+                preguntas JSON NOT NULL,
+                pregunta_actual INT UNSIGNED NOT NULL DEFAULT 0,
+                puntaje_usuario INT UNSIGNED NOT NULL DEFAULT 0,
+                puntaje_sabi INT UNSIGNED NOT NULL DEFAULT 0,
+                detalles JSON NOT NULL,
+                resultado ENUM('victoria', 'derrota', 'empate') NULL,
+                finalizado_en DATETIME NULL,
+                creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+                CONSTRAINT fk_sabi1vs1_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB
         `);
         await connection.query(`
             CREATE TABLE IF NOT EXISTS sabi_chat_sessions (
-                id VARCHAR(100) PRIMARY KEY,
-                usuario_id CHAR(36),
-                materia VARCHAR(100),
-                nivel INT,
-                pregunta_actual TEXT,
-                historial JSON,
-                creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-            )
+                id CHAR(36) PRIMARY KEY,
+                usuario_id CHAR(36) NOT NULL,
+                materia VARCHAR(100) NULL,
+                nivel INT UNSIGNED NULL,
+                pregunta_actual JSON NULL,
+                historial JSON NOT NULL,
+                creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
+                actualizado_en DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                CONSTRAINT fk_sabi_chat_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
+            ) ENGINE=InnoDB
         `);
         
         connection.release();

@@ -24,7 +24,7 @@ router.get('/stats-avanzadas', authMiddleware, async (req, res) => {
                 FROM actividad_diaria ad
                 WHERE ad.usuario_id = ? AND ad.fecha >= ?
                 GROUP BY DATE(ad.fecha)
-                ORDER BY ad.fecha ASC
+                ORDER BY DATE(ad.fecha) ASC
             `, [usuarioId, hace7Dias]);
         } catch (e) { console.error('Error stats semanal:', e.message); }
 

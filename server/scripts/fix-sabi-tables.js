@@ -1,13 +1,28 @@
+require('dotenv').config({ path: require('path').join(__dirname, '../../.env') });
 const { pool } = require('../config/database');
 
 async function fixSabiTables() {
-    console.log('🔧 Corrigiendo tablas de Sabi...');
+    console.log('🔧 Corrigiendo tablas de Sabi...\n');
     
     try {
-        // Fix sabi_1vs1_matches - recreate with correct schema
+        // 0. Verify usuarios.id column type
+        const [usuariosCols] = await pool.query(
+            `SELECT COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS 
+             WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'usuarios' AND COLUMN_NAME = 'id'`,
+            [process.env.DB_NAME || 'sabiquiz_db']
+        );
+        if (usuariosCols.length) {
+            console.log(`📋 usuarios.id column type: ${usuariosCols[0].COLUMN_TYPE}`);
+        }
+
+        // 1. Drop existing tables (order matters for FK constraints)
         await pool.query(`DROP TABLE IF EXISTS sabi_1vs1_matches`);
-        console.log('🗑️ Tabla sabi_1vs1_matches eliminada');
+        console.log('🗑️  Tabla sabi_1vs1_matches eliminada');
         
+        await pool.query(`DROP TABLE IF EXISTS sabi_chat_sessions`);
+        console.log('🗑️  Tabla sabi_chat_sessions eliminada');
+
+        // 2. Recreate sabi_1vs1_matches with correct schema
         await pool.query(`
             CREATE TABLE sabi_1vs1_matches (
                 id CHAR(36) PRIMARY KEY,
@@ -28,10 +43,7 @@ async function fixSabiTables() {
         `);
         console.log('✅ Tabla sabi_1vs1_matches recreada correctamente');
 
-        // Fix sabi_chat_sessions - recreate with correct schema
-        await pool.query(`DROP TABLE IF EXISTS sabi_chat_sessions`);
-        console.log('🗑️ Tabla sabi_chat_sessions eliminada');
-        
+        // 3. Recreate sabi_chat_sessions with correct schema
         await pool.query(`
             CREATE TABLE sabi_chat_sessions (
                 id CHAR(36) PRIMARY KEY,
@@ -46,6 +58,30 @@ async function fixSabiTables() {
             ) ENGINE=InnoDB
         `);
         console.log('✅ Tabla sabi_chat_sessions recreada correctamente');
+
+        // 4. Verify schemas
+        console.log('\n📋 Verificando schemas...');
+        for (const table of ['sabi_1vs1_matches', 'sabi_chat_sessions']) {
+            const [cols] = await pool.query(
+                `SELECT COLUMN_NAME, COLUMN_TYPE, IS_NULLABLE 
+                 FROM INFORMATION_SCHEMA.COLUMNS 
+                 WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = 'usuario_id'`,
+                [process.env.DB_NAME || 'sabiquiz_db', table]
+            );
+            if (cols.length) {
+                const col = cols[0];
+                const ok = col.COLUMN_TYPE === 'char(36)' && col.IS_NULLABLE === 'NO';
+                console.log(`  ${table}.usuario_id: ${col.COLUMN_TYPE}, nullable=${col.IS_NULLABLE} → ${ok ? '✅ OK' : '❌ BAD'}`);
+            }
+        }
+
+        // 5. Verify SABI_WEBHOOK_URL
+        console.log('\n📋 Verificando SABI_WEBHOOK_URL...');
+        if (process.env.SABI_WEBHOOK_URL) {
+            console.log(`  ✅ SABI_WEBHOOK_URL = ${process.env.SABI_WEBHOOK_URL}`);
+        } else {
+            console.log('  ⚠️  SABI_WEBHOOK_URL no encontrado en .env');
+        }
 
         console.log('\n🎉 ¡Tablas de Sabi corregidas correctamente!');
 
