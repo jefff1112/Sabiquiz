@@ -21,7 +21,7 @@ async function createSabiTables() {
                 finalizado_en DATETIME NULL,
                 creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
                 CONSTRAINT fk_sabi1vs1_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-            )
+            ) ENGINE=InnoDB
         `);
         console.log('✅ Tabla sabi_1vs1_matches creada');
 
@@ -37,7 +37,7 @@ async function createSabiTables() {
                 creado_en DATETIME DEFAULT CURRENT_TIMESTAMP,
                 actualizado_en DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                 CONSTRAINT fk_sabi_chat_usuario FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON DELETE CASCADE
-            )
+            ) ENGINE=InnoDB
         `);
         console.log('✅ Tabla sabi_chat_sessions creada');
 
