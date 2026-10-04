@@ -25,17 +25,41 @@ const sabiRoutes = require('./routes/sabi');
 // Utilidades compartidas de torneos
 const { updateTournamentStates, calcularRankingTorneo } = require('./utils/torneos');
 
-// ============================================
-// ORÍGENES PERMITIDOS (configurable en .env)
-// ============================================
-const ORIGENES_PERMITIDOS = (process.env.CORS_ORIGINS ||
-  'http://localhost:3000,http://127.0.0.1:3000,http://127.0.0.1:5500')
-  .split(',').map(o => o.trim()).filter(Boolean);
+// Configuración de CORS
+const allowedOrigins = [
+  // Desarrollo local
+  'http://localhost:3000',
+  'http://localhost:5500',
+  'http://localhost:10000',
+  'http://127.0.0.1:5500',
+  'http://127.0.0.1:3000',
+  
+  // Producción
+  'https://sabiquiz.onrender.com',
+  
+  // Orígenes adicionales desde variable de entorno (separados por comas)
+  ...(process.env.EXTRA_ORIGINS 
+    ? process.env.EXTRA_ORIGINS.split(',').map(o => o.trim()) 
+    : [])
+].filter(Boolean);
 
-function origenPermitido(origin) {
-  if (!origin) return true;                     // mismo origen, curl, apps nativas
-  return ORIGENES_PERMITIDOS.includes(origin);
-}
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Permitir peticiones sin origin (Postman, curl, mobile apps)
+    if (!origin) return callback(null, true);
+    
+    // Verificar si el origen está permitido
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      callback(null, true);
+    } else {
+      console.warn(`⚠️ Origen bloqueado por CORS: ${origin}`);
+      callback(new Error('Origen no permitido por CORS'));
+    }
+  },
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
 
 // ============================================
 // CONFIGURACIÓN DE EXPRESS
@@ -62,14 +86,8 @@ app.use((req, res, next) => {
   next();
 });
 
-// CORS restringido a la lista blanca (antes era cors() abierto a cualquiera)
-app.use(cors({
-  origin(origin, cb) {
-    if (origenPermitido(origin)) return cb(null, true);
-    return cb(new Error('Origen no permitido por CORS'));
-  },
-  credentials: false
-}));
+// CORS restringido a la lista blanca
+app.use(cors(corsOptions));
 
 app.use(express.json({ limit: '1mb' }));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
