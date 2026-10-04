@@ -685,11 +685,7 @@ router.post('/admin/nivel/:id/generar-teoria', adminMiddleware, async (req, res)
             [nivelId]
         );
 
-        if (preguntas.length === 0) {
-            return res.status(400).json({ success: false, error: 'El nivel no tiene preguntas para analizar' });
-        }
-
-        // Parsear texto de preguntas
+        // Parsear texto de preguntas (si hay)
         const preguntasParseadas = preguntas.map(p => {
             try {
                 const parsed = JSON.parse(p.texto);

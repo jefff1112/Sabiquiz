@@ -234,10 +234,17 @@ router.post('/aprobar/:sugerenciaId', adminMiddleware, async (req, res) => {
             finalNivelId = nuevoNivel.insertId;
         }
 
+        // 4. Obtener el maximo orden actual para la nueva pregunta
+        const [maxOrdenRows] = await connection.query(
+            'SELECT COALESCE(MAX(orden), 0) as maxOrd FROM preguntas WHERE nivel_id = ?',
+            [finalNivelId]
+        );
+        const nextOrden = maxOrdenRows[0].maxOrd + 1;
+
         const [preguntaResult] = await connection.query(
             `INSERT INTO preguntas (nivel_id, texto, dificultad, orden) 
              VALUES (?, ?, ?, ?)`,
-            [finalNivelId, textoJSON, data.dificultad || 'easy', 999]
+            [finalNivelId, textoJSON, data.dificultad || 'easy', nextOrden]
         );
         const preguntaId = preguntaResult.insertId;
 

@@ -233,9 +233,13 @@ class SabiAI {
    * Genera la teoría de un nivel usando la IA (o fallback local)
    */
   async generarTeoria(materia, numeroNivel, preguntas) {
+    let temas = preguntas && preguntas.length > 0 
+      ? `Las preguntas de este nivel son sobre los siguientes temas:\n` + preguntas.map(p => `- ${p.texto}`).join('\n') + `\n`
+      : `Actualmente no hay preguntas registradas, así que genera una introducción general y motivadora para este nivel.\n`;
+
     const prompt = `Actúa como Sabi, un búho tutor amigable para niños y jóvenes.
 Genera una explicación teórica corta y clara para el Nivel ${numeroNivel} de la materia ${materia}.
-Las preguntas de este nivel son sobre los siguientes temas:\n` + preguntas.map(p => `- ${p.texto}`).join('\n') + `\n
+${temas}
 La teoría debe estar en formato Markdown, ser fácil de entender, tener emojis y no superar los 3-4 párrafos.`;
 
     if (this.webhookUrl) {
@@ -248,14 +252,17 @@ La teoría debe estar en formato Markdown, ser fácil de entender, tener emojis 
     }
 
     // Fallback local
+    const conceptosClave = preguntas && preguntas.length > 0
+      ? `**Conceptos clave a repasar:**\n${preguntas.slice(0, 3).map(p => `- Analiza bien: *${p.texto}*`).join('\n')}`
+      : `¡Prepárate para aprender cosas nuevas e increíbles!`;
+
     return `### 📚 Teoría: Nivel ${numeroNivel} de ${materia}
 
 ¡Hola! Soy Sabi 🦉. En este nivel vamos a aprender conceptos muy importantes de **${materia}**.
 
 Lee con cuidado cada pregunta y recuerda lo que has aprendido en clase. Si te equivocas, no te preocupes, ¡de los errores se aprende!
 
-**Conceptos clave a repasar:**
-${preguntas.slice(0, 3).map(p => `- Analiza bien: *${p.texto}*`).join('\n')}
+${conceptosClave}
 
 ¡Mucho éxito en tu quiz! 🚀`;
   }
