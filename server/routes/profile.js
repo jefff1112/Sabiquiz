@@ -198,7 +198,7 @@ router.get('/stats-avanzadas', authMiddleware, async (req, res) => {
                 
                 // Rachas
                 racha_maxima_historica: rachaMaximaHistorica,
-                racha_actual: rachaStats[0]?.racha_actual || 0,
+                racha_actual: racha_actual,
                 
                 // Percentiles
                 top_porcentaje_materias: topPorcentajeMaterias,
