@@ -138,7 +138,15 @@
       return ctx;
     }
 
-    // 7. Fallback: intentar extraer de la URL
+    // 7. Main menu / Dashboard / 1vs1
+    if (pathname.includes('main_menu')) {
+      ctx.materia = 'General';
+      ctx.nivel = 1;
+      ctx.pregunta = 'El usuario está en el menú principal de SabiQuiz. Puede preguntar sobre materias, cómo jugar, o pedir consejos de estudio.';
+      return ctx;
+    }
+
+    // 8. Fallback: intentar extraer de la URL
     ctx.materia = _extraerMateriaDeUrl(pathname);
     ctx.nivel = parseInt(params.get('nivel') || params.get('level')) || 1;
 

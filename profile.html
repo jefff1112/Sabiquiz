@@ -42,6 +42,7 @@
                             <span>NIVEL</span>
                             <span id="profile-level">1</span>
                         </div>
+                        <button id="btnRequestAdmin" class="btn btn-ghost btn-sm" style="margin-left:var(--space-3);color:var(--color-accent-amber);border:1px solid var(--color-accent-amber);font-size:12px;padding:4px 10px;display:none;">👑 Solicitar ser Admin</button>
                     </div>
                 </div>
 
@@ -425,6 +426,47 @@
                 await loadHistorialPartidas();
                 await loadLogros();
                 await loadStatsAvanzadas();
+
+                // Check Admin Status
+                if (userData?.user?.rol !== 'admin') {
+                    try {
+                        const reqData = await apiRequest('/admin-requests/mi-solicitud');
+                        const btn = document.getElementById('btnRequestAdmin');
+                        if (reqData.success) {
+                            if (reqData.solicitud && reqData.solicitud.estado === 'pendiente') {
+                                btn.textContent = '⏳ Solicitud Admin Pendiente';
+                                btn.style.display = 'inline-block';
+                                btn.style.color = 'var(--color-text-muted)';
+                                btn.style.borderColor = 'var(--color-border)';
+                                btn.disabled = true;
+                            } else {
+                                btn.style.display = 'inline-block';
+                                btn.onclick = async () => {
+                                    const motivo = prompt('¿Por qué quieres ser administrador? (Mínimo 10 caracteres)');
+                                    if (motivo && motivo.length >= 10) {
+                                        try {
+                                            const r = await apiRequest('/admin-requests', {
+                                                method: 'POST',
+                                                body: JSON.stringify({ motivo })
+                                            });
+                                            if (r.success) {
+                                                showToast('✅ Solicitud enviada');
+                                                btn.textContent = '⏳ Solicitud Admin Pendiente';
+                                                btn.style.color = 'var(--color-text-muted)';
+                                                btn.style.borderColor = 'var(--color-border)';
+                                                btn.disabled = true;
+                                            } else {
+                                                showToast('❌ ' + r.error, 'error');
+                                            }
+                                        } catch (e) { showToast('❌ Error al solicitar', 'error'); }
+                                    } else if (motivo) {
+                                        showToast('⚠️ El motivo debe ser más largo', 'warning');
+                                    }
+                                };
+                            }
+                        }
+                    } catch (e) {}
+                }
 
             } catch (e) { console.error(e); showError('Error: '+e.message); }
         }

@@ -59,6 +59,18 @@ async function testConnection() {
                 actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
             )
         `);
+        await connection.query(`
+            CREATE TABLE IF NOT EXISTS solicitudes_admin (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                usuario_id VARCHAR(100) NOT NULL,
+                motivo TEXT,
+                estado ENUM('pendiente','aprobada','rechazada') DEFAULT 'pendiente',
+                fecha_solicitud DATETIME DEFAULT CURRENT_TIMESTAMP,
+                fecha_revision DATETIME NULL,
+                revisado_por VARCHAR(100) NULL,
+                comentario_admin TEXT NULL
+            )
+        `);
 
         // Ajustar el tamaño de las columnas por si la tabla ya existía con un tamaño menor
         try {

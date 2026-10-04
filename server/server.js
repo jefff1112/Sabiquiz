@@ -21,6 +21,7 @@ const minigamesRoutes = require('./routes/minigames');
 const torneosRoutes = require('./routes/torneos');
 const profileRoutes = require('./routes/profile');
 const sabiRoutes = require('./routes/sabi');
+const adminRequestsRoutes = require('./routes/admin-requests');
 
 // Utilidades compartidas de torneos
 const { updateTournamentStates, calcularRankingTorneo } = require('./utils/torneos');
@@ -220,6 +221,7 @@ app.use('/api/minigames', minigamesRoutes);
 app.use('/api/torneos', torneosRoutes);
 app.use('/api/profile', profileRoutes);
 app.use('/api/sabi', sabiRoutes);
+app.use('/api/admin-requests', adminRequestsRoutes);
 
 // ============================================
 // RUTA DE PRUEBA (Health Check)

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { authMiddleware } = require('../middleware/auth');
+const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 const Pregunta = require('../models/Pregunta');
 const Progreso = require('../models/Progreso');
 const { pool } = require('../config/database');
@@ -410,6 +410,252 @@ router.get('/materia/:materiaId/niveles', async (req, res) => {
             success: false, 
             error: 'Error al cargar niveles' 
         });
+    }
+});
+
+// ============================================
+// ADMIN: CREATE LEVEL
+// ============================================
+router.post('/admin/nivel', adminMiddleware, async (req, res) => {
+    try {
+        const { materiaId, numero, titulo, descripcion, passing_score } = req.body;
+        
+        let targetNumero = numero;
+        
+        if (targetNumero) {
+            const [existing] = await pool.query('SELECT id FROM niveles WHERE materia_id = ? AND numero = ?', [materiaId, targetNumero]);
+            if (existing.length > 0) {
+                await pool.query('UPDATE niveles SET numero = numero + 1 WHERE materia_id = ? AND numero >= ? ORDER BY numero DESC', [materiaId, targetNumero]);
+            }
+        } else {
+            const [maxResult] = await pool.query('SELECT MAX(numero) as maxNum FROM niveles WHERE materia_id = ?', [materiaId]);
+            targetNumero = (maxResult[0].maxNum || 0) + 1;
+        }
+        
+        const [result] = await pool.query(
+            'INSERT INTO niveles (materia_id, numero, titulo, teoria, passing_score, orden) VALUES (?, ?, ?, ?, ?, ?)',
+            [materiaId, targetNumero, titulo, descripcion || null, passing_score || 0.6, targetNumero]
+        );
+        
+        const [newLevel] = await pool.query('SELECT * FROM niveles WHERE id = ?', [result.insertId]);
+        
+        res.json({ success: true, nivel: newLevel[0] });
+    } catch (error) {
+        console.error('Error creating level:', error);
+        res.status(500).json({ success: false, error: 'Error al crear nivel' });
+    }
+});
+
+// ============================================
+// ADMIN: GET LEVELS
+// ============================================
+router.get('/admin/niveles/:materiaId', adminMiddleware, async (req, res) => {
+    try {
+        const [niveles] = await pool.query(
+            'SELECT n.*, COUNT(p.id) as total_preguntas FROM niveles n LEFT JOIN preguntas p ON p.nivel_id = n.id WHERE n.materia_id = ? GROUP BY n.id ORDER BY n.numero',
+            [req.params.materiaId]
+        );
+        res.json({ success: true, niveles });
+    } catch (error) {
+        console.error('Error getting levels:', error);
+        res.status(500).json({ success: false, error: 'Error al obtener niveles' });
+    }
+});
+
+// ============================================
+// ADMIN: ADD QUESTION
+// ============================================
+router.post('/admin/pregunta', adminMiddleware, async (req, res) => {
+    let connection;
+    try {
+        const { nivelId, texto, opciones, dificultad } = req.body;
+        
+        connection = await pool.getConnection();
+        await connection.beginTransaction();
+        
+        const [nivel] = await connection.query('SELECT id FROM niveles WHERE id = ?', [nivelId]);
+        if (nivel.length === 0) {
+            await connection.rollback();
+            return res.status(404).json({ success: false, error: 'Nivel no encontrado' });
+        }
+        
+        const dif = dificultad || 'medium';
+        const textoJson = JSON.stringify({ es: texto });
+        
+        const [result] = await connection.query(
+            'INSERT INTO preguntas (nivel_id, texto, dificultad) VALUES (?, ?, ?)',
+            [nivelId, textoJson, dif]
+        );
+        const preguntaId = result.insertId;
+        
+        let orden = 1;
+        for (const opc of opciones) {
+            const opcTextoJson = JSON.stringify({ es: opc.texto });
+            await connection.query(
+                'INSERT INTO opciones (pregunta_id, texto, es_correcta, orden) VALUES (?, ?, ?, ?)',
+                [preguntaId, opcTextoJson, opc.es_correcta ? 1 : 0, orden++]
+            );
+        }
+        
+        await connection.commit();
+        res.json({ success: true, preguntaId });
+    } catch (error) {
+        if (connection) await connection.rollback();
+        console.error('Error adding question:', error);
+        res.status(500).json({ success: false, error: 'Error al añadir pregunta' });
+    } finally {
+        if (connection) connection.release();
+    }
+});
+
+// ============================================
+// RUTA ADMIN: OBTENER NIVELES CON CONTEO DE PREGUNTAS
+// ============================================
+router.get('/admin/niveles/:materiaId', adminMiddleware, async (req, res) => {
+    try {
+        const [niveles] = await pool.query(
+            `SELECT n.id, n.materia_id, n.numero, n.titulo, n.passing_score, n.orden, n.teoria,
+                    COUNT(p.id) as total_preguntas
+             FROM niveles n
+             LEFT JOIN preguntas p ON p.nivel_id = n.id
+             WHERE n.materia_id = ?
+             GROUP BY n.id
+             ORDER BY n.numero`,
+            [req.params.materiaId]
+        );
+        res.json({ success: true, niveles });
+    } catch (error) {
+        console.error('Error al obtener niveles admin:', error);
+        res.status(500).json({ success: false, error: 'Error al cargar niveles' });
+    }
+});
+
+// ============================================
+// RUTA ADMIN: CREAR NUEVO NIVEL
+// ============================================
+router.post('/admin/nivel', adminMiddleware, async (req, res) => {
+    const { materiaId, numero, titulo, descripcion, passing_score } = req.body;
+
+    if (!materiaId) {
+        return res.status(400).json({ success: false, error: 'materiaId es requerido' });
+    }
+
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        let nuevoNumero = numero;
+
+        if (nuevoNumero) {
+            // Verificar si ya existe un nivel con ese número en esta materia
+            const [existing] = await connection.query(
+                'SELECT id FROM niveles WHERE materia_id = ? AND numero = ?',
+                [materiaId, nuevoNumero]
+            );
+            if (existing.length > 0) {
+                // Desplazar niveles >= nuevoNumero hacia arriba
+                await connection.query(
+                    'UPDATE niveles SET numero = numero + 1 WHERE materia_id = ? AND numero >= ? ORDER BY numero DESC',
+                    [materiaId, nuevoNumero]
+                );
+            }
+        } else {
+            // Obtener el siguiente número disponible
+            const [maxRow] = await connection.query(
+                'SELECT COALESCE(MAX(numero), 0) as maxNum FROM niveles WHERE materia_id = ?',
+                [materiaId]
+            );
+            nuevoNumero = maxRow[0].maxNum + 1;
+        }
+
+        const [result] = await connection.query(
+            `INSERT INTO niveles (materia_id, numero, titulo, passing_score, orden)
+             VALUES (?, ?, ?, ?, ?)`,
+            [materiaId, nuevoNumero, titulo || `Nivel ${nuevoNumero}`, passing_score || 0.6, nuevoNumero]
+        );
+
+        await connection.commit();
+        res.json({
+            success: true,
+            message: `Nivel ${nuevoNumero} creado`,
+            nivel: { id: result.insertId, numero: nuevoNumero, titulo: titulo || `Nivel ${nuevoNumero}` }
+        });
+    } catch (error) {
+        await connection.rollback();
+        console.error('Error al crear nivel:', error);
+        res.status(500).json({ success: false, error: 'Error al crear nivel: ' + error.message });
+    } finally {
+        connection.release();
+    }
+});
+
+// ============================================
+// RUTA ADMIN: AGREGAR PREGUNTA A UN NIVEL EXISTENTE
+// ============================================
+router.post('/admin/pregunta', adminMiddleware, async (req, res) => {
+    const { nivelId, texto, opciones, dificultad } = req.body;
+
+    if (!nivelId || !texto || !opciones || !Array.isArray(opciones) || opciones.length < 2) {
+        return res.status(400).json({
+            success: false,
+            error: 'nivelId, texto y opciones (mínimo 2) son requeridos'
+        });
+    }
+
+    // Verificar que al menos una opción sea correcta
+    const tieneCorrecta = opciones.some(o => o.es_correcta);
+    if (!tieneCorrecta) {
+        return res.status(400).json({
+            success: false,
+            error: 'Al menos una opción debe ser marcada como correcta'
+        });
+    }
+
+    const connection = await pool.getConnection();
+    try {
+        await connection.beginTransaction();
+
+        // Verificar que el nivel existe
+        const [nivelRows] = await connection.query('SELECT id FROM niveles WHERE id = ?', [nivelId]);
+        if (!nivelRows.length) {
+            await connection.rollback();
+            return res.status(404).json({ success: false, error: 'Nivel no encontrado' });
+        }
+
+        // Obtener el orden máximo actual
+        const [maxOrden] = await connection.query(
+            'SELECT COALESCE(MAX(orden), 0) as maxOrd FROM preguntas WHERE nivel_id = ?',
+            [nivelId]
+        );
+
+        const textoJSON = JSON.stringify({ es: texto });
+        const [pregResult] = await connection.query(
+            'INSERT INTO preguntas (nivel_id, texto, dificultad, orden) VALUES (?, ?, ?, ?)',
+            [nivelId, textoJSON, dificultad || 'easy', maxOrden[0].maxOrd + 1]
+        );
+        const preguntaId = pregResult.insertId;
+
+        // Insertar opciones
+        for (const [index, opt] of opciones.entries()) {
+            const optJSON = JSON.stringify({ es: opt.texto });
+            await connection.query(
+                'INSERT INTO opciones (pregunta_id, texto, es_correcta, orden) VALUES (?, ?, ?, ?)',
+                [preguntaId, optJSON, !!opt.es_correcta, index + 1]
+            );
+        }
+
+        await connection.commit();
+        res.json({
+            success: true,
+            message: 'Pregunta agregada correctamente',
+            preguntaId
+        });
+    } catch (error) {
+        await connection.rollback();
+        console.error('Error al agregar pregunta:', error);
+        res.status(500).json({ success: false, error: 'Error al agregar pregunta: ' + error.message });
+    } finally {
+        connection.release();
     }
 });
 

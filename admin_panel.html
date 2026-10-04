@@ -183,6 +183,8 @@
                 <aside class="admin-sidebar">
                     <button class="main-tab active" data-tab="suggestions">📝 Sugerencias</button>
                     <button class="main-tab" data-tab="torneos">🏆 Torneos</button>
+                    <button class="main-tab" data-tab="niveles">📚 Niveles</button>
+                    <button class="main-tab" data-tab="admin-requests">👑 Solicitudes Admin</button>
                 </aside>
                 
                 <div class="admin-content">
@@ -217,6 +219,90 @@
 
                         <div id="torneosList">
                             <div class="loading-text">⏳ Cargando torneos...</div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN GESTIÓN DE NIVELES -->
+                    <div id="section-niveles" class="admin-section" style="display: none;">
+                        <h2 style="margin: 0 0 var(--space-4); color: var(--color-text);">📚 Gestión de Niveles y Preguntas</h2>
+                        
+                        <div style="display: flex; gap: var(--space-3); flex-wrap: wrap; margin-bottom: var(--space-4);">
+                            <select id="nivelMateriaSelect" class="form-control" style="flex: 1; min-width: 200px; padding: 10px; background: var(--color-surface); color: var(--color-text); border: 1px solid var(--color-border); border-radius: var(--radius-sm);">
+                                <option value="">Seleccionar materia...</option>
+                            </select>
+                            <button id="btnNuevoNivel" class="btn btn-primary" style="white-space: nowrap;">➕ Nuevo Nivel</button>
+                        </div>
+                        
+                        <div id="nivelesAdminList">
+                            <div class="no-suggestions">Selecciona una materia para ver sus niveles</div>
+                        </div>
+
+                        <!-- Modal crear nivel -->
+                        <div id="nuevoNivelModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;z-index:1000;">
+                            <div style="background:var(--color-surface);border-radius:var(--radius-md);padding:var(--space-6);width:90%;max-width:500px;">
+                                <h3 style="margin:0 0 var(--space-4);color:var(--color-text);">➕ Crear Nuevo Nivel</h3>
+                                <form id="nuevoNivelForm">
+                                    <input type="hidden" id="nlMateriaId">
+                                    <div style="margin-bottom:var(--space-3);">
+                                        <label style="display:block;margin-bottom:4px;color:var(--color-text);font-weight:600;">Número de nivel (vacío = al final)</label>
+                                        <input type="number" id="nlNumero" min="1" placeholder="Ej: 15 (si ya existe, desplaza los demás)" class="form-control" style="width:100%;padding:10px;background:var(--color-surface);color:var(--color-text);border:1px solid var(--color-border);border-radius:var(--radius-sm);">
+                                    </div>
+                                    <div style="margin-bottom:var(--space-3);">
+                                        <label style="display:block;margin-bottom:4px;color:var(--color-text);font-weight:600;">Título</label>
+                                        <input type="text" id="nlTitulo" placeholder="Ej: Ecuaciones Cuadráticas" class="form-control" style="width:100%;padding:10px;background:var(--color-surface);color:var(--color-text);border:1px solid var(--color-border);border-radius:var(--radius-sm);">
+                                    </div>
+                                    <div style="display:flex;gap:var(--space-3);justify-content:flex-end;">
+                                        <button type="button" onclick="document.getElementById('nuevoNivelModal').style.display='none'" class="btn btn-ghost">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary">Crear Nivel</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+
+                        <!-- Modal agregar pregunta -->
+                        <div id="nuevaPreguntaModal" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;z-index:1000;">
+                            <div style="background:var(--color-surface);border-radius:var(--radius-md);padding:var(--space-6);width:90%;max-width:600px;max-height:90vh;overflow-y:auto;">
+                                <h3 style="margin:0 0 var(--space-4);color:var(--color-text);">📝 Agregar Pregunta</h3>
+                                <p style="color:var(--color-text-muted);margin-bottom:var(--space-3);" id="npNivelInfo">Nivel X</p>
+                                <form id="nuevaPreguntaForm">
+                                    <input type="hidden" id="npNivelId">
+                                    <div style="margin-bottom:var(--space-3);">
+                                        <label style="display:block;margin-bottom:4px;color:var(--color-text);font-weight:600;">Pregunta *</label>
+                                        <textarea id="npTexto" rows="3" required placeholder="Escribe la pregunta..." class="form-control" style="width:100%;padding:10px;background:var(--color-surface);color:var(--color-text);border:1px solid var(--color-border);border-radius:var(--radius-sm);resize:vertical;"></textarea>
+                                    </div>
+                                    <div id="npOpcionesContainer">
+                                        <label style="display:block;margin-bottom:4px;color:var(--color-text);font-weight:600;">Opciones (marca la correcta) *</label>
+                                        <div class="np-opcion" style="display:flex;gap:var(--space-2);margin-bottom:var(--space-2);align-items:center;">
+                                            <input type="radio" name="npCorrecta" value="0" checked>
+                                            <input type="text" placeholder="Opción A" required class="form-control" style="flex:1;padding:8px;background:var(--color-surface);color:var(--color-text);border:1px solid var(--color-border);border-radius:var(--radius-sm);">
+                                        </div>
+                                        <div class="np-opcion" style="display:flex;gap:var(--space-2);margin-bottom:var(--space-2);align-items:center;">
+                                            <input type="radio" name="npCorrecta" value="1">
+                                            <input type="text" placeholder="Opción B" required class="form-control" style="flex:1;padding:8px;background:var(--color-surface);color:var(--color-text);border:1px solid var(--color-border);border-radius:var(--radius-sm);">
+                                        </div>
+                                        <div class="np-opcion" style="display:flex;gap:var(--space-2);margin-bottom:var(--space-2);align-items:center;">
+                                            <input type="radio" name="npCorrecta" value="2">
+                                            <input type="text" placeholder="Opción C" class="form-control" style="flex:1;padding:8px;background:var(--color-surface);color:var(--color-text);border:1px solid var(--color-border);border-radius:var(--radius-sm);">
+                                        </div>
+                                        <div class="np-opcion" style="display:flex;gap:var(--space-2);margin-bottom:var(--space-2);align-items:center;">
+                                            <input type="radio" name="npCorrecta" value="3">
+                                            <input type="text" placeholder="Opción D" class="form-control" style="flex:1;padding:8px;background:var(--color-surface);color:var(--color-text);border:1px solid var(--color-border);border-radius:var(--radius-sm);">
+                                        </div>
+                                    </div>
+                                    <div style="display:flex;gap:var(--space-3);justify-content:flex-end;margin-top:var(--space-4);">
+                                        <button type="button" onclick="document.getElementById('nuevaPreguntaModal').style.display='none'" class="btn btn-ghost">Cancelar</button>
+                                        <button type="submit" class="btn btn-primary">Agregar Pregunta</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SECCIÓN SOLICITUDES ADMIN -->
+                    <div id="section-admin-requests" class="admin-section" style="display: none;">
+                        <h2 style="margin: 0 0 var(--space-4); color: var(--color-text);">👑 Solicitudes de Administrador</h2>
+                        <div id="adminRequestsList">
+                            <div class="loading-text">⏳ Cargando solicitudes...</div>
                         </div>
                     </div>
                 </div>
@@ -899,6 +985,242 @@
                 showToast('❌ Error: ' + error.message, 'error');
             }
         }
+
+        // ============================================
+        // GESTIÓN DE NIVELES
+        // ============================================
+        async function loadMateriasForNiveles() {
+            try {
+                const data = await apiRequest('/quiz/materias');
+                const select = document.getElementById('nivelMateriaSelect');
+                if (!select || !data.success) return;
+                select.innerHTML = '<option value="">Seleccionar materia...</option>';
+                data.materias.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.textContent = m.nombre;
+                    select.appendChild(opt);
+                });
+            } catch (e) { console.log('Error cargando materias:', e); }
+        }
+
+        async function loadNivelesAdmin(materiaId) {
+            const container = document.getElementById('nivelesAdminList');
+            if (!materiaId) {
+                container.innerHTML = '<div class="no-suggestions">Selecciona una materia para ver sus niveles</div>';
+                return;
+            }
+            container.innerHTML = '<div class="loading-text">⏳ Cargando niveles...</div>';
+            try {
+                const data = await apiRequest(`/quiz/admin/niveles/${materiaId}`);
+                if (!data.success || !data.niveles.length) {
+                    container.innerHTML = '<div class="no-suggestions">No hay niveles para esta materia</div>';
+                    return;
+                }
+                container.innerHTML = data.niveles.map(n => `
+                    <div class="suggestion-card" style="border-left-color: var(--color-primary);">
+                        <div class="suggestion-header">
+                            <span class="user">Nivel ${n.numero} ${n.titulo ? '- ' + n.titulo : ''}</span>
+                            <span class="materia">${n.total_preguntas} pregunta${n.total_preguntas !== 1 ? 's' : ''}</span>
+                        </div>
+                        <div class="actions">
+                            <button class="btn btn-primary btn-sm" onclick="openNuevaPreguntaModal(${n.id}, ${n.numero})">
+                                ➕ Agregar Pregunta
+                            </button>
+                            <span style="color:var(--color-text-muted);font-size:0.85rem;">
+                                Aprobación: ${Math.round((n.passing_score || 0.6) * 100)}%
+                            </span>
+                        </div>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<div class="no-suggestions">Error al cargar niveles</div>';
+            }
+        }
+
+        function openNuevoNivelModal() {
+            const materiaId = document.getElementById('nivelMateriaSelect').value;
+            if (!materiaId) { showToast('Selecciona una materia primero', 'error'); return; }
+            document.getElementById('nlMateriaId').value = materiaId;
+            document.getElementById('nlNumero').value = '';
+            document.getElementById('nlTitulo').value = '';
+            document.getElementById('nuevoNivelModal').style.display = 'flex';
+        }
+
+        function openNuevaPreguntaModal(nivelId, nivelNum) {
+            document.getElementById('npNivelId').value = nivelId;
+            document.getElementById('npNivelInfo').textContent = `Agregando pregunta al Nivel ${nivelNum}`;
+            document.getElementById('npTexto').value = '';
+            document.querySelectorAll('#npOpcionesContainer input[type="text"]').forEach(i => i.value = '');
+            document.querySelector('input[name="npCorrecta"][value="0"]').checked = true;
+            document.getElementById('nuevaPreguntaModal').style.display = 'flex';
+        }
+
+        // ============================================
+        // SOLICITUDES DE ADMIN
+        // ============================================
+        async function loadAdminRequests() {
+            const container = document.getElementById('adminRequestsList');
+            try {
+                const data = await apiRequest('/admin-requests/pending');
+                if (!data.success || !data.solicitudes.length) {
+                    container.innerHTML = '<div class="no-suggestions">👑 No hay solicitudes pendientes</div>';
+                    return;
+                }
+                const pendientes = data.solicitudes.filter(s => s.estado === 'pendiente');
+                const procesadas = data.solicitudes.filter(s => s.estado !== 'pendiente');
+
+                let html = '';
+                if (pendientes.length > 0) {
+                    html += '<h3 style="color:var(--color-accent-amber);margin-bottom:var(--space-3);">⏳ Pendientes</h3>';
+                    html += pendientes.map(s => renderAdminRequest(s)).join('');
+                }
+                if (procesadas.length > 0) {
+                    html += '<h3 style="color:var(--color-text-muted);margin:var(--space-4) 0 var(--space-3);">📋 Procesadas</h3>';
+                    html += procesadas.map(s => renderAdminRequest(s)).join('');
+                }
+                container.innerHTML = html;
+            } catch (e) {
+                container.innerHTML = '<div class="no-suggestions">Error al cargar solicitudes</div>';
+            }
+        }
+
+        function renderAdminRequest(s) {
+            const fecha = new Date(s.fecha_solicitud).toLocaleDateString('es', { day: '2-digit', month: 'short', year: 'numeric' });
+            const estadoBadge = s.estado === 'pendiente'
+                ? '<span style="background:var(--color-accent-amber);color:white;padding:2px 10px;border-radius:12px;font-size:0.75rem;">⏳ Pendiente</span>'
+                : s.estado === 'aprobada'
+                ? '<span style="background:var(--color-success);color:white;padding:2px 10px;border-radius:12px;font-size:0.75rem;">✅ Aprobada</span>'
+                : '<span style="background:var(--color-danger);color:white;padding:2px 10px;border-radius:12px;font-size:0.75rem;">❌ Rechazada</span>';
+
+            return `
+                <div class="suggestion-card" style="border-left-color: ${s.estado === 'pendiente' ? 'var(--color-accent-amber)' : 'var(--color-border)'};">
+                    <div class="suggestion-header">
+                        <span class="user">👤 ${s.username || 'Usuario'}</span>
+                        <span class="date">${fecha}</span>
+                        ${estadoBadge}
+                    </div>
+                    <p class="question-text" style="font-size:0.95rem;">"${s.motivo}"</p>
+                    <p style="color:var(--color-text-muted);font-size:0.85rem;">📧 ${s.email || ''}</p>
+                    ${s.estado === 'pendiente' ? `
+                        <div class="actions">
+                            <button class="btn btn-primary" onclick="approveAdminRequest(${s.id})">✅ Aprobar</button>
+                            <button class="btn btn-danger" onclick="rejectAdminRequest(${s.id})">❌ Rechazar</button>
+                        </div>
+                    ` : s.comentario_admin ? `<p style="color:var(--color-text-muted);font-size:0.85rem;margin-top:var(--space-2);">💬 ${s.comentario_admin}</p>` : ''}
+                </div>`;
+        }
+
+        async function approveAdminRequest(id) {
+            if (!confirm('¿Seguro que quieres dar permisos de administrador a este usuario?')) return;
+            try {
+                const data = await apiRequest(`/admin-requests/approve/${id}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ comentario: 'Aprobada por el administrador' })
+                });
+                if (data.success) {
+                    showToast('✅ Solicitud aprobada', 'success');
+                    loadAdminRequests();
+                } else {
+                    showToast('❌ ' + data.error, 'error');
+                }
+            } catch (e) { showToast('❌ Error: ' + e.message, 'error'); }
+        }
+
+        async function rejectAdminRequest(id) {
+            const motivo = prompt('Motivo del rechazo (opcional):');
+            try {
+                const data = await apiRequest(`/admin-requests/reject/${id}`, {
+                    method: 'POST',
+                    body: JSON.stringify({ comentario: motivo || 'Rechazada' })
+                });
+                if (data.success) {
+                    showToast('✅ Solicitud rechazada', 'success');
+                    loadAdminRequests();
+                } else {
+                    showToast('❌ ' + data.error, 'error');
+                }
+            } catch (e) { showToast('❌ Error: ' + e.message, 'error'); }
+        }
+    </script>
+
+    <script>
+        // Event listeners for new features (separate block to avoid conflicts)
+        document.addEventListener('DOMContentLoaded', () => {
+            // Nivel management
+            const nivelSelect = document.getElementById('nivelMateriaSelect');
+            if (nivelSelect) {
+                loadMateriasForNiveles();
+                nivelSelect.addEventListener('change', () => loadNivelesAdmin(nivelSelect.value));
+            }
+
+            const btnNuevoNivel = document.getElementById('btnNuevoNivel');
+            if (btnNuevoNivel) btnNuevoNivel.addEventListener('click', openNuevoNivelModal);
+
+            const nuevoNivelForm = document.getElementById('nuevoNivelForm');
+            if (nuevoNivelForm) {
+                nuevoNivelForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const materiaId = document.getElementById('nlMateriaId').value;
+                    const numero = document.getElementById('nlNumero').value;
+                    const titulo = document.getElementById('nlTitulo').value;
+                    try {
+                        const body = { materiaId: parseInt(materiaId), titulo };
+                        if (numero) body.numero = parseInt(numero);
+                        const data = await apiRequest('/quiz/admin/nivel', {
+                            method: 'POST',
+                            body: JSON.stringify(body)
+                        });
+                        if (data.success) {
+                            showToast('✅ ' + data.message, 'success');
+                            document.getElementById('nuevoNivelModal').style.display = 'none';
+                            loadNivelesAdmin(materiaId);
+                        } else {
+                            showToast('❌ ' + data.error, 'error');
+                        }
+                    } catch (e) { showToast('❌ Error: ' + e.message, 'error'); }
+                });
+            }
+
+            const nuevaPreguntaForm = document.getElementById('nuevaPreguntaForm');
+            if (nuevaPreguntaForm) {
+                nuevaPreguntaForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    const nivelId = document.getElementById('npNivelId').value;
+                    const texto = document.getElementById('npTexto').value.trim();
+                    const correctaIdx = parseInt(document.querySelector('input[name="npCorrecta"]:checked').value);
+
+                    const opciones = [];
+                    document.querySelectorAll('#npOpcionesContainer .np-opcion').forEach((div, i) => {
+                        const txt = div.querySelector('input[type="text"]').value.trim();
+                        if (txt) opciones.push({ texto: txt, es_correcta: i === correctaIdx });
+                    });
+
+                    if (!texto || opciones.length < 2) {
+                        showToast('Completa al menos la pregunta y 2 opciones', 'error');
+                        return;
+                    }
+
+                    try {
+                        const data = await apiRequest('/quiz/admin/pregunta', {
+                            method: 'POST',
+                            body: JSON.stringify({ nivelId: parseInt(nivelId), texto, opciones })
+                        });
+                        if (data.success) {
+                            showToast('✅ Pregunta agregada', 'success');
+                            document.getElementById('nuevaPreguntaModal').style.display = 'none';
+                            const materiaId = document.getElementById('nivelMateriaSelect').value;
+                            loadNivelesAdmin(materiaId);
+                        } else {
+                            showToast('❌ ' + data.error, 'error');
+                        }
+                    } catch (e) { showToast('❌ Error: ' + e.message, 'error'); }
+                });
+            }
+
+            // Admin requests
+            loadAdminRequests();
+        });
     </script>
 </body>
 </html>
