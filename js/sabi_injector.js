@@ -27,7 +27,8 @@
       'trigonometria',
       'torneos',
       'torneo_detalle',
-      'suggestions'
+      'suggestions',
+      'main_menu'
     ];
 
     // Verificar por ruta

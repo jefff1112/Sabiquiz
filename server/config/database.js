@@ -65,7 +65,45 @@ async function testConnection() {
             await connection.query("ALTER TABLE sabi_chat_sessions MODIFY id VARCHAR(100), MODIFY usuario_id VARCHAR(100);");
             await connection.query("ALTER TABLE sabi_1vs1_matches MODIFY id VARCHAR(100), MODIFY usuario_id VARCHAR(100);");
         } catch (e) {
-            console.log("No se pudo alterar las tablas (quizás ya tienen el tamaño correcto o hay restricciones FK):", e.message);
+            console.log("Recreando tablas de Sabi por restricciones de Foreign Key incompatibles en Aiven...");
+            try {
+                await connection.query("DROP TABLE IF EXISTS sabi_chat_sessions");
+                await connection.query("DROP TABLE IF EXISTS sabi_1vs1_matches");
+                
+                // Recrear con el esquema correcto
+                await connection.query(`
+                    CREATE TABLE sabi_1vs1_matches (
+                        id VARCHAR(100) PRIMARY KEY,
+                        usuario_id VARCHAR(100),
+                        sabi_nivel INT,
+                        sabi_dificultad JSON,
+                        estado VARCHAR(50),
+                        preguntas JSON,
+                        pregunta_actual INT DEFAULT 0,
+                        detalles JSON,
+                        fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        resultado VARCHAR(50) DEFAULT NULL,
+                        puntaje_usuario INT DEFAULT 0,
+                        puntaje_sabi INT DEFAULT 0,
+                        finalizado_en TIMESTAMP NULL DEFAULT NULL
+                    )
+                `);
+                await connection.query(`
+                    CREATE TABLE sabi_chat_sessions (
+                        id VARCHAR(100) PRIMARY KEY,
+                        usuario_id VARCHAR(100),
+                        materia VARCHAR(100),
+                        nivel INT,
+                        pregunta_actual TEXT,
+                        historial JSON,
+                        creado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                        actualizado_en TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+                    )
+                `);
+                console.log("Tablas de Sabi recreadas exitosamente con VARCHAR(100)");
+            } catch (dropErr) {
+                console.error("Error crítico recreando tablas:", dropErr.message);
+            }
         }
         
         connection.release();
